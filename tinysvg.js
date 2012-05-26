@@ -1,78 +1,113 @@
 /*
-    // TinySVG
-    // by Premasagar Rose, Dharmafly
-    // https://github.com/dharmafly/tinysvg
-    
-    
-    // Example:
-    var svg = tinySvg.create(document.body, 400, 400);
-    
-    tinySvg
-        .draw(svg, 'line', {x1:10, y1:10, x2:200, y2:350, stroke:'blue', 'stroke-width':20})
-        .draw(svg, 'circle', {cx:50, cy:50, r:30, 'fill':'#f00'});
-        
+    TinySvg <https://github.com/dharmafly/tinysvg>
 
-    // MIT license: http://opensource.org/licenses/mit-license.php
+    by Premasagar Rose <http://premasagar.com>,
+        Dharmafly <http://dharmafly.com>
+
+    MIT license: http://opensource.org/licenses/mit-license.php
 */
-var tinySvg = {
-    // NOTE: Creating the <svg> element this way allows it to render on iPad
-    // et al, whereas including the <svg> element directly in the HTML document
-    // does not. Inspired by http://keith-wood.name/svg.html
-    create: function(htmlContainerElem, width, height){
-        var rootElem = this.elem('svg'),
-            attr = {version:'1.1'};
-        
-        if (htmlContainerElem){
-            htmlContainerElem.appendChild(rootElem);
-        }
-        if (width && height){
-            this.extend(attr, {width:width, height:height});
-        }
-        this.attr(rootElem, attr);
-        
-        return rootElem;
-    },
-    
-    // e.g. elem('circle')
-    elem: function(nodeName){
-        return document.createElementNS('http://www.w3.org/2000/svg', nodeName);
-    },
+var tinySvg = (function(document){
+    function create(elementName){
+        return new WrappedSvg(document.createElementNS('http://www.w3.org/2000/svg', elementName));
+    }
 
-    empty: function(elem){
-        if (elem){
-            while (elem.firstChild) {
-                elem.removeChild(elem.firstChild);
-            }
+    function empty(elem){
+        while (elem.firstChild) {
+            elem.removeChild(elem.firstChild);
         }
-        return this;
-    },
-    
-    extend: function(dest, src){
+        return elem;
+    }
+
+    function extend(dest, src){
         var prop;
-        
         for (prop in src){
             if (src.hasOwnProperty(prop)){
                 dest[prop] = src[prop];
             }
         }
         return dest;
-    },
+    }
     
-    attr: function(elem, attr){
-        var prop;
-        if (attr){
-            for (prop in attr){
-                if (attr.hasOwnProperty(prop)){
-                    elem.setAttribute(prop, attr[prop]);
+    // See http://diveintohtml5.org/everything.html#svg
+    function isSupported(){
+        return !!(document.createElementNS && create('svg').elem.createSVGRect);
+    }
+
+    /////
+
+    function WrappedSvg(elem){
+        this.elem = elem;
+    }
+
+    WrappedSvg.prototype = {
+        // https://developer.mozilla.org/en/SVG/Element
+        create: function(elementName, attr){
+            return create(elementName)
+                .attr(attr)
+                .appendTo(this);
+        },
+    
+        // https://developer.mozilla.org/en/SVG/Attribute
+        attr: function(attr){
+            var prop;
+            if (attr){
+                for (prop in attr){
+                    if (attr.hasOwnProperty(prop)){
+                        this.elem.setAttributeNS(null, prop, attr[prop]);
+                    }
                 }
             }
-        }
-        return this;
-    },
+            return this;
+        },
     
-    draw: function(parent, nodeName, attr){
-        var child = this.elem(nodeName);
-        parent.appendChild(child);
-        return this.attr(child, attr);
+        // https://developer.mozilla.org/en/CSS/CSS_Reference
+        style: function(css){
+            this.create('style')
+                .elem.textContent = css;
+            return this;
+        },
+    
+        empty: function(){
+            empty(this.elem);
+            return this;
+        },
+    
+        append: function(child){
+            this.elem.appendChild(child instanceof WrappedSvg ? child.elem : child);
+            return this;
+        },
+    
+        appendTo: function(parent){
+            (parent instanceof WrappedSvg ? parent.elem : parent).appendChild(this.elem);
+            return this;
+        },
+    
+        draw: function(nodeName, attr){
+            this.create(nodeName, attr);
+            return this;
+        }
+    };
+
+    /////
+
+    function tinySvg(htmlContainer, width, height){
+        var root = create('svg'),
+            attr = {version:'1.1'};
+        
+        if (typeof htmlContainer === 'string'){
+            htmlContainer = document.getElementById(htmlContainer);
+        }
+        if (typeof htmlContainer === 'object'){
+            root.appendTo(empty(htmlContainer));
+        }
+        if (width && height){
+            extend(attr, {width:width, height:height});
+        }
+        return root.attr(attr);
     }
-};
+
+    return extend(tinySvg, {
+        create: create,
+        isSupported: isSupported()
+    });
+}(document));
