@@ -1,14 +1,17 @@
 # TinySVG
 
-A weeny JavaScript library for drawing with SVG
+A weeny JavaScript library for drawing with SVG.
 
 ## Example
 
-    var svg = tinySvg.create(document.body, 400, 400);
+    // See the index.html page for a demo
     
-    tinySvg
-        .draw(svg, 'line', {x1:10, y1:10, x2:200, y2:350, stroke:'blue', 'stroke-width':20})
-        .draw(svg, 'circle', {cx:50, cy:50, r:30, 'fill':'#f00'});
+    if (tinySvg.isSupported){
+        tinySvg(containerElement, 400, 400)
+            .style('* {stroke-width:20}')
+            .draw('line', {x1:10, y1:10, x2:200, y2:350, stroke:'purple'})
+            .draw('circle', {cx:200, cy:150, r:50, fill:'#f33', stroke:'#050'});
+    }
 
 * by [Premasagar Rose](http://premasagar.com) 
     ([Dharmafly](http://dharmafly.com))
