@@ -1,12 +1,12 @@
 /*
-    TinySvg <https://github.com/dharmafly/tinysvg>
+    Pablo <https://github.com/dharmafly/pablo>
 
     by Premasagar Rose <http://premasagar.com>,
         Dharmafly <http://dharmafly.com>
 
     MIT license: http://opensource.org/licenses/mit-license.php
 */
-var tinySvg = (function(document){
+var pablo = (function(document){
     function create(elementName){
         return new WrappedSvg(document.createElementNS('http://www.w3.org/2000/svg', elementName));
     }
@@ -90,7 +90,7 @@ var tinySvg = (function(document){
 
     /////
 
-    function tinySvg(htmlContainer, width, height){
+    function pablo(htmlContainer, width, height){
         var root = create('svg'),
             attr = {version:'1.1'};
         
@@ -106,7 +106,7 @@ var tinySvg = (function(document){
         return root.attr(attr);
     }
 
-    return extend(tinySvg, {
+    return extend(pablo, {
         create: create,
         isSupported: isSupported()
     });
