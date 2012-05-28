@@ -9,16 +9,16 @@
     <body>
         <h1><a href="https://github.com/dharmafly/pablo">Pablo</a></h1>
         
-        <div id="vector"></div>
+        <div id="paper"></div>
         <script>
         
         if (pablo.isSupported){
-            pablo('vector', 400, 400)
+            pablo('paper', 400, 400)
                 .style('* {stroke-width:20}')
-                .draw('line', {x1:10, y1:10, x2:200, y2:350, stroke:'purple'})
-                .draw('circle', {cx:200, cy:150, r:50, fill:'#f33', stroke:'#050'})
-                .draw('ellipse', {cx:200, cy:270, rx:80, ry:40, fill:'#777', opacity:0.5})
-                .draw('polyline', {
+                ._('line', {x1:10, y1:10, x2:200, y2:350, stroke:'purple'})
+                ._('circle', {cx:200, cy:150, r:50, fill:'#f33', stroke:'#050'})
+                ._('ellipse', {cx:200, cy:270, rx:80, ry:40, fill:'#777', opacity:0.5})
+                ._('polyline', {
                     points:'120,100 200,25 280,100',
                     stroke:'#444',
                     fill:'none', 

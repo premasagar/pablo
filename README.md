@@ -9,11 +9,11 @@ A tiny JavaScript library for drawing vector graphics with [SVG](https://develop
 
 ## Example
 
-    // See the index.html page for a demo
+    // See the [index.html](https://github.com/dharmafly/pablo/blob/master/index.html) page for a demo
     
     if (pablo.isSupported){
         pablo(containerElement, 400, 400)
             .style('* {stroke-width:20}')
-            .draw('line', {x1:10, y1:10, x2:200, y2:350, stroke:'purple'})
-            .draw('circle', {cx:200, cy:150, r:50, fill:'#f33', stroke:'#050'});
+            ._('line', {x1:10, y1:10, x2:200, y2:350, stroke:'purple'})
+            ._('circle', {cx:200, cy:150, r:50, fill:'#f33', stroke:'#050'});
     }

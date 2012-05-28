@@ -7,15 +7,22 @@
     MIT license: http://opensource.org/licenses/mit-license.php
 */
 var pablo = (function(document){
-    function create(elementName){
-        return new WrappedSvg(document.createElementNS('http://www.w3.org/2000/svg', elementName));
+    var svgns = 'http://www.w3.org/2000/svg',
+        svgVersion = 1.1;
+    
+    function Pablo(el){
+        this.el = el;
+    }
+    
+    function make(elementName){
+        return new Pablo(document.createElementNS(svgns, elementName));
     }
 
-    function empty(elem){
-        while (elem.firstChild) {
-            elem.removeChild(elem.firstChild);
+    function empty(el){
+        while (el.firstChild) {
+            el.removeChild(el.firstChild);
         }
-        return elem;
+        return el;
     }
 
     function extend(dest, src){
@@ -30,30 +37,35 @@ var pablo = (function(document){
     
     // See http://diveintohtml5.org/everything.html#svg
     function isSupported(){
-        return !!(document.createElementNS && create('svg').elem.createSVGRect);
+        return !!(document.createElementNS && make('svg').el.createSVGRect);
     }
 
     /////
 
-    function WrappedSvg(elem){
-        this.elem = elem;
-    }
-
-    WrappedSvg.prototype = {
-        // https://developer.mozilla.org/en/SVG/Element
-        create: function(elementName, attr){
-            return create(elementName)
-                .attr(attr)
-                .appendTo(this);
+    Pablo.prototype = {
+        // Create a new element, unattached from any container
+        make: function(elementName, attr){
+            return make(elementName).attr(attr);
         },
-    
+        
+        // Add a new element to the container and return the parent
+        // https://developer.mozilla.org/en/SVG/Element
+        _: function(elementName, attr){
+            return this.append(this.make(elementName, attr));
+        },
+        
+        // Add a new element to the container and return the child
+        add: function(elementName, attr){
+            return this.make(elementName, attr).appendTo(this);
+        },
+        
         // https://developer.mozilla.org/en/SVG/Attribute
         attr: function(attr){
             var prop;
             if (attr){
                 for (prop in attr){
                     if (attr.hasOwnProperty(prop)){
-                        this.elem.setAttributeNS(null, prop, attr[prop]);
+                        this.el.setAttributeNS(null, prop, attr[prop]);
                     }
                 }
             }
@@ -62,28 +74,28 @@ var pablo = (function(document){
     
         // https://developer.mozilla.org/en/CSS/CSS_Reference
         style: function(css){
-            this.create('style')
-                .elem.textContent = css;
+            var style = this.add('style');
+            style.el.textContent = css;
             return this;
         },
     
         empty: function(){
-            empty(this.elem);
+            empty(this.el);
             return this;
         },
     
         append: function(child){
-            this.elem.appendChild(child instanceof WrappedSvg ? child.elem : child);
+            this.el.appendChild(child instanceof Pablo ? child.el : child);
             return this;
         },
     
         appendTo: function(parent){
-            (parent instanceof WrappedSvg ? parent.elem : parent).appendChild(this.elem);
+            (parent instanceof Pablo ? parent.el : parent).appendChild(this.el);
             return this;
         },
     
         draw: function(nodeName, attr){
-            this.create(nodeName, attr);
+            this.make(nodeName, attr);
             return this;
         }
     };
@@ -91,8 +103,8 @@ var pablo = (function(document){
     /////
 
     function pablo(htmlContainer, width, height){
-        var root = create('svg'),
-            attr = {version:'1.1'};
+        var root = make('svg'),
+            attr = {version: svgVersion};
         
         if (typeof htmlContainer === 'string'){
             htmlContainer = document.getElementById(htmlContainer);
@@ -107,7 +119,9 @@ var pablo = (function(document){
     }
 
     return extend(pablo, {
-        create: create,
+        svgns: svgns,
+        svgVersion: svgVersion,
+        make: make,
         isSupported: isSupported()
     });
 }(document));
