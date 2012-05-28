@@ -13,7 +13,6 @@ A tiny JavaScript library for drawing vector graphics with [SVG](https://develop
     
     if (pablo.isSupported){
         pablo(containerElement, 400, 400)
-            .style('* {stroke-width:20}')
             ._('line', {x1:10, y1:10, x2:200, y2:350, stroke:'purple'})
             ._('circle', {cx:200, cy:150, r:50, fill:'#f33', stroke:'#050'});
     }
