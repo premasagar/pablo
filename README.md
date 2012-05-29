@@ -14,7 +14,7 @@ See the [index.html](https://github.com/dharmafly/pablo/blob/master/index.html) 
     
 ````js
 if (pablo.isSupported){
-    // pass in a HTML DOM element to contain the SVG, or an `id` for the container
+    // optional: pass in an HTML DOM element to contain the SVG, or the element's `id` as a string
     pablo(document.body)
         // optional: add CSS styles; they will target only these SVG elements
         .style('* {stroke-width:20}; line: {stroke-linecap:round}')
