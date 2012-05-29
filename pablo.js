@@ -8,6 +8,7 @@
 */
 var pablo = (function(document){
     var svgns = 'http://www.w3.org/2000/svg',
+        xlinkns = 'http://www.w3.org/1999/xlink,'
         svgVersion = 1.1;
     
     function Pablo(el){
@@ -35,7 +36,7 @@ var pablo = (function(document){
         return dest;
     }
     
-    // See http://diveintohtml5.org/everything.html#svg
+    // Modified from http://diveintohtml5.org/everything.html#svg
     function isSupported(){
         return !!(document.createElementNS && make('svg').el.createSVGRect);
     }
@@ -51,12 +52,16 @@ var pablo = (function(document){
         // Add a new element to the container and return the parent
         // https://developer.mozilla.org/en/SVG/Element
         _: function(elementName, attr){
-            return this.append(this.make(elementName, attr));
+            var child = this.make(elementName, attr);
+            this.el.appendChild(child.el);
+            return this;
         },
         
         // Add a new element to the container and return the child
         add: function(elementName, attr){
-            return this.make(elementName, attr).appendTo(this);
+            var child = this.make(elementName, attr);
+            this.el.appendChild(child.el);
+            return child;
         },
         
         // https://developer.mozilla.org/en/SVG/Attribute
@@ -74,8 +79,8 @@ var pablo = (function(document){
     
         // https://developer.mozilla.org/en/CSS/CSS_Reference
         style: function(css){
-            var style = this.add('style');
-            style.el.textContent = css;
+            var styleElem = this.add('style').el;
+            styleElem.textContent = css;
             return this;
         },
     
@@ -84,18 +89,8 @@ var pablo = (function(document){
             return this;
         },
     
-        append: function(child){
-            this.el.appendChild(child instanceof Pablo ? child.el : child);
-            return this;
-        },
-    
         appendTo: function(parent){
             (parent instanceof Pablo ? parent.el : parent).appendChild(this.el);
-            return this;
-        },
-    
-        draw: function(nodeName, attr){
-            this.make(nodeName, attr);
             return this;
         }
     };
@@ -116,6 +111,7 @@ var pablo = (function(document){
 
     return extend(pablo, {
         svgns: svgns,
+        xlinkns: xlinkns,
         svgVersion: svgVersion,
         make: make,
         isSupported: isSupported()
