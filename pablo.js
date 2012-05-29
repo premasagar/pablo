@@ -102,9 +102,8 @@ var pablo = (function(document){
 
     /////
 
-    function pablo(htmlContainer, width, height){
-        var root = make('svg'),
-            attr = {version: svgVersion};
+    function pablo(htmlContainer){
+        var root = make('svg').attr({version: svgVersion});
         
         if (typeof htmlContainer === 'string'){
             htmlContainer = document.getElementById(htmlContainer);
@@ -112,10 +111,7 @@ var pablo = (function(document){
         if (typeof htmlContainer === 'object'){
             root.appendTo(empty(htmlContainer));
         }
-        if (width && height){
-            extend(attr, {width:width, height:height});
-        }
-        return root.attr(attr);
+        return root;
     }
 
     return extend(pablo, {
