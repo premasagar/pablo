@@ -23,7 +23,15 @@ if (pablo.isSupported){
         // draw a circle
         ._('circle', {cx:200, cy:150, r:50, fill:'#f33', stroke:'#050'})
         // draw an ellipse; override the above CSS styles with a `style` attribute
-        ._('ellipse', {cx:200, cy:270, rx:80, ry:40, fill:'none', stroke:'#777', style:'stroke-width:10'});
+        ._('ellipse', {
+            cx:200,
+            cy:270,
+            rx:80,
+            ry:40,
+            fill:'none',
+            stroke:'#777',
+            style:'stroke-width:10'
+        });
 }
 ````
 
