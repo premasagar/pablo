@@ -33,13 +33,6 @@
                     'stroke-linejoin':'round',
                     'stroke-linecap':'round'
                 })
-                ('text', {
-                    x:300,
-                    y:170,
-                    fill:'#777',
-                    transform:'rotate(-45 300 170)',
-                    _content:'i ♥ pablo'
-                })
                 ('defs', {_children: [
                     pablo('path', {
                         id:'wiggle',
@@ -49,11 +42,25 @@
                 ]})
                 ('text', {_children: [
                     pablo('textPath', {
+                        _content:'In Xanadu, did Kublah Khan a stately pleasuredome decree…',
                         _link:'#wiggle',
-                        fill:'#050',
-                        _content:'In Xanadu, did Kublah Khan a stately pleasuredome decree…'
+                        fill:'#050'
                     })
-                ]});
+                ]})
+                ('a', {
+                    target:'_blank',
+                    _link:'https://github.com/dharmafly/pablo',
+                    _children:[
+                        pablo('text', {
+                            _content:'i ♥ pablo',
+                            x:300,
+                            y:170,
+                            fill:'#777',
+                            transform:'rotate(-45 300 170)'
+                        })
+                    ]
+                });
+                
                 
                 // Animate circle on mouse interaction
                 paper.find('circle')[0]
