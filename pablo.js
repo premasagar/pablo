@@ -216,27 +216,27 @@ var pablo = (function(document, Array, JSON){
             return this;
         },
         
+        insertBefore: function(node, attr){
+            node = toPablo(node, attr);
+            if (this.el && node.el && this.el.parentNode){
+                this.el.parentNode.insertBefore(node.el, this.el);
+            }
+            return this;
+        },
+        
         prepend: function(node, attr){
             var _this = this,
-                parentNode = this.el.previousSibling;
+                first = this.el.firstChild;
             
             if (Array.isArray(node)){
                 node.forEach(function(node){
-                    parentNode.insertBefore.child(node, attr);
+                    _this.prepend(node, attr);
                 });
             }
             else {
-                node = toPablo(node).appendTo(parent, attr);
-                
-                
-                if (node.el){
-                    appendNode(this, attr, node.el);
-                }
+                this.el.insertBefore(toPablo(node, attr).el, first);
             }
             return node;
-            
-            
-            this.el.previousSibling(node.el);
         },
     
         appendTo: function(node, attr){
