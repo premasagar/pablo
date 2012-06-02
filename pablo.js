@@ -241,6 +241,7 @@ var pablo = (function(document, Array, JSON){
         
         // https://developer.mozilla.org/en/CSS/CSS_Reference
         styles: function(css){
+            !Array.isArray(css) || (css = css.join(''));
             return this('style', {_content:css});
         },
 
