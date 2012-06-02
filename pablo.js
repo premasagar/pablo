@@ -10,7 +10,8 @@
 var pablo = (function(document){
     var svgns = 'http://www.w3.org/2000/svg',
         xlinkns = 'http://www.w3.org/1999/xlink,',
-        svgVersion = 1.1;
+        svgVersion = 1.1,
+        pablo, pabloFn;
     
     function make(elementName){
         return document.createElementNS(svgns, elementName);
@@ -25,6 +26,7 @@ var pablo = (function(document){
 
     function extend(dest, src, withPrototype){
         var prop;
+        dest = dest || {};
         for (prop in src){
             if (withPrototype || src.hasOwnProperty(prop)){
                 dest[prop] = src[prop];
@@ -33,19 +35,34 @@ var pablo = (function(document){
         return dest;
     }
     
+    // e.g. 'font-color' -> 'fontColor'
+    function hyphenatedToCamelCase(str){
+        return str.replace(/-([a-z])/, function(match, letter){
+            return letter.toUpperCase();
+        });
+    }
+    
+    // e.g. 'fontColor' -> 'font-color'
+    // NOTE: does not check for blank spaces, i.e. for multiple words 'font Color'
+    function camelCaseToHyphenated(str){
+        return str.replace(/[A-Z]/, function(letter){
+            return '-' + letter.toLowerCase();
+        });
+    }
+    
     // Modified from http://diveintohtml5.org/everything.html#svg
     function isSupported(){
-        return !!(document.querySelectorAll && document.createElementNS && make('svg').createSVGRect);
+        return !!(document.querySelectorAll && Array.prototype.forEach && document.createElementNS && make('svg').createSVGRect);
     }
 
     function getNode(node){
         return typeof node === 'string' ?
-            document.getElementById(node) || document.querySelector(node) :
-                node instanceof Pablo ? node.el : node;
+            document.querySelector(node) :
+            node instanceof Pablo ? node.el : node;
     }
 
     function isSvg(node){
-        return elm.namespaceURI == svgns;
+        return node.namespaceURI == svgns;
     }
 
     function pabloList(nodes){
@@ -53,7 +70,7 @@ var pablo = (function(document){
             i = 0;
         
         for(; i < nodes.length; i++) {
-            if (isSvg(nodes[i])) {
+            if (isSvg(nodes[i])){
                 result.push(pablo(nodes[i]));
             }
         }
@@ -82,12 +99,14 @@ var pablo = (function(document){
     // Pablo node wrapper
 
     function Pablo(node, attr){
-        this.el = typeof node === 'string' ? make(node) : node;
+        this.el = typeof node === 'string' ?
+            make(node) :
+            node instanceof Pablo ? node.el : node;
         this.attr(attr);
     }
 
     // Pablo prototype
-    var pabloFn = Pablo.prototype;
+    pabloFn = Pablo.prototype;
 
     extend(pabloFn, {
         // https://developer.mozilla.org/en/SVG/Attribute
@@ -135,14 +154,14 @@ var pablo = (function(document){
             return this;
         },
     
-        text: function(text){
+        textContent: function(text){
             this.el.textContent = text;
             return this;
         },
     
         // https://developer.mozilla.org/en/CSS/CSS_Reference
         style: function(css){
-            this.child('style').text(css);
+            this.child('style').textContent(css);
             return this;
         },
     
@@ -180,7 +199,7 @@ var pablo = (function(document){
 
 
     // Public API
-    return extend(
+    pablo = extend(
         function(node, attr){
             // e.g. pablo('circle') to return all circles
             if (typeof node === 'string' && !attr){
@@ -188,34 +207,41 @@ var pablo = (function(document){
             }
             // e.g. pablo('circle', {r:100}) to create a circle
             return new Pablo(node, attr);
-        
-            // functional
-            /*
-            return extend(
-                function(node, attr){
-                    return new Pablo(node, attr);
-                },
-                new Pablo(node, attr),
-                true
-            );
-            */
         },
     
         {
+            v: '0.0.1',
             svgns: svgns,
             xlinkns: xlinkns,
             svgVersion: svgVersion,
             fn: pabloFn,
             isSupported: isSupported,
             isSvg: isSvg,
+            list: pabloList,
         
             // Create SVG root wrapper
-            root: function(parentNode){
+            root: function(parentNode, attr){
                 parentNode = empty(getNode(parentNode));
-                return pablo('svg', {version:1.1}).appendTo(parentNode);
+                attr = extend(attr, {version:1.1});
+                return pablo.svg(attr).appendTo(parentNode);
             }
         }
     );
+    
+    'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop svg switch symbol text textPath title tref tspan use view vkern'
+        .split(' ').forEach(function(nodeName){
+            var methodName = hyphenatedToCamelCase(nodeName);
+            
+            pablo[methodName] = function(attr){
+                return pablo(nodeName, attr || {});
+            };
+            pabloFn[methodName] = function(attr){
+                return this.append(nodeName, attr || {});
+            }
+        });
+        
+        return pablo;
+    
 }(document));
 
 
@@ -226,12 +252,7 @@ var pablo = (function(document){
 
 /*
 
-'a,altGlyph,altGlyphDef,altGlyphItem,animate,animateColor,animateMotion,animateTransform,circle,clipPath,color-profile,cursor,defs,desc,ellipse,feBlend,feColorMatrix,feComponentTransfer,feComposite,feConvolveMatrix,feDiffuseLighting,feDisplacementMap,feDistantLight,feFlood,feFuncA,feFuncB,feFuncG,feFuncR,feGaussianBlur,feImage,feMerge,feMergeNode,feMorphology,feOffset,fePointLight,feSpecularLighting,feSpotLight,feTile,feTurbulence,filter,font,font-face,font-face-format,font-face-name,font-face-src,font-face-uri,foreignObject,g,glyph,glyphRef,hkern,image,line,linearGradient,marker,mask,metadata,missing-glyph,mpath,path,pattern,polygon,polyline,radialGradient,rect,script,set,stop,style,svg,switch,symbol,text,textPath,title,tref,tspan,use,view,vkern'
-    .split(',').forEach(function(methodName){
-        pablo[methodName] = function(attr){
-            return pablo.make(methodName, attr);
-        };
-    });
+
 
     var paper = pablo('svg'); // pablo.root(); pablo.create(); pablo()
     
