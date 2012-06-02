@@ -13,7 +13,29 @@
         <script>
         if (pablo.isSupported){
             var paper = pablo.root('#paper')
-                .style('* {stroke-width:20}')
+                .styleBlock('* {stroke-width:20}')
+                ('line', {x1:10, y1:10, x2:200, y2:350, stroke:'purple'})
+                ('circle', {cx:200, cy:150, r:50, fill:'#f33', stroke:'#050'})
+                ('ellipse', {
+                    cx:200,
+                    cy:270,
+                    rx:80,
+                    ry:40,
+                    stroke:'#222',
+                    fill:'#777',
+                    opacity:0.5,
+                    style:'stroke-width:10'
+                })
+                ('polyline', {
+                    points:'120,100 200,25 280,100',
+                    stroke:'#444',
+                    fill:'none', 
+                    'stroke-linejoin':'round',
+                    'stroke-linecap':'round'
+                });
+                
+                
+                /*
                 .line({x1:10, y1:10, x2:200, y2:350, stroke:'purple'})
                 .circle({cx:200, cy:150, r:50, fill:'#f33', stroke:'#050'})
                 .ellipse({
@@ -33,6 +55,8 @@
                     'stroke-linejoin':'round',
                     'stroke-linecap':'round'
                 });
+                */
+                
                 
                 /*
                 .style('* {stroke-width:20}')

@@ -160,7 +160,7 @@ var pablo = (function(document){
         },
     
         // https://developer.mozilla.org/en/CSS/CSS_Reference
-        style: function(css){
+        styleBlock: function(css){
             this.child('style').content(css);
             return this;
         },
@@ -206,7 +206,18 @@ var pablo = (function(document){
                 return queryAllNS(node);
             }
             // e.g. pablo('circle', {r:100}) to create a circle
-            return new Pablo(node, attr);
+            // return new Pablo(node, attr);
+            
+            node = new Pablo(node, attr);
+            
+            // functional
+            // e.g. pablo.root()('circle', {})
+            var self = extend(function(){
+                pabloFn.append.apply(node, arguments);
+                return self;
+            }, node, true);
+            
+            return self;
         },
     
         {
@@ -228,7 +239,7 @@ var pablo = (function(document){
         }
     );
     
-    'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop svg switch symbol text textPath title tref tspan use view vkern'
+    'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop style svg switch symbol text textPath title tref tspan use view vkern'
         .split(' ').forEach(function(nodeName){
             var methodName = hyphenatedToCamelCase(nodeName);
             
