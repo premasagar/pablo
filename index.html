@@ -55,6 +55,38 @@
                     })
                 ]});
                 
+                // Animate circle on mouse interaction
+                paper.find('circle')[0]
+                    .attr({style:'cursor:pointer'})
+                    .on('mouseover', function(event){
+                        pablo(event.target)
+                            //.attr({fill:'#3f7'})
+                            .empty()
+                            ('animate', {
+                                attributeName:'fill',
+                                from:'#ff3',
+                                to:'#050',
+                                dur:'1.62s',
+                                repeatCount:'indefinite'
+                            })
+                            ('animate', {
+                                attributeName:'r',
+                                from:45,
+                                to:60,
+                                dur:'6s',
+                                repeatCount:'indefinite'
+                            })
+                    })
+                    .on('mouseout', function(event){
+                        pablo(event.target).empty();
+                    })
+                    .on('mousedown', function(event){
+                        pablo(event.target).attr({stroke:'#fff'});
+                    })
+                    .on('mouseup', function(event){
+                        pablo(event.target).attr({stroke:'#050'});
+                    });
+                    
                 
                 /*
                 <path id="path1" d="M25, 100 C10,10 175,10 175,100" />

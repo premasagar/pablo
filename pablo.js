@@ -164,6 +164,16 @@ var pablo = (function(document, Array, JSON){
             this.el.setAttributeNS(xlinkns, 'xlink:href', href);
             return this;
         },
+        
+        on: function(eventType, handler, bubbles){
+            this.el.addEventListener(eventType, handler, bubbles);
+            return this;
+        },
+        
+        off: function(eventType, handler, bubbles){
+            this.el.removeEventListener(eventType, handler, bubbles);
+            return this;
+        },
     
         child: function(node, attr){
             var _this = this;
@@ -239,10 +249,7 @@ var pablo = (function(document, Array, JSON){
         }
 
         // innersvg, e.g. foo('<circle>')
-        // svg: function(){},
-        
         // helper: function(methodName, nodeName, defaultAttr){}
-
         // prepend
     
     });
@@ -296,6 +303,7 @@ var pablo = (function(document, Array, JSON){
         }
     );
     
+    // Shortcut methods for all SVG elements
     'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop style svg switch symbol text textPath title tref tspan use view vkern'
         .split(' ').forEach(function(nodeName){
             var methodName = hyphenatedToCamelCase(nodeName);
