@@ -7,7 +7,7 @@
     MIT license: http://opensource.org/licenses/mit-license.php
 */
 
-var pablo = (function(document){
+var pablo = (function(document, Array, JSON){
     var svgns = 'http://www.w3.org/2000/svg',
         xlinkns = 'http://www.w3.org/1999/xlink,',
         svgVersion = 1.1,
@@ -16,6 +16,19 @@ var pablo = (function(document){
     function make(elementName){
         return document.createElementNS(svgns, elementName);
     }
+    
+    // Modified from http://diveintohtml5.org/everything.html#svg
+    function isSupported(){
+        return !!(
+            document.querySelectorAll &&
+            Array.prototype.forEach &&
+            Array.isArray &&
+            JSON && JSON.stringify &&
+            document.createElementNS &&
+            make('svg').createSVGRect
+        );
+    }
+    
 
     function empty(el){
         while (el && el.firstChild) {
@@ -49,20 +62,19 @@ var pablo = (function(document){
             return '-' + letter.toLowerCase();
         });
     }
-    
-    // Modified from http://diveintohtml5.org/everything.html#svg
-    function isSupported(){
-        return !!(document.querySelectorAll && Array.prototype.forEach && document.createElementNS && make('svg').createSVGRect);
-    }
 
     function getNode(node){
         return typeof node === 'string' ?
             document.querySelector(node) :
-            node instanceof Pablo ? node.el : node;
+            isPablo(node) ? node.el : node;
     }
 
     function isSvg(node){
         return node.namespaceURI == svgns;
+    }
+    
+    function isPablo(node){
+        return typeof node === 'function' && node.pablo === true;
     }
 
     function pabloList(nodes){
@@ -101,7 +113,7 @@ var pablo = (function(document){
     function Pablo(node, attr){
         this.el = typeof node === 'string' ?
             make(node) :
-            node instanceof Pablo ? node.el : node;
+            isPablo(node) ? node.el : node;
         this.attr(attr);
     }
 
@@ -109,9 +121,12 @@ var pablo = (function(document){
     pabloFn = Pablo.prototype;
 
     extend(pabloFn, {
+        pablo: true,
+        
         // https://developer.mozilla.org/en/SVG/Attribute
         attr: function(attr){
-            var prop, i, len, nodeAttr;
+            var thisNode = this,
+                prop, i, len, nodeAttr;
             
             if (!attr){
                 attr = {};
@@ -121,8 +136,21 @@ var pablo = (function(document){
                 }
                 return attr;
             }
+            
             for (prop in attr){
                 if (attr.hasOwnProperty(prop)){
+                    // e.g. pablo.style({_content:'foo'})
+                    if (prop === '_content'){
+                        this.content(attr[prop]);
+                        continue;
+                    }
+                    // e.g. pablo.g([a, b, c]) == pablo.g({_children:[a, b, c]})
+                    else if (prop === '_children'){
+                        attr[prop].forEach(function(pabloEl){
+                            thisNode.append(pabloEl);
+                        });
+                        continue;
+                    }
                     this.el.setAttributeNS(null, prop, attr[prop]);
                 }
             }
@@ -130,7 +158,8 @@ var pablo = (function(document){
         },
     
         child: function(node, attr){
-            node = pablo(node, attr || {});
+            isPablo(node) || (node = pablo(node, attr || {}));
+            
             if (node.el){
                 this.el.appendChild(node.el);
             }
@@ -138,6 +167,10 @@ var pablo = (function(document){
         },
     
         append: function(node, attr){
+            if (Array.isArray(node)){
+                return this.attr({_children: node});
+            }
+            
             this.child(node, attr);
             return this;
         },
@@ -166,12 +199,6 @@ var pablo = (function(document){
             return this;
         },
     
-        // https://developer.mozilla.org/en/CSS/CSS_Reference
-        styleBlock: function(css){
-            this.child('style').content(css);
-            return this;
-        },
-    
         empty: function(){
             empty(this.el);
             return this;
@@ -185,8 +212,18 @@ var pablo = (function(document){
             return pablo(this.el.parentNode);
         },
     
+        // TODO: allow selector argument to filter the results
         children: function(){
             return pabloList(this.el.childNodes);
+        },
+        
+        // https://developer.mozilla.org/en/CSS/CSS_Reference
+        styleBlock: function(css){
+            return this('style', {_content:css});
+        },
+
+        toString: function(){
+            return this.el.nodeName + ': ' + JSON.stringify(this.attr());
         }
 
         // innersvg, e.g. foo('<circle>')
@@ -235,6 +272,7 @@ var pablo = (function(document){
             fn: pabloFn,
             isSupported: isSupported,
             isSvg: isSvg,
+            isPablo: isPablo,
             list: pabloList,
         
             // Create SVG root wrapper
@@ -254,13 +292,13 @@ var pablo = (function(document){
                 return pablo(nodeName, attr || {});
             };
             pabloFn[methodName] = function(attr){
-                return this.append(nodeName, attr || {});
+                return this.child(nodeName, attr || {});
             }
         });
         
         return pablo;
     
-}(document));
+}(window.document, window.Array, window.JSON));
 
 
 
