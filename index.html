@@ -10,6 +10,8 @@
         <h1><a href="https://github.com/dharmafly/pablo">Pablo</a></h1>
         
         <!-- HTML container for the SVG root node -->
+        <label for="scale">scale: </label>
+        <input id="scale" type="range" min="0.5" max="2" step="0.01" value="">
         <div id="paper"></div>
         
         <script>
@@ -155,6 +157,15 @@
                         fill:'freeze'
                     })
                 );
+                
+                // Scale range slider
+                var scaleRange = document.getElementById('scale');
+                scaleRange.addEventListener('change', function(){
+                    paper.css({
+                        '-webkit-transform':'scale(' + scaleRange.value + ')',
+                        '-webkit-transform-origin':'0 0'
+                    });
+                }, false);
         }
         </script>
     </body>
