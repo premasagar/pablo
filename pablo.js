@@ -165,6 +165,11 @@ var pablo = (function(document, Array, JSON){
             return this;
         },
         
+        css: function(styleObj){
+            extend(this.el.style, styleObj);
+            return this;
+        },
+        
         on: function(eventType, handler, bubbles){
             this.el.addEventListener(eventType, handler, bubbles);
             return this;
