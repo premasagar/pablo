@@ -9,15 +9,24 @@
     <body>
         <h1><a href="https://github.com/dharmafly/pablo">Pablo</a></h1>
         
+        <!-- HTML container for the SVG root node -->
         <div id="paper"></div>
+        
         <script>
+        // Check browser supports Pablo
         if (pablo.isSupported){
+            
+            // Create SVG root node
             var paper = pablo.root('#paper')
+            
+                // CSS styles, sandboxed to the SVG context
                 .styles([
                     '* {stroke-width:20}',
                     'text {font-family:sans-serif; font-size:16px}'
                 ])
-                ('line', {x1:10, y1:10, x2:200, y2:350, stroke:'purple'})
+                
+                // Graphical elements
+                ('line', {x1:0, y1:-5, x2:200, y2:350, stroke:'purple'})
                 ('circle', {cx:200, cy:150, r:50, fill:'#f33', stroke:'#050'})
                 ('ellipse', {
                     cx:200,
@@ -36,13 +45,16 @@
                     'stroke-linejoin':'round',
                     'stroke-linecap':'round'
                 })
-                ('defs', {_children: [
-                    pablo('path', {
+                
+                // Text on a path
+                (
+                    pablo.defs()
+                    ('path', {
                         id:'squiggle',
                         transform:'rotate(-90 300 170)',
                         d:'M 20 320 C 120 220 220 120 320 220 C 420 320 520 420 620 320'
                     })
-                ]})
+                )
                 (
                     pablo.text()
                     ('textPath', {
@@ -51,6 +63,8 @@
                         fill:'#363'
                     })
                 )
+                
+                // Hyperlinked text
                 (
                     pablo.a({
                         target:'_blank',
@@ -66,7 +80,7 @@
                 );
                 
                 
-                // Animate circle on mouse events
+                // Animate red circle on mouse events
                 paper('circle')[0]
                     .attr({style:'cursor:pointer'})
                     .on('mouseover', function(event){
@@ -97,92 +111,39 @@
                         pablo(event.target).attr({stroke:'#050'});
                     });
                     
-                
-                /*
-                <path id="path1" d="M25, 100 C10,10 175,10 175,100" />
-                <use xlink:href="#path1" fill="none" stroke="red"  />
-                <text font-size="19.5" fill="blue">
-                    <textPath xlink:href="#path1">Hello text-on-a-path world!</textPath>
-                </text>
-                */
-                
-                /*
-                <defs>  
-                    <path id="MyPath"  
-                          d="M 100 200   
-                             C 200 100 300   0 400 100  
-                             C 500 200 600 300 700 200  
-                             C 800 100 900 100 900 100" />  
-                  </defs>  
-  
-                  <use xlink:href="#MyPath" fill="none" stroke="red"  />  
-  
-                  <text font-family="Verdana" font-size="42.5" fill="blue" >  
-                    <textPath xlink:href="#MyPath">  
-                      We go up, then we go down, then up again  
-                    </textPath>  
-                  </text>
-                */
-                
-                /*
-                .line({x1:10, y1:10, x2:200, y2:350, stroke:'purple'})
-                .circle({cx:200, cy:150, r:50, fill:'#f33', stroke:'#050'})
-                .ellipse({
-                    cx:200,
-                    cy:270,
-                    rx:80,
-                    ry:40,
-                    stroke:'#222',
-                    fill:'#777',
-                    opacity:0.5,
-                    style:'stroke-width:10'
-                })
-                .polyline({
-                    points:'120,100 200,25 280,100',
-                    stroke:'#444',
-                    fill:'none', 
-                    'stroke-linejoin':'round',
-                    'stroke-linecap':'round'
-                });
-                */
-                
-                
-                /*
-                .style('* {stroke-width:20}')
-                ._('line', {x1:10, y1:10, x2:200, y2:350, stroke:'purple'})
-                ._('circle', {cx:200, cy:150, r:50, fill:'#f33', stroke:'#050'})
-                ._('ellipse', {
-                    cx:200,
-                    cy:270,
-                    rx:80,
-                    ry:40,
-                    stroke:'#222',
-                    fill:'#777',
-                    opacity:0.5,
-                    style:'stroke-width:10'
-                })
-                ._('polyline', {
-                    points:'120,100 200,25 280,100',
-                    stroke:'#444',
-                    fill:'none', 
-                    'stroke-linejoin':'round',
-                    'stroke-linecap':'round'
-                });
-                */
-                
-            /*
 
-            var line = paper.child('line', {x1:10, y1:10, x2:200, y2:350, stroke:'purple'}),
-                lineInit,
-                lineClick = function(){
-                    if (!lineInit){
-                        line._('animateTransform', {attributeName:'transform', type:"rotate", from:"0 60 70", to:"360 60 70", dur:'1s', repeatCount:'indefinite'});
-                    }
-                    line.el.removeEventListener('click', lineClick, false);
-                }
-            
-                line.el.addEventListener("click", lineClick, false); 
-                */
+                // Animated pattern - prepended background circle
+                paper
+                (
+                    pablo.defs()
+                    (
+                        pablo.pattern({
+                            id: 'triangle',
+                            width:10,
+                            height:10,
+                            patternUnits: 'userSpaceOnUse',
+                            fill:'#5bb'
+                        })
+                        ('polygon', {points:'5,0 10,10 0,10'})
+                    )
+                )
+                .prepend(
+                    pablo.circle({
+                        cx:10,
+                        cy:10,
+                        r:250,
+                        fill:'url(#triangle)',
+                        opacity:0
+                    })
+                    ('animate', {
+                        attributeName:'opacity',
+                        from:'0',
+                        to:'1',
+                        dur:'16.2s',
+                        repeatCount:1,
+                        fill:'freeze'
+                    })
+                );
         }
         </script>
     </body>
