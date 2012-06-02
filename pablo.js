@@ -9,7 +9,7 @@
 
 var pablo = (function(document, Array, JSON){
     var svgns = 'http://www.w3.org/2000/svg',
-        xlinkns = 'http://www.w3.org/1999/xlink,',
+        xlinkns = 'http://www.w3.org/1999/xlink',
         svgVersion = 1.1,
         pablo, pabloFn;
     
@@ -139,38 +139,50 @@ var pablo = (function(document, Array, JSON){
             
             for (prop in attr){
                 if (attr.hasOwnProperty(prop)){
-                    // e.g. pablo.style({_content:'foo'})
-                    if (prop === '_content'){
-                        this.content(attr[prop]);
+                    var val = attr[prop];
+                    
+                    switch (prop){
+                        case '_content':
+                        this.content(val);
+                        continue;
+                        
+                        case '_children':
+                        thisNode.child(val);
+                        continue;
+                        
+                        case '_link':
+                        thisNode.link(val);
                         continue;
                     }
-                    // e.g. pablo.g([a, b, c]) == pablo.g({_children:[a, b, c]})
-                    else if (prop === '_children'){
-                        attr[prop].forEach(function(pabloEl){
-                            thisNode.append(pabloEl);
-                        });
-                        continue;
-                    }
-                    this.el.setAttributeNS(null, prop, attr[prop]);
+                    this.el.setAttributeNS(null, prop, val);
                 }
             }
             return this;
         },
+        
+        link: function(href){
+            this.el.setAttributeNS(xlinkns, 'xlink:href', href);
+            return this;
+        },
     
         child: function(node, attr){
-            isPablo(node) || (node = pablo(node, attr || {}));
+            var _this = this;
             
-            if (node.el){
-                this.el.appendChild(node.el);
+            if (Array.isArray(node)){
+                node.forEach(function(pabloEl){
+                    _this.child(pabloEl);
+                });
+            }
+            else {
+                isPablo(node) || (node = pablo(node, attr || {}));
+                if (node.el){
+                    this.el.appendChild(node.el);
+                }
             }
             return node;
         },
     
         append: function(node, attr){
-            if (Array.isArray(node)){
-                return this.attr({_children: node});
-            }
-            
             this.child(node, attr);
             return this;
         },
