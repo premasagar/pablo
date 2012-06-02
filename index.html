@@ -38,45 +38,44 @@
                 })
                 ('defs', {_children: [
                     pablo('path', {
-                        id:'wiggle',
+                        id:'squiggle',
                         transform:'rotate(-90 300 170)',
                         d:'M 20 320 C 120 220 220 120 320 220 C 420 320 520 420 620 320'
                     })
                 ]})
                 (
                     pablo.text()
-                        ('textPath', {
-                            _content:'In Xanadu, did Kublah Khan a stately pleasuredome decree…',
-                            _link:'#wiggle',
-                            fill:'#050'
-                        })
+                    ('textPath', {
+                        _content:'In Xanadu, did Kublah Khan a stately pleasuredome decree…',
+                        _link:'#squiggle',
+                        fill:'#050'
+                    })
                 )
                 (
                     pablo.a({
                         target:'_blank',
                         _link:'https://github.com/dharmafly/pablo'
                     })
-                        ('text', {
-                            _content:'i ♥ pablo',
-                            x:300,
-                            y:170,
-                            fill:'#777',
-                            transform:'rotate(-45 300 170)'
-                        })
+                    ('text', {
+                        _content:'i ♥ pablo',
+                        x:300,
+                        y:170,
+                        fill:'#777',
+                        transform:'rotate(-45 300 170)'
+                    })
                 );
                 
                 
-                // Animate circle on mouse interaction
-                paper.find('circle')[0]
+                // Animate circle on mouse events
+                paper('circle')[0]
                     .attr({style:'cursor:pointer'})
                     .on('mouseover', function(event){
                         pablo(event.target)
-                            //.attr({fill:'#3f7'})
                             .empty()
                             ('animate', {
                                 attributeName:'fill',
                                 from:'#ff3',
-                                to:'#050',
+                                to:'#005',
                                 dur:'1.62s',
                                 repeatCount:'indefinite'
                             })

@@ -265,21 +265,26 @@ var pablo = (function(document, Array, JSON){
     // Public API
     pablo = extend(
         function(node, attr){
+            var wrappedNode;
+            
             // e.g. pablo('circle') to return all circles
             if (typeof node === 'string' && !attr){
                 return queryAllNS(node);
             }
             // e.g. pablo('circle', {r:100}) to create a circle
-            // return new Pablo(node, attr);
-            
-            node = new Pablo(node, attr);
+            wrappedNode = new Pablo(node, attr);
             
             // functional
-            // e.g. pablo.root()('circle', {})
-            var self = extend(function(){
-                pabloFn.append.apply(node, arguments);
+            // e.g. pablo('g')('circle', {r:100})
+            var self = extend(function(node, attr){
+                // selector passes
+                if (typeof node === 'string' && !attr){
+                    return wrappedNode.find(node);
+                }
+                // append child
+                pabloFn.child.call(wrappedNode, node, attr);
                 return self;
-            }, node, true);
+            }, wrappedNode, true);
             
             return self;
         },
