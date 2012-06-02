@@ -37,7 +37,7 @@ var pablo = (function(document){
     
     // e.g. 'font-color' -> 'fontColor'
     function hyphenatedToCamelCase(str){
-        return str.replace(/-([a-z])/, function(match, letter){
+        return str.replace(/-([a-z])/g, function(match, letter){
             return letter.toUpperCase();
         });
     }
@@ -45,7 +45,7 @@ var pablo = (function(document){
     // e.g. 'fontColor' -> 'font-color'
     // NOTE: does not check for blank spaces, i.e. for multiple words 'font Color'
     function camelCaseToHyphenated(str){
-        return str.replace(/[A-Z]/, function(letter){
+        return str.replace(/[A-Z]/g, function(letter){
             return '-' + letter.toLowerCase();
         });
     }
@@ -154,14 +154,14 @@ var pablo = (function(document){
             return this;
         },
     
-        textContent: function(text){
+        content: function(text){
             this.el.textContent = text;
             return this;
         },
     
         // https://developer.mozilla.org/en/CSS/CSS_Reference
         style: function(css){
-            this.child('style').textContent(css);
+            this.child('style').content(css);
             return this;
         },
     
