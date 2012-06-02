@@ -7,222 +7,216 @@
     MIT license: http://opensource.org/licenses/mit-license.php
 */
 
-var svgns = 'http://www.w3.org/2000/svg',
-    xlinkns = 'http://www.w3.org/1999/xlink,'
-    svgVersion = 1.1;
+var pablo = (function(document){
+    var svgns = 'http://www.w3.org/2000/svg',
+        xlinkns = 'http://www.w3.org/1999/xlink,',
+        svgVersion = 1.1;
     
-function make(elementName){
-    return document.createElementNS(svgns, elementName);
-}
-
-function empty(el){
-    while (el && el.firstChild) {
-        el.removeChild(el.firstChild);
+    function make(elementName){
+        return document.createElementNS(svgns, elementName);
     }
-    return el;
-}
 
-function extend(dest, src, withPrototype){
-    var prop;
-    for (prop in src){
-        if (withPrototype || src.hasOwnProperty(prop)){
-            dest[prop] = src[prop];
+    function empty(el){
+        while (el && el.firstChild) {
+            el.removeChild(el.firstChild);
         }
+        return el;
     }
-    return dest;
-}
-    
-// Modified from http://diveintohtml5.org/everything.html#svg
-function isSupported(){
-    return !!(document.querySelectorAll && document.createElementNS && make('svg').createSVGRect);
-}
 
-function getNode(node){
-    return typeof node === 'string' ?
-        document.getElementById(node) || document.querySelector(node) :
-            node instanceof Pablo ? node.el : node;
-}
-
-function isSvgNode(node){
-    return elm.namespaceURI == svgns;
-}
-
-function pabloList(nodes){
-    var result = [],
-        i = 0;
-        
-    for(; i < nodes.length; i++) {
-      if (nodes[i].namespaceURI == svgns) {
-        result.push(pablo(nodes[i]));
-      }
-    }
-    return result;
-}
-
-// return array of Pablo wrapped elements, according to the query selector
-// TODO: return Pablo-wrapped array (e.g. to allow further filtering)
-function queryAll(selector, parentNode){
-    var nodes = (parentNode || document).querySelectorAll(selector),
-        result = [],
-        i = 0;
-        
-    for(; i < nodes.length; i++) {
-      result.push(nodes[i]);
-    }
-    return result;
-}
-
-function queryAllNS(selector, parentNode){
-    var nodes = queryAll(selector, parentNode),
-        result = [],
-        i = 0;
-        
-    for(; i < nodes.length; i++) {
-      if (nodes[i].namespaceURI == svgns) {
-        result.push(nodes[i]);
-      }
-    }
-    return pabloList(result);
-}
-
-
-
-// Pablo node wrapper
-
-function Pablo(node, attr){
-    this.el = typeof node === 'string' ? make(node) : node;
-    this.attr(attr);
-}
-
-// Pablo prototype
-var pabloFn = Pablo.prototype;
-
-extend(pabloFn, {
-    // https://developer.mozilla.org/en/SVG/Attribute
-    attr: function(attr){
+    function extend(dest, src, withPrototype){
         var prop;
-        if (attr){
-            for (prop in attr){
-                if (attr.hasOwnProperty(prop)){
-                    this.el.setAttributeNS(null, prop, attr[prop]);
+        for (prop in src){
+            if (withPrototype || src.hasOwnProperty(prop)){
+                dest[prop] = src[prop];
+            }
+        }
+        return dest;
+    }
+    
+    // Modified from http://diveintohtml5.org/everything.html#svg
+    function isSupported(){
+        return !!(document.querySelectorAll && document.createElementNS && make('svg').createSVGRect);
+    }
+
+    function getNode(node){
+        return typeof node === 'string' ?
+            document.getElementById(node) || document.querySelector(node) :
+                node instanceof Pablo ? node.el : node;
+    }
+
+    function isSvg(node){
+        return elm.namespaceURI == svgns;
+    }
+
+    function pabloList(nodes){
+        var result = [],
+            i = 0;
+        
+        for(; i < nodes.length; i++) {
+            if (isSvg(nodes[i])) {
+                result.push(pablo(nodes[i]));
+            }
+        }
+        return result;
+    }
+
+    // return array of Pablo wrapped elements, according to the query selector
+    // TODO: return Pablo-wrapped array (e.g. to allow further filtering)
+    function queryAll(selector, parentNode){
+        var nodes = (parentNode || document).querySelectorAll(selector),
+            result = [],
+            i = 0;
+        
+        for(; i < nodes.length; i++) {
+          result.push(nodes[i]);
+        }
+        return result;
+    }
+
+    function queryAllNS(selector, parentNode){
+        return pabloList(queryAll(selector, parentNode));
+    }
+
+
+
+    // Pablo node wrapper
+
+    function Pablo(node, attr){
+        this.el = typeof node === 'string' ? make(node) : node;
+        this.attr(attr);
+    }
+
+    // Pablo prototype
+    var pabloFn = Pablo.prototype;
+
+    extend(pabloFn, {
+        // https://developer.mozilla.org/en/SVG/Attribute
+        attr: function(attr){
+            var prop;
+            if (attr){
+                for (prop in attr){
+                    if (attr.hasOwnProperty(prop)){
+                        this.el.setAttributeNS(null, prop, attr[prop]);
+                    }
                 }
             }
-        }
-        return this;
-    },
+            return this;
+        },
     
-    child: function(node, attr){
-        node = pablo(node, attr || {});
-        if (node.el){
-            this.el.appendChild(node.el);
-        }
-        return node;
-    },
-    
-    append: function(node, attr){
-        this.child(node, attr);
-        return this;
-    },
-    
-    appendTo: function(node, attr){
-        if (typeof node === 'string'){
-            if (attr){
-                node = pablo(node, attr);
+        child: function(node, attr){
+            node = pablo(node, attr || {});
+            if (node.el){
+                this.el.appendChild(node.el);
             }
-            node = queryAll(node)[0];
+            return node;
+        },
+    
+        append: function(node, attr){
+            this.child(node, attr);
+            return this;
+        },
+    
+        appendTo: function(node, attr){
+            if (typeof node === 'string'){
+                if (attr){
+                    node = pablo(node, attr);
+                }
+                node = queryAll(node)[0];
+            }
+            if (node instanceof Pablo){
+                node.append(this);
+            }
+            else if (node && typeof node.appendChild === 'function'){
+                node.appendChild(this.el);
+            }
+            else if (node && typeof node.append === 'function'){
+                node.append(this.el);
+            }
+            return this;
+        },
+    
+        text: function(text){
+            this.el.textContent = text;
+            return this;
+        },
+    
+        // https://developer.mozilla.org/en/CSS/CSS_Reference
+        style: function(css){
+            this.child('style').text(css);
+            return this;
+        },
+    
+        empty: function(){
+            empty(this.el);
+            return this;
+        },
+    
+        find: function(selector){
+            return queryAllNS(selector, this.el);
+        },
+    
+        parent: function(){
+            return pablo(this.el.parentNode);
+        },
+    
+        children: function(){
+            return pabloList(this.el.childNodes);
         }
-        if (node instanceof Pablo){
-            node.append(this);
-        }
-        else if (node && typeof node.appendChild === 'function'){
-            node.appendChild(this.el);
-        }
-        else if (node && typeof node.append === 'function'){
-            node.append(this.el);
-        }
-        return this;
-    },
-    
-    text: function(text){
-        this.el.textContent = text;
-        return this;
-    },
-    
-    // https://developer.mozilla.org/en/CSS/CSS_Reference
-    style: function(css){
-        this.child('style').text(css);
-        return this;
-    },
-    
-    empty: function(){
-        empty(this.el);
-        return this;
-    },
-    
-    find: function(selector){
-        return queryAllNS(selector, this.el);
-    },
-    
-    parent: function(){
-        return pablo(this.el.parentNode);
-    },
-    
-    children: function(){
-        return pabloList(this.el.childNodes);
-    }
 
-    // innersvg, e.g. foo('<circle>')
-    // svg: function(){},
+        // innersvg, e.g. foo('<circle>')
+        // svg: function(){},
         
-    // helper: function(methodName, nodeName, defaultAttr){}
+        // helper: function(methodName, nodeName, defaultAttr){}
 
-    // prepend
+        // prepend
     
-});
+    });
 
 
-// Aliases
-extend(pabloFn, {
-    _: pabloFn.append
-});
+    // Aliases
+    extend(pabloFn, {
+        _: pabloFn.append
+    });
 
 
-// Public API
-var pablo = extend(
-    function(node, attr){
-        // e.g. pablo('circle') to return all circles
-        if (typeof node === 'string' && !attr){
-            return queryAllNS(node);
-        }
-        // e.g. pablo('circle', {r:100}) to create a circle
-        return new Pablo(node, attr);
+    // Public API
+    return extend(
+        function(node, attr){
+            // e.g. pablo('circle') to return all circles
+            if (typeof node === 'string' && !attr){
+                return queryAllNS(node);
+            }
+            // e.g. pablo('circle', {r:100}) to create a circle
+            return new Pablo(node, attr);
         
-        // functional
-        /*
-        return extend(
-            function(node, attr){
-                return new Pablo(node, attr);
-            },
-            new Pablo(node, attr),
-            true
-        );
-        */
-    },
+            // functional
+            /*
+            return extend(
+                function(node, attr){
+                    return new Pablo(node, attr);
+                },
+                new Pablo(node, attr),
+                true
+            );
+            */
+        },
     
-    {
-        svgns: svgns,
-        xlinkns: xlinkns,
-        svgVersion: svgVersion,
-        fn: pabloFn,
-        isSupported: isSupported,
+        {
+            svgns: svgns,
+            xlinkns: xlinkns,
+            svgVersion: svgVersion,
+            fn: pabloFn,
+            isSupported: isSupported,
+            isSvg: isSvg,
         
-        // Create SVG root wrapper
-        root: function(parentNode){
-            parentNode = empty(getNode(parentNode));
-            return pablo('svg', {version:1.1}).appendTo(parentNode);
+            // Create SVG root wrapper
+            root: function(parentNode){
+                parentNode = empty(getNode(parentNode));
+                return pablo('svg', {version:1.1}).appendTo(parentNode);
+            }
         }
-    }
-);
+    );
+}(document));
 
 
 
