@@ -218,7 +218,7 @@ var pablo = (function(document, Array, JSON){
         },
         
         // https://developer.mozilla.org/en/CSS/CSS_Reference
-        styleBlock: function(css){
+        styles: function(css){
             return this('style', {_content:css});
         },
 
