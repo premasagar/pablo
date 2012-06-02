@@ -124,7 +124,17 @@
                             patternUnits: 'userSpaceOnUse',
                             fill:'#5bb'
                         })
-                        ('polygon', {points:'5,0 10,10 0,10'})
+                        (
+                            pablo('polygon', {points:'5,0 10,10 0,10'})
+                            ('animateTransform', {
+                                attributeName:'transform',
+                                type:'rotate',
+                                from:'0 7.5 7.5',
+                                to:'360 7.5 7.5',
+                                dur:'16.2s',
+                                repeatCount:'indefinite'
+                            })
+                        )
                     )
                 )
                 .prepend(
