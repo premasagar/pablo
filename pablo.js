@@ -63,10 +63,10 @@ var pablo = (function(document, Array, JSON){
         });
     }
 
-    function getNode(node){
+    function getElement(node){
         return typeof node === 'string' ?
             document.querySelector(node) :
-            isPablo(node) ? node.el : node; // TODO return Pablo wrapper?
+            isPablo(node) ? node.el : node;
     }
     
     function toPablo(node, attr){
@@ -77,8 +77,9 @@ var pablo = (function(document, Array, JSON){
     
     function appendNode(node, attr, parentNode){
         node = toPablo(node, attr);
-        if (node.el){
-            (parentNode || document).appendChild(node.el);
+        parentNode = toPablo(parentNode);
+        if (node.el && parentNode.el){
+            parentNode.el.appendChild(node.el);
         }
         return node;
     }
@@ -121,9 +122,10 @@ var pablo = (function(document, Array, JSON){
     }
 
 
+    /////
+
 
     // Pablo node wrapper
-
     function Pablo(node, attr){
         this.el = typeof node === 'string' ?
             make(node) :
@@ -200,7 +202,7 @@ var pablo = (function(document, Array, JSON){
             
             if (Array.isArray(node)){
                 node.forEach(function(node){
-                    _this.child(node);
+                    _this.child(node, attr);
                 });
             }
             else {
@@ -216,21 +218,19 @@ var pablo = (function(document, Array, JSON){
         
         prepend: function(node, attr){
             var _this = this,
-                parentNode;
+                parentNode = this.el.previousSibling;
             
             if (Array.isArray(node)){
-                parentNode = _this.el.previousSibling;
                 node.forEach(function(node){
-                    node = toPablo(node);
-                    if (node.el){
-                        parentNode.appendChild(node.el);
-                    }
+                    parentNode.insertBefore.child(node, attr);
                 });
             }
             else {
-                node = toPablo(node);
+                node = toPablo(node).appendTo(parent, attr);
+                
+                
                 if (node.el){
-                    this.el.appendChild(node.el);
+                    appendNode(this, attr, node.el);
                 }
             }
             return node;
@@ -344,9 +344,10 @@ var pablo = (function(document, Array, JSON){
         
             // Create SVG root wrapper
             root: function(parentNode, attr){
-                parentNode = empty(getNode(parentNode));
                 attr = extend(attr, {version:1.1});
-                return pablo.svg(attr).appendTo(parentNode);
+                return toPablo(getElement(parentNode))
+                    .empty()
+                    .svg(attr);
             }
         }
     );
