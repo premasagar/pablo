@@ -111,12 +111,19 @@ var pablo = (function(document){
     extend(pabloFn, {
         // https://developer.mozilla.org/en/SVG/Attribute
         attr: function(attr){
-            var prop;
-            if (attr){
-                for (prop in attr){
-                    if (attr.hasOwnProperty(prop)){
-                        this.el.setAttributeNS(null, prop, attr[prop]);
-                    }
+            var prop, i, len, nodeAttr;
+            
+            if (!attr){
+                attr = {};
+                nodeAttr = this.el.attributes;
+                for (i=0, len=nodeAttr.length; i<len; i++){
+                    attr[nodeAttr[i].name] = nodeAttr[i].value;
+                }
+                return attr;
+            }
+            for (prop in attr){
+                if (attr.hasOwnProperty(prop)){
+                    this.el.setAttributeNS(null, prop, attr[prop]);
                 }
             }
             return this;
