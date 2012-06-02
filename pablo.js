@@ -66,9 +66,23 @@ var pablo = (function(document, Array, JSON){
     function getNode(node){
         return typeof node === 'string' ?
             document.querySelector(node) :
-            isPablo(node) ? node.el : node;
+            isPablo(node) ? node.el : node; // TODO return Pablo wrapper?
     }
-
+    
+    function toPablo(node, attr){
+        return isPablo(node) ?
+            node :
+            pablo(node, attr || {});
+    }
+    
+    function appendNode(node, attr, parentNode){
+        node = toPablo(node, attr);
+        if (node.el){
+            (parentNode || document).appendChild(node.el);
+        }
+        return node;
+    }
+    
     function isSvg(node){
         return node.namespaceURI == svgns;
     }
@@ -113,7 +127,8 @@ var pablo = (function(document, Array, JSON){
     function Pablo(node, attr){
         this.el = typeof node === 'string' ?
             make(node) :
-            isPablo(node) ? node.el : node;
+            isPablo(node) ? node.el : node || null;
+            
         this.attr(attr);
     }
 
@@ -184,15 +199,12 @@ var pablo = (function(document, Array, JSON){
             var _this = this;
             
             if (Array.isArray(node)){
-                node.forEach(function(pabloEl){
-                    _this.child(pabloEl);
+                node.forEach(function(node){
+                    _this.child(node);
                 });
             }
             else {
-                isPablo(node) || (node = pablo(node, attr || {}));
-                if (node.el){
-                    this.el.appendChild(node.el);
-                }
+                node = appendNode(node, attr, this.el);
             }
             return node;
         },
@@ -200,6 +212,31 @@ var pablo = (function(document, Array, JSON){
         append: function(node, attr){
             this.child(node, attr);
             return this;
+        },
+        
+        prepend: function(node, attr){
+            var _this = this,
+                parentNode;
+            
+            if (Array.isArray(node)){
+                parentNode = _this.el.previousSibling;
+                node.forEach(function(node){
+                    node = toPablo(node);
+                    if (node.el){
+                        parentNode.appendChild(node.el);
+                    }
+                });
+            }
+            else {
+                node = toPablo(node);
+                if (node.el){
+                    this.el.appendChild(node.el);
+                }
+            }
+            return node;
+            
+            
+            this.el.previousSibling(node.el);
         },
     
         appendTo: function(node, attr){
