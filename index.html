@@ -19,9 +19,12 @@
         if (pablo.isSupported){
             
             // Create SVG root node
+            // Optional: pass in HTML DOM element or CSS selector to act as a
+            // container for the SVG
             var paper = pablo.root('#paper', {width:460, height:460})
             
-                // CSS styles, sandboxed to the SVG context
+                // CSS to be sandboxed within the SVG context
+                // This creates a <style> element within the parent
                 .styles([
                     '* {stroke-width:20}',
                     'text {font-family:sans-serif; font-size:16px}'
@@ -38,12 +41,15 @@
                     stroke:'#222',
                     fill:'#777',
                     opacity:0.5,
+                    // Override <style> element above with a `style` attribute
                     style:'stroke-width:10'
                 })
                 ('polyline', {
                     points:'120,100 200,25 280,100',
                     stroke:'#444',
-                    fill:'none', 
+                    fill:'none',
+                    // Hyphenated attribute names must be passed as strings
+                    // since CamelCased attribute names are not (yet) supported
                     'stroke-linejoin':'round',
                     'stroke-linecap':'round'
                 })
@@ -61,8 +67,8 @@
                 (
                     pablo.text()
                     ('textPath', {
-                        _content:'★ In Xanadu, did Kublah Khan a stately pleasuredome decree…',
                         _link:'#squiggle',
+                        _content:'★ In Xanadu, did Kublah Khan a stately pleasuredome decree…',
                         fill:'#997099'
                     })
                 )
@@ -71,8 +77,8 @@
                 // Hyperlinked text
                 (
                     pablo.a({
-                        target:'_blank',
-                        _link:'https://github.com/dharmafly/pablo'
+                        _link:'https://github.com/dharmafly/pablo',
+                        target:'_blank'
                     })
                     ('text', {
                         _content:'we ♥ pablo',
