@@ -11,7 +11,7 @@
         
         <!-- HTML container for the SVG root node -->
         <label for="scale">scale: </label>
-        <input id="scale" type="range" min="0.5" max="2" step="0.01" value="">
+        <input id="scale" type="range" min="0.125" max="3" step="0.05" value="1">
         <div id="paper"></div>
         
         <script>
@@ -19,7 +19,7 @@
         if (pablo.isSupported){
             
             // Create SVG root node
-            var paper = pablo.root('#paper')
+            var paper = pablo.root('#paper', {width:460, height:460})
             
                 // CSS styles, sandboxed to the SVG context
                 .styles([
@@ -124,11 +124,13 @@
                             id: 'triangle',
                             width:10,
                             height:10,
-                            patternUnits: 'userSpaceOnUse',
-                            fill:'#5bb'
+                            patternUnits: 'userSpaceOnUse'
                         })
                         (
-                            pablo('polygon', {points:'5,0 10,10 0,10'})
+                            pablo('polygon', {
+                                points:'5,0 10,10 0,10',
+                                fill:'#5bb'
+                            })
                             ('animateTransform', {
                                 attributeName:'transform',
                                 type:'rotate',
@@ -162,8 +164,16 @@
                 var scaleRange = document.getElementById('scale');
                 scaleRange.addEventListener('change', function(){
                     paper.css({
+                        'transform':'scale(' + scaleRange.value + ')',
+                        'transform-origin':'0 0',
                         '-webkit-transform':'scale(' + scaleRange.value + ')',
-                        '-webkit-transform-origin':'0 0'
+                        '-webkit-transform-origin':'0 0',
+                        '-moz-transform':'scale(' + scaleRange.value + ')',
+                        '-moz-transform-origin':'0 0',
+                        '-ms-transform':'scale(' + scaleRange.value + ')',
+                        '-ms-transform-origin':'0 0',
+                        '-o-transform':'scale(' + scaleRange.value + ')',
+                        '-o-transform-origin':'0 0'
                     });
                 }, false);
         }

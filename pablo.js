@@ -183,7 +183,16 @@ var pablo = (function(document, Array, JSON){
         },
         
         css: function(styleObj){
-            extend(this.el.style, styleObj);
+            var nodeStyle = this.el.style,
+                prop;
+            
+            if (styleObj){
+                for (prop in styleObj){
+                    if (styleObj.hasOwnProperty(prop)){
+                        nodeStyle.setProperty(prop, styleObj[prop], '');
+                    }
+                }
+            }
             return this;
         },
         
