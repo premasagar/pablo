@@ -38,7 +38,7 @@ Optional arguments:
 
 This creates a `<style>` element within the parent.
 ````js
-.styles([
+paper.styles([
     '* {stroke-width:20}',
     'text {font-family:sans-serif; font-size:16px}'
 ])
