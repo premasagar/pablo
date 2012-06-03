@@ -7,7 +7,163 @@
     MIT license: http://opensource.org/licenses/mit-license.php
 */
 
+
+
+
 var pablo = (function(document, Array, JSON){
+    var svgns = 'http://www.w3.org/2000/svg',
+        xlinkns = 'http://www.w3.org/1999/xlink',
+        svgVersion = 1.1,
+        arrayMethods, pablo, pabloNodeAPI, pabloAPI;
+
+
+    // TEST BROWSER COMPATIBILITY
+    
+    function make(elementName){
+        return document.createElementNS(svgns, elementName);
+    }
+    
+    function isSupported(){
+        return !!(
+            Object.getOwnPropertyNames &&
+            Array.prototype.forEach &&
+            Array.isArray &&
+            document.querySelectorAll &&
+            JSON && JSON.stringify &&
+            document.createElementNS &&
+            make('svg').createSVGRect
+        );
+    }
+    
+    // Incompatible: pablo === false
+    if (!isSupported){
+        return false;
+    }
+    
+    
+    /////
+    
+    
+    // CAPTURE ARRAY METHODS
+    
+    arrayMethods = {};
+    Object.getOwnPropertyNames(Array.prototype)
+        .forEach(function(methodName){
+            arrayMethods[methodName] = Array.prototype[methodName];
+        });
+    
+    
+    /////
+    
+    
+    // UTILITIES
+
+    function empty(el){
+        while (el && el.firstChild) {
+            el.removeChild(el.firstChild);
+        }
+        return el;
+    }
+
+    function extend(dest, src, withPrototype){
+        var prop;
+        dest = dest || {};
+        
+        for (prop in src){
+            if (withPrototype || src.hasOwnProperty(prop)){
+                dest[prop] = src[prop];
+            }
+        }
+        return dest;
+    }
+    
+    // e.g. 'font-color' -> 'fontColor'
+    function hyphenatedToCamelCase(str){
+        return str.replace(/-([a-z])/g, function(match, letter){
+            return letter.toUpperCase();
+        });
+    }
+    
+    // e.g. 'fontColor' -> 'font-color'
+    // NOTE: does not check for blank spaces, i.e. for multiple words 'font Color'
+    function camelCaseToHyphenated(str){
+        return str.replace(/[A-Z]/g, function(letter){
+            return '-' + letter.toLowerCase();
+        });
+    }
+    
+    function isPablo(node){
+        return typeof node === 'function' && node.pablo === true;
+    }
+    
+    function getElement(node){
+        return typeof node === 'string' ?
+            document.querySelector(node) :
+            isPablo(node) ? node.el : node;
+    }
+    
+    
+    /////
+    
+    
+    // ELEMENT API
+    
+    function PabloNode(node, attr){
+        var el = getElement(node) || make(node);
+        this.push(el);
+    }
+    
+    // Node methods
+    pabloNodeAPI = extend({
+        pablo: true,
+        append: function(){}
+    }, arrayMethods);
+    
+    PabloNode.prototype = extend([], pabloNodeAPI);
+    
+    
+    /////
+    
+    
+    // PABLO API
+    
+    function pablo(node, attr){
+        var currentNode = new PabloNode(node, attr),
+            api = extend(
+                function(node, attr){
+                    currentNode.apply(currentNode, arguments);
+                    return api;
+                },
+                currentNode,
+                true
+            );
+            
+        // TODO: PROBLEM: function.length is immutable and 
+        // interferes with Array methods
+        return api;
+    }
+    
+    // Pablo methods
+    pabloAPI = {
+        isSupported: isSupported(),
+        fn: PabloNode.prototype,
+        Node: PabloNode
+    };
+    
+    return extend(pablo, pabloAPI, true);
+}(window.document, window.Array, window.JSON));
+
+
+
+
+
+
+
+
+////////////////////
+
+
+var xpablo = (function(document, Array, JSON){
     var svgns = 'http://www.w3.org/2000/svg',
         xlinkns = 'http://www.w3.org/1999/xlink',
         svgVersion = 1.1,
@@ -17,7 +173,6 @@ var pablo = (function(document, Array, JSON){
         return document.createElementNS(svgns, elementName);
     }
     
-    // Modified from http://diveintohtml5.org/everything.html#svg
     function isSupported(){
         return !!(
             document.querySelectorAll &&
@@ -25,10 +180,10 @@ var pablo = (function(document, Array, JSON){
             Array.isArray &&
             JSON && JSON.stringify &&
             document.createElementNS &&
+            // See http://diveintohtml5.org/everything.html#svg
             make('svg').createSVGRect
         );
     }
-    
 
     function empty(el){
         while (el && el.firstChild) {
