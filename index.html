@@ -24,7 +24,7 @@
             var paper = pablo.root('#paper', {width:460, height:460})
             
                 // CSS to be sandboxed within the SVG context
-                // This creates a <style> element within the parent
+                // This creates a `<style>` element within the parent
                 .styles([
                     '* {stroke-width:20}',
                     'text {font-family:sans-serif; font-size:16px}'
@@ -41,7 +41,7 @@
                     stroke:'#222',
                     fill:'#777',
                     opacity:0.5,
-                    // Override <style> element above with a `style` attribute
+                    // Override `<style>` element above with a `style` attribute
                     style:'stroke-width:10'
                 })
                 ('polyline', {
