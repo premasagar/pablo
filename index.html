@@ -28,7 +28,7 @@
                 ])
                 
                 // Graphical elements
-                ('line', {x1:0, y1:-5, x2:200, y2:350, stroke:'purple'})
+                ('line', {x1:10, y1:5, x2:200, y2:350, stroke:'purple'})
                 ('circle', {cx:200, cy:150, r:50, fill:'#f33', stroke:'#050'})
                 ('ellipse', {
                     cx:200,
@@ -48,6 +48,7 @@
                     'stroke-linecap':'round'
                 })
                 
+                
                 // Text on a path
                 (
                     pablo.defs()
@@ -60,12 +61,12 @@
                 (
                     pablo.text()
                     ('textPath', {
-                        _content:'In Xanadu, did Kublah Khan a stately pleasuredome decree…',
+                        _content:'★ In Xanadu, did Kublah Khan a stately pleasuredome decree…',
                         _link:'#squiggle',
-                        fill:'#fff',
-                        style:'text-shadow:1px 1px 2px #039, 0 0 3.8em #399'
+                        fill:'#997099'
                     })
                 )
+                
                 
                 // Hyperlinked text
                 (
@@ -74,7 +75,7 @@
                         _link:'https://github.com/dharmafly/pablo'
                     })
                     ('text', {
-                        _content:'i ♥ pablo',
+                        _content:'we ♥ pablo',
                         x:300,
                         y:170,
                         fill:'#777',
@@ -129,34 +130,41 @@
                         (
                             pablo('polygon', {
                                 points:'5,0 10,10 0,10',
-                                fill:'#5bb'
+                                fill:'#bdd'
                             })
                             ('animateTransform', {
                                 attributeName:'transform',
                                 type:'rotate',
-                                from:'0 7.5 7.5',
-                                to:'360 7.5 7.5',
+                                from:'0 10 10',
+                                to:'360 10 10',
                                 dur:'16.2s',
                                 repeatCount:'indefinite'
                             })
                         )
                     )
                 )
+                // With prepend, this will be rendered underneath other elements
                 .prepend(
                     pablo.circle({
                         cx:10,
                         cy:10,
                         r:250,
-                        fill:'url(#triangle)',
-                        opacity:0
+                        fill:'url(#triangle)'
                     })
                     ('animate', {
                         attributeName:'opacity',
-                        from:'0',
-                        to:'1',
+                        from:0,
+                        to:1,
                         dur:'16.2s',
-                        repeatCount:1,
-                        fill:'freeze'
+                        repeatCount:1
+                    })
+                    ('animateTransform', {
+                        attributeName:'transform',
+                        type:'rotate',
+                        from:'0 7.5 7.5',
+                        to:'360 7.5 7.5',
+                        dur:'618s',
+                        repeatCount:'indefinite'
                     })
                 );
                 
