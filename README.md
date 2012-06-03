@@ -10,7 +10,7 @@ A tiny JavaScript library for drawing [SVG](https://developer.mozilla.org/en/SVG
 
 ## Example
 
-See the [index.html](index.html) page for a demo; view its source.
+See the [index.html](https://github.com/dharmafly/pablo/blob/master/index.html) page for a demo; view its source.
     
 ````js
         // Check browser supports Pablo
