@@ -106,6 +106,15 @@ function extend(target/*, any number of source objects*/){
         });
     }
     
+    function isArrayLike(obj){
+        var type = typeof obj;
+        return obj && type !== 'string' && type !== 'function' && typeof obj.length === 'number';
+    }
+    
+    function toArray(obj){
+        return Array.prototype.slice.call(obj);
+    }
+    
     function isElement(node){
         return node instanceof Element;
     }
@@ -145,6 +154,11 @@ function extend(target/*, any number of source objects*/){
         );
     }
     
+    function isSvg(node){
+        return node.namespaceURI == svgns;
+    }
+    
+    
     
     /////
     
@@ -152,21 +166,23 @@ function extend(target/*, any number of source objects*/){
     // ELEMENT API
     
     function PabloNode(node, attr){
-        var el;
-        this.elements = [];
+        var el,
+            elms = this.elements = [];
         
         // Create elements array
         // Resolve node(s) to elements
-        if (Array.isArray(node)){
-            node.forEach(function(node, i){
+        if (isArrayLike(node)){
+            toArray(node).forEach(function(node, i){
                 el = toElement(node);
-                
+                if (isElement(el)){
+                    elms.push(el);
+                }
             });
         }
         else {
             el = toElement(node);
             if (isElement(el)){
-                this.elements.push(el);
+                elms.push(el);
             }
         }
         
@@ -276,7 +292,7 @@ function extend(target/*, any number of source objects*/){
     
     // PABLO API
     
-    function Pablo(node, attr){
+    function createPablo(node, attr){
         var thisNode = new PabloNode(node, attr),
             api = extend(
                 function(node, attr){
@@ -288,6 +304,24 @@ function extend(target/*, any number of source objects*/){
                 true
             );
         return api;
+    }
+    
+    function selectPablo(node){
+        // TODO: optional SVG namespacing of results
+        return Pablo(document.querySelectorAll(node));
+    }
+    
+    function Pablo(node, attr){
+        if (attr ||
+            Pablo.isPablo(node) ||
+            isElement(node) ||
+            isArrayLike(node)
+        ){
+            return createPablo(node, attr);
+        }
+        else {
+            return selectPablo(node);
+        }
     }
     
     // Pablo methods
