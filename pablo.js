@@ -235,6 +235,11 @@ function extend(target/*, any number of source objects*/){
             return toPablo(node, attr).appendTo(this);
         },
         
+        parent: function(){
+            var el = this.elements[0];
+            return Pablo(el && el.parentNode);
+        },
+        
         attr: function(attr){
             var thisNode;
             
