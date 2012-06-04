@@ -141,7 +141,7 @@ function extend(target/*, any number of source objects*/){
     // Returns true for both a Pablo instance and its API function
     function isPablo(node){
         return !!(node && 
-            (node instanceof PabloNode || node.pablo instanceof PabloNode)
+            (node instanceof PabloNode || node._pablo instanceof PabloNode)
         );
     }
     
@@ -277,7 +277,7 @@ function extend(target/*, any number of source objects*/){
                     return api;
                 },
                 thisNode,
-                {pablo:thisNode},
+                {_pablo:thisNode},
                 true
             );
         return api;
