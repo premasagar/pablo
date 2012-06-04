@@ -14,7 +14,7 @@ var Pablo = (function(document, Array, JSON, Element){
     var svgns = 'http://www.w3.org/2000/svg',
         xlinkns = 'http://www.w3.org/1999/xlink',
         svgVersion = 1.1,
-        Pablo, pabloAPI, pabloNodeAPI;
+        Pablo, pabloApi, pabloNodeApi, createPablo;
 
 
     // TEST BROWSER COMPATIBILITY
@@ -191,7 +191,7 @@ function extend(target/*, any number of source objects*/){
     }
     
     // Node prototype
-    pabloNodeAPI = PabloNode.prototype = {
+    pabloNodeApi = PabloNode.prototype = {
         make: make,
         
         el: function(index){
@@ -244,7 +244,7 @@ function extend(target/*, any number of source objects*/){
             var thisNode;
             
             if (!attr){
-                return getAttributes(this.el(0));
+                return getAttributes(this.elements[0]);
             }
             
             thisNode = this;
@@ -280,17 +280,17 @@ function extend(target/*, any number of source objects*/){
     
     
     // Aliases
-    extend(pabloNodeAPI, {
-        _  : pabloNodeAPI.append,
-        get: pabloNodeAPI.el,
-        add: pabloNodeAPI.push
+    extend(pabloNodeApi, {
+        _  : pabloNodeApi.append,
+        get: pabloNodeApi.el,
+        add: pabloNodeApi.push
     });
     
     // Array methods
     /*
     Object.getOwnPropertyNames(Array.prototype)
         .forEach(function(methodName){
-            pabloNodeAPI[methodName] = function(){
+            pabloNodeApi[methodName] = function(){
                 return Array.prototype[methodName].apply(this.elements, arguments);
             }
         });
@@ -302,7 +302,18 @@ function extend(target/*, any number of source objects*/){
     
     // PABLO API
     
-    function createPablo(node, attr){
+    // Select existing nodes in the document
+    function selectPablo(node){
+        return Pablo(document.querySelectorAll(node));
+    }
+    
+    // Create Pablo #1: return a PabloNode instance
+    function createPabloObj(node, attr){
+        return new PabloNode(node, attr);
+    }
+    
+    // Create Pablo #2: return a function that wraps a PabloNode instance
+    function createPabloFn(node, attr){
         var thisNode = new PabloNode(node, attr),
             api = extend(
                 function(node, attr){
@@ -316,11 +327,12 @@ function extend(target/*, any number of source objects*/){
         return api;
     }
     
-    function selectPablo(node){
-        // TODO: optional SVG namespacing of results
-        return Pablo(document.querySelectorAll(node));
-    }
+    // Create Pablo: use functional API by default; see `functionApi` method
+    createPablo = createPabloFn;
     
+    // **
+    
+    // Pablo main function
     function Pablo(node, attr){
         if (attr ||
             Pablo.isPablo(node) ||
@@ -335,14 +347,20 @@ function extend(target/*, any number of source objects*/){
     }
     
     // Pablo methods
-    pabloAPI = {
+    pabloApi = {
         isSupported: true,
         isPablo: isPablo,
-        fn: pabloNodeAPI,
-        Node: PabloNode
+        fn: pabloNodeApi,
+        Node: PabloNode,
+        
+        // Whether to use the function API (default) or the object API
+        functionApi: function(yes){
+            createPablo = (yes !== false) ? createPabloFn : createPabloObj;
+            return this;
+        }
     };
     
-    return extend(Pablo, pabloAPI, true);
+    return extend(Pablo, pabloApi, true);
 }(window.document, window.Array, window.JSON, window.Element));
 
 
