@@ -159,7 +159,6 @@ function extend(target/*, any number of source objects*/){
     }
     
     
-    
     /////
     
     
@@ -173,14 +172,14 @@ function extend(target/*, any number of source objects*/){
         // Resolve node(s) to elements
         if (isArrayLike(node)){
             toArray(node).forEach(function(node, i){
-                el = toElement(node);
+                el = attr ? make(node) : toElement(node);
                 if (isElement(el)){
                     elms.push(el);
                 }
             });
         }
         else {
-            el = toElement(node);
+            el = attr ? make(node) : toElement(node);
             if (isElement(el)){
                 elms.push(el);
             }
