@@ -280,7 +280,6 @@ function extend(target/*, any number of source objects*/){
                 {pablo:thisNode},
                 true
             );
-            debugger;
         return api;
     }
     
