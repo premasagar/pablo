@@ -152,15 +152,22 @@ function extend(target/*, any number of source objects*/){
     // ELEMENT API
     
     function PabloNode(node, attr){
+        var el;
+        this.elements = [];
+        
         // Create elements array
         // Resolve node(s) to elements
         if (Array.isArray(node)){
-            this.elements = node.map(function(node, i){
-                return toElement(node);
+            node.forEach(function(node, i){
+                el = toElement(node);
+                
             });
         }
         else {
-            this.elements = [].concat(toElement(node));
+            el = toElement(node);
+            if (isElement(el)){
+                this.elements.push(el);
+            }
         }
         
         // Apply attributes
