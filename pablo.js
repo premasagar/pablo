@@ -142,9 +142,10 @@ function extend(target/*, any number of source objects*/){
         return attr;
     }
     
-    function toPablo(node){
-        return Pablo.isPablo(node)
-            ? node : Pablo(node);
+    // Return node if a PabloNode, otherwise create one
+    function toPablo(node, attr){
+        return Pablo.isPablo(node) ?
+            node : Pablo(node, attr);
     }
     
     // Returns true for both a Pablo instance and its API function
@@ -208,7 +209,7 @@ function extend(target/*, any number of source objects*/){
         },
         
         slice: function(from, to){
-            return pablo(this.elements.slice(from, to));
+            return Pablo(this.elements.slice(from, to));
         },
         
         each: function(fn){
@@ -217,25 +218,28 @@ function extend(target/*, any number of source objects*/){
         },
         
         append: function(node, attr){
-            this.elements.concat(pablo(node, attr).el());
+            this.each(function(el){
+                toPablo(node, attr).each(function(child){
+                    el.appendChild(child);
+                });
+            });
             return this;
         },
         
         appendTo: function(node){
-            pablo(node).append(this);
+            toPablo(node).append(this);
             return this;
         },
         
         child: function(node, attr){
-            return pablo(node, attr).appendTo(this);
+            return toPablo(node, attr).appendTo(this);
         },
         
         attr: function(attr){
             var thisNode;
             
             if (!attr){
-                return this.size() ?
-                    getAttributes(this.el(0)) : {};
+                return getAttributes(this.el(0));
             }
             
             thisNode = this;
@@ -272,7 +276,9 @@ function extend(target/*, any number of source objects*/){
     
     // Aliases
     extend(pabloNodeAPI, {
-        get: pabloNodeAPI.el
+        _  : pabloNodeAPI.append,
+        get: pabloNodeAPI.el,
+        add: pabloNodeAPI.push
     });
     
     // Array methods
@@ -295,7 +301,7 @@ function extend(target/*, any number of source objects*/){
         var thisNode = new PabloNode(node, attr),
             api = extend(
                 function(node, attr){
-                    thisNode.apply(thisNode, arguments);
+                    thisNode.append(node, attr);
                     return api;
                 },
                 thisNode,
