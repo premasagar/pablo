@@ -212,7 +212,11 @@ function extend(target/*, any number of source objects*/){
         },
         
         push: function(node){
-            this.elements.push(toElement(node));
+            var el = toElement(node);
+            
+            if (isElement(el)){
+                this.elements.push(el);
+            }
             return this;
         },
         
@@ -243,14 +247,37 @@ function extend(target/*, any number of source objects*/){
             return toPablo(node, attr).appendTo(this);
         },
         
+        // TODO: optionally filter by selector
         children: function(){
-            var el = this.elements[0];
-            return Pablo(el && el.childNodes);
+            var children = Pablo();
+            
+            this.each(function(el){
+                toArray(el.childNodes).forEach(function(child){
+                    children.push(child);
+                });
+            });
+            return children;
         },
         
+        // TODO: optionally filter by selector
         parent: function(){
-            var el = this.elements[0];
-            return Pablo(el && el.parentNode);
+            var parents = Pablo();
+            
+            this.each(function(el){
+                parents.push(el.parentNode);
+            });
+            return parents;
+        },
+        
+        find: function(selector){
+            var found = Pablo();
+            
+            this.each(function(el){
+                toArray(el.querySelectorAll(selector)).forEach(function(target){
+                    found.push(target);
+                });
+            });
+            return found;
         },
         
         attr: function(attr){
