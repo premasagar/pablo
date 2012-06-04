@@ -199,6 +199,14 @@ function extend(target/*, any number of source objects*/){
                 this.elements : this.elements[index];
         },
         
+        eq: function(index){
+            return index >= 0 ?
+                // Return zero-indexed node
+                Pablo(this.elements[index]) :
+                // Return node, counting backwards from end of elements array
+                (index < -1 ? this.slice(index, index + 1) : this.slice(index));
+        },
+        
         size: function(){
             return this.elements.length;
         },
@@ -235,6 +243,11 @@ function extend(target/*, any number of source objects*/){
             return toPablo(node, attr).appendTo(this);
         },
         
+        children: function(){
+            var el = this.elements[0];
+            return Pablo(el && el.childNodes);
+        },
+        
         parent: function(){
             var el = this.elements[0];
             return Pablo(el && el.parentNode);
@@ -249,7 +262,7 @@ function extend(target/*, any number of source objects*/){
             
             thisNode = this;
             return this.each(function(el){
-                var wrapped, prop, val;
+                var pabloNode, prop, val;
                 
                 for (prop in attr){
                     if (attr.hasOwnProperty(prop)){
@@ -257,17 +270,17 @@ function extend(target/*, any number of source objects*/){
                     
                         switch (prop){
                             case '_content':
-                            (wrapped || (wrapped = pablo(el)))
+                            (pabloNode || (pabloNode = pablo(el)))
                                 .content(val);
                             continue;
                         
                             case '_children':
-                            (wrapped || (wrapped = pablo(el)))
+                            (pabloNode || (pabloNode = pablo(el)))
                                 .child(val);
                             continue;
                         
                             case '_link':
-                            (wrapped || (wrapped = pablo(el)))
+                            (pabloNode || (pabloNode = pablo(el)))
                                 .link(val);
                             continue;
                         }
