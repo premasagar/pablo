@@ -2,7 +2,7 @@
     Pablo <https://github.com/dharmafly/pablo>
 
     by Premasagar Rose <http://premasagar.com>,
-        Dharmafly <http://dharmafly.com>
+       Dharmafly <http://dharmafly.com>
 
     MIT license: http://opensource.org/licenses/mit-license.php
 */
@@ -10,47 +10,39 @@
 
 
 
-var pablo = (function(document, Array, JSON){
+var Pablo = (function(document, Array, JSON, Element){
     var svgns = 'http://www.w3.org/2000/svg',
         xlinkns = 'http://www.w3.org/1999/xlink',
         svgVersion = 1.1,
-        arrayMethods, pablo, pabloNodeAPI, pabloAPI;
+        Pablo, pabloAPI, pabloNodeAPI;
 
 
     // TEST BROWSER COMPATIBILITY
     
     function make(elementName){
-        return document.createElementNS(svgns, elementName);
+        return typeof elementName === 'string' &&
+            document.createElementNS(svgns, elementName) ||
+            null;
     }
     
     function isSupported(){
         return !!(
-            Object.getOwnPropertyNames &&
-            Array.prototype.forEach &&
-            Array.isArray &&
+            document && Array && JSON && Element &&
             document.querySelectorAll &&
-            JSON && JSON.stringify &&
+            document.querySelector &&
             document.createElementNS &&
+            // Object.getOwnPropertyNames &&
+            Array.isArray &&
+            Array.prototype.forEach &&
+            JSON.stringify &&
             make('svg').createSVGRect
         );
     }
     
-    // Incompatible: pablo === false
-    if (!isSupported){
-        return false;
+    // Incompatible browser
+    if (!isSupported()){
+        return {isSupported:false};
     }
-    
-    
-    /////
-    
-    
-    // CAPTURE ARRAY METHODS
-    
-    arrayMethods = {};
-    Object.getOwnPropertyNames(Array.prototype)
-        .forEach(function(methodName){
-            arrayMethods[methodName] = Array.prototype[methodName];
-        });
     
     
     /////
@@ -65,6 +57,7 @@ var pablo = (function(document, Array, JSON){
         return el;
     }
 
+    /*
     function extend(dest, src, withPrototype){
         var prop;
         dest = dest || {};
@@ -75,6 +68,27 @@ var pablo = (function(document, Array, JSON){
             }
         }
         return dest;
+    }
+    */
+    
+function extend(target/*, any number of source objects*/){
+        var i = 1,
+            len = arguments.length,
+            obj, prop;
+            
+        withPrototype = arguments[len-1] === true;
+        
+        for (; i < len; i++){
+            obj = arguments[i];
+            if (typeof obj === 'object'){
+                for (prop in obj){
+                    if (withPrototype || obj.hasOwnProperty(prop)){
+                        target[prop] = obj[prop];
+                    }
+                }
+            }
+        }
+        return target;
     }
     
     // e.g. 'font-color' -> 'fontColor'
@@ -92,14 +106,43 @@ var pablo = (function(document, Array, JSON){
         });
     }
     
-    function isPablo(node){
-        return typeof node === 'function' && node.pablo === true;
+    function isElement(node){
+        return node instanceof Element;
     }
     
     function getElement(node){
         return typeof node === 'string' ?
             document.querySelector(node) :
-            isPablo(node) ? node.el : node;
+            (isPablo(node) ? node.el(0) : node || null);
+    }
+    
+    function toElement(node){
+        return getElement(node) || make(node);
+    }
+    
+    function getAttributes(el){
+        var attr = {},
+            nodeAttr, len, i;
+            
+        if (el){
+            nodeAttr = el.attributes;
+            for (i = 0, len = nodeAttr.length; i<len; i++){
+                attr[nodeAttr[i].name] = nodeAttr[i].value;
+            }
+        }
+        return attr;
+    }
+    
+    function toPablo(node){
+        return Pablo.isPablo(node)
+            ? node : Pablo(node);
+    }
+    
+    // Returns true for both a Pablo instance and its API function
+    function isPablo(node){
+        return !!(node && 
+            (node instanceof PabloNode || node.pablo instanceof PabloNode)
+        );
     }
     
     
@@ -109,17 +152,116 @@ var pablo = (function(document, Array, JSON){
     // ELEMENT API
     
     function PabloNode(node, attr){
-        var el = getElement(node) || make(node);
-        this.push(el);
+        // Create elements array
+        // Resolve node(s) to elements
+        if (Array.isArray(node)){
+            this.elements = node.map(function(node, i){
+                return toElement(node);
+            });
+        }
+        else {
+            this.elements = [].concat(toElement(node));
+        }
+        
+        // Apply attributes
+        this.attr(attr);
     }
     
-    // Node methods
-    pabloNodeAPI = extend({
-        pablo: true,
-        append: function(){}
-    }, arrayMethods);
+    // Node prototype
+    pabloNodeAPI = PabloNode.prototype = {
+        make: make,
+        
+        el: function(index){
+            return typeof index === 'undefined' ?
+                this.elements : this.elements[index];
+        },
+        
+        size: function(){
+            return this.elements.length;
+        },
+        
+        push: function(node){
+            this.elements.push(toElement(node));
+            return this;
+        },
+        
+        slice: function(from, to){
+            return pablo(this.elements.slice(from, to));
+        },
+        
+        each: function(fn){
+            this.elements.forEach(fn);
+            return this;
+        },
+        
+        append: function(node, attr){
+            this.elements.concat(pablo(node, attr).el());
+            return this;
+        },
+        
+        appendTo: function(node){
+            pablo(node).append(this);
+            return this;
+        },
+        
+        child: function(node, attr){
+            return pablo(node, attr).appendTo(this);
+        },
+        
+        attr: function(attr){
+            var thisNode;
+            
+            if (!attr){
+                return this.size() ?
+                    getAttributes(this.el(0)) : {};
+            }
+            
+            thisNode = this;
+            return this.each(function(el){
+                var wrapped, prop, val;
+                
+                for (prop in attr){
+                    if (attr.hasOwnProperty(prop)){
+                        val = attr[prop];
+                    
+                        switch (prop){
+                            case '_content':
+                            (wrapped || (wrapped = pablo(el)))
+                                .content(val);
+                            continue;
+                        
+                            case '_children':
+                            (wrapped || (wrapped = pablo(el)))
+                                .child(val);
+                            continue;
+                        
+                            case '_link':
+                            (wrapped || (wrapped = pablo(el)))
+                                .link(val);
+                            continue;
+                        }
+                        el.setAttributeNS(null, prop, val);
+                    }
+                }
+            });
+        }
+    };
     
-    PabloNode.prototype = extend([], pabloNodeAPI);
+    
+    // Aliases
+    extend(pabloNodeAPI, {
+        get: pabloNodeAPI.el
+    });
+    
+    // Array methods
+    /*
+    Object.getOwnPropertyNames(Array.prototype)
+        .forEach(function(methodName){
+            pabloNodeAPI[methodName] = function(){
+                return Array.prototype[methodName].apply(this.elements, arguments);
+            }
+        });
+    */
     
     
     /////
@@ -127,31 +269,31 @@ var pablo = (function(document, Array, JSON){
     
     // PABLO API
     
-    function pablo(node, attr){
-        var currentNode = new PabloNode(node, attr),
+    function Pablo(node, attr){
+        var thisNode = new PabloNode(node, attr),
             api = extend(
                 function(node, attr){
-                    currentNode.apply(currentNode, arguments);
+                    thisNode.apply(thisNode, arguments);
                     return api;
                 },
-                currentNode,
+                thisNode,
+                {pablo:thisNode},
                 true
             );
-            
-        // TODO: PROBLEM: function.length is immutable and 
-        // interferes with Array methods
+            debugger;
         return api;
     }
     
     // Pablo methods
     pabloAPI = {
-        isSupported: isSupported(),
-        fn: PabloNode.prototype,
+        isSupported: true,
+        isPablo: isPablo,
+        fn: pabloNodeAPI,
         Node: PabloNode
     };
     
-    return extend(pablo, pabloAPI, true);
-}(window.document, window.Array, window.JSON));
+    return extend(Pablo, pabloAPI, true);
+}(window.document, window.Array, window.JSON, window.Element));
 
 
 
