@@ -21,7 +21,7 @@
             // Create SVG root node
             // Optional: pass in HTML DOM element or CSS selector to act as a
             // container for the SVG
-            var paper = pablo.root('#paper', {width:460, height:460})
+            var paper = Pablo.root('#paper', {width:460, height:460})
             
                 // CSS to be sandboxed within the SVG context
                 // This creates a `<style>` element within the parent
@@ -57,7 +57,7 @@
                 
                 // Text on a path
                 (
-                    pablo.defs()
+                    Pablo.defs()
                     ('path', {
                         id:'squiggle',
                         transform:'rotate(-90 300 170)',
@@ -65,7 +65,7 @@
                     })
                 )
                 (
-                    pablo.text()
+                    Pablo.text()
                     ('textPath', {
                         _link:'#squiggle',
                         _content:'★ In Xanadu, did Kublah Khan a stately pleasuredome decree…',
@@ -76,7 +76,7 @@
                 
                 // Hyperlinked text
                 (
-                    pablo.a({
+                    Pablo.a({
                         _link:'https://github.com/dharmafly/pablo',
                         target:'_blank'
                     })
@@ -94,7 +94,7 @@
                 paper('circle')[0]
                     .attr({style:'cursor:pointer'})
                     .on('mouseover', function(event){
-                        pablo(event.target)
+                        Pablo(event.target)
                             .empty()
                             ('animate', {
                                 attributeName:'fill',
@@ -112,29 +112,29 @@
                             })
                     })
                     .on('mouseout', function(event){
-                        pablo(event.target).empty();
+                        Pablo(event.target).empty();
                     })
                     .on('mousedown', function(event){
-                        pablo(event.target).attr({stroke:'#fff'});
+                        Pablo(event.target).attr({stroke:'#fff'});
                     })
                     .on('mouseup', function(event){
-                        pablo(event.target).attr({stroke:'#050'});
+                        Pablo(event.target).attr({stroke:'#050'});
                     });
                     
 
                 // Animated pattern - prepended background circle
                 paper
                 (
-                    pablo.defs()
+                    Pablo.defs()
                     (
-                        pablo('pattern', {
+                        Pablo('pattern', {
                             id: 'triangle',
                             width:10,
                             height:10,
                             patternUnits: 'userSpaceOnUse'
                         })
                         (
-                            pablo('polygon', {
+                            Pablo('polygon', {
                                 points:'5,0 10,10 0,10',
                                 fill:'#bdd'
                             })
@@ -151,7 +151,7 @@
                 )
                 // With prepend, this will be rendered underneath other elements
                 .prepend(
-                    pablo.circle({
+                    Pablo.circle({
                         cx:10,
                         cy:10,
                         r:250,

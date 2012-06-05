@@ -14,7 +14,7 @@ var Pablo = (function(document, Array, JSON, Element){
     var svgns = 'http://www.w3.org/2000/svg',
         xlinkns = 'http://www.w3.org/1999/xlink',
         svgVersion = 1.1,
-        Pablo, pabloApi, pabloNodeApi, createPablo;
+        pabloApi, pabloNodeApi, createPablo;
 
 
     // TEST BROWSER COMPATIBILITY
@@ -74,9 +74,8 @@ var Pablo = (function(document, Array, JSON, Element){
 function extend(target/*, any number of source objects*/){
         var i = 1,
             len = arguments.length,
+            withPrototype = arguments[len-1] === true,
             obj, prop;
-            
-        withPrototype = arguments[len-1] === true;
         
         for (; i < len; i++){
             obj = arguments[i];
@@ -247,7 +246,11 @@ function extend(target/*, any number of source objects*/){
             return toPablo(node, attr).appendTo(this);
         },
         
-        // TODO: optionally filter by selector
+        // TODO
+        filter: function(selector){
+            
+        },
+        
         children: function(){
             var children = Pablo();
             
@@ -259,7 +262,6 @@ function extend(target/*, any number of source objects*/){
             return children;
         },
         
-        // TODO: optionally filter by selector
         parent: function(){
             var parents = Pablo();
             
@@ -388,10 +390,20 @@ function extend(target/*, any number of source objects*/){
     
     // Pablo methods
     pabloApi = {
+        v: '0.0.1',
         isSupported: true,
+        svgns: svgns,
+        xlinkns: xlinkns,
+        svgVersion: svgVersion,
         isPablo: isPablo,
+        isElement: isElement,
+        isSvg: isSvg,
         fn: pabloNodeApi,
         Node: PabloNode,
+        
+        root: function(){
+            return Pablo('svg', {version:svgVersion});
+        },
         
         // Whether to use the function API (default) or the object API
         functionApi: function(yes){
