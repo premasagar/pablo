@@ -31,10 +31,8 @@ var Pablo = (function(document, Array, JSON, Element){
             document.querySelectorAll &&
             document.querySelector &&
             document.createElementNS &&
-            // Object.getOwnPropertyNames &&
             Array.isArray &&
             Array.prototype.forEach &&
-            JSON.stringify &&
             make('svg').createSVGRect
         );
     }
@@ -56,22 +54,8 @@ var Pablo = (function(document, Array, JSON, Element){
         }
         return el;
     }
-
-    /*
-    function extend(dest, src, withPrototype){
-        var prop;
-        dest = dest || {};
-        
-        for (prop in src){
-            if (withPrototype || src.hasOwnProperty(prop)){
-                dest[prop] = src[prop];
-            }
-        }
-        return dest;
-    }
-    */
     
-function extend(target/*, any number of source objects*/){
+    function extend(target/*, any number of source objects*/){
         var i = 1,
             len = arguments.length,
             withPrototype = arguments[len-1] === true,
@@ -354,6 +338,17 @@ function extend(target/*, any number of source objects*/){
                     }
                 }
             });
+        },
+        
+        valueOf: function(){
+            return this.el.map(function(el){
+                var str = el.nodeName.toLowerCase();
+                
+                if (el.attributes.length && JSON && JSON.stringify){
+                    str += ':' + JSON.stringify(getAttributes(el));
+                }
+                return str;
+            }).join(', ');
         }
     };
     
