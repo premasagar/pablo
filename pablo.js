@@ -340,7 +340,7 @@ var Pablo = (function(document, Array, JSON, Element){
             });
         },
         
-        valueOf: function(){
+        toString: function(){
             return this.el.map(function(el){
                 var str = el.nodeName.toLowerCase();
                 
