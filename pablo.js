@@ -105,21 +105,14 @@ var Pablo = (function(document, Array, JSON, Element){
         return isElement(node) && elements.indexOf(node) === -1;
     }
     
-    function getElement(node){
+    function toElement(node){
         if (isElement(node)){
             return node;
         }
         if (isPablo(node)){
-            return node.el[0];
+            return node.el;
         }
-        if (typeof node === 'string'){
-            return document.querySelector(node); // TODO: use querySelectorAll?
-        }
-        return null;
-    }
-    
-    function toElement(node){
-        return getElement(node) || make(node);
+        return make(node);
     }
     
     // Like toElement, but will favour making an element if there are attributes passed
@@ -162,9 +155,23 @@ var Pablo = (function(document, Array, JSON, Element){
     }
     
     function addUniqueElementToArray(node, attr, elements){
-        var el = makeOrFindElement(node, attr);
-        if (isUniqueElement(el, elements)){
-            elements.push(el);
+        var el;
+        
+        if (isPablo(node)){
+            node.el.forEach(function(el){
+                addUniqueElementToArray(el, attr, elements);
+            });
+        }
+        else if (isArrayLike(node)){
+            toArray(node).forEach(function(el){
+                addUniqueElementToArray(el, attr, elements);
+            });
+        }
+        else {
+            el = makeOrFindElement(node, attr);
+            if (isUniqueElement(el, elements)){
+                elements.push(el);
+            }
         }
     }
     
