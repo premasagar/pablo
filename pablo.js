@@ -106,8 +106,7 @@ function extend(target/*, any number of source objects*/){
     }
     
     function isArrayLike(obj){
-        var type = typeof obj;
-        return obj && type !== 'string' && type !== 'function' && typeof obj.length === 'number';
+        return obj && typeof obj === 'object' && typeof obj.length === 'number';
     }
     
     function toArray(obj){
@@ -118,14 +117,34 @@ function extend(target/*, any number of source objects*/){
         return node instanceof Element;
     }
     
+    function isUniqueElement(node, elements){
+        return isElement(node) && elements.indexOf(node) === -1;
+    }
+    
     function getElement(node){
-        return typeof node === 'string' ?
-            document.querySelector(node) :
-            (isPablo(node) ? node.el(0) : node || null);
+        if (isElement(node)){
+            return node;
+        }
+        if (isPablo(node)){
+            return node.el[0];
+        }
+        if (typeof node === 'string'){
+            return document.querySelector(node); // TODO: use querySelectorAll?
+        }
+        return null;
     }
     
     function toElement(node){
         return getElement(node) || make(node);
+    }
+    
+    // Like toElement, but will favour making an element if there are attributes passed
+    function makeOrFindElement(node, attr){
+        return attr ?
+            // if there are attributes, then definitely make an element
+            make(node) :
+            // if not, then try to find the element(s); if not found, make one
+            toElement(node);
     }
     
     function getAttributes(el){
@@ -158,6 +177,13 @@ function extend(target/*, any number of source objects*/){
         return node.namespaceURI == svgns;
     }
     
+    function addUniqueElementToArray(node, attr, elements){
+        var el = makeOrFindElement(node, attr);
+        if (isUniqueElement(el, elements)){
+            elements.push(el);
+        }
+    }
+    
     
     /////
     
@@ -166,65 +192,76 @@ function extend(target/*, any number of source objects*/){
     
     function PabloNode(node, attr){
         var el,
-            elms = this.elements = [];
-        
-        // Create elements array
-        // Resolve node(s) to elements
+            thisNode = this,
+            // Create elements array
+            elements = this.el = [];
+            
         if (isArrayLike(node)){
-            toArray(node).forEach(function(node, i){
-                el = attr ? make(node) : toElement(node);
-                if (isElement(el)){
-                    elms.push(el);
-                }
+            // Resolve the elements and add to elements array
+            toArray(node).forEach(function(node){
+                addUniqueElementToArray(node, attr, elements);
             });
         }
+        
         else {
-            el = attr ? make(node) : toElement(node);
-            if (isElement(el)){
-                elms.push(el);
-            }
+            addUniqueElementToArray(node, attr, elements);
         }
         
         // Apply attributes
-        this.attr(attr);
+        if (attr){
+            this.attr(attr);
+        }
     }
     
     // Node prototype
     pabloNodeApi = PabloNode.prototype = {
         make: make,
         
-        el: function(index){
+        get: function(index){
             return typeof index === 'undefined' ?
-                this.elements : this.elements[index];
+                this.el : this.el[index];
         },
         
         eq: function(index){
             return index >= 0 ?
                 // Return zero-indexed node
-                Pablo(this.elements[index]) :
+                Pablo(this.el[index]) :
                 // Return node, counting backwards from end of elements array
                 (index < -1 ? this.slice(index, index + 1) : this.slice(index));
         },
         
         size: function(){
-            return this.elements.length;
+            return this.el.length;
         },
         
-        push: function(node){
-            var el = toElement(node);
+        // Add new node(s) to the collection; accepts arrays or nodeLists
+        push: function(node, attr){
+            var elements = this.el;
             
-            if (isElement(el)){
-                this.elements.push(el);
-            }
+            // Resolve request as an array of elements and add to the collection
+            Pablo(node, attr).el
+                .forEach(function(node){
+                    addUniqueElementToArray(node, attr, elements);
+                });
+            
             return this;
         },
         
         slice: function(from, to){
-            return Pablo(this.elements.slice(from, to));
+            return Pablo(this.el.slice(from, to));
         },
         
         each: function(fn){
-            this.elements.forEach(fn);
+            this.el.forEach(function(el, i, els){
+                fn.call(el, el, i, els);
+            });
+            return this;
+        },
+        
+        map: function(fn){
+            this.el.map(function(el, i, els){
+                fn.call(el, el, i, els);
+            });
             return this;
         },
         
@@ -286,7 +323,7 @@ function extend(target/*, any number of source objects*/){
             var thisNode;
             
             if (!attr){
-                return getAttributes(this.elements[0]);
+                return getAttributes(this.el[0]);
             }
             
             thisNode = this;
@@ -324,7 +361,6 @@ function extend(target/*, any number of source objects*/){
     // Aliases
     extend(pabloNodeApi, {
         _  : pabloNodeApi.append,
-        get: pabloNodeApi.el,
         add: pabloNodeApi.push
     });
     
