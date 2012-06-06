@@ -47,13 +47,6 @@ var Pablo = (function(document, Array, JSON, Element){
     
     
     // UTILITIES
-
-    function empty(el){
-        while (el && el.firstChild) {
-            el.removeChild(el.firstChild);
-        }
-        return el;
-    }
     
     function extend(target/*, any number of source objects*/){
         var i = 1,
@@ -61,6 +54,7 @@ var Pablo = (function(document, Array, JSON, Element){
             withPrototype = arguments[len-1] === true,
             obj, prop;
         
+        target || (target = {});
         for (; i < len; i++){
             obj = arguments[i];
             if (typeof obj === 'object'){
@@ -155,24 +149,24 @@ var Pablo = (function(document, Array, JSON, Element){
     }
     
     function addUniqueElementToArray(node, attr, elements){
-        var el;
+        var toPush, el;
         
         if (isPablo(node)){
-            node.el.forEach(function(el){
-                addUniqueElementToArray(el, attr, elements);
-            });
+            toPush = node.el;
         }
         else if (isArrayLike(node)){
-            toArray(node).forEach(function(el){
-                addUniqueElementToArray(el, attr, elements);
-            });
+            toPush = toArray(node);
         }
         else {
             el = makeOrFindElement(node, attr);
             if (isUniqueElement(el, elements)){
                 elements.push(el);
             }
+            return;
         }
+        toPush.forEach(function(el){
+            addUniqueElementToArray(el, attr, elements);
+        });
     }
     
     
@@ -182,24 +176,14 @@ var Pablo = (function(document, Array, JSON, Element){
     // ELEMENT API
     
     function PabloNode(node, attr){
-        var el,
-            thisNode = this,
-            // Create elements array
+        var // Create elements array
             elements = this.el = [];
             
-        if (isArrayLike(node)){
-            // Resolve the elements and add to elements array
-            toArray(node).forEach(function(node){
-                addUniqueElementToArray(node, attr, elements);
-            });
-        }
-        
-        else {
-            addUniqueElementToArray(node, attr, elements);
-        }
-        
-        // Apply attributes
-        if (attr){
+        // Add elements
+        addUniqueElementToArray(node, attr, elements);
+            
+        // Apply attributes if elements have been added
+        if (attr && elements.length){
             this.attr(attr);
         }
     }
@@ -225,16 +209,25 @@ var Pablo = (function(document, Array, JSON, Element){
             return this.el.length;
         },
         
+        empty: function(){
+            return this.each(function(el){
+                while (el.firstChild) {
+                    el.removeChild(el.firstChild);
+                }
+            });
+        },
+        
+        remove: function(){
+            return this.each(function(el){
+                el.parentNode.removeChild(el);
+            });
+        },
+        
         // Add new node(s) to the collection; accepts arrays or nodeLists
         push: function(node, attr){
-            var elements = this.el;
+            var pabloNodeToPush = Pablo(node, attr);
             
-            // Resolve request as an array of elements and add to the collection
-            Pablo(node, attr).el
-                .forEach(function(node){
-                    addUniqueElementToArray(node, attr, elements);
-                });
-            
+            addUniqueElementToArray(pabloNodeToPush, attr, this.el);
             return this;
         },
         
@@ -243,17 +236,18 @@ var Pablo = (function(document, Array, JSON, Element){
         },
         
         each: function(fn){
-            this.el.forEach(function(el, i, els){
-                fn.call(el, el, i, els);
+            this.el.forEach(function(el, index, elements){
+                fn.call(el, el, index, elements);
             });
             return this;
         },
         
         map: function(fn){
-            this.el.map(function(el, i, els){
-                fn.call(el, el, i, els);
-            });
-            return this;
+            return Pablo(
+                this.el.map(function(el, index, elements){
+                    fn.call(el, el, index, elements);
+                })
+            );
         },
         
         append: function(node, attr){
@@ -345,22 +339,11 @@ var Pablo = (function(document, Array, JSON, Element){
                     }
                 }
             });
-        },
-        
-        toString: function(){
-            return this.el.map(function(el){
-                var str = el.nodeName.toLowerCase();
-                
-                if (el.attributes.length && JSON && JSON.stringify){
-                    str += ':' + JSON.stringify(getAttributes(el));
-                }
-                return str;
-            }).join(', ');
         }
     };
     
     
-    // Aliases
+    // Element API Aliases
     extend(pabloNodeApi, {
         _  : pabloNodeApi.append,
         add: pabloNodeApi.push
@@ -382,6 +365,25 @@ var Pablo = (function(document, Array, JSON, Element){
     
     // PABLO API
     
+    // Console.log response
+    function toString(){
+        if (!this.el.length){
+            return '~';
+        }
+        
+        return this.el.map(function(el){
+            var str = '<' + el.nodeName.toLowerCase() + ' ';
+                
+            if (el.attributes.length && JSON && JSON.stringify){
+                str += JSON.stringify(getAttributes(el))
+                    .replace(/","/g, '", ')
+                    .replace(/^{"|}$/g, '')
+                    .replace(/":"/g, '="');
+            }
+            return str + '>';
+        }).join(', ');
+    }
+    
     // Select existing nodes in the document
     function selectPablo(node){
         return Pablo(document.querySelectorAll(node));
@@ -394,14 +396,17 @@ var Pablo = (function(document, Array, JSON, Element){
     
     // Create Pablo #2: return a function that wraps a PabloNode instance
     function createPabloFn(node, attr){
-        var thisNode = new PabloNode(node, attr),
+        var pabloNode = new PabloNode(node, attr),
             api = extend(
                 function(node, attr){
-                    thisNode.append(node, attr);
+                    pabloNode.append(node, attr);
                     return api;
                 },
-                thisNode,
-                {_pablo:thisNode},
+                pabloNode,
+                {
+                    _pablo: pabloNode,
+                    toString: toString // Used for console logging
+                },
                 true
             );
         return api;
@@ -439,8 +444,12 @@ var Pablo = (function(document, Array, JSON, Element){
         fn: pabloNodeApi,
         Node: PabloNode,
         
-        root: function(){
-            return Pablo('svg', {version:svgVersion});
+        // Create SVG root wrapper
+        root: function(container, attr, dontEmpty){
+            attr = extend(attr, {version: Pablo.svgVersion});
+            return toPablo(container)
+                .empty()
+                .child('svg', attr);
         },
         
         // Whether to use the function API (default) or the object API
@@ -486,7 +495,7 @@ var xpablo = (function(document, Array, JSON){
     }
 
     function empty(el){
-        while (el && el.firstChild) {
+        while (el.firstChild) {
             el.removeChild(el.firstChild);
         }
         return el;
