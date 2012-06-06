@@ -372,10 +372,10 @@ var Pablo = (function(document, Array, JSON, Element){
         }
         
         return this.el.map(function(el){
-            var str = '<' + el.nodeName.toLowerCase() + ' ';
+            var str = '<' + el.nodeName.toLowerCase();
                 
             if (el.attributes.length && JSON && JSON.stringify){
-                str += JSON.stringify(getAttributes(el))
+                str += ' ' + JSON.stringify(getAttributes(el))
                     .replace(/","/g, '", ')
                     .replace(/^{"|}$/g, '')
                     .replace(/":"/g, '="');
