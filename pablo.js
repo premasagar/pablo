@@ -11,6 +11,8 @@
 
 
 var Pablo = (function(document, Array, JSON, Element){
+    'use strict';
+    
     var svgns = 'http://www.w3.org/2000/svg',
         xlinkns = 'http://www.w3.org/1999/xlink',
         svgVersion = 1.1,
