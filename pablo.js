@@ -23,7 +23,7 @@ var Pablo = (function(document, Array, JSON, Element){
     
     function make(elementName){
         return typeof elementName === 'string' &&
-            document.createElementNS(svgns, elementName) ||
+            document.createElementNS(Pablo.svgns || svgns, elementName) ||
             null;
     }
     
@@ -147,7 +147,7 @@ var Pablo = (function(document, Array, JSON, Element){
     }
     
     function isSvg(node){
-        return node.namespaceURI == svgns;
+        return node.namespaceURI == Pablo.svgns;
     }
     
     function addUniqueElementToArray(node, attr, elements){
@@ -429,15 +429,18 @@ var Pablo = (function(document, Array, JSON, Element){
         isPablo: isPablo,
         isElement: isElement,
         isSvg: isSvg,
+        extend: extend,
         fn: pabloNodeApi,
         Node: PabloNode,
         
         // Create SVG root wrapper
-        root: function(container, attr, dontEmpty){
-            attr = extend(attr, {version: Pablo.svgVersion});
-            return toPablo(container)
-                .empty()
-                .child('svg', attr);
+        root: function(container, attr, keepContents){
+            container = toPablo(container);
+            if (keepContents !== true){
+                container.empty();
+            }
+            extend(attr, {version: Pablo.svgVersion});
+            return container.child('svg', attr);
         },
         
         // Whether to use the function API (default) or the object API
