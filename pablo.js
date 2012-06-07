@@ -238,17 +238,13 @@ var Pablo = (function(document, Array, JSON, Element){
         },
         
         each: function(fn){
-            this.el.forEach(function(el, index, elements){
-                fn.call(el, el, index, elements);
-            });
+            this.el.forEach(fn, this);
             return this;
         },
         
         map: function(fn){
             return Pablo(
-                this.el.map(function(el, index, elements){
-                    fn.call(el, el, index, elements);
-                })
+                this.el.map(fn, this)
             );
         },
         
