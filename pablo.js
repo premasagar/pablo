@@ -375,12 +375,16 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
                 return getAttributes(this.el[0]);
             }
             
-            return this.each(function(el){
+            return this.each(function(el, i){
                 var pabloNode, prop, val;
                 
                 for (prop in attr){
                     if (attr.hasOwnProperty(prop)){
                         val = attr[prop];
+                        
+                        if (typeof val === 'function'){
+                            val = val(el, i);
+                        }
                     
                         switch (prop){
                             case '_content':
