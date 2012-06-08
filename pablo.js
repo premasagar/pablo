@@ -86,7 +86,7 @@ var Pablo = (function(document, Array, JSON, Element){
     }
     
     function isArrayLike(obj){
-        return obj && typeof obj === 'object' && typeof obj.length === 'number';
+        return obj && (typeof obj === 'object' || typeof obj === 'function') && typeof obj.length === 'number';
     }
     
     function toArray(obj){
