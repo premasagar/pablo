@@ -16,7 +16,7 @@
         
         <script>
         // Check browser supports Pablo
-        if (false && Pablo.isSupported){
+        if (Pablo.isSupported){
             
             // Create SVG root node
             // Optional: pass in HTML DOM element or CSS selector to act as a
@@ -91,7 +91,7 @@
                 
                 
                 // Animate red circle on mouse events
-                paper('circle')[0]
+                paper('circle')
                     .attr({style:'cursor:pointer'})
                     .on('mouseover', function(event){
                         Pablo(event.target)

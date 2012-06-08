@@ -86,7 +86,7 @@ var Pablo = (function(document, Array, JSON, Element){
     }
     
     function isArrayLike(obj){
-        return obj && (typeof obj === 'object' || typeof obj === 'function') && typeof obj.length === 'number';
+        return (Array.isArray(obj) || isNodeList(obj)) && typeof obj.length === 'number';
     }
     
     function toArray(obj){
@@ -95,6 +95,10 @@ var Pablo = (function(document, Array, JSON, Element){
     
     function isElement(node){
         return node instanceof Element;
+    }
+    
+    function isNodeList(node){
+        return node instanceof NodeList;
     }
     
     function isUniqueElement(node, elements){
@@ -256,7 +260,7 @@ var Pablo = (function(document, Array, JSON, Element){
         
         append: function(node, attr){
             this.each(function(el){
-                toPablo(node, attr).each(function(child){
+                toPablo(node, attr || {}).each(function(child){
                     el.appendChild(child);
                 });
             });
@@ -270,15 +274,26 @@ var Pablo = (function(document, Array, JSON, Element){
         
         // TODO: merge with `children`?
         child: function(node, attr){
-            return toPablo(node, attr).appendTo(this);
+            return toPablo(node, attr || {}).appendTo(this);
         },
         
-        insertBefore: function(node, attr){
+        before: function(node, attr){
             return this.each(function(el, i, thisNode){
                 var parentNode = el.parentNode;
                 if (parentNode){
                     Pablo(node, attr).each(function(toInsert){
                         parentNode.insertBefore(toInsert, el);
+                    });
+                }
+            });
+        },
+        
+        after: function(node, attr){
+            return this.each(function(el, i, thisNode){
+                var parentNode = el.parentNode;
+                if (parentNode){
+                    Pablo(node, attr).each(function(toInsert){
+                        parentNode.insertBefore(toInsert, el.nextSibling);
                     });
                 }
             });
