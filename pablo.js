@@ -318,6 +318,11 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             });
         },
         
+        prependTo: function(node){
+            toPablo(node).prepend(this);
+            return this;
+        },
+        
         children: function(){
             var children = Pablo();
             
@@ -422,6 +427,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         },
         
         // Accepts a string, or an array of strings
+        // TODO: not yet sandboxed to container node
         styles: function(css){
             !isArray(css) || (css = css.join(''));
             return this('style', {_content:css});
