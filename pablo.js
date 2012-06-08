@@ -8,9 +8,7 @@
 */
 
 
-
-
-var Pablo = (function(document, Array, JSON, Element){
+var Pablo = (function(document, Array, JSON, Element, NodeList){
     'use strict';
     
     var svgns = 'http://www.w3.org/2000/svg',
@@ -29,7 +27,7 @@ var Pablo = (function(document, Array, JSON, Element){
     
     function isSupported(){
         return !!(
-            document && Array && JSON && Element &&
+            document && Array && JSON && Element && NodeList &&
             document.querySelectorAll &&
             document.querySelector &&
             document.createElementNS &&
@@ -85,24 +83,8 @@ var Pablo = (function(document, Array, JSON, Element){
         });
     }
     
-    function isArrayLike(obj){
-        return (Array.isArray(obj) || isNodeList(obj)) && typeof obj.length === 'number';
-    }
-    
     function toArray(obj){
         return Array.prototype.slice.call(obj);
-    }
-    
-    function isElement(node){
-        return node instanceof Element;
-    }
-    
-    function isNodeList(node){
-        return node instanceof NodeList;
-    }
-    
-    function isUniqueElement(node, elements){
-        return isElement(node) && elements.indexOf(node) === -1;
     }
     
     function toElement(node){
@@ -137,10 +119,20 @@ var Pablo = (function(document, Array, JSON, Element){
         return attr;
     }
     
-    // Return node if a PabloNode, otherwise create one
-    function toPablo(node, attr){
-        return Pablo.isPablo(node) ?
-            node : Pablo(node, attr);
+    function isArray(obj){
+        return Array.isArray(obj);
+    }
+    
+    function isElement(node){
+        return node instanceof Element;
+    }
+    
+    function isNodeList(node){
+        return node instanceof NodeList;
+    }
+    
+    function isUniqueElement(node, elements){
+        return isElement(node) && elements.indexOf(node) === -1;
     }
     
     // Returns true for both a Pablo instance and its API function
@@ -150,8 +142,21 @@ var Pablo = (function(document, Array, JSON, Element){
         );
     }
     
+    function canBeWrapped(node){
+        return isPablo(node) ||
+            isElement(node) ||
+            isNodeList(node) ||
+            isArray(node);
+    }
+    
     function isSvg(node){
         return node.namespaceURI == Pablo.svgns;
+    }
+    
+    // Return node if a PabloNode, otherwise create one
+    function toPablo(node, attr){
+        return isPablo(node) ?
+            node : Pablo(node, attr);
     }
     
     function addUniqueElementToArray(node, attr, elements){
@@ -160,7 +165,10 @@ var Pablo = (function(document, Array, JSON, Element){
         if (isPablo(node)){
             toPush = node.el;
         }
-        else if (isArrayLike(node)){
+        else if (isArray(node)){
+            toPush = node;
+        }
+        else if (isNodeList(node)){
             toPush = toArray(node);
         }
         else {
@@ -225,7 +233,10 @@ var Pablo = (function(document, Array, JSON, Element){
         
         remove: function(){
             return this.each(function(el){
-                el.parentNode.removeChild(el);
+                var parentNode = el.parentNode;
+                if (parentNode){
+                    parentNode.removeChild(el);
+                }
             });
         },
         
@@ -272,7 +283,6 @@ var Pablo = (function(document, Array, JSON, Element){
             return this;
         },
         
-        // TODO: merge with `children`?
         child: function(node, attr){
             return toPablo(node, attr || {}).appendTo(this);
         },
@@ -326,6 +336,27 @@ var Pablo = (function(document, Array, JSON, Element){
                 parents.push(el.parentNode);
             });
             return parents;
+        },
+        
+        clone: function(deep){
+            deep = deep || false;
+            return Pablo(
+                this.map(function(el){
+                    return el.cloneNode(deep);
+                })
+            );
+        },
+        
+        duplicate: function(repeats){
+            var duplicates = Pablo();
+            repeats || (repeats = 1);
+            
+            while (repeats --){
+                duplicates.push(this.clone(true));
+            }
+            return this
+                .after(duplicates)
+                .push(duplicates);
         },
         
         find: function(selector){
@@ -388,7 +419,7 @@ var Pablo = (function(document, Array, JSON, Element){
         
         // Accepts a string, or an array of strings
         styles: function(css){
-            !Array.isArray(css) || (css = css.join(''));
+            !isArray(css) || (css = css.join(''));
             return this('style', {_content:css});
         },
         
@@ -478,11 +509,7 @@ var Pablo = (function(document, Array, JSON, Element){
         var pabloNode = new PabloNode(node, attr),
             api = extend(
                 function(node, attr){
-                    if (attr ||
-                        Pablo.isPablo(node) ||
-                        isElement(node) ||
-                        isArrayLike(node)
-                    ){
+                    if (attr || canBeWrapped(node)){
                         pabloNode.append(node, attr);
                         return api;
                     }
@@ -507,11 +534,7 @@ var Pablo = (function(document, Array, JSON, Element){
     
     // Pablo main function
     function Pablo(node, attr){
-        if (attr ||
-            Pablo.isPablo(node) ||
-            isElement(node) ||
-            isArrayLike(node)
-        ){
+        if (attr || canBeWrapped(node)){
             return createPablo(node, attr);
         }
         else {
@@ -528,6 +551,7 @@ var Pablo = (function(document, Array, JSON, Element){
         svgVersion: svgVersion,
         isPablo: isPablo,
         isElement: isElement,
+        isNodeList: isNodeList,
         isSvg: isSvg,
         extend: extend,
         fn: pabloNodeApi,
@@ -551,4 +575,4 @@ var Pablo = (function(document, Array, JSON, Element){
     };
     
     return extend(Pablo, pabloApi, true);
-}(window.document, window.Array, window.JSON, window.Element));
+}(window.document, window.Array, window.JSON, window.Element, window.NodeList));
