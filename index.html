@@ -21,7 +21,7 @@
             // Create SVG root node
             // Optional: pass in HTML DOM element or CSS selector to act as a
             // container for the SVG
-            var paper = Pablo.root('#paper', {width:460, height:460})
+            var paper = Pablo.root('#paper', {width:1000, height:800})
             
                 // CSS to be sandboxed within the SVG context
                 // This creates a `<style>` element within the parent
@@ -195,6 +195,14 @@
                                 return 'rotate(' + ((i % 2 ? i : i -1) * 5 - 50) + ', 0, 0)';
                             }
                         });
+                        
+                paper.defs().rect({x:0, y:0, width:75, height:75, id:'square', stroke:'red'}).css({'stroke-width':5, fill:'orange', opacity:0.3});
+                paper.use().link('#square').duplicate(5)
+                .attr({
+                    x:function(el, i){return i * 80 + 60;},
+                    y:function(el, i){return i * 50 + 50;},
+                    transform: function(el, i){return 'rotate(' + (((i + 1) * 45)) + ',' + el.getAttribute('x') + ',' + el.getAttribute('y') + ')';}
+                });
                 
                 // Scale range slider
                 var scaleRange = document.getElementById('scale');
