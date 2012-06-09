@@ -242,9 +242,21 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         
         // Add new node(s) to the collection; accepts arrays or nodeLists
         push: function(node, attr){
-            var pabloNodeToPush = Pablo(node, attr);
+            var pabloNodeToAdd = Pablo(node, attr);
             
-            addUniqueElementToArray(pabloNodeToPush, attr, this.el);
+            addUniqueElementToArray(pabloNodeToAdd, attr, this.el);
+            return this;
+        },
+        
+        // Add new node(s) to the collection; accepts arrays or nodeLists
+        // TODO: don't replace `this.el`, e.g. `el` array may be cached
+        shift: function(node, attr){
+            var existingElements = this.el.slice();
+            
+            // Empty elements, add the new one, then add the existing ones back
+            this.el.length = 0;
+            this.push(node, attr);
+            this.el = this.el.concat(existingElements);
             return this;
         },
         
@@ -352,16 +364,16 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             );
         },
         
+        // TODO: should this return a new collection? i.e. not push to `this`?
         duplicate: function(repeats){
             var duplicates = Pablo();
             repeats || (repeats = 1);
             
             while (repeats --){
-                duplicates.push(this.clone(true));
+                duplicates.el.push(this.clone(true).el[0]);
             }
-            return this
-                .after(duplicates)
-                .push(duplicates);
+            this.after(duplicates);
+            return duplicates.shift(this);
         },
         
         find: function(selector){
