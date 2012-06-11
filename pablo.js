@@ -8,7 +8,7 @@
 */
 
 
-var Pablo = (function(document, Array, JSON, Element, NodeList, SVGElementInstance){
+var Pablo = (function(document, Array, JSON, Element, NodeList){
     'use strict';
     
     var svgns = 'http://www.w3.org/2000/svg',
@@ -27,7 +27,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList, SVGElementInstan
     
     function isSupported(){
         return !!(
-            document && Array && JSON && Element && NodeList && SVGElementInstance &&
+            document && Array && JSON && Element && NodeList &&
             document.querySelectorAll &&
             document.querySelector &&
             document.createElementNS &&
@@ -125,10 +125,6 @@ var Pablo = (function(document, Array, JSON, Element, NodeList, SVGElementInstan
     
     function isElement(node){
         return node instanceof Element;
-    }
-    
-    function isSVGElementInstance(node){
-        return node instanceof SVGElementInstance;
     }
     
     function isNodeList(node){
@@ -582,7 +578,6 @@ var Pablo = (function(document, Array, JSON, Element, NodeList, SVGElementInstan
         isPablo: isPablo,
         isElement: isElement,
         isNodeList: isNodeList,
-        isSVGElementInstance: isSVGElementInstance,
         isSvg: isSvg,
         extend: extend,
         fn: pabloNodeApi,
@@ -606,4 +601,4 @@ var Pablo = (function(document, Array, JSON, Element, NodeList, SVGElementInstan
     };
     
     return extend(Pablo, pabloApi, true);
-}(window.document, window.Array, window.JSON, window.Element, window.NodeList, window.SVGElementInstance));
+}(window.document, window.Array, window.JSON, window.Element, window.NodeList));
