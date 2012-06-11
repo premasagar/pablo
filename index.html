@@ -27,34 +27,37 @@
                 // This creates a `<style>` element within the parent
                 (
                     Pablo.style().content(
-                        '* {stroke-width:20}' +
+                        'g.basic {stroke-width:20}' +
                         'text {font-family:sans-serif; font-size:16px}'
                     )
                 )
                 
-                // Graphical elements
-                ('line', {x1:10, y1:5, x2:200, y2:350, stroke:'purple'})
-                ('circle', {cx:200, cy:150, r:50, fill:'#f33', stroke:'#050'})
-                ('ellipse', {
-                    cx:200,
-                    cy:270,
-                    rx:80,
-                    ry:40,
-                    stroke:'#222',
-                    fill:'#777',
-                    opacity:0.5,
-                    // Override `<style>` element above with a `style` attribute
-                    style:'stroke-width:10'
-                })
-                ('polyline', {
-                    points:'120,100 200,25 280,100',
-                    stroke:'#444',
-                    fill:'none',
-                    // Hyphenated attribute names must be passed as strings
-                    // since CamelCased attribute names are not (yet) supported
-                    'stroke-linejoin':'round',
-                    'stroke-linecap':'round'
-                })
+                (   
+                    // Basic elements
+                    Pablo.g({'class': 'basic'})
+                    ('line', {x1:10, y1:5, x2:200, y2:350, stroke:'purple'})
+                    ('circle', {cx:200, cy:150, r:50, fill:'#f33', stroke:'#050'})
+                    ('ellipse', {
+                        cx:200,
+                        cy:270,
+                        rx:80,
+                        ry:40,
+                        stroke:'#222',
+                        fill:'#777',
+                        opacity:0.5,
+                        // Override `<style>` element above with a `style` attribute
+                        style:'stroke-width:10'
+                    })
+                    ('polyline', {
+                        points:'120,100 200,25 280,100',
+                        stroke:'#444',
+                        fill:'none',
+                        // Hyphenated attribute names must be passed as strings
+                        // since CamelCased attribute names are not (yet) supported
+                        'stroke-linejoin':'round',
+                        'stroke-linecap':'round'
+                    })
+                )
                 
                 
                 // Text on a path
@@ -100,8 +103,8 @@
                             .empty()
                             ('animate', {
                                 attributeName:'fill',
-                                from:'#ff3',
-                                to:'#005',
+                                from:'yellow',
+                                to:'brown',
                                 dur:'1.62s',
                                 repeatCount:'indefinite'
                             })
@@ -227,14 +230,15 @@
                             var attr = Pablo(el).attr();
                             
                             return 'rotate(' + 
-                                        ((i + 1) * 45) + ',' +
+                                        ((i + 1) * 22.5) + ',' +
                                         attr.x + ',' +
                                         attr.y +
                                     ') ' +
                                     'scale(' +
                                         (i * 0.2 + 0.5) +
                                     ')';
-                        }
+                        },
+                        
                     })
                     .on('mouseover', function(event){
                         Pablo(this)
@@ -272,5 +276,8 @@
                 }, false);
         }
         </script>
+        
+        <!-- EXPERIMENTS -->
+        <script src="examples/symbols.js"></script>
     </body>
 </html>
