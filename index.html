@@ -25,10 +25,12 @@
             
                 // CSS to be sandboxed within the SVG context
                 // This creates a `<style>` element within the parent
-                .styles([
-                    '* {stroke-width:20}',
-                    'text {font-family:sans-serif; font-size:16px}'
-                ])
+                (
+                    Pablo.style().content(
+                        '* {stroke-width:20}' +
+                        'text {font-family:sans-serif; font-size:16px}'
+                    )
+                )
                 
                 // Graphical elements
                 ('line', {x1:10, y1:5, x2:200, y2:350, stroke:'purple'})
@@ -81,7 +83,7 @@
                         target:'_blank'
                     })
                     ('text', {
-                        _content:'we ♥ pablo',
+                        _content:'➵ ♥ pablo',
                         x:300,
                         y:170,
                         fill:'#777',
@@ -94,7 +96,7 @@
                 paper('circle')
                     .attr({style:'cursor:pointer'})
                     .on('mouseover', function(event){
-                        Pablo(event.target)
+                        Pablo(this)
                             .empty()
                             ('animate', {
                                 attributeName:'fill',
@@ -112,13 +114,13 @@
                             })
                     })
                     .on('mouseout', function(event){
-                        Pablo(event.target).empty();
+                        Pablo(this).empty();
                     })
                     .on('mousedown', function(event){
-                        Pablo(event.target).attr({stroke:'#fff'});
+                        Pablo(this).attr({stroke:'#fff'});
                     })
                     .on('mouseup', function(event){
-                        Pablo(event.target).attr({stroke:'#050'});
+                        Pablo(this).attr({stroke:'#050'});
                     });
                     
 
@@ -192,21 +194,69 @@
                             x2: 200,
                             y2: 200,
                             transform: function(el, i){
-                                return 'rotate(' + ((i % 2 ? i : i -1) * 5 - 50) + ', 0, 0)';
+                                return 'rotate(' +
+                                    ((i % 2 ? i : i -1) * 5 - 50) +
+                                    ', 0, 0)';
                             }
                         });
                         
-                paper.defs().rect({x:0, y:0, width:75, height:75, id:'square', stroke:'red'}).css({'stroke-width':5, fill:'orange', opacity:0.3});
-                paper.use().link('#square').duplicate(5)
-                .attr({
-                    x:function(el, i){return i * 80 + 60;},
-                    y:function(el, i){return i * 50 + 50;},
-                    transform: function(el, i){return 'rotate(' + (((i + 1) * 45)) + ',' + el.getAttribute('x') + ',' + el.getAttribute('y') + ')';}
-                });
+                var rect = paper.defs()
+                    .g({id:'square'})
+                    .rect({
+                        x:0,
+                        y:0,
+                        width:75,
+                        height:75,
+                        stroke:'red'
+                    })
+                    .css({'stroke-width':15});
+                    
+                paper.use()
+                    .link('#square')
+                    .duplicate(5)
+                    .attr({
+                        fill:'orange',
+                        opacity:0.3,
+                        x :function(el, i){
+                            return i * 80 + 60;
+                        },
+                        y: function(el, i){
+                            return i * 50 + 50;
+                        },
+                        transform: function(el, i){
+                            var attr = Pablo(el).attr();
+                            
+                            return 'rotate(' + 
+                                        ((i + 1) * 45) + ',' +
+                                        attr.x + ',' +
+                                        attr.y +
+                                    ') ' +
+                                    'scale(' +
+                                        (i * 0.2 + 0.5) +
+                                    ')';
+                        }
+                    })
+                    .on('mouseover', function(event){
+                        Pablo(this)
+                            .attr({
+                                fill:'#300',
+                                opacity:1
+                            });
+                    })
+                    .on('mouseout', function(event){
+                        Pablo(this)
+                            .attr({
+                                fill:'orange',
+                                opacity:0.3
+                            });
+                    });
+                
+                /////
                 
                 // Scale range slider
                 var scaleRange = document.getElementById('scale');
                 scaleRange.addEventListener('change', function(){
+                    // paper.el[0].currentScale = scaleRange.value;
                     paper.css({
                         'transform':'scale(' + scaleRange.value + ')',
                         'transform-origin':'0 0',
