@@ -8,7 +8,7 @@
 */
 
 
-var Pablo = (function(document, Array, JSON, Element, NodeList){
+var Pablo = (function(document, Array, JSON, Element, NodeList, SVGElementInstance){
     'use strict';
     
     var svgns = 'http://www.w3.org/2000/svg',
@@ -27,7 +27,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     
     function isSupported(){
         return !!(
-            document && Array && JSON && Element && NodeList &&
+            document && Array && JSON && Element && NodeList && SVGElementInstance &&
             document.querySelectorAll &&
             document.querySelector &&
             document.createElementNS &&
@@ -125,6 +125,10 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     
     function isElement(node){
         return node instanceof Element;
+    }
+    
+    function isSVGElementInstance(node){
+        return node instanceof SVGElementInstance;
     }
     
     function isNodeList(node){
@@ -468,6 +472,17 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             return this.each(function(el){
                 el.removeEventListener(type, listener, useCapture || false);
             });
+        },
+        
+        // TODO: if the original event was set on a collection of multiple nodes, should `one` remove the event from all nodes after its first firing on ANY node? Or should it only be removed from the currentTarget?
+        one: function(type, listener, useCapture){
+            var thisNode = this;
+            return this.on(type, function addListener(){
+                // Remove listener
+                thisNode.off(type, addListener, useCapture);
+                // Fire listener
+                listener.apply(this, arguments);
+            }, useCapture);
         }
     };
     
@@ -574,6 +589,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         isPablo: isPablo,
         isElement: isElement,
         isNodeList: isNodeList,
+        isSVGElementInstance: isSVGElementInstance,
         isSvg: isSvg,
         extend: extend,
         fn: pabloNodeApi,
@@ -597,4 +613,4 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     };
     
     return extend(Pablo, pabloApi, true);
-}(window.document, window.Array, window.JSON, window.Element, window.NodeList));
+}(window.document, window.Array, window.JSON, window.Element, window.NodeList, window.SVGElementInstance));
