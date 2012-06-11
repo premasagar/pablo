@@ -35,7 +35,7 @@ if (Pablo.isSupported){
                     x: (Number(attr.x) + Math.random() * 15 - 7.5).toFixed(2),
                     y: (Number(attr.y) + Math.random() * 15 - 7.5).toFixed(2)
                 });
-            }, 1 / 60);
+            }, 1000 / 30);
         })
         .on('mouseout', function(event){
             clearTimeout(intervalRef);
