@@ -404,7 +404,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList, SVGElementInstan
                         val = attr[prop];
                         
                         if (typeof val === 'function'){
-                            val = val(el, i);
+                            val = val.call(this, el, i);
                         }
                     
                         switch (prop){
@@ -440,13 +440,6 @@ var Pablo = (function(document, Array, JSON, Element, NodeList, SVGElementInstan
                 el.textContent = text;
             });
             
-        },
-        
-        // Accepts a string, or an array of strings
-        // TODO: not yet sandboxed to container node
-        styles: function(css){
-            !isArray(css) || (css = css.join(''));
-            return this('style', {_content:css});
         },
         
         css: function(newStyles){
