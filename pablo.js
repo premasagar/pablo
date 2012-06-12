@@ -472,6 +472,12 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
                 // Fire listener
                 listener.apply(this, arguments);
             }, useCapture);
+        },
+        
+        // Create SVG root wrapper
+        root: function(attr){
+            extend(attr, {version: Pablo.svgVersion});
+            return this.svg(attr);
         }
     };
     
@@ -582,16 +588,6 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         extend: extend,
         fn: pabloNodeApi,
         Node: PabloNode,
-        
-        // Create SVG root wrapper
-        root: function(container, attr, keepContents){
-            container = toPablo(container);
-            if (keepContents !== true){
-                container.empty();
-            }
-            extend(attr, {version: Pablo.svgVersion});
-            return container.child('svg', attr);
-        },
         
         // Whether to use the function API (default) or the object API
         functionApi: function(yes){
