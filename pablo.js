@@ -100,11 +100,16 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     
     // Like toElement, but will favour making an element if there are attributes passed
     function makeOrFindElement(node, attr){
-        return attr ?
-            // if there are attributes, then definitely make an element
-            make(node) :
-            // if not, then try to find the element(s); if not found, make one
-            toElement(node);
+        // Already an element
+        if (isElement(node)){
+            return node;
+        }
+        // If there are attributes, then definitely make an element
+        else if (attr) {
+            return make(node);
+        }
+        // Try to find element(s) by selector; if not found, make new element
+        return toElement(node);
     }
     
     function getAttributes(el){
