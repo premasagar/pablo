@@ -14,6 +14,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     var svgns = 'http://www.w3.org/2000/svg',
         xlinkns = 'http://www.w3.org/1999/xlink',
         svgVersion = 1.1,
+        vendorPrefixes = ['-moz-', '-webkit-', '-khtml-', '-o-', '-ms-'],
         pabloApi, pabloNodeApi, createPablo;
 
 
@@ -449,6 +450,21 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
                     }
                 }
             });
+        },
+        
+        // Add CSS styles with browser vendor prefixes
+        // e.g. cssPrefix({transform:'rotate(45deg)'}) will be prefixed with -moz, -webkit, -o, -ms and -khtml
+        cssPrefix: function(newStyles){
+            var prop;
+            
+            for (prop in newStyles){
+                if (newStyles.hasOwnProperty(prop)){
+                    vendorPrefixes.forEach(function(prefix){
+                        newStyles[prefix + prop] = newStyles[prop];
+                    });
+                }
+            }
+            return this.css(newStyles);
         },
         
         on: function(type, listener, useCapture){
