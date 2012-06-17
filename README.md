@@ -122,7 +122,7 @@ paper
 ### Example: Animate, on mouse events
 
 ````js
-paper('circle')[0]
+paper('circle')
     .attr({style:'cursor:pointer'})
     .on('mouseover', function(event){
         pablo(event.target)
