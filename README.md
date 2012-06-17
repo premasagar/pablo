@@ -34,13 +34,16 @@ Optional arguments:
 1. HTML DOM element or CSS selector to act as a container for the SVG
 2. Attributes to be added to the SVG element
 
-### `styles()`: CSS styles, sandboxed to the current element
+### `style().content()`: CSS styles, which apply to all elements in the current SVG document
 
-This creates a `<style>` element within the parent.
 ````js
-paper.styles([
-    '* {stroke-width:20}',
-    'text {font-family:sans-serif; font-size:16px}'
+// Append <style> element
+paper.style()
+    // Change text content (like jQuery's text() method)
+    .content(
+        '* {stroke-width:20}' +
+        'text {font-family:sans-serif; font-size:16px}'
+    );
 ])
 ````
 
