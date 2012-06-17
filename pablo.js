@@ -438,10 +438,15 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         },
         
         content: function(text){
+            // Get first element's textContent
+            if (typeof text === 'undefined'){
+                return this.el[0].textContent;
+            }
+            
+            // Set every element's textContent
             return this.each(function(el){
                 el.textContent = text;
             });
-            
         },
         
         css: function(newStyles){
