@@ -509,13 +509,13 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         
         // Allow one event on each of the elements in the collection
         oneEach: function(type, listener, useCapture){
-            var thisNode = this;
             this.each(function(el){
-                Pablo(el).on(type, function addListener(){
+                var node = Pablo(el);
+                node.on(type, function addListener(){
                     // Remove listener
-                    thisNode.off(type, addListener, useCapture);
+                    node.off(type, addListener, useCapture);
                     // Fire listener
-                    listener.apply(thisNode, arguments);
+                    listener.apply(node, arguments);
                 }, useCapture);
             });
         },
