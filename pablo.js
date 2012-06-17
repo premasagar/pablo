@@ -254,15 +254,22 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             return this;
         },
         
+        // Remove node from end of the collection
+        pop: function(node, attr){
+            return this.el.pop();
+        },
+        
+        shift: function(){
+            return this.el.shift();
+        },
+        
         // Add new node(s) to the collection; accepts arrays or nodeLists
         // TODO: don't replace `this.el`, e.g. `el` array may be cached
-        shift: function(node, attr){
-            var existingElements = this.el.slice();
-            
-            // Empty elements, add the new one, then add the existing ones back
-            this.el.length = 0;
-            this.push(node, attr);
-            this.el = this.el.concat(existingElements);
+        unshift: function(node, attr){
+            var newNode = Pablo(node, attr).el[0],
+                existingElements = this.el.slice();
+                
+            this.el = [newNode].concat(existingElements);
             return this;
         },
         
@@ -379,7 +386,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
                 duplicates.el.push(this.clone(true).el[0]);
             }
             this.after(duplicates);
-            return duplicates.shift(this);
+            return duplicates.unshift(this);
         },
         
         find: function(selector){
@@ -489,14 +496,14 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             });
         },
         
-        // TODO: if the original event was set on a collection of multiple nodes, should `one` remove the event from all nodes after its first firing on ANY node? Or should it only be removed from the currentTarget?
+        // Allow just one event for the whole collection of elements
         one: function(type, listener, useCapture){
             var thisNode = this;
             return this.on(type, function addListener(){
                 // Remove listener
                 thisNode.off(type, addListener, useCapture);
                 // Fire listener
-                listener.apply(this, arguments);
+                listener.apply(thisNode, arguments);
             }, useCapture);
         },
         
