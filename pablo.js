@@ -439,6 +439,12 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             });
         },
         
+        removeAttr: function (attr) {
+            return this.each(function (el, i){
+                el.removeAttributeNS(null, attr);
+            });
+        },
+
         link: function(href){
             return this.each(function(el){
                 el.setAttributeNS(xlinkns, 'xlink:href', href);
