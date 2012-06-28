@@ -210,6 +210,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     
     // Node prototype
     pabloNodeApi = PabloNode.prototype = {
+        constructor: PabloNode,
         make: make,
         
         get: function(index){
