@@ -441,7 +441,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         
         removeAttr: function (attr) {
             this.each(function (el, i){
-                console.log('stop');
+                el.removeAttribute(attr);
             })
         },
 
