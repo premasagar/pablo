@@ -440,9 +440,9 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         },
         
         removeAttr: function (attr) {
-            this.each(function (el, i){
-                el.removeAttribute(attr);
-            })
+            return this.each(function (el, i){
+                el.removeAttributeNS(null, attr);
+            });
         },
 
         link: function(href){
