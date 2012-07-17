@@ -85,7 +85,8 @@ task :update do
   rescue
     puts "\nNew posts are identical to the old. Working directory clean, nothing to commit or push."
   else
-    puts "\nDocs updated successfully! To push the changes, type:"
+    puts "\nDocs updated successfully!"
+    puts "\nYou're on the #{site_branch} branch. To push the changes, type:"
     puts "git push origin #{site_branch}"
   end
 end
@@ -99,10 +100,6 @@ task :server do
 
   # Start the Jekyll server
   sh("jekyll --server")
-end
-
-task :test do
-  sh("git checkout gh-pages") rescue puts "hello"
 end
 
 #namespace :post do
@@ -142,7 +139,7 @@ def postify(filename)
   # add preceding 1 & zeros if number is less then 4 digits
   until  prepend_number.length + number.length >= 4 do
     if prepend_number === ""
-      prepend_number = "1" + prepend_number
+      prepend_number = "9" + prepend_number
     else
       prepend_number = "0" + prepend_number
     end
