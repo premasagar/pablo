@@ -7,7 +7,7 @@ Pablo supports chainability for some of its methods.
     var paper = Pablo($output[0]).root({width:300, height:320});
 
     paper
-        .circle({cx:200, cy:150, r:50, fill:'#f33', stroke:'#050'})
+        ._('circle', {cx:200, cy:150, r:50, fill:'#f33', stroke:'#050'})
         ._('ellipse', {
             cx:200,
             cy:270,
@@ -27,10 +27,9 @@ Pablo supports chainability for some of its methods.
             // since CamelCased attribute names are not (yet) supported
             'stroke-linejoin':'round',
             'stroke-linecap':'round'
-        })
-        .line({x1:10, y1:5, x2:40, y2:40, stroke:'purple'});
+        });
 
-Pablo allows for chaining off svg shorthands like `.circle()` or `.line()`.
+Pablo allows for chaining off svg shorthands like `.defs()` or `.text()`.
 
     var paper = Pablo($output[0]).root({height:320});
 
