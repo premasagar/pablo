@@ -5,7 +5,7 @@ category: reference
 Pablo also has an assortment of methods for changing the properties of 
 svg nodes.
 
-Changing a nodes attributes
+Changing a node's attributes
 ---------------------------
 
 The `attr()` method can be used to set or get an objects attributes.
@@ -35,12 +35,10 @@ string.
 CSS styles
 ----------
 
-CSS properties carry over to svg natively. This means you can use CSS to set 
-svg node properties.
+CSS properties carry over to SVG natively. 
 
-Appending a style element and editing its contents allows you to do this.
-
-This is done with `style().content(css)`.
+This means you can use CSS to set SVG node properties by appending a style 
+element and editing its content, using `style().content(css)`.
 
     // Create the root node.
     var paper = Pablo($output[0]).root({height:100});
@@ -61,10 +59,8 @@ This is done with `style().content(css)`.
 Making svg nodes hyperlinked
 ----------------------------
 
-Pablo's `a(options)` method can be used to set up hyperlinks on svg elements.
-
-Take note of the order of the chained function calls and how only the 'text' 
-svg element is hyperlinked.
+Pablo’s a(options) method can be used to set up hyperlinks on svg elements.
+Only the ‘text’ svg element is hyperlinked.
 
 `a()` is only applied to multiple proceeding appended elements.
 
