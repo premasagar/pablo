@@ -42,7 +42,9 @@ var root = createRoot('#paper'),
     speedX = speed,
     speedY = speed,
     frameCount = 0,
-    spawnEvery = 10,
+    spawnMax = 16,
+    spawnDrift = 4,
+    driftMax   = 16,
     colors = ['red', 'green', 'blue'],
     colorsLength = colors.length;
 
@@ -74,8 +76,8 @@ var root = createRoot('#paper'),
                 return;
             }
 
-            x += (diffX / w) * speedX;
-            y += (diffY / w) * speedY;
+            x += randomInt(driftMax) + (diffX / w) * speedX;
+            y += randomInt(driftMax) + (diffY / w) * speedY;
 
             circle.attr({
                 cx: x,
@@ -90,8 +92,8 @@ var root = createRoot('#paper'),
     }
 
     function spawn(){
-        frameCount ++;
-        if (frameCount > spawnEvery){
+        frameCount += randomInt(spawnDrift);
+        if (frameCount > spawnMax){
             frameCount = 0;
             createSymbol();
         }
