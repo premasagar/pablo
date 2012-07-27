@@ -42,7 +42,13 @@ var root = createRoot('#paper'),
     speedX = speed,
     speedY = speed,
     frameCount = 0,
-    spawnEvery = 10;
+    spawnEvery = 10,
+    colors = ['red', 'green', 'blue'],
+    colorsLength = colors.length;
+
+    function randomInt(length){
+        return Math.ceil((length || 2) * Math.random()) - 1;
+    }
 
     function createSymbol(){
         var circle,
@@ -73,7 +79,8 @@ var root = createRoot('#paper'),
 
             circle.attr({
                 cx: x,
-                cy: y
+                cy: y,
+                fill: colors[randomInt(colorsLength)]
             });
 
             reqAnimFrame(loop, rootElem);
