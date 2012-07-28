@@ -4,13 +4,8 @@ function createRoot(container){
     var root, width, height;
 
     // SETTINGS
-        
     width = window.innerWidth;
     height = window.innerHeight;
-
-    function round(num, places){
-        return Number(num.toFixed(places));
-    }
 
     var root;
 
@@ -38,40 +33,55 @@ var root = createRoot('#paper'),
     w = Number(root.attr('width')),
     h = Number(root.attr('height')),
     r = 50,
-    speed = 100,
+    opacity = 1,
+    speed = 5,
     speedX = speed,
     speedY = speed,
     frameCount = 0,
     spawnMax = 16,
-    spawnDrift = 4,
-    driftMax   = 16,
-    colors = ['red', 'green', 'blue'],
-    colorsLength = colors.length;
+    spawnDrift = 40,
+    spawnEvery = 100,
+    driftMax   = 6,
+    colorChange =  30,
+    colors = ['#e0f6a5','#eafcb3','#a0c574','#7c7362','#745051','#edcabc','#6b5048','#ae7271','#b79b9e','#c76044','#edfcc1','#d9f396','#75a422','#819b69','#c8836a'],
+    colorsLength = colors.length,
+    time, symbolCreatedTime;
+
+    function round(num, places){
+        return Number(num.toFixed(places));
+    }
 
     function randomInt(length){
         return Math.ceil((length || 2) * Math.random()) - 1;
     }
 
+    function now(){
+        return (new Date().getTime());
+    }
+
     function createSymbol(){
         var circle,
-            x = -r,
-            y = -r,
+            x = -r - randomInt(500),
+            y = -r - randomInt(500),
             diffX, diffY;
 
         circle = root.circle({
             cx: x,
             cy: y,
             r: r,
-            fill: 'red'
+            fill: colors[randomInt(colorsLength)],
+            opacity: opacity
         });
 
 
         function loop(){
+            var attr;
+
             diffX = w + r - x;
             diffY = h + r - y;
 
+            // offscreen, so remove
             if (diffX < 1 || diffY < 1){
-                console.log('end');
                 circle.remove();
                 return;
             }
@@ -79,11 +89,16 @@ var root = createRoot('#paper'),
             x += randomInt(driftMax) + (diffX / w) * speedX;
             y += randomInt(driftMax) + (diffY / w) * speedY;
 
-            circle.attr({
-                cx: x,
-                cy: y,
-                fill: colors[randomInt(colorsLength)]
-            });
+            attr = {
+                cx: Math.round(x),
+                cy: Math.round(y)
+            };
+
+            if (!randomInt(colorChange)){
+                attr.fill = colors[randomInt(colorsLength)];
+            }
+
+            circle.attr(attr);
 
             reqAnimFrame(loop, rootElem);
         }
@@ -92,9 +107,9 @@ var root = createRoot('#paper'),
     }
 
     function spawn(){
-        frameCount += randomInt(spawnDrift);
-        if (frameCount > spawnMax){
-            frameCount = 0;
+        time = now();
+        if (time - (randomInt(spawnDrift) + symbolCreatedTime) > spawnEvery){
+            symbolCreatedTime = time;
             createSymbol();
         }
         reqAnimFrame(spawn, rootElem);
@@ -105,5 +120,6 @@ var root = createRoot('#paper'),
 // Create a symbol; spawn more intermittently
 if (reqAnimFrame){
     createSymbol();
+    symbolCreatedTime = now();
     reqAnimFrame(spawn, rootElem);
 }
