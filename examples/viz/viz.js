@@ -48,6 +48,8 @@ var root = createRoot('#paper'),
         height: Number(root.attr('height')),
         rMax: 60,
         rMin: 30,
+        strokeWidthMin: 2,
+        strokeWidthMax: 20,
         velocityMin: 1,
         velocityMax: 8,
         //opacityMin: 0.3,
@@ -106,8 +108,15 @@ Symbol.prototype = {
         var settings = this.settings,
             x, y, velocityX, velocityY;
 
-        // Radius
-        this.r = randomIntRange(settings.rMax, settings.rMin);
+        // Importance
+        this.importance = randomIntRange(0, 100);
+
+        // Size & colour
+        this.opacity = 1 / this.importance;
+        this.r = Math.round(this.importance *  (settings.rMax - settings.rMin) + settings.rMin);
+        this.strokeWidth = Math.round(this.importance *  (settings.strokeWidthMax - settings.strokeWidthMin) + settings.strokeWidthMin);
+        this.fill = this.settings.colors[randomInt(this.settings.colorsLength)];
+        this.stroke = this.settings.colors[randomInt(this.settings.colorsLength)];
 
         // Starting position - spread over either x or y axis
         if (randomInt()){
@@ -131,10 +140,6 @@ Symbol.prototype = {
 
         this.pos      = new Vector(x, y);
         this.velocity = new Vector(velocityX, velocityY);
-
-        // Colouring
-        this.fill = this.settings.colors[randomInt(this.settings.colorsLength)];
-        this.opacity = 1 / (this.r / settings.rMin);
 
         return this;
     },
@@ -163,6 +168,8 @@ Symbol.prototype = {
             cy: this.pos.y,
             r: this.r,
             fill: this.fill,
+            stroke: this.stroke,
+            'stroke-width': this.strokeWidth,
             opacity: this.opacity
         });
 
