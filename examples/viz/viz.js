@@ -34,9 +34,6 @@ var root = createRoot('#paper'),
         window.msCancelAnimationFrame,
 
     active = true,
-    maxSymbols = 30,
-    createInterval = 240,
-    loopRequestID,
         
     colors = ['#e0f6a5','#eafcb3','#a0c574','#7c7362','#745051','#edcabc','#6b5048','#ae7271','#b79b9e','#c76044','#edfcc1','#d9f396','#75a422','#819b69','#c8836a'],
     colorsLength = colors.length,
@@ -52,11 +49,16 @@ var root = createRoot('#paper'),
         strokeWidthMax: 20,
         velocityMin: 1,
         velocityMax: 8,
-        //opacityMin: 0.3,
-        //opacityMin: 1,
+        opacityMin: 0.3,
+        opacityMax: 0.9,
         colors: colors,
         colorsLength: colorsLength
-    };
+    },
+
+    magicNumber = 420,
+    maxSymbols = Math.round(((settings.width * settings.height) / ((settings.rMax - settings.rMin) / 2 + settings.rMin)) / magicNumber),
+    createInterval = 240,
+    loopRequestID;
 
 
 /////
@@ -109,10 +111,11 @@ Symbol.prototype = {
             x, y, velocityX, velocityY;
 
         // Importance
-        this.importance = randomIntRange(0, 100);
+        this.importance = randomIntRange(1, 100) / 100;
 
         // Size & colour
-        this.opacity = 1 / this.importance;
+        this.opacity = (1 - this.importance * this.importance) * 
+            (settings.opacityMax - settings.opacityMin) + settings.opacityMin;
         this.r = Math.round(this.importance *  (settings.rMax - settings.rMin) + settings.rMin);
         this.strokeWidth = Math.round(this.importance *  (settings.strokeWidthMax - settings.strokeWidthMin) + settings.strokeWidthMin);
         this.fill = this.settings.colors[randomInt(this.settings.colorsLength)];
@@ -146,31 +149,38 @@ Symbol.prototype = {
 
     // TODO: capture time since last update, and apply velocity accordingly
     update: function(){
-        var pos = this.pos;
+        var pos = this.pos,
+            halfwidth = this.r + this.strokeWidth;
 
         pos.add(this.velocity);
 
         if (
-            pos.x < 0 - this.r ||
-            pos.y < 0 - this.r ||
-            pos.x > this.settings.width + this.r ||
-            pos.y > this.settings.height + this.r
+            pos.y < 0 - halfwidth ||
+            pos.x > this.settings.width + halfwidth ||
+            pos.y > this.settings.height + halfwidth
         ){
             this.reset();
         }
 
-        return this.draw();
+        return this.drawPos();
     },
 
-    draw: function(){
+    drawAppearance: function(){
         this.dom.attr({
-            cx: this.pos.x,
-            cy: this.pos.y,
             r: this.r,
             fill: this.fill,
             stroke: this.stroke,
             'stroke-width': this.strokeWidth,
             opacity: this.opacity
+        });
+
+        return this;
+    },
+
+    drawPos: function(){
+        this.dom.attr({
+            cx: this.pos.x,
+            cy: this.pos.y
         });
 
         return this;
@@ -184,7 +194,10 @@ Symbol.prototype = {
     },
 
     create: function(){
-        return this.reset().createDom().draw();
+        return this.reset()
+            .createDom()
+            .drawAppearance()
+            .drawPos();
     }
 };
 

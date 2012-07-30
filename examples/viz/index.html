@@ -4,12 +4,21 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width,initial-scale=1.0">
         <title>Pablo</title>
-        <script src="../../pablo.js"></script>
+        <style>
+            #paper {
+                /* Indicate hardware-acceleration to WebKit: http://stackoverflow.com/questions/10014461/why-does-enabling-hardware-acceleration-in-css3-slow-down-performance */
+                -webkit-transform: translateZ(0);
+                -webkit-backface-visibility: hidden;
+                -webkit-perspective: 1000;
+            }
+        </style>
     </head>
     <body>
         <!-- HTML container for the SVG root node -->
         <div id="paper"></div>
         
+        <!-- Scripts -->
+        <script src="../../pablo.js"></script>
         <script src="viz.js"></script>
     </body>
 </html>
