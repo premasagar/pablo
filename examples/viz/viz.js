@@ -47,8 +47,8 @@ var root = createRoot('#paper'),
         rMin: 30,
         strokeWidthMin: 2,
         strokeWidthMax: 20,
-        velocityMin: 1,
-        velocityMax: 8,
+        velocityMin: 0.1,
+        velocityMax: 5,
         opacityMin: 0.3,
         opacityMax: 0.9,
         colors: colors,
@@ -108,7 +108,7 @@ function Symbol(settings){
 Symbol.prototype = {
     reset: function(){
         var settings = this.settings,
-            x, y, velocityX, velocityY;
+            halfwidth, x, y, velocityX, velocityY;
 
         // Importance
         this.importance = randomIntRange(1, 100) / 100;
@@ -120,19 +120,20 @@ Symbol.prototype = {
         this.strokeWidth = Math.round(this.importance *  (settings.strokeWidthMax - settings.strokeWidthMin) + settings.strokeWidthMin);
         this.fill = this.settings.colors[randomInt(this.settings.colorsLength)];
         this.stroke = this.settings.colors[randomInt(this.settings.colorsLength)];
+        halfwidth = this.r + this.strokeWidth;
 
         // Starting position - spread over either x or y axis
         if (randomInt()){
-            x = settings.width;
-            y = randomInt() ? 0 - this.r : settings.height + this.r;
+            x = randomInt() ? settings.width + halfwidth : 0 - halfwidth;
+            y = randomInt(settings.height);
         }
         else {
-            x = randomInt() ? 0 - this.r : settings.width + this.r;
-            y = settings.height;
+            x = randomInt(settings.width);
+            y = randomInt() ? settings.height + halfwidth : 0 - halfwidth;
         }
 
-        velocityX = randomIntRange(settings.velocityMin, settings.velocityMax);
-        velocityY = randomIntRange(settings.velocityMin, settings.velocityMax);
+        velocityX = round(randomIntRange(settings.velocityMin * 100, settings.velocityMax * 100) / 100, 2);
+        velocityY = round(randomIntRange(settings.velocityMin * 100, settings.velocityMax * 100) / 100, 2);
 
         if (x > this.settings.width / 2){
             velocityX = 0 - velocityX;
