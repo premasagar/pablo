@@ -47,8 +47,9 @@ var root = createRoot('#paper'),
         rMin: 15,
         strokeWidthMin: 2,
         strokeWidthMax: 20,
-        velocityMin: 2, // pixels per second
-        velocityMax: 20,
+        velocityMin: 0.05,
+        velocityMax: 0.2,
+        velocitySlowdown: 1.5,
         opacityMin: 0.3,
         opacityMax: 0.9,
         //opacityMin: 1,
@@ -129,7 +130,7 @@ function Symbol(settings){
 Symbol.prototype = {
     reset: function(){
         var settings = this.settings,
-            halfwidth, x, y, velocityX, velocityY;
+            halfwidth, x, y, velocityX, velocityY, velocityMax;
 
         // Importance
         this.importance = randomIntRange(1, 100) / 100;
@@ -158,8 +159,9 @@ Symbol.prototype = {
             y = randomInt() ? settings.height + halfwidth : 0 - halfwidth;
         }
 
-        velocityX = round(randomRange(settings.velocityMin, settings.velocityMax) / 100, 1);
-        velocityY = round(randomRange(settings.velocityMin, settings.velocityMax) / 100, 1);
+        velocityMax =  (1 - this.importance) * settings.velocitySlowdown * (settings.velocityMax - settings.velocityMin) + settings.velocityMin;
+        velocityX = round(randomRange(settings.velocityMin, velocityMax), 2);
+        velocityY = round(randomRange(settings.velocityMin, velocityMax), 2);
         //velocityX = (1 - this.importance) *  (settings.velocityMax - settings.velocityMin) + settings.velocityMin;
         //velocityY = (1 - this.importance) *  (settings.velocityMax - settings.velocityMin) + settings.velocityMin;
 
@@ -176,7 +178,6 @@ Symbol.prototype = {
         return this;
     },
 
-    // TODO: capture time since last update, and apply velocity accordingly
     update: function(velocityPerFrame){
         var pos = this.pos,
             halfwidth = this.r + this.strokeWidth;
