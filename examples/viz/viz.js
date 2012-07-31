@@ -43,8 +43,8 @@ var root = createRoot('#paper'),
         rootElem: root.el[0],
         width: Number(root.attr('width')),
         height: Number(root.attr('height')),
-        rMax: 60,
-        rMin: 30,
+        rMax: 80,
+        rMin: 15,
         strokeWidthMin: 2,
         strokeWidthMax: 20,
         velocityMin: 0.1,
@@ -55,8 +55,13 @@ var root = createRoot('#paper'),
         colorsLength: colorsLength
     },
 
-    magicNumber = 420,
-    maxSymbols = Math.round(((settings.width * settings.height) / ((settings.rMax - settings.rMin) / 2 + settings.rMin)) / magicNumber),
+    magicNumber = 400,
+    maxSymbols = Math.round(
+        (
+            (settings.width * settings.height) /
+            ((settings.rMax - settings.rMin) / 2 + settings.rMin)
+        ) / magicNumber
+    ),
     createInterval = 240,
     loopRequestID;
 
@@ -134,6 +139,8 @@ Symbol.prototype = {
 
         velocityX = round(randomIntRange(settings.velocityMin * 100, settings.velocityMax * 100) / 100, 2);
         velocityY = round(randomIntRange(settings.velocityMin * 100, settings.velocityMax * 100) / 100, 2);
+        //velocityX = (1 - this.importance) *  (settings.velocityMax - settings.velocityMin) + settings.velocityMin;
+        //velocityY = (1 - this.importance) *  (settings.velocityMax - settings.velocityMin) + settings.velocityMin;
 
         if (x > this.settings.width / 2){
             velocityX = 0 - velocityX;
@@ -160,7 +167,7 @@ Symbol.prototype = {
             pos.x > this.settings.width + halfwidth ||
             pos.y > this.settings.height + halfwidth
         ){
-            this.reset();
+            this.reset().drawAppearance();
         }
 
         return this.drawPos();
@@ -180,8 +187,8 @@ Symbol.prototype = {
 
     drawPos: function(){
         this.dom.attr({
-            cx: this.pos.x,
-            cy: this.pos.y
+            cx: Math.round(this.pos.x),
+            cy: Math.round(this.pos.y)
         });
 
         return this;
