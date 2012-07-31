@@ -43,14 +43,16 @@ var root = createRoot('#paper'),
         rootElem: root.el[0],
         width: Number(root.attr('width')),
         height: Number(root.attr('height')),
-        rMax: 80,
+        rMax: 150,
         rMin: 15,
         strokeWidthMin: 2,
         strokeWidthMax: 20,
-        velocityMin: 0.1,
-        velocityMax: 5,
+        velocityMin: 2, // pixels per second
+        velocityMax: 20,
         opacityMin: 0.3,
         opacityMax: 0.9,
+        //opacityMin: 1,
+        //opacityMax: 1,
         colors: colors,
         colorsLength: colorsLength
     },
@@ -69,12 +71,16 @@ var root = createRoot('#paper'),
 /////
 
 
-function round(num, places){
-    return Number(num.toFixed(places));
+function round(num, decimalplaces){
+    return Number(num.toFixed(decimalplaces));
 }
 
 function randomInt(length){
     return Math.ceil((length || 2) * Math.random()) - 1;
+}
+
+function randomRange(min, max){
+    return Math.random() * (max - min) + min;
 }
 
 function randomIntRange(min, max){
@@ -98,6 +104,16 @@ Vector.prototype = {
         this.x += vector.x;
         this.y += vector.y;
         return this;
+    },
+
+    multiply: function(vector){
+        this.x *= vector.x;
+        this.y *= vector.y;
+        return this;
+    },
+
+    clone: function(){
+        return new Vector(this.x, this.y);
     }
 };
 
@@ -121,10 +137,15 @@ Symbol.prototype = {
         // Size & colour
         this.opacity = (1 - this.importance * this.importance) * 
             (settings.opacityMax - settings.opacityMin) + settings.opacityMin;
+
         this.r = Math.round(this.importance *  (settings.rMax - settings.rMin) + settings.rMin);
+
         this.strokeWidth = Math.round(this.importance *  (settings.strokeWidthMax - settings.strokeWidthMin) + settings.strokeWidthMin);
+        
         this.fill = this.settings.colors[randomInt(this.settings.colorsLength)];
+        
         this.stroke = this.settings.colors[randomInt(this.settings.colorsLength)];
+        
         halfwidth = this.r + this.strokeWidth;
 
         // Starting position - spread over either x or y axis
@@ -137,8 +158,8 @@ Symbol.prototype = {
             y = randomInt() ? settings.height + halfwidth : 0 - halfwidth;
         }
 
-        velocityX = round(randomIntRange(settings.velocityMin * 100, settings.velocityMax * 100) / 100, 2);
-        velocityY = round(randomIntRange(settings.velocityMin * 100, settings.velocityMax * 100) / 100, 2);
+        velocityX = round(randomRange(settings.velocityMin, settings.velocityMax) / 100, 1);
+        velocityY = round(randomRange(settings.velocityMin, settings.velocityMax) / 100, 1);
         //velocityX = (1 - this.importance) *  (settings.velocityMax - settings.velocityMin) + settings.velocityMin;
         //velocityY = (1 - this.importance) *  (settings.velocityMax - settings.velocityMin) + settings.velocityMin;
 
@@ -156,11 +177,11 @@ Symbol.prototype = {
     },
 
     // TODO: capture time since last update, and apply velocity accordingly
-    update: function(){
+    update: function(velocityPerFrame){
         var pos = this.pos,
             halfwidth = this.r + this.strokeWidth;
 
-        pos.add(this.velocity);
+        pos.add(velocityPerFrame || this.velocity);
 
         if (
             pos.y < 0 - halfwidth ||
@@ -209,6 +230,7 @@ Symbol.prototype = {
     }
 };
 
+// Symbol - static properties & methods
 Pablo.extend(Symbol, {
     symbols: [],
     createInterval: createInterval,
@@ -237,34 +259,65 @@ Pablo.extend(Symbol, {
             }
         }
 
+        // Create symbols repeatedly, delayed by an interval
         intervalRef = window.setInterval(setupCreateSymbol, this.createInterval);
     },
 
     updateAll: (function(){
-        function updateSymbol(symbol){
-            symbol.update();
-        }
+        
 
+        // Keep updateSymbol in the closure, and return the main updateAll function
         return function(){
-            this.symbols.forEach(updateSymbol);
-        }
+            var timeSinceLastUpdateVector;
+
+            // Cache timestamp of this run of the loop
+            Symbol.prevUpdated = Symbol.updated || Symbol.created;
+            Symbol.updated = now();
+            Symbol.timeSinceLastUpdate = Symbol.prevUpdated ?
+                Symbol.updated - Symbol.prevUpdated : null;
+
+            timeSinceLastUpdateVector = Symbol.timeSinceLastUpdate ?
+                new Vector(Symbol.timeSinceLastUpdate, Symbol.timeSinceLastUpdate) :
+                null;
+
+            Symbol.symbols.forEach(
+                function (symbol){
+                    var velocityPerFrame;
+
+                    velocityPerFrame = timeSinceLastUpdateVector ?
+                        symbol.velocity.clone().multiply(timeSinceLastUpdateVector) :
+                        symbol.velocity;
+
+                    symbol.update(velocityPerFrame);
+                }
+            );
+        };
     }())
 });
 
 
 /////
 
+// Main loop handler, fires on each animation frame
 function loop(){
+    // Update all symbols
     Symbol.updateAll();
+
+    // On each animation frame, repeat the loop; store ID of this request for the next animation frame
     loopRequestID = reqAnimFrame(loop, settings.rootElem);
 }
 
+// If browser environment suitable...
 if (Pablo.isSupported && reqAnimFrame){
-    // Create 
+
+    // Create symbols
     Symbol.createAll(settings);
+    Symbol.created = now();
+
+    // Store ID of this request for the next animation frame
     loopRequestID = reqAnimFrame(loop, settings.rootElem);
 
-    // Click SVG element to pause and resume animation
+    // Click listener on SVG element, to pause and resume animation
     settings.rootElem.addEventListener('click', function(){
         if (active && cancelAnimFrame){
             active = false;
@@ -272,7 +325,10 @@ if (Pablo.isSupported && reqAnimFrame){
         }
         else {
             active = true;
+            // Reset timer, to resume play from where we left off
+            Symbol.updated = now();
             loop();
         }
     });
+
 }
