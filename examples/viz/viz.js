@@ -251,25 +251,6 @@ Pablo.extend(Symbol, {
         for (i = Symbol.maxSymbols; i; i--){
             Symbol.createSymbol(settings);
         }
-        return;
-
-        /////
-
-        function createSymbol(){
-            Symbol.createSymbol(settings);
-        }
-
-        function setupCreateSymbol(){
-            if (Symbol.symbols.length < Symbol.maxSymbols){
-                Symbol.reqAnimFrame.call(window, createSymbol, settings.rootElem);
-            }
-            else {
-                window.clearInterval(intervalRef);
-            }
-        }
-
-        // Create symbols repeatedly, delayed by an interval
-        intervalRef = window.setInterval(setupCreateSymbol, this.createInterval);
     },
 
     updateAll: (function(){
@@ -324,6 +305,24 @@ if (Pablo.isSupported && reqAnimFrame){
     // Store ID of this request for the next animation frame
     loopRequestID = reqAnimFrame(loop, settings.rootElem);
 
+    // Keypress listener
+    window.addEventListener('keydown', function(event){
+        // Spacebar pressed
+        if (event.keyCode === 32){
+            if (active && cancelAnimFrame){
+                active = false;
+                cancelAnimFrame(loopRequestID);
+            }
+            else {
+                active = true;
+                // Reset timer, to resume play from where we left off
+                Symbol.updated = now();
+                loop();
+            }
+        }
+    }, false);
+
+    /*
     // Click listener on SVG element, to pause and resume animation
     settings.rootElem.addEventListener('click', function(){
         if (active && cancelAnimFrame){
@@ -337,5 +336,10 @@ if (Pablo.isSupported && reqAnimFrame){
             loop();
         }
     });
+    */
 
+}
+
+else {
+    alert('Sorry, your browser does not support the JavaScript technologies required for this demo.')
 }
