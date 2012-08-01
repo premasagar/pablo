@@ -1,5 +1,6 @@
 ---
 category: reference
+heading: "Changing SVG Nodes"
 ---
 
 Pablo also has an assortment of methods for changing the properties of 

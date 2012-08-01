@@ -1,5 +1,6 @@
 ---
 category: reference
+heading: "Mouse events"
 ---
 
 Pablo can be used to attach mouse events to svg elements with `on()`.

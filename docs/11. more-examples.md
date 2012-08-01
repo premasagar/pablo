@@ -1,5 +1,6 @@
 ---
 category: reference
+heading: "More examples"
 ---
 
 For more detailed examples, view the source of the 

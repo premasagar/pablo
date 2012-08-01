@@ -1,5 +1,6 @@
 ---
 category: reference
+heading: "Chainability"
 ---
 
 Pablo supports chainability for some of its methods.

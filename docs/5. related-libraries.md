@@ -1,5 +1,6 @@
 ---
 category: about
+heading: "Related libraries"
 ---
 
 * [Raphaël](http://raphaeljs.com)

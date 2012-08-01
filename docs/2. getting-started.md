@@ -1,5 +1,6 @@
 ---
 category: about
+heading: "Getting started"
 ---
 
 It's simple to get started with {{ site.PROJECT_NAME }}. 

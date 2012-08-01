@@ -1,5 +1,6 @@
 ---
 category: about
+heading: "Changelog"
 ---
 * V0.1
 
