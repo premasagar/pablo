@@ -120,8 +120,18 @@ Vector.prototype = {
 /////
 
 
-function Symbol(settings){
+function Symbol(settings, params){
     this.settings = settings;
+
+    // Instance parameters specified - e.g. radius, color, etc
+    if (params){
+        Pablo.extend(this, params);
+    }
+
+    // No instance parameters given, so randomise first
+    else {
+        this.randomize();
+    }
     this.create();
 }
 
@@ -130,7 +140,7 @@ Symbol.prototype = {
         return this.settings.colors[randomInt(this.settings.colorsLength)];
     },
 
-    reset: function(){
+    randomize: function(){
         var settings = this.settings,
             halfwidth, x, y, velocityX, velocityY, velocityMax;
 
@@ -190,7 +200,7 @@ Symbol.prototype = {
             pos.x > this.settings.width + halfwidth ||
             pos.y > this.settings.height + halfwidth
         ){
-            this.reset().drawAppearance();
+            this.randomize().drawAppearance();
         }
 
         return this.drawPos();
@@ -225,8 +235,7 @@ Symbol.prototype = {
     },
 
     create: function(){
-        return this.reset()
-            .createDom()
+        return this.createDom()
             .drawAppearance()
             .drawPos();
     }
