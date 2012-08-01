@@ -27,7 +27,9 @@ function createRoot(container){
 /////
 
 
-var root = createRoot('#paper'),
+var namespace = 'pabloviz',
+    attrNamespace = 'data-' + namespace,
+    root = createRoot('#paper'),
     reqAnimFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame ||
         window.msRequestAnimationFrame,
     cancelAnimFrame = window.cancelAnimationFrame || window.webkitCancelAnimationFrame || window.mozCancelAnimationFrame ||
@@ -45,7 +47,7 @@ var root = createRoot('#paper'),
         width: Number(root.attr('width')),
         height: Number(root.attr('height')),
         rMax: 150,
-        rMin: 15,
+        rMin: 1.5,
         strokeWidthMin: 2,
         strokeWidthMax: 20,
         velocityMin: 0.05,
@@ -227,15 +229,9 @@ Symbol.prototype = {
         return this;
     },
 
-    onclick: function(){
-        console.log(this, this.dom);
-    },
-
     createDom: function(){
         this.root = this.settings.root;
-        this.dom = this.root.circle({
-            'data-viz-id': Symbol.uid
-        });
+        this.dom = this.root.circle();
 
         return this;
     },
@@ -254,25 +250,23 @@ Pablo.extend(Symbol, {
     maxSymbols: maxSymbols,
     reqAnimFrame: reqAnimFrame,
 
-    uid: (function(){
-        var counter = 0;
-
-        return function(){
-            return counter ++;
-        }
-    }()),
-
     createSymbol: function(settings){
-        this.symbols.push(new this(settings));
+        var symbol = new this(settings);
+        this.symbols.push(symbol);
+        return symbol;
     },
 
-    // TODO: allow cancelling requestAnimFrame
+    // Create as many symbols as specified by maxSymbols; add id to each symbol dom
     createAll: function(settings){
         var Symbol = this,
-            i, intervalRef;
+            attr = {},
+            attrKey = attrNamespace + '-id',
+            i, symbol;
 
         for (i = Symbol.maxSymbols; i; i--){
-            Symbol.createSymbol(settings);
+            attr[attrKey] = i;
+            symbol = Symbol.createSymbol(settings);
+            symbol.dom.attr(attr);
         }
     },
 
