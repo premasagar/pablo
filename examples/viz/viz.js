@@ -37,6 +37,7 @@ var root = createRoot('#paper'),
         
     colors = ['#e0f6a5','#eafcb3','#a0c574','#7c7362','#745051','#edcabc','#6b5048','#ae7271','#b79b9e','#c76044','#edfcc1','#d9f396','#75a422','#819b69','#c8836a'],
     colorsLength = colors.length,
+    symbolDensity = 5,
 
     settings = {
         root: root,
@@ -58,13 +59,10 @@ var root = createRoot('#paper'),
         colorsLength: colorsLength
     },
 
-    magicNumber = 400,
-    maxSymbols = Math.round(
-        (
-            (settings.width * settings.height) /
-            ((settings.rMax - settings.rMin) / 2 + settings.rMin)
-        ) / magicNumber
-    ),
+
+    rMid = ((settings.rMax - settings.rMin) / 2) + settings.rMin,
+    numPixels = settings.width * settings.height,
+    maxSymbols = Math.round((numPixels / rMid) * (symbolDensity / 1000)),
     createInterval = 240,
     loopRequestID;
 
@@ -128,6 +126,10 @@ function Symbol(settings){
 }
 
 Symbol.prototype = {
+    pickColor: function(){
+        return this.settings.colors[randomInt(this.settings.colorsLength)];
+    },
+
     reset: function(){
         var settings = this.settings,
             halfwidth, x, y, velocityX, velocityY, velocityMax;
@@ -143,9 +145,8 @@ Symbol.prototype = {
 
         this.strokeWidth = Math.round(this.importance *  (settings.strokeWidthMax - settings.strokeWidthMin) + settings.strokeWidthMin);
         
-        this.fill = this.settings.colors[randomInt(this.settings.colorsLength)];
-        
-        this.stroke = this.settings.colors[randomInt(this.settings.colorsLength)];
+        this.fill = this.pickColor();
+        this.stroke = this.pickColor();
         
         halfwidth = this.r + this.strokeWidth;
 
@@ -245,7 +246,14 @@ Pablo.extend(Symbol, {
     // TODO: allow cancelling requestAnimFrame
     createAll: function(settings){
         var Symbol = this,
-            intervalRef;
+            i, intervalRef;
+
+        for (i = Symbol.maxSymbols; i; i--){
+            Symbol.createSymbol(settings);
+        }
+        return;
+
+        /////
 
         function createSymbol(){
             Symbol.createSymbol(settings);
@@ -265,8 +273,6 @@ Pablo.extend(Symbol, {
     },
 
     updateAll: (function(){
-        
-
         // Keep updateSymbol in the closure, and return the main updateAll function
         return function(){
             var timeSinceLastUpdateVector;
