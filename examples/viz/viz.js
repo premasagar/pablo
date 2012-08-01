@@ -227,9 +227,15 @@ Symbol.prototype = {
         return this;
     },
 
+    onclick: function(){
+        console.log(this, this.dom);
+    },
+
     createDom: function(){
         this.root = this.settings.root;
-        this.dom = this.root.circle();
+        this.dom = this.root.circle({
+            'data-viz-id': Symbol.uid
+        });
 
         return this;
     },
@@ -247,6 +253,14 @@ Pablo.extend(Symbol, {
     createInterval: createInterval,
     maxSymbols: maxSymbols,
     reqAnimFrame: reqAnimFrame,
+
+    uid: (function(){
+        var counter = 0;
+
+        return function(){
+            return counter ++;
+        }
+    }()),
 
     createSymbol: function(settings){
         this.symbols.push(new this(settings));
@@ -313,6 +327,11 @@ if (Pablo.isSupported && reqAnimFrame){
 
     // Store ID of this request for the next animation frame
     loopRequestID = reqAnimFrame(loop, settings.rootElem);
+
+    // Click listener on SVG element
+    settings.rootElem.addEventListener('click', function(){
+
+    }, false);
 
     // Keypress listener
     window.addEventListener('keydown', function(event){
