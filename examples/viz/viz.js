@@ -40,7 +40,7 @@ var namespace = 'pabloviz',
         
     colors = ['#e0f6a5','#eafcb3','#a0c574','#7c7362','#745051','#edcabc','#6b5048','#ae7271','#b79b9e','#c76044','#edfcc1','#d9f396','#75a422','#819b69','#c8836a'],
     colorsLength = colors.length,
-    symbolDensity = 5,
+    symbolDensity = 3,
 
     settings = {
         root: root,
@@ -59,7 +59,8 @@ var namespace = 'pabloviz',
         //opacityMin: 1,
         //opacityMax: 1,
         colors: colors,
-        colorsLength: colorsLength
+        colorsLength: colorsLength,
+        fadeoutTime: 380
     },
 
 
@@ -231,14 +232,51 @@ Symbol.prototype = {
     },
 
     onclick: function(event){
-        this.dom.remove();
+        var symbol = this;
+
+        // Fade out, using CSS3
+        this.dom.cssPrefix({
+            'transition': '-webkit-transform ' + (settings.fadeoutTime / 1000) + 's',
+            'transition-timing-function': 'ease-out',
+            'transform': 'scale(0)',
+            'transform-origin': this.pos.x + 'px ' + this.pos.y + 'px'
+        });
+        
+        // SMIL approach seemed to fail in browser implementation
+        /*
+        this.dom.animateTransform({
+            attributeName: 'transform',
+            attributeType: 'XML',
+            type: 'scale',
+            from: 1,
+            to: 0,
+            dur: (fadeoutTime / 1000) + 's',
+            fill: 'freeze'
+        });
+        */
+        /*
+        this.dom.animate({
+            attributeName: 'r',
+            attributeType: 'XML',
+            from: this.r,
+            to: 0,
+            dur: (fadeoutTime / 1000) + 's',
+            fill: 'freeze'
+        });
+        */
+
+        // Remove DOM element from DOM tree, when animation finished
+        window.setTimeout(function(){
+            symbol.dom.remove();
+        }, settings.fadeoutTime);
+
+        // Remove Symbol instance from memory
         Symbol.removeSymbol(this);
     },
 
     createDom: function(){
         this.root = this.settings.root;
         this.dom = this.root.circle();
-
         return this;
     },
 
@@ -311,7 +349,7 @@ Pablo.extend(Symbol, {
 
     removeSymbol: function(symbol){
         if (symbol.id){
-            this.symbols[symbol.id] = null;
+            delete this.symbols[symbol.id];
         }
     }
 });
@@ -362,22 +400,6 @@ if (Pablo.isSupported && reqAnimFrame){
             }
         }
     }, false);
-
-    /*
-    // Click listener on SVG element, to pause and resume animation
-    settings.rootElem.addEventListener('click', function(){
-        if (active && cancelAnimFrame){
-            active = false;
-            cancelAnimFrame(loopRequestID);
-        }
-        else {
-            active = true;
-            // Reset timer, to resume play from where we left off
-            Symbol.updated = now();
-            loop();
-        }
-    });
-    */
 
 }
 
