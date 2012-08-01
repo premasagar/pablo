@@ -29,6 +29,7 @@ function createRoot(container){
 
 var namespace = 'pabloviz',
     attrNamespace = 'data-' + namespace,
+    attrIdKey = attrNamespace + '-id',
     root = createRoot('#paper'),
     reqAnimFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame ||
         window.msRequestAnimationFrame,
@@ -229,6 +230,11 @@ Symbol.prototype = {
         return this;
     },
 
+    onclick: function(event){
+        this.dom.remove();
+        Symbol.removeSymbol(this);
+    },
+
     createDom: function(){
         this.root = this.settings.root;
         this.dom = this.root.circle();
@@ -260,12 +266,12 @@ Pablo.extend(Symbol, {
     createAll: function(settings){
         var Symbol = this,
             attr = {},
-            attrKey = attrNamespace + '-id',
             i, symbol;
 
-        for (i = Symbol.maxSymbols; i; i--){
-            attr[attrKey] = i;
+        for (i=0; i < Symbol.maxSymbols; i++){
             symbol = Symbol.createSymbol(settings);
+            symbol.id = i;
+            attr[attrIdKey] = i;
             symbol.dom.attr(attr);
         }
     },
@@ -276,13 +282,13 @@ Pablo.extend(Symbol, {
             var timeSinceLastUpdateVector;
 
             // Cache timestamp of this run of the loop
-            Symbol.prevUpdated = Symbol.updated || Symbol.created;
-            Symbol.updated = now();
-            Symbol.timeSinceLastUpdate = Symbol.prevUpdated ?
-                Symbol.updated - Symbol.prevUpdated : null;
+            this.prevUpdated = this.updated || this.created;
+            this.updated = now();
+            this.timeSinceLastUpdate = this.prevUpdated ?
+                this.updated - this.prevUpdated : null;
 
-            timeSinceLastUpdateVector = Symbol.timeSinceLastUpdate ?
-                new Vector(Symbol.timeSinceLastUpdate, Symbol.timeSinceLastUpdate) :
+            timeSinceLastUpdateVector = this.timeSinceLastUpdate ?
+                new Vector(this.timeSinceLastUpdate, this.timeSinceLastUpdate) :
                 null;
 
             Symbol.symbols.forEach(
@@ -297,7 +303,17 @@ Pablo.extend(Symbol, {
                 }
             );
         };
-    }())
+    }()),
+
+    getSymbolById: function(id){
+        return Symbol.symbols[id];
+    },
+
+    removeSymbol: function(symbol){
+        if (symbol.id){
+            this.symbols[symbol.id] = null;
+        }
+    }
 });
 
 
@@ -323,8 +339,11 @@ if (Pablo.isSupported && reqAnimFrame){
     loopRequestID = reqAnimFrame(loop, settings.rootElem);
 
     // Click listener on SVG element
-    settings.rootElem.addEventListener('click', function(){
-
+    settings.rootElem.addEventListener('click', function(event){
+        var symbol = Symbol.getSymbolById(event.target.getAttribute(attrIdKey));
+        if (symbol){
+            symbol.onclick.call(symbol, event);
+        }
     }, false);
 
     // Keypress listener
