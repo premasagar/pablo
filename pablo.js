@@ -405,6 +405,10 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             if (!attr){
                 return getAttributes(this.el[0]);
             }
+
+            if (typeof attr === 'string'){
+                return this.get(0).getAttribute(attr);
+            }
             
             return this.each(function(el, i){
                 var pabloNode, prop, val;
