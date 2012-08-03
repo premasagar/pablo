@@ -4,10 +4,10 @@ heading: "Changing SVG Nodes"
 ---
 
 Pablo also has an assortment of methods for changing the properties of 
-svg nodes.
+SVG nodes.
 
-Changing a node's attributes
----------------------------
+Attributes
+----------
 
 The `attr()` method can be used to set or get an objects attributes.
 
@@ -57,27 +57,25 @@ element and editing its content, using `style().content(css)`.
 
 
 
-Making svg nodes hyperlinked
-----------------------------
+Hyperlinks
+----------
+The `a(options)` element method can be used to set up hyperlinked SVG elements.
 
-Pablo’s a(options) method can be used to set up hyperlinks on svg elements.
-Only the ‘text’ svg element is hyperlinked.
+In the example below `<a>` elements are created and SVG elements are appended 
+as children.
 
-`a()` is only applied to multiple proceeding appended elements.
+    var paper  = Pablo($output[0]).root({height: 130}),
+        circle = paper.circle({cx:60, cy:60, r:50, fill:'red'}),
+        text   = paper.text({x:220, y:30}).content('we ♥ pablo');
 
-    var paper = Pablo($output[0]).root({height: 130});
-
-    paper
-    ._('circle', {cx:60, cy:60, r:50, fill:'#f33', stroke:'#050'})
-    .a({
+    paper.a({
         _link: 'https://github.com/dharmafly/pablo',
         target: '_blank'
     })
-    ._('text', {
-        _content:'we ♥ pablo',
-        x:220,
-        y:30,
-        fill:'#777',
-        transform:'rotate(-45 300 170)'
+    (circle);
+
+    paper.a({
+        _link: 'https://github.com/dharmafly',
+        target: '_blank'
     })
-    ._('circle', {cx:260, cy:60, r:50, fill:'#3f3', stroke:'#050'})
+    (text);

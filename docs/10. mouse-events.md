@@ -3,7 +3,7 @@ category: reference
 heading: "Mouse events"
 ---
 
-Pablo can be used to attach mouse events to svg elements with `on()`.
+Pablo can be used to attach mouse events to SVG elements with `on()`.
 
     
     var paper = Pablo($output[0]).root({height:120});
