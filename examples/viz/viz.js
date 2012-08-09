@@ -1,5 +1,17 @@
 'use strict';
 
+/*
+    TODO:
+    - convert Symbol to Symbolset or to Circleset
+    - explode into 4 squares on click, shoot off-screen never to return (a new Symbolset); worth many points; use same stroke-color as mother
+    - "Floaters"
+    - click within union between symbols, for double points
+    - highlight stroke-color on mouseover
+    - keep score
+    - `panic` param -> greater velocity
+    - keep time; time is taken off score for that round; ticker sound, LED font
+*/
+
 function createRoot(container){
     var root, width, height;
 
@@ -40,7 +52,7 @@ var namespace = 'pabloviz',
         
     colors = ['#e0f6a5','#eafcb3','#a0c574','#7c7362','#745051','#edcabc','#6b5048','#ae7271','#b79b9e','#c76044','#edfcc1','#d9f396','#75a422','#819b69','#c8836a'],
     colorsLength = colors.length,
-    symbolDensity = 3,
+    symbolDensity = 1,
 
     settings = {
         root: root,
@@ -177,8 +189,6 @@ Symbol.prototype = {
         velocityMax =  (1 - this.importance) * settings.velocitySlowdown * (settings.velocityMax - settings.velocityMin) + settings.velocityMin;
         velocityX = round(randomRange(settings.velocityMin, velocityMax), 2);
         velocityY = round(randomRange(settings.velocityMin, velocityMax), 2);
-        //velocityX = (1 - this.importance) *  (settings.velocityMax - settings.velocityMin) + settings.velocityMin;
-        //velocityY = (1 - this.importance) *  (settings.velocityMax - settings.velocityMin) + settings.velocityMin;
 
         if (x > this.settings.width / 2){
             velocityX = 0 - velocityX;
@@ -235,35 +245,13 @@ Symbol.prototype = {
         var symbol = this;
 
         // Fade out, using CSS3
+        // TODO: create as part of <style> element?
         this.dom.cssPrefix({
             'transition': '-webkit-transform ' + (settings.fadeoutTime / 1000) + 's',
             'transition-timing-function': 'ease-out',
             'transform': 'scale(0)',
             'transform-origin': this.pos.x + 'px ' + this.pos.y + 'px'
         });
-        
-        // SMIL approach seemed to fail in browser implementation
-        /*
-        this.dom.animateTransform({
-            attributeName: 'transform',
-            attributeType: 'XML',
-            type: 'scale',
-            from: 1,
-            to: 0,
-            dur: (fadeoutTime / 1000) + 's',
-            fill: 'freeze'
-        });
-        */
-        /*
-        this.dom.animate({
-            attributeName: 'r',
-            attributeType: 'XML',
-            from: this.r,
-            to: 0,
-            dur: (fadeoutTime / 1000) + 's',
-            fill: 'freeze'
-        });
-        */
 
         // Remove DOM element from DOM tree, when animation finished
         window.setTimeout(function(){
@@ -343,6 +331,13 @@ Pablo.extend(Symbol, {
         };
     }()),
 
+    // Add CSS styles
+    addStyles: function(){
+        settings.root.style().content(
+            'circle:hover {stroke:green; cursor:crosshair}'
+        );
+    },
+
     getSymbolById: function(id){
         return Symbol.symbols[id];
     },
@@ -368,6 +363,8 @@ function loop(){
 
 // If browser environment suitable...
 if (Pablo.isSupported && reqAnimFrame){
+    // Add CSS styles
+    Symbol.addStyles();
 
     // Create symbols
     Symbol.createAll(settings);
