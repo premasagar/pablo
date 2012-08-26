@@ -325,7 +325,8 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             );
         },
         
-        filter: function(fn){
+        // Note: name due to conflict with 'filter' element method
+        filterElements: function(fn){
             return Pablo(
                 this.el.filter(fn, this)
             );
@@ -403,6 +404,38 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
                 parents.push(el.parentNode);
             });
             return parents;
+        },
+
+        nextSibling: function(){
+            var nextSiblings = Pablo();
+            
+            this.each(function(el){
+                nextSiblings.push(el.nextSibling);
+            });
+            return nextSiblings;
+        },
+
+        prevSibling: function(){
+            var nextSiblings = Pablo();
+            
+            this.each(function(el){
+                nextSiblings.push(el.previousSibling);
+            });
+            return nextSiblings;
+        },
+
+        siblings: function(){
+            var siblings = Pablo();
+
+            this.each(function(el){
+                var nodeSiblings = Pablo(el).parent().children().filterElements(function(child){
+                    return child !== el;
+                });
+
+                siblings.push(nodeSiblings);
+            });
+
+            return siblings;
         },
         
         clone: function(deep){
@@ -485,6 +518,8 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             });
         },
 
+        // Note: Native DOM classList is not supported by all browsers that support SVG (e.g. IE9), 
+        // hence this longer implementation
         addClass: function(className){
             var classString = this.attr('class'),
                 classNameRegex;
@@ -705,8 +740,13 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     }
     
     // Select existing nodes in the document
-    function selectPablo(node){
-        return Pablo(document.querySelectorAll(node));
+    function selectPablo(selector){
+        // Valid selector
+        if (typeof selector === 'string' && selector){
+            return Pablo(document.querySelectorAll(selector));
+        }
+        // Return empty Pablo collection
+        return createPablo();
     }
     
     // Create Pablo #1: return a PabloNode instance
