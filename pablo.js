@@ -234,23 +234,6 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             return this.el.length;
         },
         
-        empty: function(){
-            return this.each(function(el){
-                while (el.firstChild) {
-                    el.removeChild(el.firstChild);
-                }
-            });
-        },
-        
-        remove: function(){
-            return this.each(function(el){
-                var parentNode = el.parentNode;
-                if (parentNode){
-                    parentNode.removeChild(el);
-                }
-            });
-        },
-        
         // Add new node(s) to the collection; accepts arrays or nodeLists
         push: function(node, attr){
             var pabloNodeToAdd = Pablo(node, attr);
@@ -299,66 +282,12 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
                 this.el.filter(fn, this)
             );
         },
-        
-        append: function(node, attr){
-            this.each(function(el){
-                toPablo(node, attr || {}).each(function(child){
-                    el.appendChild(child);
-                });
-            });
-            return this;
-        },
-        
-        appendTo: function(node){
-            toPablo(node).append(this);
-            return this;
-        },
-        
-        child: function(node, attr){
-            return toPablo(node, attr || {}).appendTo(this);
-        },
-        
-        before: function(node, attr){
-            return this.each(function(el, i, thisNode){
-                var parentNode = el.parentNode;
-                if (parentNode){
-                    Pablo(node, attr).each(function(toInsert){
-                        parentNode.insertBefore(toInsert, el);
-                    });
-                }
-            });
-        },
-        
-        after: function(node, attr){
-            return this.each(function(el, i, thisNode){
-                var parentNode = el.parentNode;
-                if (parentNode){
-                    Pablo(node, attr).each(function(toInsert){
-                        parentNode.insertBefore(toInsert, el.nextSibling);
-                    });
-                }
-            });
-        },
-        
-        prepend: function(node, attr){
-            return this.each(function(el){
-                var first = el.firstChild;
-                Pablo(node, attr).each(function(child){
-                    el.insertBefore(child, first);
-                });
-            });
-        },
-        
-        prependTo: function(node){
-            toPablo(node).prepend(this);
-            return this;
-        },
 
-        /*
-        moveToFront: function(){
-            this.remove().append(this.parent());
-        },
-        */
+
+        /////
+
+
+        // TRAVERSAL
         
         children: function(){
             var children = Pablo();
@@ -412,6 +341,101 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             return siblings;
         },
         
+        find: function(selector){
+            var found = Pablo();
+            
+            this.each(function(el){
+                toArray(el.querySelectorAll(selector)).forEach(function(target){
+                    found.push(target);
+                });
+            });
+            return found;
+        },
+
+
+        /////
+
+
+        // MANIPULATE
+        
+        empty: function(){
+            return this.each(function(el){
+                while (el.firstChild) {
+                    el.removeChild(el.firstChild);
+                }
+            });
+        },
+        
+        remove: function(){
+            return this.each(function(el){
+                var parentNode = el.parentNode;
+                if (parentNode){
+                    parentNode.removeChild(el);
+                }
+            });
+        },
+        
+        child: function(node, attr){
+            return toPablo(node, attr || {}).appendTo(this);
+        },
+
+        append: function(node, attr){
+            this.each(function(el){
+                toPablo(node, attr || {}).each(function(child){
+                    el.appendChild(child);
+                });
+            });
+            return this;
+        },
+        
+        appendTo: function(node){
+            toPablo(node).append(this);
+            return this;
+        },
+        
+        before: function(node, attr){
+            return this.each(function(el, i, thisNode){
+                var parentNode = el.parentNode;
+                if (parentNode){
+                    Pablo(node, attr).each(function(toInsert){
+                        parentNode.insertBefore(toInsert, el);
+                    });
+                }
+            });
+        },
+        
+        after: function(node, attr){
+            return this.each(function(el, i, thisNode){
+                var parentNode = el.parentNode;
+                if (parentNode){
+                    Pablo(node, attr).each(function(toInsert){
+                        parentNode.insertBefore(toInsert, el.nextSibling);
+                    });
+                }
+            });
+        },
+        
+        prepend: function(node, attr){
+            return this.each(function(el){
+                var first = el.firstChild;
+                Pablo(node, attr).each(function(child){
+                    el.insertBefore(child, first);
+                });
+            });
+        },
+        
+        prependTo: function(node){
+            toPablo(node).prepend(this);
+            return this;
+        },
+        
+        // Create SVG root wrapper
+        // TODO: if no attr passed, then return closest parent root to this element?
+        root: function(attr){
+            extend(attr, {version: Pablo.svgVersion});
+            return this.svg(attr);
+        },
+        
         clone: function(deep){
             deep = deep || false;
             return Pablo(
@@ -431,17 +455,6 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             }
             this.after(duplicates);
             return duplicates.unshift(this);
-        },
-        
-        find: function(selector){
-            var found = Pablo();
-            
-            this.each(function(el){
-                toArray(el.querySelectorAll(selector)).forEach(function(target){
-                    found.push(target);
-                });
-            });
-            return found;
         },
         
         attr: function(attr){
@@ -509,6 +522,25 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
                 el.textContent = text;
             });
         },
+
+        css: function(styles){
+            // TODO: remove from code?
+            if (typeof styles === 'string'){
+                // return document.defaultView.getComputedStyle(this.get(0), null).getPropertyValue(styles);
+                return this.get(0).style.getPropertyValue(styles);
+            }
+
+            return this.each(function(el){
+                var style = el.style,
+                    prop;
+                
+                for (prop in styles){
+                    if (styles.hasOwnProperty(prop)){
+                        style.setProperty(prop, styles[prop], '');
+                    }
+                }
+            });
+        },
         
         /*
         css: function(styles, value){
@@ -541,24 +573,12 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             });
         },
         */
-        css: function(styles){
-            // TODO: remove from code?
-            if (typeof styles === 'string'){
-                // return document.defaultView.getComputedStyle(this.get(0), null).getPropertyValue(styles);
-                return this.get(0).style.getPropertyValue(styles);
-            }
 
-            return this.each(function(el){
-                var style = el.style,
-                    prop;
-                
-                for (prop in styles){
-                    if (styles.hasOwnProperty(prop)){
-                        style.setProperty(prop, styles[prop], '');
-                    }
-                }
-            });
-        },
+
+        /////
+
+
+        // DOM EVENTS
         
         on: function(type, listener, useCapture){
             return this.each(function(el){
@@ -594,13 +614,6 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
                     listener.apply(node, arguments);
                 }, useCapture);
             });
-        },
-        
-        // Create SVG root wrapper
-        // TODO: if no attr passed, then return closest parent root to this element?
-        root: function(attr){
-            extend(attr, {version: Pablo.svgVersion});
-            return this.svg(attr);
         }
     };
 
@@ -608,7 +621,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     /////
 
         
-    // Element API Aliases
+    // Pablo Node API Aliases
     extend(pabloNodeApi, {
         //_  : pabloNodeApi.append,
         add: pabloNodeApi.push
