@@ -128,6 +128,10 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     function isArray(obj){
         return Array.isArray(obj);
     }
+
+    function isArrayLike(obj){
+        return obj && typeof obj !== 'string' && typeof obj.length === 'number';
+    }
     
     function isElement(node){
         return node instanceof Element;
@@ -152,7 +156,8 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         return isPablo(node) ||
             isElement(node) ||
             isNodeList(node) ||
-            isArray(node);
+            isArray(node) ||
+            isArrayLike(node);
     }
     
     function isSvg(node){
@@ -174,7 +179,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         else if (isArray(node)){
             toPush = node;
         }
-        else if (isNodeList(node)){
+        else if (isNodeList(node) || isArrayLike(node)){
             toPush = toArray(node);
         }
         else {
