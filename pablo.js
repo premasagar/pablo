@@ -14,7 +14,6 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     var svgns = 'http://www.w3.org/2000/svg',
         xlinkns = 'http://www.w3.org/1999/xlink',
         svgVersion = 1.1,
-        vendorPrefixes = ['', '-moz-', '-webkit-', '-khtml-', '-o-', '-ms-'],
         pabloApi, pabloNodeApi, createPablo;
 
 
@@ -42,7 +41,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     if (!isSupported()){
         return {isSupported:false};
     }
-    
+
     
     /////
     
@@ -192,42 +191,6 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         toPush.forEach(function(el){
             addUniqueElementToArray(el, attr, elements);
         });
-    }
-
-    // Return CSS styles with browser vendor prefixes
-    // e.g. cssPrefix({transform:'rotate(45deg)'}) will return the styles object, with additional properties containing CSS properties prefixed with the browser vendor prefixes - see vendorPrefixes
-    // e.g. cssPrefix('transform', 'rotate(45deg)') will return a string sequence of prefixed CSS properties, each assigned the same value
-    // e.g. cssPrefix('transform') will return a string sequence of CSS properties
-    function cssPrefix(styles, value){
-        var prop, res, rule;
-        
-        if (typeof styles === 'object'){
-            res = {};
-            for (prop in styles){
-                if (styles.hasOwnProperty(prop)){
-                    vendorPrefixes.forEach(function(prefix){
-                        res[prefix + prop] = styles[prop];
-                    });
-                }
-            }
-        }
-
-        if (typeof styles === 'string'){
-            prop = styles;
-
-            // e.g. cssPrefix('transform', 'rotate(45deg)') -> 'transform:rotate(45deg);-webkit-transform:rotate(45deg);...'
-            if (typeof value === 'string'){
-                rule = prop + ':' + value + ';';
-                res = vendorPrefixes.join(rule) + rule;
-            }
-            // e.g. cssPrefix('transform') -> 'transform,-webkit-transform,...'
-            // useful for adding prefixed properties when setting active properties in a CSS transition
-            else {
-                res = vendorPrefixes.join(prop + ',') + prop;
-            }
-        }
-
-        return res;
     }
     
     
@@ -390,6 +353,12 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             toPablo(node).prepend(this);
             return this;
         },
+
+        /*
+        moveToFront: function(){
+            this.remove().append(this.parent());
+        },
+        */
         
         children: function(){
             var children = Pablo();
@@ -523,48 +492,6 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             });
         },
 
-        // Note: Native DOM classList is not supported by all browsers that support SVG (e.g. IE9), 
-        // hence this longer implementation
-        addClass: function(className){
-            var classString = this.attr('class'),
-                classNameRegex;
-
-            // No existing classes
-            if (!classString){
-                classString = className;
-            }
-            else {
-                classNameRegex = new RegExp('\\b' + className + '\\b');
-
-                // className is already present
-                if (classNameRegex.test(classString)) {
-                    return this;
-                }
-
-                // Add className
-                classString += ' ' + className;
-            }
-
-            return this.attr({'class': classString});
-        },
-
-        removeClass: function(className){
-            var classString = this.attr('class'),
-                classNameRegex;
-
-            if (classString){
-                classNameRegex = new RegExp('\\s*\\b' + className + '\\b');
-
-                // className is present
-                if (classNameRegex.test(classString)){
-                    classString = classString.replace(classNameRegex, '');
-                    this.attr({'class': classString});
-                }
-            }
-
-            return this;
-        },
-
         link: function(href){
             return this.each(function(el){
                 el.setAttributeNS(xlinkns, 'xlink:href', href);
@@ -633,29 +560,6 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             });
         },
         
-        // Add CSS styles with browser vendor prefixes
-        // e.g. cssPrefix({transform:'rotate(45deg)'}) will be prefixed with -moz, -webkit, -o, -ms and -khtml
-        cssPrefix: function(styles){
-            var prop, value, i, len;
-
-            // Return the value of a CSS property, even if the property is vendor-prefixed
-            // e.g. Pablo('circle').cssPrefix('transform') -> 'rotate(45deg)'
-            // If the property was SET with cssPrefix, then GET the value with cssPrefix
-            // TODO: remove from code?
-            if (typeof styles === 'string'){
-                prop = styles;
-                for (i=0, len=vendorPrefixes.length; i<len; i++){
-                    value = this.css(vendorPrefixes[i] + prop);
-                    if (value){
-                        break;
-                    }
-                }
-                return value;
-            }
-
-            return this.css(cssPrefix(styles));
-        },
-        
         on: function(type, listener, useCapture){
             return this.each(function(el){
                 el.addEventListener(type, listener, useCapture || false);
@@ -693,16 +597,20 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         },
         
         // Create SVG root wrapper
+        // TODO: if no attr passed, then return closest parent root to this element?
         root: function(attr){
             extend(attr, {version: Pablo.svgVersion});
             return this.svg(attr);
         }
     };
-    
-    
+
+
+    /////
+
+        
     // Element API Aliases
     extend(pabloNodeApi, {
-        _  : pabloNodeApi.append,
+        //_  : pabloNodeApi.append,
         add: pabloNodeApi.push
     });
     
@@ -804,11 +712,6 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         svgns: svgns,
         xlinkns: xlinkns,
         svgVersion: svgVersion,
-        vendorPrefixes: vendorPrefixes,
-
-        // e.g. Pablo('svg').style().content('#foo{' + Pablo.cssPrefix('transform', 'rotate(45deg)') + '}');
-        // e.g. myElement.css({'transition-property': Pablo.cssPrefix('transform)});
-        cssPrefix: cssPrefix,
         isPablo: isPablo,
         isElement: isElement,
         isNodeList: isNodeList,

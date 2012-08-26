@@ -4,7 +4,6 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width,initial-scale=1.0">
         <title>Pablo</title>
-        <script src="pablo.js"></script>
     </head>
     <body>
         <h1><a href="https://github.com/dharmafly/pablo">Pablo</a></h1>
@@ -15,7 +14,10 @@
         
         <!-- HTML container for the SVG root node -->
         <div id="paper"></div>
-        
+
+        <!-- scripts -->
+        <script src="pablo.js"></script>
+        <script src="extensions/css-extra.js"></script>
         <script>
         // Check browser supports Pablo
         if (Pablo.isSupported){
@@ -263,17 +265,9 @@
                 var scaleRange = document.getElementById('scale');
                 scaleRange.addEventListener('change', function(){
                     // paper.el[0].currentScale = scaleRange.value;
-                    paper.css({
+                    paper.cssPrefix({
                         'transform':'scale(' + scaleRange.value + ')',
-                        'transform-origin':'0 0',
-                        '-webkit-transform':'scale(' + scaleRange.value + ')',
-                        '-webkit-transform-origin':'0 0',
-                        '-moz-transform':'scale(' + scaleRange.value + ')',
-                        '-moz-transform-origin':'0 0',
-                        '-ms-transform':'scale(' + scaleRange.value + ')',
-                        '-ms-transform-origin':'0 0',
-                        '-o-transform':'scale(' + scaleRange.value + ')',
-                        '-o-transform-origin':'0 0'
+                        'transform-origin':'0 0'
                     });
                 }, false);
         }
