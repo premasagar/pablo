@@ -485,6 +485,46 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             });
         },
 
+        addClass: function(className){
+            var classString = this.attr('class'),
+                classNameRegex;
+
+            // No existing classes
+            if (!classString){
+                classString = className;
+            }
+            else {
+                classNameRegex = new RegExp('\\b' + className + '\\b');
+
+                // className is already present
+                if (classNameRegex.test(classString)) {
+                    return this;
+                }
+
+                // Add className
+                classString += ' ' + className;
+            }
+
+            return this.attr({'class': classString});
+        },
+
+        removeClass: function(className){
+            var classString = this.attr('class'),
+                classNameRegex;
+
+            if (classString){
+                classNameRegex = new RegExp('\\s*\\b' + className + '\\b');
+
+                // className is present
+                if (classNameRegex.test(classString)){
+                    classString = classString.replace(classNameRegex, '');
+                    this.attr({'class': classString});
+                }
+            }
+
+            return this;
+        },
+
         link: function(href){
             return this.each(function(el){
                 el.setAttributeNS(xlinkns, 'xlink:href', href);
