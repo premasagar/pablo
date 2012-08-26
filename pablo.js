@@ -14,7 +14,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     var svgns = 'http://www.w3.org/2000/svg',
         xlinkns = 'http://www.w3.org/1999/xlink',
         svgVersion = 1.1,
-        vendorPrefixes = ['-moz-', '-webkit-', '-khtml-', '-o-', '-ms-'],
+        vendorPrefixes = ['', '-moz-', '-webkit-', '-khtml-', '-o-', '-ms-'],
         pabloApi, pabloNodeApi, createPablo;
 
 
@@ -187,6 +187,42 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         toPush.forEach(function(el){
             addUniqueElementToArray(el, attr, elements);
         });
+    }
+
+    // Return CSS styles with browser vendor prefixes
+    // e.g. cssPrefix({transform:'rotate(45deg)'}) will return the styles object, with additional properties containing CSS properties prefixed with the browser vendor prefixes - see vendorPrefixes
+    // e.g. cssPrefix('transform', 'rotate(45deg)') will return a string sequence of prefixed CSS properties, each assigned the same value
+    // e.g. cssPrefix('transform') will return a string sequence of CSS properties
+    function cssPrefix(styles, value){
+        var prop, res, rule;
+        
+        if (typeof styles === 'object'){
+            res = {};
+            for (prop in styles){
+                if (styles.hasOwnProperty(prop)){
+                    vendorPrefixes.forEach(function(prefix){
+                        res[prefix + prop] = styles[prop];
+                    });
+                }
+            }
+        }
+
+        if (typeof styles === 'string'){
+            prop = styles;
+
+            // e.g. cssPrefix('transform', 'rotate(45deg)') -> 'transform:rotate(45deg);-webkit-transform:rotate(45deg);...'
+            if (typeof value === 'string'){
+                rule = prop + ':' + value + ';';
+                res = vendorPrefixes.join(rule) + rule;
+            }
+            // e.g. cssPrefix('transform') -> 'transform,-webkit-transform,...'
+            // useful for adding prefixed properties when setting active properties in a CSS transition
+            else {
+                res = vendorPrefixes.join(prop + ',') + prop;
+            }
+        }
+
+        return res;
     }
     
     
@@ -467,14 +503,51 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             });
         },
         
-        css: function(newStyles){
+        /*
+        css: function(styles, value){
+            var stylesType = typeof styles,
+                valueType = typeof value;
+
+            if (stylesType === 'string' && valueType !== 'string'){
+                return this.get(0).style.getPropertyValue(styles);
+                // return document.defaultView.getComputedStyle(this.get(0), null).getPropertyValue(styles);
+            }
+
+            return this.each(function(el){
+                var style = el.style,
+                    prop;
+
+                if (stylesType === 'string' && valueType === 'string'){
+                    prop = styles;
+                    styles = {};
+                    styles[prop] = value;
+                    stylesType = 'object';
+                }
+
+                if (stylesType === 'object'){
+                    for (prop in styles){
+                        if (styles.hasOwnProperty(prop)){
+                            style.setProperty(prop, styles[prop], '');
+                        }
+                    }
+                }
+            });
+        },
+        */
+        css: function(styles){
+            // TODO: remove from code?
+            if (typeof styles === 'string'){
+                // return document.defaultView.getComputedStyle(this.get(0), null).getPropertyValue(styles);
+                return this.get(0).style.getPropertyValue(styles);
+            }
+
             return this.each(function(el){
                 var style = el.style,
                     prop;
                 
-                for (prop in newStyles){
-                    if (newStyles.hasOwnProperty(prop)){
-                        style.setProperty(prop, newStyles[prop], '');
+                for (prop in styles){
+                    if (styles.hasOwnProperty(prop)){
+                        style.setProperty(prop, styles[prop], '');
                     }
                 }
             });
@@ -482,17 +555,25 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         
         // Add CSS styles with browser vendor prefixes
         // e.g. cssPrefix({transform:'rotate(45deg)'}) will be prefixed with -moz, -webkit, -o, -ms and -khtml
-        cssPrefix: function(newStyles){
-            var prop;
-            
-            for (prop in newStyles){
-                if (newStyles.hasOwnProperty(prop)){
-                    vendorPrefixes.forEach(function(prefix){
-                        newStyles[prefix + prop] = newStyles[prop];
-                    });
+        cssPrefix: function(styles){
+            var prop, value, i, len;
+
+            // Return the value of a CSS property, even if the property is vendor-prefixed
+            // e.g. Pablo('circle').cssPrefix('transform') -> 'rotate(45deg)'
+            // If the property was SET with cssPrefix, then GET the value with cssPrefix
+            // TODO: remove from code?
+            if (typeof styles === 'string'){
+                prop = styles;
+                for (i=0, len=vendorPrefixes.length; i<len; i++){
+                    value = this.css(vendorPrefixes[i] + prop);
+                    if (value){
+                        break;
+                    }
                 }
+                return value;
             }
-            return this.css(newStyles);
+
+            return this.css(cssPrefix(styles));
         },
         
         on: function(type, listener, useCapture){
@@ -638,6 +719,11 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         svgns: svgns,
         xlinkns: xlinkns,
         svgVersion: svgVersion,
+        vendorPrefixes: vendorPrefixes,
+
+        // e.g. Pablo('svg').style().content('#foo{' + Pablo.cssPrefix('transform', 'rotate(45deg)') + '}');
+        // e.g. myElement.css({'transition-property': Pablo.cssPrefix('transform)});
+        cssPrefix: cssPrefix,
         isPablo: isPablo,
         isElement: isElement,
         isNodeList: isNodeList,
