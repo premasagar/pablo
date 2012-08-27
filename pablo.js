@@ -123,13 +123,10 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         return node instanceof NodeList;
     }
     
-    function isUniqueElement(node, elements){
-        return isElement(node) && elements.indexOf(node) === -1;
-    }
-    
     // Returns true for both a Pablo instance and its API function
     function isPablo(node){
         return !!(node && 
+            // TODO: remove `node._pablo` reference  and modify `isPablo` in /extensions/functional.js
             (node instanceof PabloNode || node._pablo instanceof PabloNode)
         );
     }
@@ -152,21 +149,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             node : Pablo(node, attr);
     }
     
-    // Like toElement, but will favour making an element if there are attributes passed
-    function makeOrFindElement(node){
-        // Already an element
-        if (isElement(node)){
-            return node;
-        }
-        // If there are attributes, then definitely make an element
-        else if (typeof node === 'string') {
-            return make(node);
-        }
-        // Try to find element(s) by selector; if not found, make new element
-        return toElement(node);
-    }
-    
-    function addUniqueElementToArray(node, elements, prepend){
+    function addElementIfUnique(node, elements, prepend){
         var toPush, el;
         
         if (isPablo(node)){
@@ -179,14 +162,18 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             toPush = toArray(node);
         }
         else {
-            el = makeOrFindElement(node);
-            if (isUniqueElement(el, elements)){
+            el = typeof node === 'string' ?
+                make(node) : toElement(node);
+
+            // Is an element, but is not found in the node list
+            if (isElement(el) && elements.indexOf(el) === -1){
                 Array.prototype[prepend ? 'unshift' : 'push'].call(elements, el);
             }
             return;
         }
+
         toPush.forEach(function(el){
-            addUniqueElementToArray(el, elements);
+            addElementIfUnique(el, elements);
         });
     }
     
@@ -234,13 +221,13 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
 
         // Add new node(s) to the collection; accepts arrays or nodeLists
         push: function(node){
-            addUniqueElementToArray(node, this);
+            addElementIfUnique(node, this);
             return this;  
         },
         
         // Add new node(s) to the collection; accepts arrays or nodeLists
         unshift: function(node){
-            addUniqueElementToArray(node, this, true);
+            addElementIfUnique(node, this, true);
             return this;
         },
         
@@ -588,6 +575,9 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         //_  : pabloNodeApi.append,
         add: pabloNodeApi.push
     });
+
+
+    /////
 
     
     // SVG element shortcut methods
