@@ -213,7 +213,9 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     }
     
     // Node prototype
-    pabloNodeApi = PabloNode.prototype = {
+    pabloNodeApi = PabloNode.prototype = [];
+
+    extend(pabloNodeApi, {
         constructor: PabloNode,
         make: make,
         
@@ -615,7 +617,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
                 }, useCapture);
             });
         }
-    };
+    });
 
 
     /////
@@ -674,7 +676,14 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         // Return empty Pablo collection
         return createPablo();
     }
+
+
+    // Create Pablo: return a PabloNode instance
+    function createPablo(node, attr){
+        return new PabloNode(node, attr);
+    }
     
+    /*
     // Create Pablo #1: return a PabloNode instance
     function createPabloObj(node, attr){
         return new PabloNode(node, attr);
@@ -705,6 +714,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     
     // Create Pablo: use functional API by default; see `functionApi` method
     createPablo = createPabloFn;
+    */
     
     // **
     
@@ -731,13 +741,15 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         isSvg: isSvg,
         extend: extend,
         fn: pabloNodeApi,
-        Node: PabloNode,
+        Node: PabloNode
         
+        /*
         // Whether to use the function API (default) or the object API
         functionApi: function(yes){
             createPablo = (yes !== false) ? createPabloFn : createPabloObj;
             return this;
         }
+        */
     };
     
     return extend(Pablo, pabloApi, true);

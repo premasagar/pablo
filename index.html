@@ -17,6 +17,7 @@
 
         <!-- scripts -->
         <script src="pablo.js"></script>
+        <script src="pavlova.js"></script>
         <script src="extensions/css-extra.js"></script>
         <script>
         // Check browser supports Pablo
@@ -29,67 +30,67 @@
             
                 // CSS to be sandboxed within the SVG context
                 // This creates a `<style>` element within the parent
-                (
+                .append(
                     Pablo.style().content(
                         'g.basic {stroke-width:20}' +
                         'text {font-family:sans-serif; font-size:16px}'
                     )
                 )
                 
-                (   
+                .append(   
                     // Basic elements
                     Pablo.g({'class': 'basic'})
-                    ('line', {x1:10, y1:5, x2:200, y2:350, stroke:'purple'})
-                    ('circle', {cx:200, cy:150, r:50, fill:'#f33', stroke:'#050'})
-                    ('ellipse', {
-                        cx:200,
-                        cy:270,
-                        rx:80,
-                        ry:40,
-                        stroke:'#222',
-                        fill:'#777',
-                        opacity:0.5,
-                        // Override `<style>` element above with a `style` attribute
-                        style:'stroke-width:10'
-                    })
-                    ('polyline', {
-                        points:'120,100 200,25 280,100',
-                        stroke:'#444',
-                        fill:'none',
-                        // Hyphenated attribute names must be passed as strings
-                        // since CamelCased attribute names are not (yet) supported
-                        'stroke-linejoin':'round',
-                        'stroke-linecap':'round'
-                    })
+                        .append('line', {x1:10, y1:5, x2:200, y2:350, stroke:'purple'})
+                        .append('circle', {cx:200, cy:150, r:50, fill:'#f33', stroke:'#050'})
+                        .append('ellipse', {
+                            cx:200,
+                            cy:270,
+                            rx:80,
+                            ry:40,
+                            stroke:'#222',
+                            fill:'#777',
+                            opacity:0.5,
+                            // Override `<style>` element above with a `style` attribute
+                            style:'stroke-width:10'
+                        })
+                        .append('polyline', {
+                            points:'120,100 200,25 280,100',
+                            stroke:'#444',
+                            fill:'none',
+                            // Hyphenated attribute names must be passed as strings
+                            // since CamelCased attribute names are not (yet) supported
+                            'stroke-linejoin':'round',
+                            'stroke-linecap':'round'
+                        })
                 )
                 
                 
                 // Text on a path
-                (
+                .append(
                     Pablo.defs()
-                    ('path', {
-                        id:'squiggle',
-                        transform:'rotate(-90 300 170)',
-                        d:'M 20 320 C 120 220 220 120 320 220 C 420 320 520 420 620 320'
-                    })
+                        .append('path', {
+                            id:'squiggle',
+                            transform:'rotate(-90 300 170)',
+                            d:'M 20 320 C 120 220 220 120 320 220 C 420 320 520 420 620 320'
+                        })
                 )
-                (
+                .append(
                     Pablo.text()
-                    ('textPath', {
-                        _link:'#squiggle',
-                        _content:'★ In Xanadu, did Kublah Khan a stately pleasuredome decree…',
-                        fill:'#997099'
-                    })
+                        .append('textPath', {
+                            _link:'#squiggle',
+                            _content:'★ In Xanadu, did Kublah Khan a stately pleasuredome decree…',
+                            fill:'#997099'
+                        })
                 )
                 
                 
                 // Hyperlinked text
-                (
+                .append(
                     Pablo.a({
                         _link:'https://github.com/dharmafly/pablo',
                         target:'_blank'
                     })
-                    ('text', {
+                    .append('text', {
                         _content:'➵ ♥ pablo',
                         x:300,
                         y:170,
@@ -100,19 +101,19 @@
                 
                 
                 // Animate red circle on mouse events
-                paper('circle')
+                paper.find('circle')
                     .attr({style:'cursor:pointer'})
                     .on('mouseover', function(event){
                         Pablo(this)
                             .empty()
-                            ('animate', {
+                            .append('animate', {
                                 attributeName:'fill',
                                 from:'yellow',
                                 to:'brown',
                                 dur:'1.62s',
                                 repeatCount:'indefinite'
                             })
-                            ('animate', {
+                            .append('animate', {
                                 attributeName:'r',
                                 from:45,
                                 to:60,
@@ -133,55 +134,55 @@
 
                 // Animated pattern - prepended background circle
                 paper
-                (
-                    Pablo.defs()
-                    (
-                        Pablo('pattern', {
-                            id: 'triangle',
-                            width:10,
-                            height:10,
-                            patternUnits: 'userSpaceOnUse'
-                        })
-                        (
-                            Pablo('polygon', {
-                                points:'5,0 10,10 0,10',
-                                fill:'#bdd'
-                            })
-                            ('animateTransform', {
-                                attributeName:'transform',
-                                type:'rotate',
-                                from:'0 10 10',
-                                to:'360 10 10',
-                                dur:'16.2s',
-                                repeatCount:'indefinite'
-                            })
+                    .append(
+                        Pablo.defs()
+                            .append(
+                                Pablo('pattern', {
+                                    id: 'triangle',
+                                    width:10,
+                                    height:10,
+                                    patternUnits: 'userSpaceOnUse'
+                                })
+                                .append(
+                                    Pablo('polygon', {
+                                        points:'5,0 10,10 0,10',
+                                        fill:'#bdd'
+                                    })
+                                    .append('animateTransform', {
+                                        attributeName:'transform',
+                                        type:'rotate',
+                                        from:'0 10 10',
+                                        to:'360 10 10',
+                                        dur:'16.2s',
+                                        repeatCount:'indefinite'
+                                    })
+                                )
                         )
                     )
-                )
-                // With prepend, this will be rendered underneath other elements
-                .prepend(
-                    Pablo.circle({
-                        cx:10,
-                        cy:10,
-                        r:250,
-                        fill:'url(#triangle)'
-                    })
-                    ('animate', {
-                        attributeName:'opacity',
-                        from:0,
-                        to:1,
-                        dur:'16.2s',
-                        repeatCount:1
-                    })
-                    ('animateTransform', {
-                        attributeName:'transform',
-                        type:'rotate',
-                        from:'0 7.5 7.5',
-                        to:'360 7.5 7.5',
-                        dur:'618s',
-                        repeatCount:'indefinite'
-                    })
-                );
+                    // With prepend, this will be rendered underneath other elements
+                    .prepend(
+                        Pablo.circle({
+                            cx:10,
+                            cy:10,
+                            r:250,
+                            fill:'url(#triangle)'
+                        })
+                        .append('animate', {
+                            attributeName:'opacity',
+                            from:0,
+                            to:1,
+                            dur:'16.2s',
+                            repeatCount:1
+                        })
+                        .append('animateTransform', {
+                            attributeName:'transform',
+                            type:'rotate',
+                            from:'0 7.5 7.5',
+                            to:'360 7.5 7.5',
+                            dur:'618s',
+                            repeatCount:'indefinite'
+                        })
+                    );
                 
                 // Using duplicate() and attribute functions
                 Pablo.g()
