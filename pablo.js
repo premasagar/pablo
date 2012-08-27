@@ -424,7 +424,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         // Create SVG root wrapper
         // TODO: if no attr passed, then return closest parent root to this element?
         root: function(attr){
-            extend(attr, {version: Pablo.svgVersion});
+            attr = extend(attr, {version: Pablo.svgVersion});
             return this.svg(attr);
         },
         
