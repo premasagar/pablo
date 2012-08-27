@@ -88,27 +88,10 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     }
     
     function toElement(node){
-        if (isElement(node)){
+        if (isElement(node) || isPablo(node)){
             return node;
-        }
-        if (isPablo(node)){
-            return node.el;
         }
         return make(node);
-    }
-    
-    // Like toElement, but will favour making an element if there are attributes passed
-    function makeOrFindElement(node, attr){
-        // Already an element
-        if (isElement(node)){
-            return node;
-        }
-        // If there are attributes, then definitely make an element
-        else if (attr) {
-            return make(node);
-        }
-        // Try to find element(s) by selector; if not found, make new element
-        return toElement(node);
     }
     
     function getAttributes(el){
@@ -169,11 +152,25 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             node : Pablo(node, attr);
     }
     
-    function addUniqueElementToArray(node, attr, elements){
+    // Like toElement, but will favour making an element if there are attributes passed
+    function makeOrFindElement(node){
+        // Already an element
+        if (isElement(node)){
+            return node;
+        }
+        // If there are attributes, then definitely make an element
+        else if (typeof node === 'string') {
+            return make(node);
+        }
+        // Try to find element(s) by selector; if not found, make new element
+        return toElement(node);
+    }
+    
+    function addUniqueElementToArray(node, elements, prepend){
         var toPush, el;
         
         if (isPablo(node)){
-            toPush = node.el;
+            toPush = node;
         }
         else if (isArray(node)){
             toPush = node;
@@ -182,14 +179,14 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             toPush = toArray(node);
         }
         else {
-            el = makeOrFindElement(node, attr);
+            el = makeOrFindElement(node);
             if (isUniqueElement(el, elements)){
-                elements.push(el);
+                Array.prototype[prepend ? 'unshift' : 'push'].call(elements, el);
             }
             return;
         }
         toPush.forEach(function(el){
-            addUniqueElementToArray(el, attr, elements);
+            addUniqueElementToArray(el, elements);
         });
     }
     
@@ -200,14 +197,10 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     // ELEMENT API
     
     function PabloNode(node, attr){
-        var // Create elements array
-            elements = this.el = [];
-            
-        // Add elements
-        addUniqueElementToArray(node, attr, elements);
+        this.push(node);
             
         // Apply attributes if elements have been added
-        if (attr && elements.length){
+        if (attr){
             this.attr(attr);
         }
     }
@@ -220,68 +213,61 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         make: make,
         
         get: function(index){
-            return typeof index === 'undefined' ?
-                this.el : this.el[index];
+            return this[index];
         },
         
         eq: function(index){
             return index >= 0 ?
                 // Return zero-indexed node
-                Pablo(this.el[index]) :
+                Pablo(this[index]) :
                 // Return node, counting backwards from end of elements array
                 (index < -1 ? this.slice(index, index + 1) : this.slice(index));
         },
         
         size: function(){
-            return this.el.length;
+            return this.length;
+        },
+
+        // Add new node(s) to the collection; accepts arrays or nodeLists
+        push: function(node){
+            addUniqueElementToArray(node, this);
+            return this;  
         },
         
         // Add new node(s) to the collection; accepts arrays or nodeLists
-        push: function(node, attr){
-            var pabloNodeToAdd = Pablo(node, attr);
-            
-            addUniqueElementToArray(pabloNodeToAdd, attr, this.el);
+        unshift: function(node){
+            addUniqueElementToArray(node, this, true);
             return this;
         },
         
         // Remove node from end of the collection
-        pop: function(node, attr){
-            return this.el.pop();
+        pop: function(){
+            return Pablo(Array.prototype.pop.call(this));
         },
         
         shift: function(){
-            return this.el.shift();
-        },
-        
-        // Add new node(s) to the collection; accepts arrays or nodeLists
-        // TODO: don't replace `this.el`, e.g. `el` array may be cached
-        unshift: function(node, attr){
-            var newNode = Pablo(node, attr).el[0],
-                existingElements = this.el.slice();
-                
-            this.el = [newNode].concat(existingElements);
-            return this;
+            return Pablo(Array.prototype.shift.call(this));
         },
         
         slice: function(from, to){
-            return Pablo(this.el.slice(from, to));
+            return Pablo(Array.prototype.slice.call(this, from, to));
         },
         
         each: function(fn){
-            this.el.forEach(fn, this);
+            this.forEach(fn, this);
             return this;
         },
         
         map: function(fn){
             return Pablo(
-                this.el.map(fn, this)
+                Array.prototype.map.call(this, fn)
             );
         },
         
         // Note: name due to conflict with 'filter' element method
         filterElements: function(fn){
             return Pablo(
-                this.el.filter(fn, this)
+                Array.prototype.filter.call(this, fn)
             );
         },
 
@@ -453,52 +439,55 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             repeats || (repeats = 1);
             
             while (repeats --){
-                duplicates.el.push(this.clone(true).el[0]);
+                duplicates.push(this.clone(true).get(0));
             }
             this.after(duplicates);
             return duplicates.unshift(this);
         },
         
         attr: function(attr){
-            if (!attr){
-                return getAttributes(this.el[0]);
+            if (typeof attr === 'undefined'){
+                return getAttributes(this.get(0));
             }
 
-            if (typeof attr === 'string'){
-                return this.get(0).getAttribute(attr);
-            }
-            
-            return this.each(function(el, i){
-                var pabloNode, prop, val;
-                
-                for (prop in attr){
-                    if (attr.hasOwnProperty(prop)){
-                        val = attr[prop];
-                        
-                        if (typeof val === 'function'){
-                            val = val.call(this, el, i);
-                        }
-                    
-                        switch (prop){
-                            case '_content':
-                            (pabloNode || (pabloNode = Pablo(el)))
-                                .content(val);
-                            continue;
-                        
-                            case '_children':
-                            (pabloNode || (pabloNode = Pablo(el)))
-                                .child(val);
-                            continue;
-                        
-                            case '_link':
-                            (pabloNode || (pabloNode = Pablo(el)))
-                                .link(val);
-                            continue;
-                        }
-                        el.setAttributeNS(null, prop, val);
-                    }
+            if (this.size()){
+                if (typeof attr === 'string'){
+                    return this.get(0).getAttribute(attr);
                 }
-            });
+                
+                this.each(function(el, i){
+                    var pabloNode, prop, val;
+                    
+                    for (prop in attr){
+                        if (attr.hasOwnProperty(prop)){
+                            val = attr[prop];
+                            
+                            if (typeof val === 'function'){
+                                val = val.call(this, el, i);
+                            }
+                        
+                            switch (prop){
+                                case '_content':
+                                (pabloNode || (pabloNode = Pablo(el)))
+                                    .content(val);
+                                continue;
+                            
+                                case '_children':
+                                (pabloNode || (pabloNode = Pablo(el)))
+                                    .child(val);
+                                continue;
+                            
+                                case '_link':
+                                (pabloNode || (pabloNode = Pablo(el)))
+                                    .link(val);
+                                continue;
+                            }
+                            el.setAttributeNS(null, prop, val);
+                        }
+                    }
+                });
+            }
+            return this;
         },
         
         removeAttr: function (attr) {
@@ -516,7 +505,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         content: function(text){
             // Get first element's textContent
             if (typeof text === 'undefined'){
-                return this.el[0].textContent;
+                return this.get(0).textContent;
             }
             
             // Set every element's textContent
@@ -526,7 +515,6 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         },
 
         css: function(styles){
-            // TODO: remove from code?
             if (typeof styles === 'string'){
                 // return document.defaultView.getComputedStyle(this.get(0), null).getPropertyValue(styles);
                 return this.get(0).style.getPropertyValue(styles);
@@ -543,38 +531,6 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
                 }
             });
         },
-        
-        /*
-        css: function(styles, value){
-            var stylesType = typeof styles,
-                valueType = typeof value;
-
-            if (stylesType === 'string' && valueType !== 'string'){
-                return this.get(0).style.getPropertyValue(styles);
-                // return document.defaultView.getComputedStyle(this.get(0), null).getPropertyValue(styles);
-            }
-
-            return this.each(function(el){
-                var style = el.style,
-                    prop;
-
-                if (stylesType === 'string' && valueType === 'string'){
-                    prop = styles;
-                    styles = {};
-                    styles[prop] = value;
-                    stylesType = 'object';
-                }
-
-                if (stylesType === 'object'){
-                    for (prop in styles){
-                        if (styles.hasOwnProperty(prop)){
-                            style.setProperty(prop, styles[prop], '');
-                        }
-                    }
-                }
-            });
-        },
-        */
 
 
         /////
@@ -622,12 +578,13 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
 
     /////
 
-        
+    
     // Pablo Node API Aliases
     extend(pabloNodeApi, {
         //_  : pabloNodeApi.append,
         add: pabloNodeApi.push
     });
+
     
     // SVG element shortcut methods
     'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop style svg switch symbol text textPath title tref tspan use view vkern'.split(' ')
@@ -650,11 +607,11 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     
     // Console.log response
     function toString(){
-        if (!this.el.length){
+        if (!this.size()){
             return '()';
         }
         
-        return '(' + this.el.map(function(el){
+        return '(' + this.map(function(el){
             var str = '<' + el.nodeName.toLowerCase();
                 
             if (el.attributes.length && JSON && JSON.stringify){
