@@ -1,4 +1,6 @@
 (function(Pablo){
+    'use strict';
+
     var vendorPrefixes = ['', '-moz-', '-webkit-', '-khtml-', '-o-', '-ms-'],
         pabloNodeApi = Pablo.Node.prototype;
 
