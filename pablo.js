@@ -112,7 +112,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     }
 
     function isArrayLike(obj){
-        return obj && typeof obj !== 'string' && typeof obj.length === 'number';
+        return obj && typeof obj === 'object' && typeof obj.length === 'number';
     }
     
     function isElement(node){
@@ -126,8 +126,8 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     // Returns true for both a Pablo instance and its API function
     function isPablo(node){
         return !!(node && 
-            // TODO: remove `node._pablo` reference  and modify `isPablo` in /extensions/functional.js
-            (node instanceof PabloNode || node._pablo instanceof PabloNode)
+            // See extensions/functional.js for example usage of node.collection
+            (node instanceof PabloNode || node.collection instanceof PabloNode)
         );
     }
     
@@ -153,12 +153,13 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         var toPush, el;
         
         if (isPablo(node)){
-            toPush = node;
+            // See extensions/functional.js for example usage of node.collection
+            toPush = node.collection || node;
         }
         else if (isArray(node)){
             toPush = node;
         }
-        else if (isNodeList(node) || isArrayLike(node)){
+        else if (isArrayLike(node)){
             toPush = toArray(node);
         }
         else {
@@ -196,6 +197,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     pabloNodeApi = PabloNode.prototype = [];
 
     extend(pabloNodeApi, {
+        collection: null,
         constructor: PabloNode,
         make: make,
         

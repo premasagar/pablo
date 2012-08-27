@@ -27,6 +27,8 @@
     }
 
     function refreshCachedElements(target, source){
+        var prop;
+        
         // Copy over elements from pabloNode - e.g. pabloNode[0], pabloNode[1], etc
         for (prop in source){
             if (source.hasOwnProperty(prop) && !isNaN(Number(prop)) && prop !== 'length'){
@@ -51,36 +53,36 @@
                 },
                 Pablo.fn,
                 {
-                    _pablo: pabloNode,
+                    collection: pabloNode,
                     toString: toString, // Used for console logging
                     size: function(){
-                        return this._pablo.size();
+                        return this.collection.size();
                     },
                     push: function(node){
-                        this._pablo.push(node);
-                        this[this.size() -1] = this._pablo.slice(-1);
+                        this.collection.push(node);
+                        this[this.size() -1] = this.collection.slice(-1);
                         return this;
                     },
                     unshift: function(node){
-                        this._pablo.unshift(node);
-                        refreshCachedElements(this, this._pablo);
+                        this.collection.unshift(node);
+                        refreshCachedElements(this, this.collection);
                         return this;
                     },
                     pop: function(){
                         // Remove last element
                         delete this [this.size() -1];
-                        this._pablo.pop();
+                        this.collection.pop();
                         return this;
                     },
                     shift: function(){
                         // Remove last element
                         delete this [this.size() -1];
-                        this._pablo.shift();
-                        refreshCachedElements(this, this._pablo);
+                        this.collection.shift();
+                        refreshCachedElements(this, this.collection);
                         return this;
                     },
                     each: function(fn){
-                        this._pablo.each(fn);
+                        this.collection.each(fn);
                         return this;
                     }
                 },

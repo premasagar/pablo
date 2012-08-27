@@ -17,9 +17,15 @@
 
         <!-- scripts -->
         <script src="pablo.js"></script>
+
+        <!-- not required for this demo, but available in browser console -->
+        <script src="extensions/functional.js"></script>
+        <script src="extensions/css-extra.js"></script>
+
         <script>
         // Check browser supports Pablo
         if (Pablo.isSupported){
+            Pablo.useFunctional(true);
             
             // Create SVG root node
             // Optional: pass in HTML DOM element or CSS selector to act as a
@@ -274,9 +280,5 @@
         
         <!-- Additional symbol -->
         <script src="examples/symbols.js"></script>
-
-        <!-- not required for this demo, but available in browser console -->
-        <script src="extensions/functional.js"></script>
-        <script src="extensions/css-extra.js"></script>
     </body>
 </html>
