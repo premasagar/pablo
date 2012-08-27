@@ -56,7 +56,7 @@ var namespace = 'pabloviz',
 
     settings = {
         root: root,
-        rootElem: root.el[0],
+        rootElem: root.get(0),
         width: Number(root.attr('width')),
         height: Number(root.attr('height')),
         rMax: 150,
