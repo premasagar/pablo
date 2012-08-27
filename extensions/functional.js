@@ -1,4 +1,9 @@
+// Create a functional API for wrapped Pablo collections
+// enable with: Pablo.useFunctional()
+// turn off with Pablo.useFunctional(false)
 (function(Pablo){
+    'use strict';
+
     var createPabloDefault = Pablo.create;
 
     // Console.log response
