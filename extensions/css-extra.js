@@ -2,7 +2,7 @@
     'use strict';
 
     var vendorPrefixes = ['', '-moz-', '-webkit-', '-khtml-', '-o-', '-ms-'],
-        pabloNodeApi = Pablo.Node.prototype;
+        pabloNodeApi = Pablo.fn;
 
     // Return CSS styles with browser vendor prefixes
     // e.g. cssPrefix({transform:'rotate(45deg)'}) will return the styles object, with additional properties containing CSS properties prefixed with the browser vendor prefixes - see vendorPrefixes
