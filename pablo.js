@@ -215,6 +215,10 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         get: function(index){
             return this[index];
         },
+
+        toArray: function(){
+            return toArray(this);
+        },
         
         eq: function(index){
             return index >= 0 ?
@@ -605,30 +609,11 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     
     // PABLO API
     
-    // Console.log response
-    function toString(){
-        if (!this.size()){
-            return '()';
-        }
-        
-        return '(' + this.map(function(el){
-            var str = '<' + el.nodeName.toLowerCase();
-                
-            if (el.attributes.length && JSON && JSON.stringify){
-                str += ' ' + JSON.stringify(getAttributes(el))
-                    .replace(/","/g, '", ')
-                    .replace(/^{"|}$/g, '')
-                    .replace(/":"/g, '="');
-            }
-            return str + '>';
-        }).join(', ') + ')';
-    }
-    
     // Select existing nodes in the document
-    function selectPablo(selector){
+    function selectPablo(selector, context){
         // Valid selector
         if (typeof selector === 'string' && selector){
-            return Pablo(document.querySelectorAll(selector));
+            return Pablo((context || document).querySelectorAll(selector));
         }
         // Return empty Pablo collection
         return createPablo();
@@ -639,55 +624,24 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     function createPablo(node, attr){
         return new PabloNode(node, attr);
     }
-    
-    /*
-    // Create Pablo #1: return a PabloNode instance
-    function createPabloObj(node, attr){
-        return new PabloNode(node, attr);
-    }
-    
-    // Create Pablo #2: return a function that wraps a PabloNode instance
-    function createPabloFn(node, attr){
-        var pabloNode = new PabloNode(node, attr),
-            api = extend(
-                function(node, attr){
-                    if (attr || canBeWrapped(node)){
-                        pabloNode.append(node, attr);
-                        return api;
-                    }
-                    else {
-                        return selectPablo(node);
-                    }
-                },
-                pabloNode,
-                {
-                    _pablo: pabloNode,
-                    toString: toString // Used for console logging
-                },
-                true
-            );
-        return api;
-    }
-    
-    // Create Pablo: use functional API by default; see `functionApi` method
-    createPablo = createPabloFn;
-    */
+
     
     // **
     
+
     // Pablo main function
     function Pablo(node, attr){
-        if (attr || canBeWrapped(node)){
-            return createPablo(node, attr);
+        if (attr || Pablo.canBeWrapped(node)){
+            return Pablo.create(node, attr);
         }
         else {
-            return selectPablo(node);
+            return Pablo.select(node);
         }
     }
     
     // Pablo methods
     pabloApi = {
-        v: '0.0.1',
+        v: '0.2.0',
         isSupported: true,
         svgns: svgns,
         xlinkns: xlinkns,
@@ -698,15 +652,12 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         isSvg: isSvg,
         extend: extend,
         fn: pabloNodeApi,
-        Node: PabloNode
-        
-        /*
-        // Whether to use the function API (default) or the object API
-        functionApi: function(yes){
-            createPablo = (yes !== false) ? createPabloFn : createPabloObj;
-            return this;
-        }
-        */
+        Node: PabloNode,
+        create: createPablo,
+        select: selectPablo,
+        toArray: toArray,
+        getAttributes: getAttributes,
+        canBeWrapped: canBeWrapped
     };
     
     return extend(Pablo, pabloApi, true);
