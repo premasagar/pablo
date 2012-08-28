@@ -1,12 +1,12 @@
 # Pablo
 
-A tiny JavaScript library for drawing [SVG](https://developer.mozilla.org/en/SVG) vector graphics.
+A small JavaScript library for drawing [SVG](https://developer.mozilla.org/en/SVG) vector graphics.
 
-* by [Premasagar Rose](http://premasagar.com) 
+- by [Premasagar Rose](http://premasagar.com) 
     ([Dharmafly](http://dharmafly.com))
-* open source: [github.com/dharmafly/pablo](http://github.com/dharmafly/pablo) 
-([MIT license](http://opensource.org/licenses/mit-license.php))
-* < 1KB of code, minified & gzipped
+- [github.com/dharmafly/pablo](https://github.com/dharmafly/pablo)
+- open source: [MIT license](http://opensource.org/licenses/mit-license.php)
+- ~3KB minified & gzipped
 
 ## Examples
 
