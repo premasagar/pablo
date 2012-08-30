@@ -15,6 +15,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         xlinkns = 'http://www.w3.org/1999/xlink',
         svgVersion = 1.1,
         vendorPrefixes = ['', '-moz-', '-webkit-', '-khtml-', '-o-', '-ms-'],
+        blank = {},
         supportsClassList, pabloApi, pabloNodeApi, createPablo, cssClassAPI;
 
 
@@ -76,6 +77,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         });
     }
     
+    /*
     // e.g. 'fontColor' -> 'font-color'
     // NOTE: does not check for blank spaces, i.e. for multiple words 'font Color'
     function camelCaseToHyphenated(str){
@@ -83,6 +85,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             return '-' + letter.toLowerCase();
         });
     }
+    */
     
     function toArray(obj){
         return Array.prototype.slice.call(obj);
@@ -212,7 +215,6 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
                 res = vendorPrefixes.join(prop + ',') + prop;
             }
         }
-
         return res;
     }
     
@@ -226,7 +228,8 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         this.push(node);
             
         // Apply attributes if elements have been added
-        if (attr){
+        // Avoid attr() call if using the `blank` object
+        if (attr && attr !== blank){
             this.attr(attr);
         }
     }
@@ -395,12 +398,12 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         },
         
         child: function(node, attr){
-            return toPablo(node, attr || {}).appendTo(this);
+            return toPablo(node, attr || blank).appendTo(this);
         },
 
         append: function(node, attr){
             this.each(function(el){
-                toPablo(node, attr || {}).each(function(child){
+                toPablo(node, attr || blank).each(function(child){
                     el.appendChild(child);
                 });
             });
@@ -477,47 +480,48 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         },
         
         attr: function(attr){
+            var el;
+
             if (typeof attr === 'undefined'){
                 return getAttributes(this.get(0));
             }
 
-            if (this.size()){
-                if (typeof attr === 'string'){
-                    return this.get(0).getAttribute(attr);
-                }
-                
-                this.each(function(el, i){
-                    var pabloNode, prop, val;
-                    
-                    for (prop in attr){
-                        if (attr.hasOwnProperty(prop)){
-                            val = attr[prop];
-                            
-                            if (typeof val === 'function'){
-                                val = val.call(this, el, i);
-                            }
-                        
-                            switch (prop){
-                                case '_content':
-                                (pabloNode || (pabloNode = Pablo(el)))
-                                    .content(val);
-                                continue;
-                            
-                                case '_children':
-                                (pabloNode || (pabloNode = Pablo(el)))
-                                    .child(val);
-                                continue;
-                            
-                                case '_link':
-                                (pabloNode || (pabloNode = Pablo(el)))
-                                    .link(val);
-                                continue;
-                            }
-                            el.setAttributeNS(null, prop, val);
-                        }
-                    }
-                });
+            if (typeof attr === 'string'){
+                el = this.get(0);
+                return el && el.getAttribute(attr);
             }
+                
+            this.each(function(el, i){
+                var pabloNode, prop, val;
+                
+                for (prop in attr){
+                    if (attr.hasOwnProperty(prop)){
+                        val = attr[prop];
+                        
+                        if (typeof val === 'function'){
+                            val = val.call(this, el, i);
+                        }
+                    
+                        switch (prop){
+                            case '_content':
+                            (pabloNode || (pabloNode = Pablo(el)))
+                                .content(val);
+                            continue;
+                        
+                            case '_children':
+                            (pabloNode || (pabloNode = Pablo(el)))
+                                .child(val);
+                            continue;
+                        
+                            case '_link':
+                            (pabloNode || (pabloNode = Pablo(el)))
+                                .link(val);
+                            continue;
+                        }
+                        el.setAttributeNS(null, prop, val);
+                    }
+                }
+            });
             return this;
         },
         
@@ -706,10 +710,10 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             var hyphenated = hyphenatedToCamelCase(nodeName);
             
             Pablo[nodeName] = Pablo[hyphenated] = function(attr){
-                return Pablo(nodeName, attr || {});
+                return Pablo(nodeName, attr || blank);
             };
             pabloNodeApi[nodeName] = pabloNodeApi[hyphenated] = function(attr){
-                return this.child(nodeName, attr || {});
+                return this.child(nodeName, attr || blank);
             };
         });
 
