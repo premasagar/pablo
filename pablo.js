@@ -14,7 +14,8 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     var svgns = 'http://www.w3.org/2000/svg',
         xlinkns = 'http://www.w3.org/1999/xlink',
         svgVersion = 1.1,
-        pabloApi, pabloNodeApi, createPablo;
+        vendorPrefixes = ['', '-moz-', '-webkit-', '-khtml-', '-o-', '-ms-'],
+        supportsClassList, pabloApi, pabloNodeApi, createPablo, cssClassAPI;
 
 
     // TEST BROWSER COMPATIBILITY
@@ -176,6 +177,43 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         toPush.forEach(function(el){
             addElementIfUnique(el, elements);
         });
+    }
+
+    // Return CSS styles with browser vendor prefixes
+    // e.g. cssPrefix({transform:'rotate(45deg)'}) will return the styles object, with additional properties containing CSS properties prefixed with the browser vendor prefixes - see vendorPrefixes
+    // e.g. cssPrefix('transform', 'rotate(45deg)') will return a string sequence of prefixed CSS properties, each assigned the same value
+    // e.g. cssPrefix('transform') will return a string sequence of CSS properties
+    function cssPrefix(styles, value){
+        var vendorPrefixes = Pablo.vendorPrefixes,
+            prop, res, rule;
+        
+        if (typeof styles === 'object'){
+            res = {};
+            for (prop in styles){
+                if (styles.hasOwnProperty(prop)){
+                    vendorPrefixes.forEach(function(prefix){
+                        res[prefix + prop] = styles[prop];
+                    });
+                }
+            }
+        }
+
+        if (typeof styles === 'string'){
+            prop = styles;
+
+            // e.g. cssPrefix('transform', 'rotate(45deg)') -> 'transform:rotate(45deg);-webkit-transform:rotate(45deg);...'
+            if (typeof value === 'string'){
+                rule = prop + ':' + value + ';';
+                res = vendorPrefixes.join(rule) + rule;
+            }
+            // e.g. cssPrefix('transform') -> 'transform,-webkit-transform,...'
+            // useful for adding prefixed properties when setting active properties in a CSS transition
+            else {
+                res = vendorPrefixes.join(prop + ',') + prop;
+            }
+        }
+
+        return res;
     }
     
     
@@ -525,6 +563,11 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             });
         },
 
+        // Add prefixed CSS styles to elements in collection
+        cssPrefix: function(styles){
+            return this.css(cssPrefix(styles));
+        },
+
 
         /////
 
@@ -572,17 +615,92 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     /////
 
     
-    // Pablo Node API Aliases
-    extend(pabloNodeApi, {
-        //_  : pabloNodeApi.append,
-        add: pabloNodeApi.push
-    });
+    // CSS Classes methods
+
+    // Check browser support for native classLists
+    // e.g. IE9 doesn't support classLists for HTML or SVG;
+    //      Chrome 21 & WebKit doesn't support classLists for SVG
+    // For alternatives, see https://gist.github.com/1319121 and
+    //      https://developer.mozilla.org/media/uploads/demos/p/a/paulrouget/8bfba7f0b6c62d877a2b82dd5e10931e/hacksmozillaorg-achi_1334270447_demo_package/classList/classList.js - linked from https://hacks.mozilla.org/2010/01/classlist-in-firefox-3-6/
+    supportsClassList = !!(make('a').classList);
+    cssClassAPI = supportsClassList ?
+        {
+            hasClass: function(className){
+                return this.get(0).classList.contains(className);
+            },
+
+            addClass: function(className){
+                return this.each(function(el){
+                    el.classList.add(className);
+                });
+            },
+
+            removeClass: function(className){
+                return this.each(function(el){
+                    el.classList.remove(className);
+                });
+            },
+
+            toggleClass: function(className){
+                return this.each(function(el){
+                    el.classList.toggle(className);
+                });
+            }
+        } :
+
+        {
+            hasClass: function(className){
+                var classString = this.attr('class');
+
+                // No existing classes
+                if (!classString){
+                    return false;
+                }
+                // className is already present
+                return (new RegExp('\\b' + className + '\\b')).test(classString);
+            },
+
+            addClass: function(className){
+                var classString;
+
+                if (this.hasClass(className)){
+                    return this;
+                }
+                classString = this.attr('class');
+                classString = classString ? (classString + ' ') : '';
+                return this.attr({'class': classString + className});
+            },
+
+            removeClass: function(className){
+                var classString;
+
+                if (!this.hasClass(className)){
+                    return this;
+                }
+                classString = this.attr('class') || '';
+                classString = classString.replace(new RegExp('(^|\\s)' + className + '(\\s|$)'), '$2');
+                return this.attr({'class': classString});
+            },
+
+            toggleClass: function(className){
+                return this.each(function(el){
+                    if (this.hasClass(className)){
+                        this.removeClass(className);
+                    }
+                    else {
+                        this.addClass(className);
+                    }
+                });
+            }
+        };
+
+    extend(pabloNodeApi, cssClassAPI);
 
 
     /////
 
     
-    // SVG element shortcut methods
+    // SVG element methods
     'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop style svg switch symbol text textPath title tref tspan use view vkern'.split(' ')
         .forEach(function(nodeName){
             var methodName = hyphenatedToCamelCase(nodeName);
@@ -594,7 +712,11 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
                 return this.child(nodeName, attr || {});
             };
         });
+
     
+    // Pablo Node API Aliases
+    pabloNodeApi.add = pabloNodeApi.push;
+
     
     /////
     
@@ -649,7 +771,14 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         select: selectPablo,
         toArray: toArray,
         getAttributes: getAttributes,
-        canBeWrapped: canBeWrapped
+        canBeWrapped: canBeWrapped,
+
+        // CSS related
+        vendorPrefixes: vendorPrefixes,
+        supportsClassList: supportsClassList,
+        cssPrefix: cssPrefix
+        // e.g. Pablo('svg').style().content('#foo{' + Pablo.cssPrefix('transform', 'rotate(45deg)') + '}');
+        // e.g. myElement.css({'transition-property': Pablo.cssPrefix('transform)});
     };
     
     return extend(Pablo, pabloApi, true);
