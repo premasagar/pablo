@@ -29,7 +29,7 @@
     function refreshCachedElements(target, source){
         var prop;
         
-        // Copy over elements from pabloNode - e.g. pabloNode[0], pabloNode[1], etc
+        // Copy over elements from pabloCollection - e.g. pabloCollection[0], pabloCollection[1], etc
         for (prop in source){
             if (source.hasOwnProperty(prop) && !isNaN(Number(prop)) && prop !== 'length'){
                 target[prop] = source[prop];
@@ -37,23 +37,23 @@
         }
     }
     
-    // Return a function wrapper around a PabloNode instance
+    // Return a function wrapper around a pabloCollection instance
     function createPabloFn(node, attr){
         var extend = Pablo.extend,
-            pabloNode = createPabloDefault(node, attr),
+            pabloCollection = createPabloDefault(node, attr),
             api = extend(
                 function(node, attr){
                     if (attr || Pablo.canBeWrapped(node)){
-                        pabloNode.append(node, attr);
+                        pabloCollection.append(node, attr);
                         return api;
                     }
                     else {
-                        return Pablo(pabloNode.find(node));
+                        return Pablo(pabloCollection.find(node));
                     }
                 },
                 Pablo.fn,
                 {
-                    collection: pabloNode,
+                    collection: pabloCollection,
                     toString: toString, // Used for console logging
                     size: function(){
                         return this.collection.size();
@@ -90,7 +90,7 @@
             ),
             prop;
 
-        refreshCachedElements(api, pabloNode);
+        refreshCachedElements(api, pabloCollection);
         return api;
     }
 

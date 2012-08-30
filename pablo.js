@@ -11,22 +11,31 @@
 var Pablo = (function(document, Array, JSON, Element, NodeList){
     'use strict';
     
-    var svgns = 'http://www.w3.org/2000/svg',
-        xlinkns = 'http://www.w3.org/1999/xlink',
+    var /* SETTINGS */
+        pabloVersion = '0.2.0',
         svgVersion = 1.1,
+        svgns = 'http://www.w3.org/2000/svg',
+        xlinkns = 'http://www.w3.org/1999/xlink',
         vendorPrefixes = ['', '-moz-', '-webkit-', '-khtml-', '-o-', '-ms-'],
+
+        /**/
         blank = {},
-        supportsClassList, pabloApi, pabloNodeApi, createPablo, cssClassAPI;
+        supportsClassList, hyphensToCamelCase, cssClassAPI,
+        pabloApi, pabloCollectionApi, createPablo;
 
-
-    // TEST BROWSER COMPATIBILITY
     
     function make(elementName){
         return typeof elementName === 'string' &&
             document.createElementNS(Pablo.svgns || svgns, elementName) ||
             null;
     }
-    
+
+
+    /////
+
+
+    // TEST BROWSER COMPATIBILITY
+
     function isSupported(){
         return !!(
             document && Array && JSON && Element && NodeList &&
@@ -70,45 +79,21 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         return target;
     }
     
-    // e.g. 'font-color' -> 'fontColor'
-    function hyphenatedToCamelCase(str){
-        return str.replace(/-([a-z])/g, function(match, letter){
-            return letter.toUpperCase();
-        });
-    }
-    
-    /*
-    // e.g. 'fontColor' -> 'font-color'
-    // NOTE: does not check for blank spaces, i.e. for multiple words 'font Color'
-    function camelCaseToHyphenated(str){
-        return str.replace(/[A-Z]/g, function(letter){
-            return '-' + letter.toLowerCase();
-        });
-    }
-    */
-    
     function toArray(obj){
         return Array.prototype.slice.call(obj);
     }
     
-    function toElement(node){
-        if (isElement(node) || isPablo(node)){
-            return node;
-        }
-        return make(node);
-    }
-    
     function getAttributes(el){
-        var attr = {},
-            nodeAttr, len, i;
+        var ret = {},
+            attr, len, i;
             
         if (el){
-            nodeAttr = el.attributes;
-            for (i = 0, len = nodeAttr.length; i<len; i++){
-                attr[nodeAttr[i].name] = nodeAttr[i].value;
+            attr = el.attributes;
+            for (i = 0, len = attr.length; i<len; i++){
+                ret[attr[i].name] = attr[i].value;
             }
         }
-        return attr;
+        return ret;
     }
     
     function isArray(obj){
@@ -119,35 +104,35 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         return obj && typeof obj === 'object' && typeof obj.length === 'number';
     }
     
-    function isElement(node){
-        return node instanceof Element;
+    function isElement(obj){
+        return obj instanceof Element;
     }
     
-    function isNodeList(node){
-        return node instanceof NodeList;
+    function isNodeList(obj){
+        return obj instanceof NodeList;
+    }
+    
+    function isSvg(obj){
+        return obj.namespaceURI == Pablo.svgns;
     }
     
     // Returns true for both a Pablo instance and its API function
-    function isPablo(node){
-        return !!(node && 
+    function isPablo(obj){
+        return !!(obj && 
             // See extensions/functional.js for example usage of node.collection
-            (node instanceof PabloNode || node.collection instanceof PabloNode)
+            (obj instanceof PabloCollection || obj.collection instanceof PabloCollection)
         );
     }
     
-    function canBeWrapped(node){
-        return isPablo(node) ||
-            isElement(node) ||
-            isNodeList(node) ||
-            isArray(node) ||
-            isArrayLike(node);
+    function canBeWrapped(obj){
+        return isPablo(obj) ||
+            isElement(obj) ||
+            isNodeList(obj) ||
+            isArray(obj) ||
+            isArrayLike(obj);
     }
     
-    function isSvg(node){
-        return node.namespaceURI == Pablo.svgns;
-    }
-    
-    // Return node if a PabloNode, otherwise create one
+    // Return node if a PabloCollection, otherwise create one
     function toPablo(node, attr){
         return isPablo(node) ?
             node : Pablo(node, attr);
@@ -167,8 +152,15 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             toPush = toArray(node);
         }
         else {
-            el = typeof node === 'string' ?
-                make(node) : toElement(node);
+            if (typeof node === 'string'){
+                el = make(node);
+            }
+            else if (isElement(node) || isPablo(node)){
+                el = node;
+            }
+            else {
+                el = make(node);
+            }
 
             // Is an element, but is not found in the node list
             if (isElement(el) && elements.indexOf(el) === -1){
@@ -218,13 +210,38 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         return res;
     }
     
+    // e.g. 'font-color' -> 'fontColor'
+    hyphensToCamelCase = (function(){
+        var firstLetter = /-([a-z])/g;
+
+        return function (str){
+            return str.replace(firstLetter, function(match, letter){
+                return letter.toUpperCase();
+            });
+        };
+    });
+    
+    /*
+    // e.g. 'fontColor' -> 'font-color'
+    // NOTE: does not check for blank spaces, i.e. for multiple words 'font Color'
+    var camelCaseToHyphens = (function(){
+        var capitalLetters = /[A-Z]/g;
+
+        return function (str){
+            return str.replace(capitalLetters, function(letter){
+                return '-' + letter.toLowerCase();
+            });
+        };
+    });
+    */
+    
     
     /////
     
     
     // ELEMENT API
     
-    function PabloNode(node, attr){
+    function PabloCollection(node, attr){
         this.push(node);
             
         // Apply attributes if elements have been added
@@ -235,11 +252,11 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     }
     
     // Node prototype
-    pabloNodeApi = PabloNode.prototype = [];
+    pabloCollectionApi = PabloCollection.prototype = [];
 
-    extend(pabloNodeApi, {
+    extend(pabloCollectionApi, {
         collection: null,
-        constructor: PabloNode,
+        constructor: PabloCollection,
         make: make,
         
         get: function(index){
@@ -492,7 +509,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             }
                 
             this.each(function(el, i){
-                var pabloNode, prop, val;
+                var PabloCollection, prop, val;
                 
                 for (prop in attr){
                     if (attr.hasOwnProperty(prop)){
@@ -504,17 +521,17 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
                     
                         switch (prop){
                             case '_content':
-                            (pabloNode || (pabloNode = Pablo(el)))
+                            (PabloCollection || (PabloCollection = Pablo(el)))
                                 .content(val);
                             continue;
                         
                             case '_children':
-                            (pabloNode || (pabloNode = Pablo(el)))
+                            (PabloCollection || (PabloCollection = Pablo(el)))
                                 .child(val);
                             continue;
                         
                             case '_link':
-                            (pabloNode || (pabloNode = Pablo(el)))
+                            (PabloCollection || (PabloCollection = Pablo(el)))
                                 .link(val);
                             continue;
                         }
@@ -698,7 +715,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             }
         };
 
-    extend(pabloNodeApi, cssClassAPI);
+    extend(pabloCollectionApi, cssClassAPI);
 
 
     /////
@@ -707,19 +724,19 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     // SVG element methods
     'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop style svg switch symbol text textPath title tref tspan use view vkern'.split(' ')
         .forEach(function(nodeName){
-            var hyphenated = hyphenatedToCamelCase(nodeName);
+            var camelCaseName = hyphensToCamelCase(nodeName);
             
-            Pablo[nodeName] = Pablo[hyphenated] = function(attr){
+            Pablo[nodeName] = Pablo[camelCaseName] = function(attr){
                 return Pablo(nodeName, attr || blank);
             };
-            pabloNodeApi[nodeName] = pabloNodeApi[hyphenated] = function(attr){
+            pabloCollectionApi[nodeName] = pabloCollectionApi[camelCaseName] = function(attr){
                 return this.child(nodeName, attr || blank);
             };
         });
 
     
     // Pablo Node API Aliases
-    pabloNodeApi.add = pabloNodeApi.push;
+    pabloCollectionApi.add = pabloCollectionApi.push;
 
     
     /////
@@ -738,9 +755,9 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     }
 
 
-    // Create Pablo: return a PabloNode instance
+    // Create Pablo: return a PabloCollection instance
     function createPablo(node, attr){
-        return new PabloNode(node, attr);
+        return new PabloCollection(node, attr);
     }
 
     
@@ -759,7 +776,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     
     // Pablo methods
     pabloApi = {
-        v: '0.2.0',
+        v: pabloVersion,
         isSupported: true,
         svgns: svgns,
         xlinkns: xlinkns,
@@ -769,15 +786,16 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         isNodeList: isNodeList,
         isSvg: isSvg,
         extend: extend,
-        fn: pabloNodeApi,
-        Node: PabloNode,
-        create: createPablo,
-        select: selectPablo,
         toArray: toArray,
         getAttributes: getAttributes,
         canBeWrapped: canBeWrapped,
 
-        // CSS related
+        fn: pabloCollectionApi,
+        Collection: PabloCollection,
+        create: createPablo,
+        select: selectPablo,
+
+        // css related
         vendorPrefixes: vendorPrefixes,
         supportsClassList: supportsClassList,
         cssPrefix: cssPrefix
