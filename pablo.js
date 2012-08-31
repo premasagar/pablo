@@ -496,18 +496,27 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             return duplicates.unshift(this);
         },
         
-        attr: function(attr){
-            var el;
+        attr: function(attr, value){
+            var el, attributeName;
 
             if (typeof attr === 'undefined'){
                 return getAttributes(this.get(0));
             }
 
             if (typeof attr === 'string'){
-                el = this.get(0);
-                return el && el.getAttribute(attr);
+                // Get attribute
+                if (typeof value === 'undefined'){
+                    el = this.get(0);
+                    return el && el.getAttribute(attr);
+                }
+
+                // Create attributes object
+                attributeName = attr;
+                attr = {};
+                attr[attributeName] = value;
             }
-                
+            
+            // Set multiple attributes
             this.each(function(el, i){
                 var PabloCollection, prop, val;
                 
@@ -566,10 +575,20 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             });
         },
 
-        css: function(styles){
+        css: function(styles, value){
+            var styleProperty;
+
             if (typeof styles === 'string'){
-                // return document.defaultView.getComputedStyle(this.get(0), null).getPropertyValue(styles);
-                return this.get(0).style.getPropertyValue(styles);
+                // Get style
+                if (typeof value === 'undefined'){
+                    return this.get(0).style.getPropertyValue(styles);
+                    // or document.defaultView.getComputedStyle(this.get(0), null).getPropertyValue(styles);
+                }
+
+                // Create styles object
+                styleProperty = styles;
+                styles = {};
+                styles[styleProperty] = value;
             }
 
             return this.each(function(el){
