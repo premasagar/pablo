@@ -1,30 +1,11 @@
 // Create a functional API for wrapped Pablo collections
 // enable with: Pablo.useFunctional()
 // turn off with Pablo.useFunctional(false)
-(function(Pablo){
+(function(Pablo, JSON){
     'use strict';
 
-    var createPabloDefault = Pablo.create;
-
-    // Console.log response
-    function toString(){
-        var elementList = '';
-        
-        this.each(function(el){
-            elementList += '<' + el.nodeName.toLowerCase();
-            if (el.attributes.length && JSON && JSON.stringify){
-                elementList += ' ' + JSON.stringify(Pablo.getAttributes(el))
-                    .replace(/","/g, '", ')
-                    .replace(/^{"|}$/g, '')
-                    .replace(/":"/g, '="');
-            }
-            elementList += '>, ';
-        });
-        // Remove trailing slash
-        elementList = elementList.slice(0,-2);
-
-        return '(' + elementList + ')';
-    }
+    var createPabloDefault = Pablo.create,
+        pabloApi;
 
     function refreshCachedElements(target, source){
         var prop;
@@ -35,6 +16,66 @@
                 target[prop] = source[prop];
             }
         }
+    }
+
+    pabloApi = Pablo.extend(
+        {},
+        Pablo.fn,
+        {
+            size: function(){
+                return this.collection.size();
+            },
+            push: function(node){
+                this.collection.push(node);
+                this[this.size() -1] = this.collection.slice(-1);
+                return this;
+            },
+            unshift: function(node){
+                this.collection.unshift(node);
+                refreshCachedElements(this, this.collection);
+                return this;
+            },
+            pop: function(){
+                // Remove last element
+                delete this [this.size() -1];
+                this.collection.pop();
+                return this;
+            },
+            shift: function(){
+                // Remove last element
+                delete this [this.size() -1];
+                this.collection.shift();
+                refreshCachedElements(this, this.collection);
+                return this;
+            },
+            each: function(fn){
+                this.collection.each(fn);
+                return this;
+            }
+        },
+        true
+    );
+
+    // enhanced console.log response
+    if (JSON && JSON.stringify){
+        pabloApi.toString = function(){
+            var elementList = '';
+            
+            this.each(function(el){
+                elementList += '<' + el.nodeName.toLowerCase();
+                if (el.attributes.length && JSON && JSON.stringify){
+                    elementList += ' ' + JSON.stringify(Pablo.getAttributes(el))
+                        .replace(/","/g, '", ')
+                        .replace(/^{"|}$/g, '')
+                        .replace(/":"/g, '="');
+                }
+                elementList += '>, ';
+            });
+            // Remove trailing slash
+            elementList = elementList.slice(0,-2);
+
+            return '(' + elementList + ')';
+        };
     }
     
     // Return a function wrapper around a pabloCollection instance
@@ -51,45 +92,10 @@
                         return Pablo(pabloCollection.find(node));
                     }
                 },
-                Pablo.fn,
-                {
-                    collection: pabloCollection,
-                    toString: toString, // Used for console logging
-                    size: function(){
-                        return this.collection.size();
-                    },
-                    push: function(node){
-                        this.collection.push(node);
-                        this[this.size() -1] = this.collection.slice(-1);
-                        return this;
-                    },
-                    unshift: function(node){
-                        this.collection.unshift(node);
-                        refreshCachedElements(this, this.collection);
-                        return this;
-                    },
-                    pop: function(){
-                        // Remove last element
-                        delete this [this.size() -1];
-                        this.collection.pop();
-                        return this;
-                    },
-                    shift: function(){
-                        // Remove last element
-                        delete this [this.size() -1];
-                        this.collection.shift();
-                        refreshCachedElements(this, this.collection);
-                        return this;
-                    },
-                    each: function(fn){
-                        this.collection.each(fn);
-                        return this;
-                    }
-                },
-                true
-            ),
-            prop;
+                pabloApi
+            );
 
+        api.collection = pabloCollection;
         refreshCachedElements(api, pabloCollection);
         return api;
     }
@@ -99,4 +105,4 @@
         Pablo.create = (yes !== false) ? createPabloFn : createPabloDefault;
         return this;
     };
-}(window.Pablo));
+}(window.Pablo, window.JSON));
