@@ -35,19 +35,15 @@ var Pablo = (function(document, Array, Element, NodeList){
     // TEST BROWSER COMPATIBILITY
 
     testElement = document.createElementNS && make('svg');
-
-    function isSupported(){
-        return !!(
-            document && document.querySelectorAll &&
-            Array && Array.isArray && Array.prototype.forEach &&
-            Element && NodeList &&
-            testElement.createSVGRect
-        );
-    }
     
     // Incompatible browser
-    if (!isSupported()){
-        // A simplified version of the Pablo API
+    if (!(
+        document && document.querySelectorAll &&
+        Array && Array.isArray && Array.prototype.forEach &&
+        Element && NodeList &&
+        testElement && testElement.createSVGRect
+    )){
+        // Return a simplified version of the Pablo API
         return {
             v: pabloVersion,
             isSupported: false
@@ -813,5 +809,5 @@ var Pablo = (function(document, Array, Element, NodeList){
         // e.g. myElement.css({'transition-property': Pablo.cssPrefix('transform)});
     };
     
-    return extend(Pablo, pabloApi, true);
+    return extend(Pablo, pabloApi);
 }(window.document, window.Array, window.Element, window.NodeList));
