@@ -8,7 +8,7 @@
 */
 
 
-var Pablo = (function(document, Array, JSON, Element, NodeList){
+var Pablo = (function(document, Array, Element, NodeList){
     'use strict';
     
     var /* SETTINGS */
@@ -18,9 +18,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         xlinkns = 'http://www.w3.org/1999/xlink',
         vendorPrefixes = ['', '-moz-', '-webkit-', '-khtml-', '-o-', '-ms-'],
 
-        /**/
-        blank = {},
-        supportsClassList, hyphensToCamelCase, cssClassAPI,
+        testElement, supportsClassList, hyphensToCamelCase, cssClassApi,
         pabloApi, pabloCollectionApi, createPablo;
 
     
@@ -36,22 +34,27 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
 
     // TEST BROWSER COMPATIBILITY
 
+    testElement = document.createElementNS && make('svg');
+
     function isSupported(){
         return !!(
-            document && Array && JSON && Element && NodeList &&
-            document.querySelectorAll &&
-            document.querySelector &&
-            document.createElementNS &&
-            Array.isArray &&
-            Array.prototype.forEach &&
-            make('svg').createSVGRect
+            document && document.querySelectorAll &&
+            Array && Array.isArray && Array.prototype.forEach &&
+            Element && NodeList &&
+            testElement.createSVGRect
         );
     }
     
     // Incompatible browser
     if (!isSupported()){
-        return {isSupported:false};
+        // A simplified version of the Pablo API
+        return {
+            v: pabloVersion,
+            isSupported: false
+        };
     }
+
+    supportsClassList = !!testElement.classList;
 
     
     /////
@@ -152,18 +155,10 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             toPush = toArray(node);
         }
         else {
-            if (typeof node === 'string'){
-                el = make(node);
-            }
-            else if (isElement(node) || isPablo(node)){
-                el = node;
-            }
-            else {
-                el = make(node);
-            }
+            el = isElement(node) ? node : make(node);
 
             // Is an element, but is not found in the node list
-            if (isElement(el) && elements.indexOf(el) === -1){
+            if (el && elements.indexOf(el) === -1){
                 Array.prototype[prepend ? 'unshift' : 'push'].call(elements, el);
             }
             return;
@@ -242,12 +237,13 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     // ELEMENT API
     
     function PabloCollection(node, attr){
-        this.push(node);
+        if (node){
+            this.push(node);
             
-        // Apply attributes if elements have been added
-        // Avoid attr() call if using the `blank` object
-        if (attr && attr !== blank){
-            this.attr(attr);
+            // Apply attributes
+            if (attr){
+                this.attr(attr);
+            }
         }
     }
     
@@ -380,11 +376,11 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             return siblings;
         },
         
-        find: function(selector){
+        find: function(selectors){
             var found = Pablo();
             
             this.each(function(el){
-                toArray(el.querySelectorAll(selector)).forEach(function(target){
+                toArray(el.querySelectorAll(selectors)).forEach(function(target){
                     found.push(target);
                 });
             });
@@ -414,22 +410,23 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             });
         },
         
-        child: function(node, attr){
-            return toPablo(node, attr || blank).appendTo(this);
-        },
-
+        // NOTE: the following append-related functions all require attr to exist, even as a blank object, if a new element is to be created. Otherwise, if the first argument is a string, then a selection operation will be performed.
         append: function(node, attr){
             this.each(function(el){
-                toPablo(node, attr || blank).each(function(child){
+                toPablo(node, attr).each(function(child){
                     el.appendChild(child);
                 });
             });
             return this;
         },
         
-        appendTo: function(node){
-            toPablo(node).append(this);
+        appendTo: function(node, attr){
+            toPablo(node, attr).append(this);
             return this;
+        },
+
+        child: function(node, attr){
+            return toPablo(node, attr).appendTo(this);
         },
         
         before: function(node, attr){
@@ -463,8 +460,8 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             });
         },
         
-        prependTo: function(node){
-            toPablo(node).prepend(this);
+        prependTo: function(node, attr){
+            toPablo(node, attr).prepend(this);
             return this;
         },
         
@@ -536,7 +533,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
                         
                             case '_children':
                             (PabloCollection || (PabloCollection = Pablo(el)))
-                                .child(val);
+                                .append(val);
                             continue;
                         
                             case '_link':
@@ -657,13 +654,11 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     
     // CSS Classes methods
 
-    // Check browser support for native classLists
-    // e.g. IE9 doesn't support classLists for HTML or SVG;
+    // IE9 doesn't support native classLists for HTML or SVG;
     //      Chrome 21 & WebKit doesn't support classLists for SVG
     // For alternatives, see https://gist.github.com/1319121 and
     //      https://developer.mozilla.org/media/uploads/demos/p/a/paulrouget/8bfba7f0b6c62d877a2b82dd5e10931e/hacksmozillaorg-achi_1334270447_demo_package/classList/classList.js - linked from https://hacks.mozilla.org/2010/01/classlist-in-firefox-3-6/
-    supportsClassList = !!(make('a').classList);
-    cssClassAPI = supportsClassList ?
+    cssClassApi = supportsClassList ?
         {
             hasClass: function(className){
                 return this.get(0).classList.contains(className);
@@ -692,12 +687,8 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             hasClass: function(className){
                 var classString = this.attr('class');
 
-                // No existing classes
-                if (!classString){
-                    return false;
-                }
-                // className is already present
-                return (new RegExp('\\b' + className + '\\b')).test(classString);
+                return !!classString && (' ' + classString + ' ')
+                    .indexOf(' ' + className + ' ') >= 0;
             },
 
             addClass: function(className){
@@ -708,7 +699,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
                 }
                 classString = this.attr('class');
                 classString = classString ? (classString + ' ') : '';
-                return this.attr({'class': classString + className});
+                return this.attr('class',  classString + className);
             },
 
             removeClass: function(className){
@@ -734,7 +725,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             }
         };
 
-    extend(pabloCollectionApi, cssClassAPI);
+    extend(pabloCollectionApi, cssClassApi);
 
 
     /////
@@ -746,10 +737,10 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             var camelCaseName = hyphensToCamelCase(nodeName);
             
             Pablo[nodeName] = Pablo[camelCaseName] = function(attr){
-                return Pablo(nodeName, attr || blank);
+                return Pablo.create(nodeName, attr);
             };
             pabloCollectionApi[nodeName] = pabloCollectionApi[camelCaseName] = function(attr){
-                return this.child(nodeName, attr || blank);
+                return Pablo.create(nodeName, attr).appendTo(this);
             };
         });
 
@@ -764,10 +755,10 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     // PABLO API
     
     // Select existing nodes in the document
-    function selectPablo(selector, context){
+    function selectPablo(selectors, context){
         // Valid selector
-        if (typeof selector === 'string' && selector){
-            return Pablo((context || document).querySelectorAll(selector));
+        if (selectors && typeof selectors === 'string'){
+            return Pablo((context || document).querySelectorAll(selectors));
         }
         // Return empty Pablo collection
         return createPablo();
@@ -784,8 +775,9 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     
 
     // Pablo main function
+    // TODO: remove `attr` argument - and only use element methods for creation?
     function Pablo(node, attr){
-        if (attr || Pablo.canBeWrapped(node)){
+        if (!node || attr || Pablo.canBeWrapped(node)){
             return Pablo.create(node, attr);
         }
         else {
@@ -816,11 +808,10 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
 
         // css related
         vendorPrefixes: vendorPrefixes,
-        supportsClassList: supportsClassList,
         cssPrefix: cssPrefix
         // e.g. Pablo('svg').style().content('#foo{' + Pablo.cssPrefix('transform', 'rotate(45deg)') + '}');
         // e.g. myElement.css({'transition-property': Pablo.cssPrefix('transform)});
     };
     
     return extend(Pablo, pabloApi, true);
-}(window.document, window.Array, window.JSON, window.Element, window.NodeList));
+}(window.document, window.Array, window.Element, window.NodeList));
