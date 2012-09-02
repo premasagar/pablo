@@ -1,16 +1,22 @@
 # Pablo
 
-A small JavaScript library for drawing [SVG](https://developer.mozilla.org/en/SVG) vector graphics.
+is a lightweight, expressive JavaScript library for creating and manipulating Scalable Vector Graphics ([SVG][svg]).
 
-- by [Premasagar Rose](http://premasagar.com) 
-    ([Dharmafly](http://dharmafly.com))
-- [github.com/dharmafly/pablo](https://github.com/dharmafly/pablo)
-- open source: [MIT license](http://opensource.org/licenses/mit-license.php)
+- by [Premasagar Rose][prem] 
+    ([Dharmafly][df]
+- [github.com/dharmafly/pablo][pablo-repo]
+- open source: [MIT license][mit]
 - ~3KB minified & gzipped
 
-## Examples
-
+[prem]: http://premasagar.com
+[df]: http://dharmafly.com
+[mit]: http://opensource.org/licenses/mit-license.php
+[svg]: https://developer.mozilla.org/en/SVG
+[pablo-repo]: https://github.com/dharmafly/pablo
 [demo]: https://github.com/dharmafly/pablo/blob/master/index.html "Pablo demo"
+
+
+## Examples
 
 See the [demo page][demo]; view its source.
     
