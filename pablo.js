@@ -341,21 +341,21 @@ var Pablo = (function(document, Array, Element, NodeList){
         },
 
         nextSibling: function(){
-            var nextSiblings = Pablo();
+            var siblings = Pablo();
             
             this.each(function(el){
-                nextSiblings.push(el.nextSibling);
+                siblings.push(el.nextSibling);
             });
-            return nextSiblings;
+            return siblings;
         },
 
         prevSibling: function(){
-            var nextSiblings = Pablo();
+            var siblings = Pablo();
             
             this.each(function(el){
-                nextSiblings.push(el.previousSibling);
+                siblings.push(el.previousSibling);
             });
-            return nextSiblings;
+            return siblings;
         },
 
         siblings: function(){
@@ -407,6 +407,7 @@ var Pablo = (function(document, Array, Element, NodeList){
         },
         
         // NOTE: the following append-related functions all require attr to exist, even as a blank object, if a new element is to be created. Otherwise, if the first argument is a string, then a selection operation will be performed.
+        // TODO: prevent attr except on element creation(?)
         append: function(node, attr){
             this.each(function(el){
                 toPablo(node, attr).each(function(child){
@@ -521,6 +522,7 @@ var Pablo = (function(document, Array, Element, NodeList){
                             val = val.call(this, el, i);
                         }
                     
+                        // TODO: remove these
                         switch (prop){
                             case '_content':
                             (PabloCollection || (PabloCollection = Pablo(el)))
