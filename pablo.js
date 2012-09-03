@@ -599,7 +599,15 @@ var Pablo = (function(document, Array, Element, NodeList){
         },
 
         // Add prefixed CSS styles to elements in collection
-        cssPrefix: function(styles){
+        cssPrefix: function(styles, value){
+            var styleProperty;
+            
+            if (typeof styles === 'string' && typeof value === 'string'){
+                // Create styles object
+                styleProperty = styles;
+                styles = {};
+                styles[styleProperty] = value;
+            }
             return this.css(cssPrefix(styles));
         },
 
