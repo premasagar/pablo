@@ -102,6 +102,12 @@ var Pablo = (function(document, Array, Element, NodeList){
     function isArrayLike(obj){
         return obj && typeof obj === 'object' && typeof obj.length === 'number';
     }
+
+    function isArrayOfStrings(obj){
+        return isArray(obj) && obj.length && obj.length === obj.filter(function(el){
+            return typeof el === 'string';
+        }).length;
+    }
     
     function isElement(obj){
         return obj instanceof Element;
@@ -236,8 +242,8 @@ var Pablo = (function(document, Array, Element, NodeList){
         if (node){
             this.push(node);
             
-            // Apply attributes
-            if (attr){
+            // Apply attributes, if we're creating new elements
+            if (attr && (typeof node === 'string' || isArrayOfStrings(node))){
                 this.attr(attr);
             }
         }
@@ -407,7 +413,6 @@ var Pablo = (function(document, Array, Element, NodeList){
         },
         
         // NOTE: the following append-related functions all require attr to exist, even as a blank object, if a new element is to be created. Otherwise, if the first argument is a string, then a selection operation will be performed.
-        // TODO: prevent attr except on element creation(?)
         append: function(node, attr){
             this.each(function(el){
                 toPablo(node, attr).each(function(child){
@@ -463,7 +468,7 @@ var Pablo = (function(document, Array, Element, NodeList){
         },
         
         // Create SVG root wrapper
-        // TODO: if no attr passed, then return closest parent root to this element?
+        // TODO: getRoot() method returns closest parent root to the element
         root: function(attr){
             attr = extend(attr, {version: Pablo.svgVersion});
             return this.svg(attr);
@@ -559,9 +564,12 @@ var Pablo = (function(document, Array, Element, NodeList){
         },
         
         content: function(text){
+            var el;
+
             // Get first element's textContent
             if (typeof text === 'undefined'){
-                return this.get(0).textContent;
+                el = this.get(0);
+                return el && el.textContent || '';
             }
             
             // Set every element's textContent
@@ -571,13 +579,14 @@ var Pablo = (function(document, Array, Element, NodeList){
         },
 
         css: function(styles, value){
-            var styleProperty;
+            var el, styleProperty;
 
             if (typeof styles === 'string'){
                 // Get style
                 if (typeof value === 'undefined'){
-                    return this.get(0).style.getPropertyValue(styles);
-                    // or document.defaultView.getComputedStyle(this.get(0), null).getPropertyValue(styles);
+                    el = this.get(0);
+                    return el && el.style.getPropertyValue(styles);
+                    // or document.defaultView.getComputedStyle(el, null).getPropertyValue(styles);
                 }
 
                 // Create styles object
@@ -667,7 +676,8 @@ var Pablo = (function(document, Array, Element, NodeList){
     cssClassApi = supportsClassList ?
         {
             hasClass: function(className){
-                return this.get(0).classList.contains(className);
+                var el = this.get(0);
+                return !!(el && el.classList.contains(className));
             },
 
             addClass: function(className){
@@ -781,7 +791,6 @@ var Pablo = (function(document, Array, Element, NodeList){
     
 
     // Pablo main function
-    // TODO: remove `attr` argument - and only use element methods for creation?
     function Pablo(node, attr){
         if (!node || attr || Pablo.canBeWrapped(node)){
             return Pablo.create(node, attr);
