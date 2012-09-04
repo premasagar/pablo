@@ -55,9 +55,9 @@ task :build do
   sh("git add .")
 
   if clean_install
-    sh('git commit . -m "Create project documentation with dharmafly docs"')
+    sh('git commit . -m "Create project documentation"')
   else
-    sh('git commit . -m "Update project documentation with dharmafly docs"') rescue puts "commit aborted"
+    sh('git commit . -m "Update project documentation"') rescue puts "commit aborted"
   end
 
   puts "\nDocs generated successfully! " + "Don't forget to update your _config.yml".bright()
@@ -213,7 +213,7 @@ module Git
   # Returns the currently active branch
   def Git.active_branch
     Git.branch.each do |branch|
-      return branch[2..-1] if branch[0] === "*"
+      return branch[2..-1] if branch[0..0] === "*"
     end
   end
 
