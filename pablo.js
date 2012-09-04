@@ -298,8 +298,8 @@ var Pablo = (function(document, Array, Element, NodeList){
             return Pablo(Array.prototype.shift.call(this));
         },
         
-        slice: function(from, to){
-            return Pablo(Array.prototype.slice.call(this, from, to));
+        slice: function(begin, end){
+            return Pablo(Array.prototype.slice.call(this, begin, end));
         },
         
         each: function(fn){
@@ -395,6 +395,13 @@ var Pablo = (function(document, Array, Element, NodeList){
 
         // MANIPULATE
         
+        // Create SVG root wrapper
+        // TODO: getRoot() method returns closest parent root to the element
+        root: function(attr){
+            attr = extend(attr, {version: Pablo.svgVersion});
+            return this.svg(attr);
+        },
+        
         empty: function(){
             return this.each(function(el){
                 while (el.firstChild) {
@@ -413,6 +420,7 @@ var Pablo = (function(document, Array, Element, NodeList){
         },
         
         // NOTE: the following append-related functions all require attr to exist, even as a blank object, if a new element is to be created. Otherwise, if the first argument is a string, then a selection operation will be performed.
+        // TODO: If appending pre-existing elements, then clone before appending, or stop after first element in the collection?
         append: function(node, attr){
             this.each(function(el){
                 toPablo(node, attr).each(function(child){
@@ -467,13 +475,6 @@ var Pablo = (function(document, Array, Element, NodeList){
             return this;
         },
         
-        // Create SVG root wrapper
-        // TODO: getRoot() method returns closest parent root to the element
-        root: function(attr){
-            attr = extend(attr, {version: Pablo.svgVersion});
-            return this.svg(attr);
-        },
-        
         clone: function(deep){
             deep = deep || false;
             return Pablo(
@@ -483,7 +484,6 @@ var Pablo = (function(document, Array, Element, NodeList){
             );
         },
         
-        // TODO: should this return a new collection? i.e. not push to `this`?
         duplicate: function(repeats){
             var duplicates = Pablo();
             repeats || (repeats = 1);
@@ -492,7 +492,7 @@ var Pablo = (function(document, Array, Element, NodeList){
                 duplicates.push(this.clone(true).get(0));
             }
             this.after(duplicates);
-            return duplicates.unshift(this);
+            return this.push(duplicates);
         },
         
         attr: function(attr, value){
@@ -595,13 +595,18 @@ var Pablo = (function(document, Array, Element, NodeList){
                 styles[styleProperty] = value;
             }
 
-            return this.each(function(el){
+            return this.each(function(el, i){
                 var style = el.style,
-                    prop;
+                    prop, val;
                 
                 for (prop in styles){
                     if (styles.hasOwnProperty(prop)){
-                        style.setProperty(prop, styles[prop], '');
+                        val = styles[prop];
+
+                        if (typeof val === 'function'){
+                            val = val.call(this, el, i);
+                        }
+                        style.setProperty(prop, val, '');
                     }
                 }
             });
@@ -626,6 +631,7 @@ var Pablo = (function(document, Array, Element, NodeList){
 
         // DOM EVENTS
         
+        // TODO: allow event delegation
         on: function(type, listener, useCapture){
             return this.each(function(el){
                 el.addEventListener(type, listener, useCapture || false);
