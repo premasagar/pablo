@@ -1,0 +1,67 @@
+---
+category: reference
+heading: "More manipulation"
+---
+
+`.empty()`
+----------
+
+Removes all child nodes of each element in the collection, and returns the collection.
+
+    var paper = Pablo(demoElement).root({height:100});
+
+    paper.append('rect', {width:100, height:100})
+         .append('circle', {cx:200, cy:50, r:50})
+         .on('click', function(){
+             // CLICK to empty
+             paper.empty();
+         });
+
+
+`.remove()`
+-----------
+
+Removes all elements in the collection from their parent nodes, and returns the collection.
+
+    var paper = Pablo(demoElement).root({height:100});
+
+    paper.append('rect', {width:100, height:100})
+         .append('circle', {cx:200, cy:50, r:50})
+         .on('click', function(){
+             // CLICK to remove the first child
+             paper.children().eq(0).remove();
+         });
+
+
+`.clone(deep)`
+--------------
+
+Creates cloned copies of all elements in the collection, and returns the copies in a new collection.
+`deep` is a boolean value to indicate if the entire child node structure of the cloned nodes should be included (default `false`).
+
+    var paper = Pablo(demoElement).root({height:40})
+        square = paper.rect({width:40, height:40});
+
+    paper.on('click', function(){
+        // CLICK to clone and append
+        x += 50;
+        square.clone()
+            // Set x position
+            .attr('x', x)
+            .appendTo(paper);
+    });
+
+
+`.duplicate([repeats])`
+---------------------
+
+Performs a _deep_ clone on all the elements in the collection, inserts the new elements _after_ the original elements in the DOM, and adds the new elements to the collection (i.e. it modifies the length of the original collection). `repeats` is an optional number of times to duplicate the elements (default `1`).
+
+    var paper = Pablo(demoElement).root({height:40})
+        square = paper.rect({width:40, height:40});
+
+    square.duplicate(5)
+        // Set x position for each element
+        .attr('x', function(el, i){
+            return i * 50;
+        });
