@@ -768,7 +768,7 @@ var Pablo = (function(document, Array, Element, NodeList){
 
     
     // Pablo Node API Aliases
-    pabloCollectionApi.add = pabloCollectionApi.push;
+    pabloCollectionApi.add = pabloCollectionApi.concat = pabloCollectionApi.push;
 
     
     /////
