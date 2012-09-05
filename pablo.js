@@ -256,6 +256,7 @@ var Pablo = (function(document, Array, Element, NodeList){
         collection: null,
         constructor: PabloCollection,
         make: make,
+        pablo: pabloVersion,
         
         get: function(index){
             return this[index];
@@ -559,7 +560,13 @@ var Pablo = (function(document, Array, Element, NodeList){
 
         link: function(href){
             return this.each(function(el){
-                el.setAttributeNS(xlinkns, 'xlink:href', href);
+                var link = href;
+
+                // Function calculator
+                if (typeof link === 'function'){
+                    link = link.call(this, el, i);
+                }
+                el.setAttributeNS(xlinkns, 'xlink:href', link);
             });
         },
         
@@ -573,8 +580,14 @@ var Pablo = (function(document, Array, Element, NodeList){
             }
             
             // Set every element's textContent
-            return this.each(function(el){
-                el.textContent = text;
+            return this.each(function(el, i){
+                var textValue = text;
+
+                // Function calculator
+                if (typeof textValue === 'function'){
+                    textValue = textValue.call(this, el, i);
+                }
+                el.textContent = textValue;
             });
         },
 
@@ -762,7 +775,13 @@ var Pablo = (function(document, Array, Element, NodeList){
                 return Pablo.create(nodeName, attr);
             };
             pabloCollectionApi[nodeName] = pabloCollectionApi[camelCaseName] = function(attr){
-                return Pablo.create(nodeName, attr).appendTo(this);
+                var children = Pablo();
+                this.each(function(el){
+                    children.push(
+                        Pablo.create(nodeName, attr).appendTo(el)
+                    );
+                });
+                return children;
             };
         });
 
