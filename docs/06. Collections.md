@@ -27,7 +27,7 @@ When `Pablo()` is called without arguments, an empty Pablo collection is returne
 Creates a Pablo collection, wrapping a single DOM element.
 
 	var element = document.getElementById('foo'),
-		wrapped = Pablo(element);
+		collection = Pablo(element);
 
 
 `Pablo(list)`
@@ -36,10 +36,15 @@ Creates a Pablo collection, wrapping a single DOM element.
 Creates a Pablo collection, wrapping multiple DOM elements. The elements could be in a NodeList, an array of elements, a jQuery collection or another Pablo collection.
 
 	// Any of these could be passed to Pablo()
-	var nodeList = document.body.childNodes,
-		array = [element1, element2],
-		jQueryCollection = jQuery('p'),
-		pabloCollection = Pablo('circle');
+	var list = 
+		// NodeList
+		document.body.childNodes ||
+		// Array
+		[element1, element2] ||
+		// jQuery collection
+		jQuery('p') ||
+		// Pablo collection
+		Pablo('circle');
 
 	var collection = Pablo(list);
 

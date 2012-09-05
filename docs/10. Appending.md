@@ -8,34 +8,31 @@ A number of methods exist to append one collection of elements to the elements i
 The first argument can be an element, an array of elements, a nodeList, a selector, a Pablo collection or a jQuery collection. Or, the first argument can be the name of a new element (e.g. `'circle'`) and the second argument an object that lists the element's attributes (e.g. `{r:50}`).
 
 
-`.append(element)`
-------------------
+`.append(elements, [attributes])`
+---------------------------------
 
-Appends the element to the element(s) in the collection, and returns the collection.
+Appends the elements to the element(s) in the collection, and returns the collection.
 
-	// A <g> 'group' element
+	// Create a <g> 'group' element
 	paper.g()
-		// Pass in a single element to be appended
+		// Append an element
 		.append(document.getElementById('foo'))
-		// Select an element, or multiple elements
+		// Append elements targeted by a CSS selector
 		.append('.bar')
-		// A Pablo collection
+		// Append elements in a Pablo collection
 		.append(Pablo.circle()))
-		// A jQuery collection
-		.append(jQuery('#example'));
+		// Append elements in a jQuery collection
+		.append(jQuery('#example'))
+		// Append elements in an array
+		.append([Pablo.a(), Pablo.g()]);
 
+If `elements` is an element name string and an `attributes` object is supplied, or if `elements` is an _array_ of element names, then new elements will be created and appended for each element in the collection:
 
-`.append(elementNames, attributes)`
---------------------------------
-
-The specified `elementNames` and `attributes` are used to create new elements to be appended, for each element in the collection, and the collection is returned.
-
-	// A <g> 'group' element
 	paper.g()
+		// Append single created element
 		.append('line', {stroke:'black'})
-		// Create multiple elements
+		// Append multiple created elements
 		.append(['line', 'circle', 'path'], {stroke:red});
-		// Returns the <g> element as a collection
 
 The attributes object is optional when an array of element names is passed.
 
@@ -46,7 +43,6 @@ The attributes object is optional when an array of element names is passed.
 Appends the elements in the current collection to the element or elements in the first argument, and returns the collection.
 
 	Pablo.circle().appendTo(paper);
-	// Returns the <circle> element as a collection
 
 
 `.prepend(elements, [attributes])`
@@ -55,7 +51,6 @@ Appends the elements in the current collection to the element or elements in the
 Same as `.append()` but, with this method, the passed `elements` are inserted into the DOM _as the first child_ of each of the elements in the collection.
 
 	Pablo.g().prepend('circle', {r:50});
-	// Returns the <g> element as a collection
 
 
 `.prependTo(elements, [attributes])`
@@ -64,16 +59,14 @@ Same as `.append()` but, with this method, the passed `elements` are inserted in
 Same as `.appendTo()` but, with this method, the elements in the collection are inserted _as the first child_ of the passed `elements`.
 
 	Pablo.circle().prependTo(paper);
-	// Returns the <circle> element as a collection
 
 
 `.child(elements, [attributes])`
 ----------------------------------
 
-Same as `.append()`, but with this method, the newly appended elements are returned as a Pablo collection.
+Same as `.append()`, but with this method, the _newly appended elements_ are returned as a Pablo collection.
 
 	Pablo.g().child('circle', {r:50});
-	// Returns the <circle> element as a collection
 
 
 `.before(elements, [attributes])`
@@ -82,7 +75,6 @@ Same as `.append()`, but with this method, the newly appended elements are retur
 Same as `.append()` but, with this method, the passed `elements` are inserted into the DOM _before_ each of the elements in the collection.
 
 	Pablo.circle().before('.foo');
-	// Returns the <circle> element as a collection
 
 
 `.after(elements, [attributes])`
@@ -91,4 +83,3 @@ Same as `.append()` but, with this method, the passed `elements` are inserted in
 Same as `.append()` but, with this method, the passed `elements` are inserted into the DOM after each of the elements in the collection.
 
 	Pablo.circle().after('.foo');
-	// Returns the <circle> element as a collection
