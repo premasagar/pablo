@@ -158,14 +158,17 @@ def add_front_matter(filename, file)
     front_matter = read_front_matter(file[:contents])
     front_matter["category"] = file[:category] unless front_matter["category"]
     front_matter["heading"] = file[:heading] unless front_matter["heading"]
+
+    contents = file[:contents][file[:contents].index(/\n^\-\-\-\n/)+5..-1]
   else
     front_matter = {
       "category" => file[:category],
       "heading" => file[:heading]
     }
+    contents = file[:contents]
   end
 
-  return YAML.dump(front_matter) + "---\n" + file[:contents].gsub(/\-\-\-([^\-\-\-]*)\-\-\-/, '')
+  return YAML.dump(front_matter) + "---\n" + contents
 end
 
 # Returns true if the file contains front matter
@@ -225,6 +228,12 @@ module Git
 
 end
 
+# Converts an ugly filename into a usable heading
+def titleify (fn)
+  last_char_index = fn.index(/(\.md)$/) ? fn.index(/(\.md)$/) : fn.size
+  fn[fn.index(/(\ |\-)/)+1..last_char_index-1]
+end
+
 # Create a hash out of each doc in the docs_dir
 def cache_docs (docs_dir)
   rtn = Hash.new()
@@ -240,14 +249,14 @@ def cache_docs (docs_dir)
         
         rtn[inner_item] = { 
           :category => item,
-          :heading  =>  inner_item[inner_item.index(/(\ |\-)/)+1..inner_item.index(/(\.md)$/)-1],
+          :heading  => titleify(inner_item),
           :contents => File.read("#{this_item}/#{inner_item}")
         }
       end
     else
       rtn[item] = { 
         :category => $default_category,
-        :heading  =>  item[item.index(/(\ |\-)/)+1..item.index(/(\.md)$/)-1],
+        :heading  => titleify(item),
         :contents => File.read("#{docs_dir}/#{item}")
       }
     end
