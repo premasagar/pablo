@@ -17,6 +17,8 @@ Returns a collection containing the direct child nodes for each element in the c
 				'font-size':'30px',
 				'font-family':'sans-serif'
 			}),
+		names = ['rebbie', 'jackie', 'tito', 'jermaine',
+			'la-toya', 'marlon', 'michael', 'randy', 'janet'],
 		jacksons = paper.g()
 			.append(Pablo.circle().duplicate(8));
 
@@ -25,12 +27,8 @@ Returns a collection containing the direct child nodes for each element in the c
 	    .attr({
 	    	r:  30,
 			cy: 30,
-	    	id: ['rebbie', 'jackie', 'tito',
-	    		'jermaine', 'la-toya', 'marlon',
-	    		'michael', 'randy', 'janet'],
-			cx: function(el, i){
-				return 40 * i + 30;
-			},
+	    	id: names,
+			cx: function(el, i){return 40 * i + 30;},
 			fill: function(el){
 				return el.id === 'michael' ?
 					'gold' : 'rgba(90,30,30,0.5)';
