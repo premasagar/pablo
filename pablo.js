@@ -249,8 +249,8 @@ var Pablo = (function(document, Array, Element, NodeList){
         if (node){
             this.push(node);
             
-            // Apply attributes, if we're creating new elements
-            if (attr && (typeof node === 'string' || isArrayOfStrings(node))){
+            // Apply attributes
+            if (attr){
                 this.attr(attr);
             }
         }
