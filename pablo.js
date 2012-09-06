@@ -94,17 +94,13 @@ var Pablo = (function(document, Array, Element, NodeList){
         }
         return ret;
     }
-    
-    function isArray(obj){
-        return Array.isArray(obj);
-    }
 
     function isArrayLike(obj){
         return obj && typeof obj === 'object' && typeof obj.length === 'number';
     }
 
     function isArrayOfStrings(obj){
-        return isArray(obj) && obj.length && obj.length === obj.filter(function(el){
+        return Array.isArray(obj) && obj.length && obj.length === obj.filter(function(el){
             return typeof el === 'string';
         }).length;
     }
@@ -133,7 +129,7 @@ var Pablo = (function(document, Array, Element, NodeList){
         return isPablo(obj) ||
             isElement(obj) ||
             isNodeList(obj) ||
-            isArray(obj) ||
+            Array.isArray(obj) ||
             isArrayLike(obj);
     }
     
@@ -150,7 +146,7 @@ var Pablo = (function(document, Array, Element, NodeList){
             // See extensions/functional.js for example usage of node.collection
             toPush = node.collection || node;
         }
-        else if (isArray(node)){
+        else if (Array.isArray(node)){
             toPush = node;
         }
         else if (isArrayLike(node)){
@@ -231,6 +227,17 @@ var Pablo = (function(document, Array, Element, NodeList){
         };
     });
     */
+
+    // Determine a value passed to attr(), css(), content()
+    function getValue(val, el, i, collection){
+        if (typeof val === 'function'){
+            val = val.call(collection, el, i);
+        }
+        else if (Array.isArray(val)){
+            val = val[i];
+        }
+        return val;
+    }
     
     
     /////
@@ -522,11 +529,7 @@ var Pablo = (function(document, Array, Element, NodeList){
                 
                 for (prop in attr){
                     if (attr.hasOwnProperty(prop)){
-                        val = attr[prop];
-                        
-                        if (typeof val === 'function'){
-                            val = val.call(this, el, i);
-                        }
+                        val = getValue(attr[prop], el, i, this);
                     
                         // TODO: remove these
                         switch (prop){
@@ -559,13 +562,8 @@ var Pablo = (function(document, Array, Element, NodeList){
         },
 
         link: function(href){
-            return this.each(function(el){
-                var link = href;
-
-                // Function calculator
-                if (typeof link === 'function'){
-                    link = link.call(this, el, i);
-                }
+            return this.each(function(el, i){
+                var link = getValue(href, el, i, this);
                 el.setAttributeNS(xlinkns, 'xlink:href', link);
             });
         },
@@ -578,15 +576,10 @@ var Pablo = (function(document, Array, Element, NodeList){
                 el = this.get(0);
                 return el && el.textContent || '';
             }
-            
+
             // Set every element's textContent
             return this.each(function(el, i){
-                var textValue = text;
-
-                // Function calculator
-                if (typeof textValue === 'function'){
-                    textValue = textValue.call(this, el, i);
-                }
+                var textValue = getValue(text, el, i, this);
                 el.textContent = textValue;
             });
         },
@@ -614,11 +607,7 @@ var Pablo = (function(document, Array, Element, NodeList){
                 
                 for (prop in styles){
                     if (styles.hasOwnProperty(prop)){
-                        val = styles[prop];
-
-                        if (typeof val === 'function'){
-                            val = val.call(this, el, i);
-                        }
+                        val = getValue(styles[prop], el, i, this);
                         style.setProperty(prop, val, '');
                     }
                 }
