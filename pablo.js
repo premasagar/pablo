@@ -401,7 +401,7 @@ var Pablo = (function(document, Array, Element, NodeList){
         /////
 
 
-        // MANIPULATE
+        // MANIPULATION
         
         // Create SVG root wrapper
         // TODO: getRoot() method returns closest parent root to the element
@@ -625,57 +625,75 @@ var Pablo = (function(document, Array, Element, NodeList){
                 styles[styleProperty] = value;
             }
             return this.css(cssPrefix(styles));
-        },
-
-
-        /////
-
-
-        // DOM EVENTS
-        
-        // TODO: allow event delegation
-        on: function(type, listener, useCapture){
-            return this.each(function(el){
-                el.addEventListener(type, listener, useCapture || false);
-            });
-        },
-        
-        off: function(type, listener, useCapture){
-            return this.each(function(el){
-                el.removeEventListener(type, listener, useCapture || false);
-            });
-        },
-        
-        // Allow just one event for the whole collection of elements
-        one: function(type, listener, useCapture){
-            var thisNode = this;
-            return this.on(type, function addListener(){
-                // Remove listener
-                thisNode.off(type, addListener, useCapture);
-                // Fire listener
-                listener.apply(thisNode, arguments);
-            }, useCapture);
-        },
-        
-        // Allow one event on each of the elements in the collection
-        oneEach: function(type, listener, useCapture){
-            this.each(function(el){
-                var node = Pablo(el);
-                node.on(type, function addListener(){
-                    // Remove listener
-                    node.off(type, addListener, useCapture);
-                    // Fire listener
-                    listener.apply(node, arguments);
-                }, useCapture);
-            });
         }
     });
 
 
     /////
 
+
+    // DOM EVENT METHODS
+
+    (function(){
+        // Allow either single or multiple events to be triggered
+        function eventMethod(method){        
+            return function(type, listener, useCapture){
+                // Multiple events
+                if (type.indexOf(' ') > 0){
+                    type.split(' ').forEach(function(type){
+                        method.call(this, type, listener, useCapture);
+                    }, this);
+                }
+                // Single event
+                else {
+                    method.call(this, type, listener, useCapture);
+                }
+                return this;
+            };
+        }
+
+        extend(pabloCollectionApi, {
+            on: eventMethod(function(type, listener, useCapture){
+                this.each(function(el){
+                    el.addEventListener(type, listener, useCapture || false);
+                });
+            }),
+
+            off: eventMethod(function(type, listener, useCapture){
+                this.each(function(el){
+                    el.removeEventListener(type, listener, useCapture || false);
+                });
+            }),
+
+            // Trigger listener once per collection
+            one: eventMethod(function(type, listener, useCapture){
+                var thisNode = this;
+                this.on(type, function addListener(){
+                    // Remove listener, then trigger
+                    thisNode.off(type, addListener, useCapture);
+                    listener.apply(thisNode, arguments);
+                }, useCapture);
+            }),
+
+            // Trigger listener once per element in the collection
+            oneEach: eventMethod(function(type, listener, useCapture){
+                this.each(function(el){
+                    var node = Pablo(el);
+                    node.on(type, function addListener(){
+                        // Remove listener, then trigger
+                        node.off(type, addListener, useCapture);
+                        listener.apply(node, arguments);
+                    }, useCapture);
+                });
+            })
+        });
+    }());
+
+
+    /////
+
     
-    // CSS Classes methods
+    // CSS CLASS METHODS
 
     // IE9 doesn't support native classLists for HTML or SVG;
     //      Chrome 21 & WebKit doesn't support classLists for SVG
@@ -755,7 +773,7 @@ var Pablo = (function(document, Array, Element, NodeList){
     /////
 
     
-    // SVG element methods
+    // SVG ELEMENT METHODS
     'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop style svg switch symbol text textPath title tref tspan use view vkern'.split(' ')
         .forEach(function(nodeName){
             var camelCaseName = hyphensToCamelCase(nodeName);
