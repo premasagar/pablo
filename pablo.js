@@ -334,9 +334,30 @@ var Pablo = (function(document, Array, Element, NodeList){
 
         // TRAVERSAL
         
-        children: function(){
-            var children = Pablo();
-            
+        children: function(node, attr){
+            var children;
+
+            if (node){
+                // Append new children
+                if (attr){
+                    this.append(node, attr);
+                }
+                // Filter children
+                else {
+                    return this.children()
+                        .filterElements(function(el){
+                            var container = Pablo.g(),
+                                clone = Pablo(el).clone();
+
+                            return container
+                                .append(clone)
+                                .find(node).length;
+                        });
+                }
+            }
+
+            // Get children
+            children = Pablo();
             this.each(function(el){
                 toArray(el.childNodes).forEach(function(child){
                     children.push(child);
@@ -443,9 +464,11 @@ var Pablo = (function(document, Array, Element, NodeList){
             return this;
         },
 
+        /*
         child: function(node, attr){
             return toPablo(node, attr).appendTo(this);
         },
+        */
         
         before: function(node, attr){
             return this.each(function(el, i, thisNode){
