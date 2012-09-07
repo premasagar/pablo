@@ -1,5 +1,6 @@
 # Pablo
 
+<<<<<<< Updated upstream
 is a lightweight, expressive JavaScript library for creating and manipulating Scalable Vector Graphics ([SVG][svg]).
 
 - by [Premasagar Rose][prem] 
@@ -15,6 +16,15 @@ is a lightweight, expressive JavaScript library for creating and manipulating Sc
 [pablo-repo]: https://github.com/dharmafly/pablo
 [demo]: https://github.com/dharmafly/pablo/blob/master/index.html "Pablo demo"
 
+=======
+A small JavaScript library for drawing [SVG](https://developer.mozilla.org/en/SVG) vector graphics.
+
+- by [Premasagar Rose](http://premasagar.com) 
+    ([Dharmafly](http://dharmafly.com))
+- [github.com/dharmafly/pablo](https://github.com/dharmafly/pablo)
+- open source: [MIT license](http://opensource.org/licenses/mit-license.php)
+- ~3KB minified & gzipped
+>>>>>>> Stashed changes
 
 ## Examples
 
