@@ -133,10 +133,12 @@ var Pablo = (function(document, Array, Element, NodeList){
             isArrayLike(obj);
     }
     
-    // Return node if a PabloCollection, otherwise create one
+    // Return node (with attributes) if a Pablo collection, otherwise create one
     function toPablo(node, attr){
-        return isPablo(node) ?
-            node : Pablo(node, attr);
+        if (isPablo(node)){
+            return attr ? node.attr(attr) : node;
+        }
+        return Pablo(node, attr);
     }
     
     function addElementIfUnique(node, elements, prepend){
@@ -336,24 +338,10 @@ var Pablo = (function(document, Array, Element, NodeList){
         
         children: function(node, attr){
             var children;
-
+            
+            // Append and return new children
             if (node){
-                // Append new children
-                if (attr){
-                    this.append(node, attr);
-                }
-                // Filter children
-                else {
-                    return this.children()
-                        .filterElements(function(el){
-                            var container = Pablo.g(),
-                                clone = Pablo(el).clone();
-
-                            return container
-                                .append(clone)
-                                .find(node).length;
-                        });
-                }
+                return toPablo(node, attr).appendTo(this);
             }
 
             // Get children
