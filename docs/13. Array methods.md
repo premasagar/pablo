@@ -149,13 +149,23 @@ Calls the callback function for each element in the collection and returns the c
 Passes each element in the collection through a callback function, returning a new collection from all the return values of the callback. The callback is passed two arguments: the element and its index.
 
 
-
 `.filterElements(callback)`
 -------------------
 
 Passes each element in the collection through an iterator function, returning a new collection of all the elements for which the iterator returns true. The iterator is passed two arguments: the element and its index.
 
 This method is called 'filterElements' because `.filter()` is a method to create an SVG `<filter>` method.
+
+
+<!--
+`.filterElements(selectors)`
+-----------------------------
+
+Returns a collection containing elements in the collection that match the supplied CSS selector or comma-separated list of selectors.
+
+	jacksons.filterSelectors('circle#janet')
+		.attr('id'); // 'janet'
+-->
 
 
 Other array methods

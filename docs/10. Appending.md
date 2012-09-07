@@ -61,12 +61,12 @@ Same as `.appendTo()` but, with this method, the elements in the collection are 
 	Pablo.circle().prependTo(paper);
 
 
-`.child(elements, [attributes])`
+`.children(elements, [attributes])`
 ----------------------------------
 
 Same as `.append()`, but with this method, the _newly appended elements_ are returned as a Pablo collection.
 
-	Pablo.g().child('circle', {r:50});
+	Pablo.g().children('circle', {r:50});
 
 
 `.before(elements, [attributes])`
