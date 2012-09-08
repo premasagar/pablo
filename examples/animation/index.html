@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <title>Animation: Pablo</title>
+    </head>
+    <body>
+        <h1><a href="https://github.com/dharmafly/pablo">Pablo</a></h1>
+        
+        <!-- HTML container for the SVG root node -->
+        <div id="paper"></div>
+
+        <!-- scripts -->
+        <script src="../../pablo.js"></script>
+        <script>
+        var paper = Pablo('#paper').root({
+                width: window.innerWidth,
+                height: window.innerHeight
+            }),
+            circle = paper.circle({
+                cx: 50,
+                cy: 50,
+                r: 50
+            }),
+            animate = circle.animate({
+                attributeName: 'cx',
+                from: 0,
+                to: 100,
+                dur: '5s',
+                repeatCount: 'indefinite'
+            }).appendTo(circle);
+
+
+        </script>
+    </body>
+</html>
