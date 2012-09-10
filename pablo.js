@@ -330,6 +330,29 @@ var Pablo = (function(document, Array, Element, NodeList){
             );
         },
 
+        /*
+        is: function(){
+
+        },
+
+        // TODO: merge with filterElements
+        // Filter children with CSS selectors
+        filterSelectors: (function(){
+            // Use single element, to avoid object creation
+            var container = make('g');
+
+            return function(selectors){
+                return this.filterElements(function(el){
+                    var g = Pablo(container),
+                        isMatch = g.append(Pablo(el).clone())
+                            .find(selectors).length;
+                    g.empty();
+                    return isMatch;
+                });
+            }
+        }()),
+        */
+
 
         /////
 
@@ -437,7 +460,7 @@ var Pablo = (function(document, Array, Element, NodeList){
         },
         
         // NOTE: the following append-related functions all require attr to exist, even as a blank object, if a new element is to be created. Otherwise, if the first argument is a string, then a selection operation will be performed.
-        // TODO: If appending pre-existing elements, then clone before appending, or stop after first element in the collection?
+        // TODO: If appending pre-existing elements, then append to just first element in the collection?
         append: function(node, attr){
             this.each(function(el){
                 toPablo(node, attr).each(function(child){
@@ -451,12 +474,6 @@ var Pablo = (function(document, Array, Element, NodeList){
             toPablo(node, attr).append(this);
             return this;
         },
-
-        /*
-        child: function(node, attr){
-            return toPablo(node, attr).appendTo(this);
-        },
-        */
         
         before: function(node, attr){
             return this.each(function(el, i, thisNode){
@@ -783,27 +800,40 @@ var Pablo = (function(document, Array, Element, NodeList){
 
     /////
 
+
+    // TODO: support `collection.append('myshape')`
+    function factory(name, callback){
+        Pablo[name] = function(options){
+            return callback.call(this, options);
+        };
+
+        pabloCollectionApi[name] = function(options, count){
+            var children = Pablo();
+            this.each(function(el){
+                children.push(
+                    Pablo[name](options).appendTo(el)
+                );
+            });
+            return children;
+        };
+
+        return this;
+    };
+
     
     // SVG ELEMENT METHODS
     'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop style svg switch symbol text textPath title tref tspan use view vkern'.split(' ')
         .forEach(function(nodeName){
-            var camelCaseName = hyphensToCamelCase(nodeName);
+            var camelCase = hyphensToCamelCase(nodeName);
             
-            Pablo[nodeName] = Pablo[camelCaseName] = function(attr){
+            factory(nodeName, function(attr){
                 return Pablo.create(nodeName, attr);
-            };
-            pabloCollectionApi[nodeName] = pabloCollectionApi[camelCaseName] = function(attr){
-                var children = Pablo();
-                this.each(function(el){
-                    children.push(
-                        Pablo.create(nodeName, attr).appendTo(el)
-                    );
-                });
-                return children;
-            };
+            });
+            Pablo[camelCase] = Pablo[nodeName];
+            pabloCollectionApi[camelCase] = pabloCollectionApi[nodeName];
         });
 
-    
+
     // Pablo Node API Aliases
     pabloCollectionApi.add = pabloCollectionApi.concat = pabloCollectionApi.push;
 
@@ -858,11 +888,13 @@ var Pablo = (function(document, Array, Element, NodeList){
         toArray: toArray,
         getAttributes: getAttributes,
         canBeWrapped: canBeWrapped,
+        hyphensToCamelCase: hyphensToCamelCase,
 
         fn: pabloCollectionApi,
         Collection: PabloCollection,
         create: createPablo,
         select: selectPablo,
+        factory: factory,
 
         // css related
         vendorPrefixes: vendorPrefixes,
