@@ -19,19 +19,57 @@
                 height: window.innerHeight
             }),
             circle = paper.circle({
-                cx: 50,
-                cy: 50,
+                cx: 0,
+                cy: 60,
                 r: 50
             }),
             animate = circle.animate({
                 attributeName: 'cx',
                 from: 0,
-                to: 100,
+                to: 320,
                 dur: '5s',
                 repeatCount: 'indefinite'
             }).appendTo(circle);
 
+        
+        Pablo.factory('star', function(options){
+            var points = options.points || 6,
+                size = options.size || 50,
+                x = options.x || 0,
+                y = options.y || 0,
+                theta = 360 / points,
+                pathString = 'm' + size*1.5 + ',' + size*0.75,
+                // Should be 1/points to 0.5*points
+                depth = points * 0.375,
+                angle = 0, i, x1, y1, x2, y2;
 
+            size = (size * 8) / (points+5.5);
+            for (i=0; i<points; i++){
+                angle = Math.PI * theta * i / 180; 
+                x1 = size * Math.cos(angle); 
+                y1 = size * Math.sin(angle);
+                angle = Math.PI * theta * (i+depth) / 180; 
+                x2 = size * Math.cos(angle); 
+                y2 = size * Math.sin(angle);
+                pathString += 'l'+x1+','+y1+'l'+x2+','+y2;
+            }
+            return Pablo.path({
+                d: pathString,
+                transform: 'translate('+x+','+y+')'
+            });
+        });
+
+        // Pablo.star() is now available
+        Pablo.star({points:5})
+            .attr({fill:'red'})
+            .appendTo(paper);
+
+        // So is collection.star()
+        paper.star({points:7, x:120})
+            .attr({fill:'orange'});
+
+        paper.star({points:13, x:240})
+            .attr({fill:'blue'});
         </script>
     </body>
 </html>
