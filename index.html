@@ -29,7 +29,11 @@
             // Create SVG root node
             // Optional: pass in HTML DOM element or CSS selector to act as a
             // container for the SVG
-            var paper = Pablo('#paper').root({width:1000, height:800})
+            var container = Pablo('#paper'),
+                paper = Pablo('#paper').root({
+                    width: window.innerWidth  - container[0].offsetLeft,
+                    height:window.innerHeight - container[0].offsetTop
+                })
             
                 // CSS to be sandboxed within the SVG context
                 // This creates a `<style>` element within the parent
