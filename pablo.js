@@ -8,7 +8,7 @@
 */
 
 
-var Pablo = (function(document, Array, Element, NodeList){
+var Pablo = (function(document, Array, Element, SVGElement, NodeList){
     'use strict';
     
     var /* SETTINGS */
@@ -40,7 +40,7 @@ var Pablo = (function(document, Array, Element, NodeList){
     if (!(
         document && document.querySelectorAll &&
         Array && Array.isArray && Array.prototype.forEach &&
-        Element && NodeList &&
+        Element && SVGElement && NodeList &&
         testElement && testElement.createSVGRect
     )){
         // Return a simplified version of the Pablo API
@@ -895,4 +895,4 @@ var Pablo = (function(document, Array, Element, NodeList){
     /////
     
     return Pablo;
-}(window.document, window.Array, window.Element, window.NodeList));
+}(window.document, window.Array, window.Element, window.SVGElement, window.NodeList));
