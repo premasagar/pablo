@@ -7,7 +7,8 @@ if (window.Pablo.isSupported){
         'use strict';
 
         var createPabloDefault = Pablo.create,
-            pabloApi;
+            isPabloDefault = Pablo.isPablo,
+            pabloCollectionApi;
 
         function refreshCachedElements(target, source){
             var prop;
@@ -20,10 +21,13 @@ if (window.Pablo.isSupported){
             }
         }
 
-        pabloApi = Pablo.extend(
+        pabloCollectionApi = Pablo.extend(
             {},
             Pablo.fn,
             {
+                toArray: function(){
+                    return this.collection.toArray();
+                },
                 size: function(){
                     return this.collection.size();
                 },
@@ -60,7 +64,7 @@ if (window.Pablo.isSupported){
 
         // enhanced console.log response
         if (JSON && JSON.stringify){
-            pabloApi.toString = function(){
+            pabloCollectionApi.toString = function(){
                 var elementList = '';
                 
                 this.each(function(el){
@@ -94,7 +98,7 @@ if (window.Pablo.isSupported){
                             return Pablo(pabloCollection.find(node));
                         }
                     },
-                    pabloApi
+                    pabloCollectionApi
                 );
 
             api.collection = pabloCollection;
@@ -102,10 +106,15 @@ if (window.Pablo.isSupported){
             return api;
         }
 
+        Pablo.isPablo = function(obj){
+            return isPabloDefault(obj) || obj.collection instanceof Pablo.Collection;
+        };
+
         // Turn on or off the functional wrapper API. The default API returns when functional wrapper is switched off.
         Pablo.useFunctional = function(yes){
             Pablo.create = (yes !== false) ? createPabloFn : createPabloDefault;
             return this;
         };
+
     }(window.Pablo, window.JSON));
 }

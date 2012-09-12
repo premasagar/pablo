@@ -19,12 +19,12 @@ var Pablo = (function(document, Array, Element, NodeList){
         vendorPrefixes = ['', '-moz-', '-webkit-', '-khtml-', '-o-', '-ms-'],
 
         testElement, supportsClassList, hyphensToCamelCase, cssClassApi,
-        pabloApi, pabloCollectionApi, createPablo;
+        pabloCollectionApi, createPablo;
 
     
     function make(elementName){
         return typeof elementName === 'string' &&
-            document.createElementNS(Pablo.svgns || svgns, elementName) ||
+            document.createElementNS(svgns, elementName) ||
             null;
     }
 
@@ -114,19 +114,11 @@ var Pablo = (function(document, Array, Element, NodeList){
     }
     
     function isSvg(obj){
-        return obj.namespaceURI == Pablo.svgns;
-    }
-    
-    // Returns true for both a Pablo instance and its API function
-    function isPablo(obj){
-        return !!(obj && 
-            // See extensions/functional.js for example usage of node.collection
-            (obj instanceof PabloCollection || obj.collection instanceof PabloCollection)
-        );
+        return obj instanceof SVGElement;
     }
     
     function canBeWrapped(obj){
-        return isPablo(obj) ||
+        return Pablo.isPablo(obj) ||
             isElement(obj) ||
             isNodeList(obj) ||
             Array.isArray(obj) ||
@@ -135,7 +127,7 @@ var Pablo = (function(document, Array, Element, NodeList){
     
     // Return node (with attributes) if a Pablo collection, otherwise create one
     function toPablo(node, attr){
-        if (isPablo(node)){
+        if (Pablo.isPablo(node)){
             return attr ? node.attr(attr) : node;
         }
         return Pablo(node, attr);
@@ -144,7 +136,7 @@ var Pablo = (function(document, Array, Element, NodeList){
     function addElementIfUnique(node, elements, prepend){
         var toPush, el;
         
-        if (isPablo(node)){
+        if (Pablo.isPablo(node)){
             // See extensions/functional.js for example usage of node.collection
             toPush = node.collection || node;
         }
@@ -214,7 +206,7 @@ var Pablo = (function(document, Array, Element, NodeList){
                 return letter.toUpperCase();
             });
         };
-    });
+    }());
     
     /*
     // e.g. 'fontColor' -> 'font-color'
@@ -717,6 +709,9 @@ var Pablo = (function(document, Array, Element, NodeList){
         });
     }());
 
+    // Pablo Collection API Aliases
+    pabloCollectionApi.add = pabloCollectionApi.concat = pabloCollectionApi.push;
+
 
     /////
 
@@ -801,46 +796,6 @@ var Pablo = (function(document, Array, Element, NodeList){
     /////
 
 
-    // TODO: support `collection.append('myshape')`
-    function factory(name, callback){
-        Pablo[name] = function(options){
-            return callback.call(this, options);
-        };
-
-        pabloCollectionApi[name] = function(options, count){
-            var children = Pablo();
-            this.each(function(el){
-                children.push(
-                    Pablo[name](options).appendTo(el)
-                );
-            });
-            return children;
-        };
-
-        return this;
-    };
-
-    
-    // SVG ELEMENT METHODS
-    'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop style svg switch symbol text textPath title tref tspan use view vkern'.split(' ')
-        .forEach(function(nodeName){
-            var camelCase = hyphensToCamelCase(nodeName);
-            
-            factory(nodeName, function(attr){
-                return Pablo.create(nodeName, attr);
-            });
-            Pablo[camelCase] = Pablo[nodeName];
-            pabloCollectionApi[camelCase] = pabloCollectionApi[nodeName];
-        });
-
-
-    // Pablo Node API Aliases
-    pabloCollectionApi.add = pabloCollectionApi.concat = pabloCollectionApi.push;
-
-    
-    /////
-    
-    
     // PABLO API
     
     // Select existing nodes in the document
@@ -874,34 +829,70 @@ var Pablo = (function(document, Array, Element, NodeList){
     }
     
     // Pablo methods
-    pabloApi = {
+    extend(Pablo, {
         v: pabloVersion,
         isSupported: true,
         svgns: svgns,
         xlinkns: xlinkns,
         svgVersion: svgVersion,
-        isPablo: isPablo,
+        fn: pabloCollectionApi,
+        Collection: PabloCollection,
+
+        create: createPablo,
+        select: selectPablo,
         isElement: isElement,
         isNodeList: isNodeList,
         isSvg: isSvg,
+        // isPablo is overwritten in functional.js extension
+        isPablo: function(obj){
+            return obj instanceof Pablo.Collection;
+        },
         extend: extend,
         toArray: toArray,
         getAttributes: getAttributes,
         canBeWrapped: canBeWrapped,
         hyphensToCamelCase: hyphensToCamelCase,
 
-        fn: pabloCollectionApi,
-        Collection: PabloCollection,
-        create: createPablo,
-        select: selectPablo,
-        factory: factory,
-
         // css related
         vendorPrefixes: vendorPrefixes,
-        cssPrefix: cssPrefix
-        // e.g. Pablo('svg').style().content('#foo{' + Pablo.cssPrefix('transform', 'rotate(45deg)') + '}');
-        // e.g. myElement.css({'transition-property': Pablo.cssPrefix('transform)});
-    };
+        cssPrefix: cssPrefix,
+            // e.g. Pablo('svg').style().content('#foo{' + Pablo.cssPrefix('transform', 'rotate(45deg)') + '}');
+            // e.g. myElement.css({'transition-property': Pablo.cssPrefix('transform)});
+
+        // TODO: support `collection.append('myshape')`
+        factory: function(name, callback){
+            // e.g. Pablo.star()
+            Pablo[name] = function(options){
+                return callback.call(Pablo, options);
+            };
+            // e.g. collection.star()
+            pabloCollectionApi[name] = function(options){
+                return this.map(function(el){
+                    return Pablo[name](options).appendTo(el);
+                });
+            };
+            return this;
+        }
+    });
+
+
+    /////
+
     
-    return extend(Pablo, pabloApi);
+    // SVG ELEMENT METHODS
+    'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop style svg switch symbol text textPath title tref tspan use view vkern'.split(' ')
+        .forEach(function(nodeName){
+            var camelCase = hyphensToCamelCase(nodeName);
+            
+            Pablo.factory(nodeName, function(attr){
+                return Pablo.create(nodeName, attr);
+            });
+            Pablo[camelCase] = Pablo[nodeName];
+            pabloCollectionApi[camelCase] = pabloCollectionApi[nodeName];
+        });
+
+    
+    /////
+    
+    return Pablo;
 }(window.document, window.Array, window.Element, window.NodeList));
