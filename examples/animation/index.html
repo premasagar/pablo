@@ -22,16 +22,73 @@
                 cx: 0,
                 cy: 60,
                 r: 50
-            }),
-            animate = circle.animate({
-                attributeName: 'cx',
-                from: 0,
-                to: 320,
-                dur: '5s',
-                repeatCount: 'indefinite'
-            }).appendTo(circle);
+            });
 
-        
+
+        // Left to right bounce
+        circle.animateMotion({
+            path: 'M 50 0 H 300 Z',
+            dur: '5s',
+            repeatCount: 'indefinite'
+        });
+
+        /////
+
+        // Color transition
+        circle.animate({
+            id: 'color1',
+            attributeName: 'fill',
+            from: 'purple',
+            to: 'red',
+            dur: '3s',
+            begin: '0s;color4.end'
+        });
+        circle.animate({
+            id: 'color2',
+            attributeName: 'fill',
+            from: 'red',
+            to: 'yellow',
+            dur: '3s',
+            begin: 'color1.end'
+        });
+        circle.animate({
+            id: 'color3',
+            attributeName: 'fill',
+            from: 'yellow',
+            to: 'lightblue',
+            dur: '3s',
+            begin: 'color2.end'
+        });
+        circle.animate({
+            id: 'color4',
+            attributeName: 'fill',
+            from: 'lightblue',
+            to: 'purple',
+            dur: '3s',
+            begin: 'color3.end'
+        });
+
+        /////
+
+        // Top to bottom bounce
+        circle.animate({
+            id: 'bounce1',
+            attributeName: 'cy',
+            from: 50,
+            to: 350,
+            dur: '6s',
+            begin: '0s;bounce2.end'
+        });
+        circle.animate({
+            id: 'bounce2',
+            attributeName: 'cy',
+            from: 350,
+            to: 50,
+            dur: '6s',
+            begin: 'bounce1.end'
+        });
+
+
         Pablo.factory('star', function(options){
             var points = options.points || 6,
                 size = options.size || 50,
@@ -59,17 +116,30 @@
             });
         });
 
+        var stars = paper.g();
+
+        // Use of factory
         // Pablo.star() is now available
-        Pablo.star({points:5})
-            .attr({fill:'red'})
-            .appendTo(paper);
+        stars.star({points:5, x:50, y:50})
+            .attr({fill:'red', opacity:0.7});
 
         // So is collection.star()
-        paper.star({points:7, x:120})
-            .attr({fill:'orange'});
+        stars.star({points:7, x:120, y:250})
+            .attr({fill:'orange', opacity:0.7});
 
-        paper.star({points:13, x:240})
-            .attr({fill:'blue'});
+        stars.star({points:13, x:240, y:150})
+            .attr({fill:'blue', opacity:0.7});
+
+        stars.animateTransform({
+            attributeType:'xml',
+            attributeName:'transform',
+            type:'rotate',
+            from:'0 180 200',
+            to:'360 180 200',
+            dur:'4s',
+            repeatCount:'indefinite'
+        });
+
         </script>
     </body>
 </html>
