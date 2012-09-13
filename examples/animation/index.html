@@ -7,6 +7,11 @@
     </head>
     <body>
         <h1><a href="https://github.com/dharmafly/pablo">Pablo</a></h1>
+
+        <!-- RESOURCES
+            * https://developer.mozilla.org/en/SVG/SVG_animation_with_SMIL
+            * http://www.w3.org/Graphics/SVG/WG/wiki/Talk:F2F/Auckland_2011/CSS_Animation
+        -->
         
         <!-- HTML container for the SVG root node -->
         <div id="paper"></div>
@@ -23,7 +28,6 @@
                 cy: 60,
                 r: 50
             });
-
 
         // Left to right bounce
         circle.animateMotion({
@@ -131,7 +135,6 @@
             .attr({fill:'blue', opacity:0.7});
 
         stars.animateTransform({
-            attributeType:'xml',
             attributeName:'transform',
             type:'rotate',
             from:'0 180 200',
