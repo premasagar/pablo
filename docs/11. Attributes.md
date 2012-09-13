@@ -103,7 +103,7 @@ Attribute values may alternatively be supplied as an array. For each element in 
         colors = ['red', 'green', 'blue', 'yellow', 'purple'],
         cx     = [50, 150, 250, 350, 450];
 
-    circle.duplicate(5)
+    circle.duplicate(4)
           .attr({fill:colors, cx:cx});
 
 
