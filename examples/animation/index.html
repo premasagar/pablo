@@ -93,7 +93,7 @@
         });
 
 
-        Pablo.factory('star', function(options){
+        Pablo.template('star', function(options){
             var points = options.points || 6,
                 size = options.size || 50,
                 x = options.x || 0,
@@ -122,7 +122,7 @@
 
         var stars = paper.g();
 
-        // Use of factory
+        // Use of templates
         // Pablo.star() is now available
         stars.star({points:5, x:50, y:50})
             .attr({fill:'red', opacity:0.7});

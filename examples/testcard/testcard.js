@@ -302,8 +302,8 @@
         /////
 
 
-        // Pablo.factory
-        Pablo.factory('star', function(options){
+        // Pablo.template
+        Pablo.template('star', function(options){
             var points = options.points || 6,
                 size = options.size || 50,
                 x = options.x || 0,
@@ -330,7 +330,7 @@
             });
         });
 
-        // Factory instances
+        // Template instances
         var numShapes = 30,
             colors = ['purple', 'orange', 'gray', 'yellow', 'red'];
 

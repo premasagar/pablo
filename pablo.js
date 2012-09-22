@@ -860,7 +860,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
             // e.g. myElement.css({'transition-property': Pablo.cssPrefix('transform)});
 
         // TODO: support `collection.append('myshape')`
-        factory: function(name, callback){
+        template: function(name, callback){
             // e.g. Pablo.star()
             Pablo[name] = function(options){
                 return callback.call(Pablo, options);
@@ -884,7 +884,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
         .forEach(function(nodeName){
             var camelCase = hyphensToCamelCase(nodeName);
             
-            Pablo.factory(nodeName, function(attr){
+            Pablo.template(nodeName, function(attr){
                 return Pablo.create(nodeName, attr);
             });
             Pablo[camelCase] = Pablo[nodeName];
