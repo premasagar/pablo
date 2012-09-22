@@ -862,13 +862,14 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
         // TODO: support `collection.append('myshape')`
         template: function(name, callback){
             // e.g. Pablo.star()
-            Pablo[name] = function(options){
-                return callback.call(Pablo, options);
+            Pablo[name] = function(){
+                return callback.apply(Pablo, arguments);
             };
             // e.g. collection.star()
-            pabloCollectionApi[name] = function(options){
+            pabloCollectionApi[name] = function(){
+                var args = arguments;
                 return this.map(function(el){
-                    return Pablo[name](options).appendTo(el);
+                    return Pablo[name].apply(el, args).appendTo(el);
                 });
             };
             return this;
