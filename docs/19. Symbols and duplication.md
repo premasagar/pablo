@@ -35,15 +35,15 @@ The SVG [`<use>`][use] element creates an cloned instance of another element. He
 `.clone(deep)`
 --------------
 
-Creates cloned copies of all elements in the collection, and returns the copies in a new collection.
-`deep` is a boolean value to indicate if the entire child node structure of the cloned nodes should be included (default `false`).
+Creates cloned copies of all elements in the collection, and returns the copies in a new collection. `deep` is a boolean value to indicate if the entire child node structure of the cloned nodes should be included (default `false`).
+
+In this example, click anywhere to clone and append a new square:
 
     var paper = Pablo(demoElement).root({height:40})
         square = paper.rect({width:40, height:40}),
         x = 0;
 
     paper.on('click', function(){
-        // CLICK to clone and append
         x += 50;
         square.clone()
             // Set x position
@@ -56,6 +56,8 @@ Creates cloned copies of all elements in the collection, and returns the copies 
 ---------------------
 
 Performs a _deep_ clone on all the elements in the collection, inserts the new elements _after_ the original elements in the DOM, and adds the new elements to the collection (i.e. it modifies the length of the original collection). `repeats` is an optional number of times to duplicate the elements (default `1`).
+
+In this example, a square is duplicated five times:
 
     var paper = Pablo(demoElement).root({height:40})
         square = paper.rect({width:40, height:40});

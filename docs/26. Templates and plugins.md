@@ -75,7 +75,7 @@ Pablo collections can be given a new method by extending the `Pablo.fn` object w
         return this.attr('transform', 'rotate(45)');
     };
 
-    var paper = Pablo(demoElement).root({height:200});
+    var paper = Pablo(demoElement).root({height:110});
 
     paper.rect({width:100, height:50, x:25, y:-25, fill:'blue'})
          .rotate45();
