@@ -576,10 +576,11 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
         },
 
         transform: function(functionName, value){
-            return this.each(function(el){
+            return this.each(function(el, i){
                 var node = Pablo(el),
                     transformAttr = node.attr('transform'),
-                    newTransformAttr, pos, posEnd, transformAttrEnd;
+                    newTransformAttr, pos, posEnd, transformAttrEnd,
+                    functionString = functionName + '(' + getValue(value, el, i, this) + ')';
 
                 // There's already a transform attribute
                 if (transformAttr){
@@ -595,24 +596,17 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
                         // Insert modified function
                         // TODO: use splice() instead?
                         newTransformAttr = transformAttr.slice(0, pos) + 
-                            functionName + '(' + value + ')' +
-                            transformAttrEnd.slice(posEnd + 1);
+                            functionString + transformAttrEnd.slice(posEnd + 1);
                     }
 
                     // Function not yet present
                     else {
-                        newTransformAttr = transformAttr + ' ' +
-                            functionName + '(' + value + ')';
+                        newTransformAttr = transformAttr + ' ' + functionString;
                     }
                 }
 
-                // Create new transform value
-                else {
-                    newTransformAttr = functionName + '(' + value + ')';
-                }
-
                 // Set transform attribute
-                node.attr('transform', newTransformAttr);
+                node.attr('transform', newTransformAttr || functionString);
             });
         },
         
