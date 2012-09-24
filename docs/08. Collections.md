@@ -125,3 +125,9 @@ Most methods return `this`, the collection. This allows methods to be chained, o
 		.on('click', function(){
 			// clicked
 		});
+
+
+Creating new collection methods
+-------------------------------
+
+See `Pablo.fn` in the 'Plugins' section, to learn how to add new methods to Pablo collections.
