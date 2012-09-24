@@ -574,6 +574,47 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
             });
             return this;
         },
+
+        transform: function(functionName, value){
+            return this.each(function(el){
+                var node = Pablo(el),
+                    transformAttr = node.attr('transform'),
+                    newTransformAttr, pos, posEnd, transformAttrEnd;
+
+                // There's already a transform attribute
+                if (transformAttr){
+                    // Start position for the function
+                    pos = (' ' + transformAttr).indexOf(' ' + functionName + '(');
+
+                    // Function name already present
+                    if (pos >= 0){
+                        transformAttrEnd = transformAttr.slice(pos);
+                        // End position for the function
+                        posEnd = transformAttrEnd.indexOf(')');
+
+                        // Insert modified function
+                        // TODO: use splice() instead?
+                        newTransformAttr = transformAttr.slice(0, pos) + 
+                            functionName + '(' + value + ')' +
+                            transformAttrEnd.slice(posEnd + 1);
+                    }
+
+                    // Function not yet present
+                    else {
+                        newTransformAttr = transformAttr + ' ' +
+                            functionName + '(' + value + ')';
+                    }
+                }
+
+                // Create new transform value
+                else {
+                    newTransformAttr = functionName + '(' + value + ')';
+                }
+
+                // Set transform attribute
+                node.attr('transform', newTransformAttr);
+            });
+        },
         
         removeAttr: function (attr) {
             return this.each(function (el, i){
