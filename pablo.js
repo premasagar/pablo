@@ -863,7 +863,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
         template: function(name, callback){
             // e.g. Pablo.star()
             Pablo[name] = function(){
-                return callback.apply(Pablo, arguments);
+                return callback.apply(null, arguments);
             };
             // e.g. collection.star()
             pabloCollectionApi[name] = function(){
