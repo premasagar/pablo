@@ -14,10 +14,12 @@ In this example, click to empty the SVG root:
 
     paper.on('click', function(){
         paper.empty();
+        alert(paper.children().length + ' children');
     });
 
     paper.rect({width:100, height:100, fill:'red'});
     paper.circle({cx:200, cy:50, r:50, fill:'purple'});
+    alert(paper.children().length + ' children');
          
 
 `.remove()`
@@ -29,9 +31,11 @@ In this example, click a shape to remove it:
 
     var paper = Pablo(demoElement).root({height:100});
 
+    paper.on('click', function(event){
+        Pablo(event.target).remove();
+        alert(paper.children().length + ' children');
+    });
+
     paper.rect({width:100, height:100, fill:'blue'});
     paper.circle({cx:200, cy:50, r:50, fill:'orange'});
-
-    paper.children().on('click', function(){
-        Pablo(this).remove();
-    });
+    alert(paper.children().length + ' children');

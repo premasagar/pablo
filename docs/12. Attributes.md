@@ -134,6 +134,20 @@ Modifies the value of a _transform function_ in each element's `transform` attri
          .transform('translate', '180 30')
          .transform('rotate', '45 50 50');
 
+The method can also accept the `value` as a function or array, as with `.attr()` and other methods:
+
+    var paper = Pablo('#paper').empty().root()
+        squares = paper.rect({
+            x:90, y:110,
+            width:80, height:80,
+            fill:'rgba(120,30,0,0.3)',
+            stroke:'rgba(30,60,90,0.7)'
+        }).duplicate(11);
+        
+    squares.transform('rotate', function(el, i){
+        return i * 30 + ' 110 105';
+    });
+
 
 `.addClass(className)`
 ----------------------
