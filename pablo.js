@@ -1,48 +1,58 @@
-/*
-    Pablo <https://github.com/dharmafly/pablo>
+/*!
+    Pablo <http://pablojs.com>
 
     by Premasagar Rose <http://premasagar.com>,
        Dharmafly <http://dharmafly.com>
 
+    Repo: <https://github.com/dharmafly/pablo>
     MIT license: http://opensource.org/licenses/mit-license.php
+
 */
 
-
-var Pablo = (function(document, Array, JSON, Element, NodeList){
+var Pablo = (function(document, Array, Element, SVGElement, NodeList){
     'use strict';
     
-    var svgns = 'http://www.w3.org/2000/svg',
-        xlinkns = 'http://www.w3.org/1999/xlink',
+    var /* SETTINGS */
+        pabloVersion = '0.2.0',
         svgVersion = 1.1,
-        vendorPrefixes = ['-moz-', '-webkit-', '-khtml-', '-o-', '-ms-'],
-        pabloApi, pabloNodeApi, createPablo;
+        svgns = 'http://www.w3.org/2000/svg',
+        xlinkns = 'http://www.w3.org/1999/xlink',
+        vendorPrefixes = ['', '-moz-', '-webkit-', '-khtml-', '-o-', '-ms-'],
 
+        testElement, supportsClassList, hyphensToCamelCase, cssClassApi,
+        pabloCollectionApi;
 
-    // TEST BROWSER COMPATIBILITY
     
     function make(elementName){
         return typeof elementName === 'string' &&
-            document.createElementNS(Pablo.svgns || svgns, elementName) ||
+            document.createElementNS(svgns, elementName) ||
             null;
     }
-    
-    function isSupported(){
-        return !!(
-            document && Array && JSON && Element && NodeList &&
-            document.querySelectorAll &&
-            document.querySelector &&
-            document.createElementNS &&
-            Array.isArray &&
-            Array.prototype.forEach &&
-            make('svg').createSVGRect
-        );
-    }
+
+
+    /////
+
+
+    // TEST BROWSER COMPATIBILITY
+
+    testElement = document.createElementNS && make('svg');
     
     // Incompatible browser
-    if (!isSupported()){
-        return {isSupported:false};
+    if (!(
+        document && document.querySelectorAll &&
+        Array && Array.isArray && Array.prototype.forEach &&
+        Element && SVGElement && NodeList &&
+        testElement && testElement.createSVGRect
+    )){
+        // Return a simplified version of the Pablo API
+        return {
+            v: pabloVersion,
+            isSupported: false
+        };
     }
-    
+
+    supportsClassList = !!testElement.classList;
+
     
     /////
     
@@ -69,124 +79,153 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         return target;
     }
     
-    // e.g. 'font-color' -> 'fontColor'
-    function hyphenatedToCamelCase(str){
-        return str.replace(/-([a-z])/g, function(match, letter){
-            return letter.toUpperCase();
-        });
-    }
-    
-    // e.g. 'fontColor' -> 'font-color'
-    // NOTE: does not check for blank spaces, i.e. for multiple words 'font Color'
-    function camelCaseToHyphenated(str){
-        return str.replace(/[A-Z]/g, function(letter){
-            return '-' + letter.toLowerCase();
-        });
-    }
-    
     function toArray(obj){
         return Array.prototype.slice.call(obj);
     }
     
-    function toElement(node){
-        if (isElement(node)){
-            return node;
-        }
-        if (isPablo(node)){
-            return node.el;
-        }
-        return make(node);
-    }
-    
-    // Like toElement, but will favour making an element if there are attributes passed
-    function makeOrFindElement(node, attr){
-        // Already an element
-        if (isElement(node)){
-            return node;
-        }
-        // If there are attributes, then definitely make an element
-        else if (attr) {
-            return make(node);
-        }
-        // Try to find element(s) by selector; if not found, make new element
-        return toElement(node);
-    }
-    
     function getAttributes(el){
-        var attr = {},
-            nodeAttr, len, i;
+        var ret = {},
+            attr, len, i;
             
         if (el){
-            nodeAttr = el.attributes;
-            for (i = 0, len = nodeAttr.length; i<len; i++){
-                attr[nodeAttr[i].name] = nodeAttr[i].value;
+            attr = el.attributes;
+            for (i = 0, len = attr.length; i<len; i++){
+                ret[attr[i].name] = attr[i].value;
             }
         }
-        return attr;
+        return ret;
+    }
+
+    function isArrayLike(obj){
+        return !!(obj && typeof obj === 'object' && typeof obj.length === 'number');
     }
     
-    function isArray(obj){
-        return Array.isArray(obj);
+    function isElement(obj){
+        return obj instanceof Element;
     }
     
-    function isElement(node){
-        return node instanceof Element;
+    function isNodeList(obj){
+        return obj instanceof NodeList;
     }
     
-    function isNodeList(node){
-        return node instanceof NodeList;
+    function isSvg(obj){
+        return obj instanceof SVGElement;
     }
     
-    function isUniqueElement(node, elements){
-        return isElement(node) && elements.indexOf(node) === -1;
+    function canBeWrapped(obj){
+        return Pablo.isPablo(obj) ||
+            isElement(obj) ||
+            isNodeList(obj) ||
+            Array.isArray(obj) ||
+            isArrayLike(obj);
     }
     
-    // Returns true for both a Pablo instance and its API function
-    function isPablo(node){
-        return !!(node && 
-            (node instanceof PabloNode || node._pablo instanceof PabloNode)
-        );
-    }
-    
-    function canBeWrapped(node){
-        return isPablo(node) ||
-            isElement(node) ||
-            isNodeList(node) ||
-            isArray(node);
-    }
-    
-    function isSvg(node){
-        return node.namespaceURI == Pablo.svgns;
-    }
-    
-    // Return node if a PabloNode, otherwise create one
+    // Return node (with attributes) if a Pablo collection, otherwise create one
     function toPablo(node, attr){
-        return isPablo(node) ?
-            node : Pablo(node, attr);
+        if (Pablo.isPablo(node)){
+            return attr ? node.attr(attr) : node;
+        }
+        return Pablo(node, attr);
     }
     
-    function addUniqueElementToArray(node, attr, elements){
+    function addElementIfUnique(node, elements, prepend){
         var toPush, el;
         
-        if (isPablo(node)){
-            toPush = node.el;
+        if (Pablo.isPablo(node)){
+            // See extensions/functional.js for example usage of node.collection
+            toPush = node.collection || node;
         }
-        else if (isArray(node)){
+        else if (Array.isArray(node)){
             toPush = node;
         }
-        else if (isNodeList(node)){
+        else if (isArrayLike(node)){
             toPush = toArray(node);
         }
         else {
-            el = makeOrFindElement(node, attr);
-            if (isUniqueElement(el, elements)){
-                elements.push(el);
+            el = isElement(node) ? node : make(node);
+
+            // Is an element, but is not found in the node list
+            if (el && elements.indexOf(el) === -1){
+                Array.prototype[prepend ? 'unshift' : 'push'].call(elements, el);
             }
             return;
         }
+
         toPush.forEach(function(el){
-            addUniqueElementToArray(el, attr, elements);
+            addElementIfUnique(el, elements);
         });
+    }
+
+    // Return CSS styles with browser vendor prefixes
+    // e.g. cssPrefix({transform:'rotate(45deg)'}) will return the styles object, with additional properties containing CSS properties prefixed with the browser vendor prefixes - see vendorPrefixes
+    // e.g. cssPrefix('transform', 'rotate(45deg)') will return a string sequence of prefixed CSS properties, each assigned the same value
+    // e.g. cssPrefix('transform') will return a string sequence of CSS properties
+    function cssPrefix(styles, value){
+        var vendorPrefixes = Pablo.vendorPrefixes,
+            prop, res, rule;
+        
+        if (typeof styles === 'object'){
+            res = {};
+            for (prop in styles){
+                if (styles.hasOwnProperty(prop)){
+                    vendorPrefixes.forEach(function(prefix){
+                        res[prefix + prop] = styles[prop];
+                    });
+                }
+            }
+        }
+
+        if (typeof styles === 'string'){
+            prop = styles;
+
+            // e.g. cssPrefix('transform', 'rotate(45deg)') -> 'transform:rotate(45deg);-webkit-transform:rotate(45deg);...'
+            if (typeof value === 'string'){
+                rule = prop + ':' + value + ';';
+                res = vendorPrefixes.join(rule) + rule;
+            }
+            // e.g. cssPrefix('transform') -> 'transform,-webkit-transform,...'
+            // useful for adding prefixed properties when setting active properties in a CSS transition
+            else {
+                res = vendorPrefixes.join(prop + ',') + prop;
+            }
+        }
+        return res;
+    }
+    
+    // e.g. 'font-color' -> 'fontColor'
+    hyphensToCamelCase = (function(){
+        var firstLetter = /-([a-z])/g;
+
+        return function (str){
+            return str.replace(firstLetter, function(match, letter){
+                return letter.toUpperCase();
+            });
+        };
+    }());
+    
+    /*
+    // e.g. 'fontColor' -> 'font-color'
+    // NOTE: does not check for blank spaces, i.e. for multiple words 'font Color'
+    var camelCaseToHyphens = (function(){
+        var capitalLetters = /[A-Z]/g;
+
+        return function (str){
+            return str.replace(capitalLetters, function(letter){
+                return '-' + letter.toLowerCase();
+            });
+        };
+    });
+    */
+
+    // Determine a value passed to attr(), css(), content()
+    function getValue(val, el, i, collection){
+        if (typeof val === 'function'){
+            val = val.call(collection, el, i);
+        }
+        else if (Array.isArray(val)){
+            val = val[i];
+        }
+        return val;
     }
     
     
@@ -195,39 +234,199 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
     
     // ELEMENT API
     
-    function PabloNode(node, attr){
-        var // Create elements array
-            elements = this.el = [];
+    function PabloCollection(node, attr){
+        if (node){
+            this.push(node);
             
-        // Add elements
-        addUniqueElementToArray(node, attr, elements);
-            
-        // Apply attributes if elements have been added
-        if (attr && elements.length){
-            this.attr(attr);
+            // Apply attributes
+            if (attr){
+                this.attr(attr);
+            }
         }
     }
     
     // Node prototype
-    pabloNodeApi = PabloNode.prototype = {
-        constructor: PabloNode,
+    pabloCollectionApi = PabloCollection.prototype = [];
+
+    extend(pabloCollectionApi, {
+        collection: null,
+        constructor: PabloCollection,
         make: make,
+        pablo: pabloVersion,
         
         get: function(index){
-            return typeof index === 'undefined' ?
-                this.el : this.el[index];
+            return this[index];
+        },
+
+        toArray: function(){
+            return toArray(this);
         },
         
         eq: function(index){
             return index >= 0 ?
                 // Return zero-indexed node
-                Pablo(this.el[index]) :
+                Pablo(this[index]) :
                 // Return node, counting backwards from end of elements array
                 (index < -1 ? this.slice(index, index + 1) : this.slice(index));
         },
         
         size: function(){
-            return this.el.length;
+            return this.length;
+        },
+
+        // Add new node(s) to the collection; accepts arrays or nodeLists
+        push: function(node){
+            addElementIfUnique(node, this);
+            return this;  
+        },
+        
+        // Add new node(s) to the collection; accepts arrays or nodeLists
+        unshift: function(node){
+            addElementIfUnique(node, this, true);
+            return this;
+        },
+        
+        // Remove node from end of the collection
+        pop: function(){
+            return Pablo(Array.prototype.pop.call(this));
+        },
+        
+        shift: function(){
+            return Pablo(Array.prototype.shift.call(this));
+        },
+        
+        slice: function(begin, end){
+            return Pablo(Array.prototype.slice.call(this, begin, end));
+        },
+        
+        each: function(fn){
+            this.forEach(fn, this);
+            return this;
+        },
+        
+        map: function(fn){
+            return Pablo(
+                Array.prototype.map.call(this, fn)
+            );
+        },
+        
+        // Note: name due to conflict with 'filter' element method
+        filterElements: function(fn){
+            return Pablo(
+                Array.prototype.filter.call(this, fn)
+            );
+        },
+
+        /*
+        is: function(){
+
+        },
+
+        // TODO: merge with filterElements
+        // Filter children with CSS selectors
+        filterSelectors: (function(){
+            // Use single element, to avoid object creation
+            var container = make('g');
+
+            return function(selectors){
+                return this.filterElements(function(el){
+                    var g = Pablo(container),
+                        isMatch = g.append(Pablo(el).clone())
+                            .find(selectors).length;
+                    g.empty();
+                    return isMatch;
+                });
+            }
+        }()),
+        */
+
+
+        /////
+
+
+        // TRAVERSAL
+        
+        children: function(node, attr){
+            var children;
+            
+            // Append and return new children
+            if (node){
+                return toPablo(node, attr).appendTo(this);
+            }
+
+            // Get children
+            children = Pablo();
+            this.each(function(el){
+                toArray(el.childNodes).forEach(function(child){
+                    children.push(child);
+                });
+            });
+            return children;
+        },
+        
+        parent: function(){
+            var parents = Pablo();
+            
+            this.each(function(el){
+                parents.push(el.parentNode);
+            });
+            return parents;
+        },
+
+        nextSibling: function(){
+            var siblings = Pablo();
+            
+            this.each(function(el){
+                siblings.push(el.nextSibling);
+            });
+            return siblings;
+        },
+
+        prevSibling: function(){
+            var siblings = Pablo();
+            
+            this.each(function(el){
+                siblings.push(el.previousSibling);
+            });
+            return siblings;
+        },
+
+        siblings: function(){
+            var siblings = Pablo();
+
+            this.each(function(el){
+                var nodeSiblings = Pablo(el).parent().children().filterElements(function(child){
+                    return child !== el;
+                });
+
+                siblings.push(nodeSiblings);
+            });
+
+            return siblings;
+        },
+        
+        find: function(selectors){
+            var found = Pablo();
+            
+            this.each(function(el){
+                toArray(el.querySelectorAll(selectors)).forEach(function(target){
+                    found.push(target);
+                });
+            });
+            return found;
+        },
+
+
+        /////
+
+
+        // MANIPULATION
+        
+        // Create SVG root wrapper
+        // TODO: getRoot() method returns closest parent root to the element
+        root: function(attr){
+            attr = extend(attr, {version: Pablo.svgVersion});
+            return this.svg(attr);
         },
         
         empty: function(){
@@ -247,74 +446,24 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             });
         },
         
-        // Add new node(s) to the collection; accepts arrays or nodeLists
-        push: function(node, attr){
-            var pabloNodeToAdd = Pablo(node, attr);
-            
-            addUniqueElementToArray(pabloNodeToAdd, attr, this.el);
-            return this;
-        },
-        
-        // Remove node from end of the collection
-        pop: function(node, attr){
-            return this.el.pop();
-        },
-        
-        shift: function(){
-            return this.el.shift();
-        },
-        
-        // Add new node(s) to the collection; accepts arrays or nodeLists
-        // TODO: don't replace `this.el`, e.g. `el` array may be cached
-        unshift: function(node, attr){
-            var newNode = Pablo(node, attr).el[0],
-                existingElements = this.el.slice();
-                
-            this.el = [newNode].concat(existingElements);
-            return this;
-        },
-        
-        slice: function(from, to){
-            return Pablo(this.el.slice(from, to));
-        },
-        
-        each: function(fn){
-            this.el.forEach(fn, this);
-            return this;
-        },
-        
-        map: function(fn){
-            return Pablo(
-                this.el.map(fn, this)
-            );
-        },
-        
-        filter: function(fn){
-            return Pablo(
-                this.el.filter(fn, this)
-            );
-        },
-        
+        // NOTE: the following append-related functions all require attr to exist, even as a blank object, if a new element is to be created. Otherwise, if the first argument is a string, then a selection operation will be performed.
+        // TODO: If appending pre-existing elements, then append to just first element in the collection?
         append: function(node, attr){
             this.each(function(el){
-                toPablo(node, attr || {}).each(function(child){
+                toPablo(node, attr).each(function(child){
                     el.appendChild(child);
                 });
             });
             return this;
         },
         
-        appendTo: function(node){
-            toPablo(node).append(this);
+        appendTo: function(node, attr){
+            toPablo(node, attr).append(this);
             return this;
         },
         
-        child: function(node, attr){
-            return toPablo(node, attr || {}).appendTo(this);
-        },
-        
         before: function(node, attr){
-            return this.each(function(el, i, thisNode){
+            return this.each(function(el){
                 var parentNode = el.parentNode;
                 if (parentNode){
                     Pablo(node, attr).each(function(toInsert){
@@ -325,7 +474,7 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
         },
         
         after: function(node, attr){
-            return this.each(function(el, i, thisNode){
+            return this.each(function(el){
                 var parentNode = el.parentNode;
                 if (parentNode){
                     Pablo(node, attr).each(function(toInsert){
@@ -344,29 +493,9 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             });
         },
         
-        prependTo: function(node){
-            toPablo(node).prepend(this);
+        prependTo: function(node, attr){
+            toPablo(node, attr).prepend(this);
             return this;
-        },
-        
-        children: function(){
-            var children = Pablo();
-            
-            this.each(function(el){
-                toArray(el.childNodes).forEach(function(child){
-                    children.push(child);
-                });
-            });
-            return children;
-        },
-        
-        parent: function(){
-            var parents = Pablo();
-            
-            this.each(function(el){
-                parents.push(el.parentNode);
-            });
-            return parents;
         },
         
         clone: function(deep){
@@ -378,62 +507,59 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
             );
         },
         
-        // TODO: should this return a new collection? i.e. not push to `this`?
         duplicate: function(repeats){
             var duplicates = Pablo();
             repeats || (repeats = 1);
             
             while (repeats --){
-                duplicates.el.push(this.clone(true).el[0]);
+                duplicates.push(this.clone(true).get(0));
             }
             this.after(duplicates);
-            return duplicates.unshift(this);
+            return this.push(duplicates);
         },
         
-        find: function(selector){
-            var found = Pablo();
-            
-            this.each(function(el){
-                toArray(el.querySelectorAll(selector)).forEach(function(target){
-                    found.push(target);
-                });
-            });
-            return found;
-        },
-        
-        attr: function(attr){
-            if (!attr){
-                return getAttributes(this.el[0]);
+        attr: function(attr, value){
+            var el, attributeName;
+
+            if (typeof attr === 'undefined'){
+                return getAttributes(this.get(0));
             }
 
             if (typeof attr === 'string'){
-                return this.get(0).getAttribute(attr);
+                // Get attribute
+                if (typeof value === 'undefined'){
+                    el = this.get(0);
+                    return el && el.getAttribute(attr);
+                }
+
+                // Create attributes object
+                attributeName = attr;
+                attr = {};
+                attr[attributeName] = value;
             }
             
-            return this.each(function(el, i){
-                var pabloNode, prop, val;
+            // Set multiple attributes
+            this.each(function(el, i){
+                var PabloCollection, prop, val;
                 
                 for (prop in attr){
                     if (attr.hasOwnProperty(prop)){
-                        val = attr[prop];
-                        
-                        if (typeof val === 'function'){
-                            val = val.call(this, el, i);
-                        }
+                        val = getValue(attr[prop], el, i, this);
                     
+                        // TODO: remove these
                         switch (prop){
                             case '_content':
-                            (pabloNode || (pabloNode = Pablo(el)))
+                            (PabloCollection || (PabloCollection = Pablo(el)))
                                 .content(val);
                             continue;
                         
                             case '_children':
-                            (pabloNode || (pabloNode = Pablo(el)))
-                                .child(val);
+                            (PabloCollection || (PabloCollection = Pablo(el)))
+                                .append(val);
                             continue;
                         
                             case '_link':
-                            (pabloNode || (pabloNode = Pablo(el)))
+                            (PabloCollection || (PabloCollection = Pablo(el)))
                                 .link(val);
                             continue;
                         }
@@ -441,217 +567,385 @@ var Pablo = (function(document, Array, JSON, Element, NodeList){
                     }
                 }
             });
+            return this;
+        },
+
+        transform: function(functionName, value){
+            return this.each(function(el, i){
+                var node = Pablo(el),
+                    transformAttr = node.attr('transform'),
+                    newTransformAttr, pos, posEnd, transformAttrEnd,
+                    functionString = functionName + '(' + getValue(value, el, i, this) + ')';
+
+                // There's already a transform attribute
+                if (transformAttr){
+                    // Start position for the function
+                    pos = (' ' + transformAttr).indexOf(' ' + functionName + '(');
+
+                    // Function name already present
+                    if (pos >= 0){
+                        transformAttrEnd = transformAttr.slice(pos);
+                        // End position for the function
+                        posEnd = transformAttrEnd.indexOf(')');
+
+                        // Insert modified function
+                        // TODO: use splice() instead?
+                        newTransformAttr = transformAttr.slice(0, pos) + 
+                            functionString + transformAttrEnd.slice(posEnd + 1);
+                    }
+
+                    // Function not yet present
+                    else {
+                        newTransformAttr = transformAttr + ' ' + functionString;
+                    }
+                }
+
+                // Set transform attribute
+                node.attr('transform', newTransformAttr || functionString);
+            });
         },
         
         removeAttr: function (attr) {
-            return this.each(function (el, i){
+            return this.each(function (el){
                 el.removeAttributeNS(null, attr);
             });
         },
 
         link: function(href){
-            return this.each(function(el){
-                el.setAttributeNS(xlinkns, 'xlink:href', href);
+            return this.each(function(el, i){
+                var link = getValue(href, el, i, this);
+                el.setAttributeNS(xlinkns, 'xlink:href', link);
             });
         },
         
         content: function(text){
+            var el;
+
             // Get first element's textContent
             if (typeof text === 'undefined'){
-                return this.el[0].textContent;
+                el = this.get(0);
+                return el && el.textContent || '';
             }
-            
+
             // Set every element's textContent
-            return this.each(function(el){
-                el.textContent = text;
+            return this.each(function(el, i){
+                var textValue = getValue(text, el, i, this);
+                el.textContent = textValue;
             });
         },
-        
-        css: function(newStyles){
-            return this.each(function(el){
+
+        css: function(styles, value){
+            var el, styleProperty;
+
+            if (typeof styles === 'string'){
+                // Get style
+                if (typeof value === 'undefined'){
+                    el = this.get(0);
+                    return el && el.style.getPropertyValue(styles);
+                    // or document.defaultView.getComputedStyle(el, null).getPropertyValue(styles);
+                }
+
+                // Create styles object
+                styleProperty = styles;
+                styles = {};
+                styles[styleProperty] = value;
+            }
+
+            return this.each(function(el, i){
                 var style = el.style,
-                    prop;
+                    prop, val;
                 
-                for (prop in newStyles){
-                    if (newStyles.hasOwnProperty(prop)){
-                        style.setProperty(prop, newStyles[prop], '');
+                for (prop in styles){
+                    if (styles.hasOwnProperty(prop)){
+                        val = getValue(styles[prop], el, i, this);
+                        style.setProperty(prop, val, '');
                     }
                 }
             });
         },
-        
-        // Add CSS styles with browser vendor prefixes
-        // e.g. cssPrefix({transform:'rotate(45deg)'}) will be prefixed with -moz, -webkit, -o, -ms and -khtml
-        cssPrefix: function(newStyles){
-            var prop;
+
+        // Add prefixed CSS styles to elements in collection
+        cssPrefix: function(styles, value){
+            var styleProperty;
             
-            for (prop in newStyles){
-                if (newStyles.hasOwnProperty(prop)){
-                    vendorPrefixes.forEach(function(prefix){
-                        newStyles[prefix + prop] = newStyles[prop];
-                    });
-                }
+            if (typeof styles === 'string' && typeof value === 'string'){
+                // Create styles object
+                styleProperty = styles;
+                styles = {};
+                styles[styleProperty] = value;
             }
-            return this.css(newStyles);
-        },
-        
-        on: function(type, listener, useCapture){
-            return this.each(function(el){
-                el.addEventListener(type, listener, useCapture || false);
-            });
-        },
-        
-        off: function(type, listener, useCapture){
-            return this.each(function(el){
-                el.removeEventListener(type, listener, useCapture || false);
-            });
-        },
-        
-        // Allow just one event for the whole collection of elements
-        one: function(type, listener, useCapture){
-            var thisNode = this;
-            return this.on(type, function addListener(){
-                // Remove listener
-                thisNode.off(type, addListener, useCapture);
-                // Fire listener
-                listener.apply(thisNode, arguments);
-            }, useCapture);
-        },
-        
-        // Allow one event on each of the elements in the collection
-        oneEach: function(type, listener, useCapture){
-            this.each(function(el){
-                var node = Pablo(el);
-                node.on(type, function addListener(){
-                    // Remove listener
-                    node.off(type, addListener, useCapture);
-                    // Fire listener
-                    listener.apply(node, arguments);
-                }, useCapture);
-            });
-        },
-        
-        // Create SVG root wrapper
-        root: function(attr){
-            extend(attr, {version: Pablo.svgVersion});
-            return this.svg(attr);
+            return this.css(cssPrefix(styles));
         }
-    };
-    
-    
-    // Element API Aliases
-    extend(pabloNodeApi, {
-        _  : pabloNodeApi.append,
-        add: pabloNodeApi.push
     });
-    
-    // SVG element shortcut methods
-    'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop style svg switch symbol text textPath title tref tspan use view vkern'.split(' ')
-        .forEach(function(nodeName){
-            var methodName = hyphenatedToCamelCase(nodeName);
-            
-            Pablo[methodName] = function(attr){
-                return Pablo(nodeName, attr || {});
-            };
-            pabloNodeApi[methodName] = function(attr){
-                return this.child(nodeName, attr || {});
-            };
-        });
-    
-    
+
+
     /////
-    
-    
-    // PABLO API
-    
-    // Console.log response
-    function toString(){
-        if (!this.el.length){
-            return '()';
+
+
+    // DOM EVENT METHODS
+
+    (function(){
+        // Allow either single or multiple events to be triggered
+        function eventMethod(method){        
+            return function(type, listener, useCapture){
+                // Multiple events
+                if (type.indexOf(' ') > 0){
+                    type.split(' ').forEach(function(type){
+                        method.call(this, type, listener, useCapture);
+                    }, this);
+                }
+                // Single event
+                else {
+                    method.call(this, type, listener, useCapture);
+                }
+                return this;
+            };
         }
-        
-        return '(' + this.el.map(function(el){
-            var str = '<' + el.nodeName.toLowerCase();
-                
-            if (el.attributes.length && JSON && JSON.stringify){
-                str += ' ' + JSON.stringify(getAttributes(el))
-                    .replace(/","/g, '", ')
-                    .replace(/^{"|}$/g, '')
-                    .replace(/":"/g, '="');
+
+        extend(pabloCollectionApi, {
+            on: eventMethod(function(type, listener, useCapture){
+                this.each(function(el){
+                    el.addEventListener(type, listener, useCapture || false);
+                });
+            }),
+
+            off: eventMethod(function(type, listener, useCapture){
+                this.each(function(el){
+                    el.removeEventListener(type, listener, useCapture || false);
+                });
+            }),
+
+            // Trigger listener once per collection
+            one: eventMethod(function(type, listener, useCapture){
+                var thisNode = this;
+                this.on(type, function addListener(){
+                    // Remove listener, then trigger
+                    thisNode.off(type, addListener, useCapture);
+                    listener.apply(thisNode, arguments);
+                }, useCapture);
+            }),
+
+            // Trigger listener once per element in the collection
+            oneEach: eventMethod(function(type, listener, useCapture){
+                this.each(function(el){
+                    var node = Pablo(el);
+                    node.on(type, function addListener(){
+                        // Remove listener, then trigger
+                        node.off(type, addListener, useCapture);
+                        listener.apply(node, arguments);
+                    }, useCapture);
+                });
+            })
+        });
+    }());
+
+    // Pablo Collection API Aliases
+    pabloCollectionApi.add = pabloCollectionApi.concat = pabloCollectionApi.push;
+
+
+    /////
+
+    
+    // CSS CLASS METHODS
+
+    cssClassApi = supportsClassList ?
+
+        // Browser supports native classLists in SVG
+        // e.g. Firefox
+        {
+            // Return true if _any_ element has className
+            hasClass: function(className){
+                return this.some(function(el){
+                    return el.classList.contains(className);
+                });
+            },
+
+            addClass: function(className){
+                return this.each(function(el){
+                    el.classList.add(className);
+                });
+            },
+
+            removeClass: function(className){
+                return this.each(function(el){
+                    el.classList.remove(className);
+                });
+            },
+
+            toggleClass: function(className){
+                return this.each(function(el){
+                    el.classList.toggle(className);
+                });
             }
-            return str + '>';
-        }).join(', ') + ')';
+        } :
+
+        // Browser doesn't support native classLists in SVG
+        // e.g. Internet Explorer 9, Chrome 21
+        {
+            // Return true if _any_ element has className
+            hasClass: function(className){
+                return this.some(function(el){
+                    var node = Pablo(el),
+                        classString = node.attr('class');
+
+                    return classString && (' ' + classString + ' ')
+                        .indexOf(' ' + className + ' ') >= 0;
+                });
+            },
+
+            addClass: function(className){
+                return this.each(function(el){
+                    var node = Pablo(el),
+                        classString;
+
+                    if (!node.hasClass(className)){
+                        classString = node.attr('class');
+                        classString = classString ? (classString + ' ') : '';
+                        node.attr('class',  classString + className);
+                    }
+                });
+            },
+
+            removeClass: function(className){
+                var classPattern = new RegExp('(^|\\s)' + className + '(\\s|$)');
+
+                return this.each(function(el){
+                    var node = Pablo(el),
+                        classString;
+
+                    if (node.hasClass(className)){
+                        classString = node.attr('class');
+                        classString = classString.replace(classPattern, '$2');
+                        node.attr('class', classString);
+                    }
+                });
+            },
+
+            toggleClass: function(className){
+                return this.each(function(el){
+                    var node = Pablo(el);
+
+                    if (node.hasClass(className)){
+                        node.removeClass(className);
+                    }
+                    else {
+                        node.addClass(className);
+                    }
+                });
+            }
+        };
+
+    extend(pabloCollectionApi, cssClassApi);
+
+    /* For alternative implementations of class manipulation, see:
+        * https://gist.github.com/1319121
+        * https://developer.mozilla.org/media/uploads/demos/p/a/paulrouget/8bfba7f0b6c62d877a2b82dd5e10931e/hacksmozillaorg-achi_1334270447_demo_package/classList/classList.js
+        * https://hacks.mozilla.org/2010/01/classlist-in-firefox-3-6/
+    */
+
+
+    /////
+
+
+    // PABLO API
+
+    // Create Pablo: return a PabloCollection instance
+    function createPablo(node, attr){
+        return new PabloCollection(node, attr);
     }
     
     // Select existing nodes in the document
-    function selectPablo(node){
-        return Pablo(document.querySelectorAll(node));
+    function selectPablo(selectors, context){
+        // Valid selector
+        if (selectors && typeof selectors === 'string'){
+            return Pablo((context || document).querySelectorAll(selectors));
+        }
+        // Return empty Pablo collection
+        return createPablo();
     }
-    
-    // Create Pablo #1: return a PabloNode instance
-    function createPabloObj(node, attr){
-        return new PabloNode(node, attr);
-    }
-    
-    // Create Pablo #2: return a function that wraps a PabloNode instance
-    function createPabloFn(node, attr){
-        var pabloNode = new PabloNode(node, attr),
-            api = extend(
-                function(node, attr){
-                    if (attr || canBeWrapped(node)){
-                        pabloNode.append(node, attr);
-                        return api;
-                    }
-                    else {
-                        return selectPablo(node);
-                    }
-                },
-                pabloNode,
-                {
-                    _pablo: pabloNode,
-                    toString: toString // Used for console logging
-                },
-                true
-            );
-        return api;
-    }
-    
-    // Create Pablo: use functional API by default; see `functionApi` method
-    createPablo = createPabloFn;
+
     
     // **
     
+
     // Pablo main function
     function Pablo(node, attr){
-        if (attr || canBeWrapped(node)){
-            return createPablo(node, attr);
+        if (!node || attr || Pablo.canBeWrapped(node)){
+            return Pablo.create(node, attr);
         }
         else {
-            return selectPablo(node);
+            return Pablo.select(node);
         }
     }
     
     // Pablo methods
-    pabloApi = {
-        v: '0.0.1',
+    extend(Pablo, {
+        v: pabloVersion,
         isSupported: true,
         svgns: svgns,
         xlinkns: xlinkns,
         svgVersion: svgVersion,
-        isPablo: isPablo,
+        Collection: PabloCollection,
+        fn: pabloCollectionApi,
+        root: pabloCollectionApi.root,
+
+        create: createPablo,
+        select: selectPablo,
+        isArrayLike: isArrayLike,
         isElement: isElement,
         isNodeList: isNodeList,
         isSvg: isSvg,
+        // isPablo is overwritten in functional.js extension
+        isPablo: function(obj){
+            return obj instanceof Pablo.Collection;
+        },
         extend: extend,
-        fn: pabloNodeApi,
-        Node: PabloNode,
-        
-        // Whether to use the function API (default) or the object API
-        functionApi: function(yes){
-            createPablo = (yes !== false) ? createPabloFn : createPabloObj;
+        toArray: toArray,
+        getAttributes: getAttributes,
+        canBeWrapped: canBeWrapped,
+        hyphensToCamelCase: hyphensToCamelCase,
+
+        // css related
+        vendorPrefixes: vendorPrefixes,
+        cssPrefix: cssPrefix,
+            // e.g. Pablo('svg').style().content('#foo{' + Pablo.cssPrefix('transform', 'rotate(45deg)') + '}');
+            // e.g. myElement.css({'transition-property': Pablo.cssPrefix('transform')});
+
+        // TODO: support `collection.append('myshape')`
+        template: function(name, callback){
+            // e.g. Pablo.star()
+            Pablo[name] = function(){
+                return callback.apply(null, arguments);
+            };
+            // e.g. collection.star()
+            pabloCollectionApi[name] = function(){
+                var args = arguments;
+                return this.map(function(el){
+                    return Pablo[name].apply(el, args).appendTo(el);
+                });
+            };
             return this;
         }
-    };
+    });
+
+
+    /////
+
     
-    return extend(Pablo, pabloApi, true);
-}(window.document, window.Array, window.JSON, window.Element, window.NodeList));
+    // SVG ELEMENT METHODS
+    'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop style svg switch symbol text textPath title tref tspan use view vkern'.split(' ')
+        .forEach(function(nodeName){
+            var camelCase = hyphensToCamelCase(nodeName);
+            
+            Pablo.template(nodeName, function(attr){
+                return Pablo.create(nodeName, attr);
+            });
+            Pablo[camelCase] = Pablo[nodeName];
+            pabloCollectionApi[camelCase] = pabloCollectionApi[nodeName];
+        });
+
+    
+    /////
+    
+    return Pablo;
+}(window.document, window.Array, window.Element, window.SVGElement, window.NodeList));
