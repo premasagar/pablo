@@ -11,7 +11,6 @@ Include it in your HTML:
 
 Start drawing:
 
-	// Check browser support
 	if (Pablo.isSupported){
 		// Wrap an HTML element (or CSS selector, array or nodeList)
 		Pablo(demoElement)
@@ -22,3 +21,7 @@ Start drawing:
 	}
 
 The rest is just details...
+
+See the [Reference section][reference] for descriptions and examples of Pablo's extensive API.
+
+[reference]: reference/
