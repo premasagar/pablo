@@ -24,11 +24,7 @@
         var container = Pablo('#paper'),
 
             // SVG root element
-            paper = Pablo('#paper').root({
-                // Set to size of available browser window
-                width: window.innerWidth  - container[0].offsetLeft,
-                height:window.innerHeight - container[0].offsetTop
-            });
+            paper = container.root({width:500, height:480});
 
         /////
 
@@ -397,12 +393,14 @@
         
         // SCALE SLIDER
         var scaleRange = document.getElementById('scale');
-        scaleRange.addEventListener('change', function(){
-            // paper.el[0].currentScale = scaleRange.value;
-            paper.cssPrefix({
-                'transform':'scale(' + scaleRange.value + ')',
-                'transform-origin':'0 0'
-            });
-        }, false);
+        if (scaleRange){
+            scaleRange.addEventListener('change', function(){
+                // paper.el[0].currentScale = scaleRange.value;
+                paper.cssPrefix({
+                    'transform':'scale(' + scaleRange.value + ')',
+                    'transform-origin':'0 0'
+                });
+            }, false);
+        }
     }
 }(window, window.Math, window.Pablo));
