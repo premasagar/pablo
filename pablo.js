@@ -1,12 +1,13 @@
-/*
-    Pablo <https://github.com/dharmafly/pablo>
+/*!
+    Pablo <http://pablojs.com>
 
     by Premasagar Rose <http://premasagar.com>,
        Dharmafly <http://dharmafly.com>
 
+    Repo: <https://github.com/dharmafly/pablo>
     MIT license: http://opensource.org/licenses/mit-license.php
-*/
 
+*/
 
 var Pablo = (function(document, Array, Element, SVGElement, NodeList){
     'use strict';
