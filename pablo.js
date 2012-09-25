@@ -19,7 +19,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
         vendorPrefixes = ['', '-moz-', '-webkit-', '-khtml-', '-o-', '-ms-'],
 
         testElement, supportsClassList, hyphensToCamelCase, cssClassApi,
-        pabloCollectionApi, createPablo;
+        pabloCollectionApi;
 
     
     function make(elementName){
@@ -97,12 +97,6 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
 
     function isArrayLike(obj){
         return obj && typeof obj === 'object' && typeof obj.length === 'number';
-    }
-
-    function isArrayOfStrings(obj){
-        return Array.isArray(obj) && obj.length && obj.length === obj.filter(function(el){
-            return typeof el === 'string';
-        }).length;
     }
     
     function isElement(obj){
@@ -468,7 +462,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
         },
         
         before: function(node, attr){
-            return this.each(function(el, i, thisNode){
+            return this.each(function(el){
                 var parentNode = el.parentNode;
                 if (parentNode){
                     Pablo(node, attr).each(function(toInsert){
@@ -479,7 +473,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
         },
         
         after: function(node, attr){
-            return this.each(function(el, i, thisNode){
+            return this.each(function(el){
                 var parentNode = el.parentNode;
                 if (parentNode){
                     Pablo(node, attr).each(function(toInsert){
@@ -814,7 +808,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
             },
 
             toggleClass: function(className){
-                return this.each(function(el){
+                return this.each(function(){
                     if (this.hasClass(className)){
                         this.removeClass(className);
                     }
@@ -832,6 +826,11 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
 
 
     // PABLO API
+
+    // Create Pablo: return a PabloCollection instance
+    function createPablo(node, attr){
+        return new PabloCollection(node, attr);
+    }
     
     // Select existing nodes in the document
     function selectPablo(selectors, context){
@@ -841,12 +840,6 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
         }
         // Return empty Pablo collection
         return createPablo();
-    }
-
-
-    // Create Pablo: return a PabloCollection instance
-    function createPablo(node, attr){
-        return new PabloCollection(node, attr);
     }
 
     
