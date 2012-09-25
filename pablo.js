@@ -605,7 +605,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
         },
         
         removeAttr: function (attr) {
-            return this.each(function (el, i){
+            return this.each(function (el){
                 el.removeAttributeNS(null, attr);
             });
         },
@@ -747,15 +747,16 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
     
     // CSS CLASS METHODS
 
-    // IE9 doesn't support native classLists for HTML or SVG;
-    //      Chrome 21 & WebKit doesn't support classLists for SVG
-    // For alternatives, see https://gist.github.com/1319121 and
-    //      https://developer.mozilla.org/media/uploads/demos/p/a/paulrouget/8bfba7f0b6c62d877a2b82dd5e10931e/hacksmozillaorg-achi_1334270447_demo_package/classList/classList.js - linked from https://hacks.mozilla.org/2010/01/classlist-in-firefox-3-6/
     cssClassApi = supportsClassList ?
+
+        // Browser supports native classLists in SVG
+        // e.g. Firefox
         {
+            // Return true if _any_ element has className
             hasClass: function(className){
-                var el = this.get(0);
-                return !!(el && el.classList.contains(className));
+                return this.some(function(el){
+                    return el.classList.contains(className);
+                });
             },
 
             addClass: function(className){
@@ -777,49 +778,69 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
             }
         } :
 
+        // Browser doesn't support native classLists in SVG
+        // e.g. Internet Explorer 9, Chrome 21
         {
+            // Return true if _any_ element has className
             hasClass: function(className){
-                var classString = this.attr('class');
+                return this.some(function(el){
+                    var node = Pablo(el),
+                        classString = node.attr('class');
 
-                return !!classString && (' ' + classString + ' ')
-                    .indexOf(' ' + className + ' ') >= 0;
+                    return classString && (' ' + classString + ' ')
+                        .indexOf(' ' + className + ' ') >= 0;
+                });
             },
 
             addClass: function(className){
-                var classString;
+                return this.each(function(el){
+                    var node = Pablo(el),
+                        classString;
 
-                if (this.hasClass(className)){
-                    return this;
-                }
-                classString = this.attr('class');
-                classString = classString ? (classString + ' ') : '';
-                return this.attr('class',  classString + className);
+                    if (!node.hasClass(className)){
+                        classString = node.attr('class');
+                        classString = classString ? (classString + ' ') : '';
+                        node.attr('class',  classString + className);
+                    }
+                });
             },
 
             removeClass: function(className){
-                var classString;
+                var classPattern = new RegExp('(^|\\s)' + className + '(\\s|$)');
 
-                if (!this.hasClass(className)){
-                    return this;
-                }
-                classString = this.attr('class') || '';
-                classString = classString.replace(new RegExp('(^|\\s)' + className + '(\\s|$)'), '$2');
-                return this.attr({'class': classString});
+                return this.each(function(el){
+                    var node = Pablo(el),
+                        classString;
+
+                    if (node.hasClass(className)){
+                        classString = node.attr('class');
+                        classString = classString.replace(classPattern, '$2');
+                        node.attr('class', classString);
+                    }
+                });
             },
 
             toggleClass: function(className){
-                return this.each(function(){
-                    if (this.hasClass(className)){
-                        this.removeClass(className);
+                return this.each(function(el){
+                    var node = Pablo(el);
+
+                    if (node.hasClass(className)){
+                        node.removeClass(className);
                     }
                     else {
-                        this.addClass(className);
+                        node.addClass(className);
                     }
                 });
             }
         };
 
     extend(pabloCollectionApi, cssClassApi);
+
+    /* For alternative implementations of class manipulation, see:
+        * https://gist.github.com/1319121
+        * https://developer.mozilla.org/media/uploads/demos/p/a/paulrouget/8bfba7f0b6c62d877a2b82dd5e10931e/hacksmozillaorg-achi_1334270447_demo_package/classList/classList.js
+        * https://hacks.mozilla.org/2010/01/classlist-in-firefox-3-6/
+    */
 
 
     /////
