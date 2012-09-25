@@ -1,0 +1,79 @@
+<h2 id='svg_elements'>SVG elements</h2>
+
+<p>Pablo allows <em>any</em> SVG element to be created and manipulated. See MDN&#8217;s <a href='https://developer.mozilla.org/en/SVG/Element'>SVG elements</a> and <a href='https://developer.mozilla.org/en/SVG/Attribute'>SVG attributes</a> references for everything you need to know about elements.</p>
+
+<h2 id='creating_elements'>Creating elements</h2>
+
+<p>There are a few ways to create elements.</p>
+
+<p>At the lowest level, you can pass any element name along with an attributes object to <code>Pablo()</code>:</p>
+
+<pre><code>var circle = Pablo(&#39;circle&#39;, {cx:100, cy:100, r:50});</code></pre>
+
+<p>In this example, a new Pablo collection with a single new <code>&lt;circle&gt;</code> element is returned. The circle is given three attributes, as specified in the second argument. The equivalent SVG markup is <code>&lt;circle cx=&quot;100&quot; cy=&quot;100&quot; r=&quot;50&quot;/&gt;</code>.</p>
+
+<p>When creating elements with the <code>Pablo()</code> method, the attributes object is required (even if it contains no properties), since if the attributes argument is omitted, then <code>Pablo(&#39;circle&#39;)</code> acts with the first argument as a CSS selector, selecting all <code>&lt;circle&gt;</code> elements in the current document.</p>
+
+<p>Typically, elements are created not with the <code>Pablo()</code> method, but with one of the &#8216;element methods&#8217; instead, as described in the next section.</p>
+
+<h2 id='element_methods'>Element methods</h2>
+
+<p>Create an SVG element with one of the &#8216;element methods&#8217;:</p>
+
+<pre><code>Pablo.circle();</code></pre>
+
+<p>Create an SVG element, with attributes:</p>
+
+<pre><code>var circle = Pablo.circle({cx:100, cy:100, r:50});</code></pre>
+
+<p>Each of the following SVG elements can be created by calling their corresponding element method:</p>
+
+<p><a href='https://developer.mozilla.org/en-US/docs/SVG/Element/a'>a</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/altGlyph'>altGlyph</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/altGlyphDef'>altGlyphDef</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/altGlyphItem'>altGlyphItem</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/animate'>animate</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/animateColor'>animateColor</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/animateMotion'>animateMotion</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/animateTransform'>animateTransform</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/circle'>circle</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/clipPath'>clipPath</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/color-profile'>color-profile</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/cursor'>cursor</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/defs'>defs</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/desc'>desc</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/ellipse'>ellipse</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feBlend'>feBlend</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feColorMatrix'>feColorMatrix</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feComponentTransfer'>feComponentTransfer</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feComposite'>feComposite</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feConvolveMatrix'>feConvolveMatrix</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feDiffuseLighting'>feDiffuseLighting</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feDisplacementMap'>feDisplacementMap</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feDistantLight'>feDistantLight</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feFlood'>feFlood</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feFuncA'>feFuncA</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feFuncB'>feFuncB</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feFuncG'>feFuncG</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feFuncR'>feFuncR</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feGaussianBlur'>feGaussianBlur</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feImage'>feImage</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feMerge'>feMerge</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feMergeNode'>feMergeNode</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feMorphology'>feMorphology</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feOffset'>feOffset</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/fePointLight'>fePointLight</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feSpecularLighting'>feSpecularLighting</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feSpotLight'>feSpotLight</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feTile'>feTile</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feTurbulence'>feTurbulence</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/filter'>filter</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/font'>font</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/font-face'>font-face</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/font-face-format'>font-face-format</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/font-face-name'>font-face-name</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/font-face-src'>font-face-src</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/font-face-uri'>font-face-uri</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/foreignObject'>foreignObject</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/g'>g</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/glyph'>glyph</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/glyphRef'>glyphRef</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/hkern'>hkern</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/image'>image</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/line'>line</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/linearGradient'>linearGradient</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/marker'>marker</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/mask'>mask</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/metadata'>metadata</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/missing-glyph'>missing-glyph</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/mpath'>mpath</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/path'>path</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/pattern'>pattern</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/polygon'>polygon</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/polyline'>polyline</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/radialGradient'>radialGradient</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/rect'>rect</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/script'>script</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/set'>set</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/stop'>stop</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/style'>style</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/svg'>svg</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/switch'>switch</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/symbol'>symbol</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/text'>text</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/textPath'>textPath</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/title'>title</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/tref'>tref</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/tspan'>tspan</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/use'>use</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/view'>view</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/vkern'>vkern</a></p>
+
+<p>e.g. <code>Pablo.polyline()</code>, <code>Pablo.animate()</code></p>
+
+<h2 id='hyphenated_element_names_are_camelcased'>Hyphen-ated element names are camelCased</h2>
+
+<p>SVG elements that contain hyphens &#8216;-&#8217; can also be created with an equivalient, camelCased element method:</p>
+
+<p><code>.colorProfile()</code>, <code>.fontFace()</code>, <code>.fontFaceFormat()</code>, <code>.fontFaceName()</code>, <code>.fontFaceSrc()</code>, <code>.fontFaceUri()</code>, <code>.missingGlyph()</code></p>
+
+<h2 id='create_element_as_child_of_an_existing_element'>Create element as child of an existing element:</h2>
+
+<p>When an element method is called on a Pablo collection, a new element is created and then appended, for each element in the collection.</p>
+
+<p>Add an element to the SVG root, or <em>any</em> collection of elements:</p>
+
+<pre><code>var paper, group;
+
+// Create SVG root
+paper = Pablo(htmlElement).root();
+
+// Append a &lt;g&gt; element to the SVG root
+group = paper.g();
+
+// Append elements to the &lt;g&gt; element
+group.circle();
+group.line();</code></pre>
+
+<p>An attributes object can be passed to the element method:</p>
+
+<pre><code>var paper  = Pablo(demoElement).root({height:100}),
+    circle = paper.circle({cx:50, cy:50, r:50});</code></pre>
+
+<h2 id='creating_a_nested_svg_structure'>Creating a nested SVG structure</h2>
+
+<pre><code>var paper = Pablo(demoElement).root({height:58}),
+    group = paper.g({
+        stroke:&#39;green&#39;,
+        &#39;stroke-width&#39;:4
+    });
+
+// Add children to the group
+group.rect({height:50, x:4,   y:4, width:50,  fill:&#39;blue&#39;});
+group.rect({height:50, x:70,  y:4, width:100, fill:&#39;red&#39;});
+group.rect({height:50, x:180, y:4, width:50,  fill:&#39;yellow&#39;});</code></pre>
+
+<h2 id='creating_templates'>Creating templates</h2>
+
+<p>SVG has <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/symbol'><code>&lt;symbol&gt;</code></a> and <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/use'><code>&lt;use&gt;</code></a> elements, as a built-in way to create multiple instances of elements and nested structures. Pablo also allows the creation of variable, repeatable templates - see the &#8216;Plugins &amp; templates&#8217; section.</p>

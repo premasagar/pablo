@@ -1,0 +1,33 @@
+<h2 id='id53'><code>.empty()</code></h2>
+
+<p>Removes all child nodes of each element in the collection, and returns the collection.</p>
+
+<p>In this example, click to empty the SVG root:</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:100});
+
+paper.on(&#39;click&#39;, function(){
+    paper.empty();
+    alert(paper.children().length + &#39; children&#39;);
+});
+
+paper.rect({width:100, height:100, fill:&#39;red&#39;});
+paper.circle({cx:200, cy:50, r:50, fill:&#39;purple&#39;});
+alert(paper.children().length + &#39; children&#39;);</code></pre>
+
+<h2 id='id54'><code>.remove()</code></h2>
+
+<p>Removes all elements in the collection from their parent nodes, and returns the collection.</p>
+
+<p>In this example, click a shape to remove it:</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:100});
+
+paper.on(&#39;click&#39;, function(event){
+    Pablo(event.target).remove();
+    alert(paper.children().length + &#39; children&#39;);
+});
+
+paper.rect({width:100, height:100, fill:&#39;blue&#39;});
+paper.circle({cx:200, cy:50, r:50, fill:&#39;orange&#39;});
+alert(paper.children().length + &#39; children&#39;);</code></pre>

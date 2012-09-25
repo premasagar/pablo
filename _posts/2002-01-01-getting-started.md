@@ -1,6 +1,6 @@
----
+--- 
 category: overview
-heading: "Getting started"
+heading: Getting started
 ---
 
 For production, <a href="https://github.com/downloads/dharmafly/pablo/pablo.min.js" target="_blank">download the minified script</a>.

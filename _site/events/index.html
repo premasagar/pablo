@@ -1,0 +1,45 @@
+<p>Pablo can be used to attach DOM events to SVG elements with <code>on()</code>.</p>
+
+<h2 id='id63'><code>.on(type, listener, [useCapture])</code></h2>
+
+<p>Adds the listener to each element in the collection, for the event <code>type</code>, e.g. <code>&#39;click&#39;</code> or <code>&#39;mouseout&#39;</code>, and returns the collection.</p>
+
+<p>To set the listener for multiple event types, supply them as a space-separated list, e.g. &#8216;mouseover touchstart&#8217;.</p>
+
+<p><code>useCapture</code> specifies whether the listener should be executed in the capturing (<code>true</code>) or bubbling phase (<code>false</code>, the default). See <a href='https://developer.mozilla.org/en-US/docs/DOM/element.addEventListener'>MDN&#8217;s addEventListener page</a> for more details.</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:100}),
+    shape = paper.path(),
+    pathStrings = [
+        &#39;m2,50l0,0c0,-26 21,-47 47,-47l0,0c12,0 24,5 33,13c9,9 14,21 14,33l0,0c0,26 -21,47 -47,47l0,0c-26,0 -47,-21 -47,-47l0,0z&#39;,
+        &#39;m2,11l0,0c0,-5 4,-9 9,-9l4,0l0,0l20,0l37,0c2,0 4,0 6,2c1,1 2,4 2,6l0,23l0,0l0,14l0,0c0,5 -4,9 -9,9l-37,0l-26,24l6,-24l-4,0c-5,0 -9,-4 -9,-9l0,0l0,-14l0,0l0,-23l0,-0z&#39;,
+        &#39;m2,39l50,-36l50,36l-19,59l-62,0l-19,-59z&#39;,
+        &#39;m2,49l23,-46l62,0l23,46l-23,46l-62,0l-23,-46z&#39;,
+        &#39;m2,43l41,-40l40,40l-20,0l0,41l-41,0l0,-41l-20,0z&#39;,
+    ];
+
+function drawShape(){
+    var hue = Math.round(Math.random() * 360),
+        sat = Math.round(Math.random() * 100),
+        fill = &#39;hsl(&#39;+hue+&#39;,&#39;+sat+&#39;%,50%)&#39;,
+        i = Math.floor(Math.random() * pathStrings.length);
+        
+    shape.attr({d:pathStrings[i], fill:fill});
+}
+
+paper.on(&#39;touchstart click&#39;, drawShape)
+     .css({cursor:&#39;pointer&#39;});
+     
+drawShape();</code></pre>
+
+<h2 id='id64'><code>.off(type, listener, [useCapture])</code></h2>
+
+<p>Removes the previously added event listeners from each element in the collection, and returns the collection.</p>
+
+<h2 id='id65'><code>.one(type, listener, [useCapture])</code></h2>
+
+<p>Adds the listener to each element in the collection, but removes the listener as soon as it has been triggered once, on <em>any</em> of the elements. Returns the collection.</p>
+
+<h2 id='id66'><code>.oneEach(type, listener, [useCapture])</code></h2>
+
+<p>Adds the listener to each element in the collection, but removes the listener on a single element as soon as it has been triggered once <em>on that element</em>. The listener will still be able to trigger once on other elements in the collection. Returns the collection.</p>

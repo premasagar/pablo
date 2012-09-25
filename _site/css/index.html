@@ -1,0 +1,232 @@
+<p>Many CSS properties available for styling HTML can also used to style SVG. Additionally, many SVG attributes can be used as CSS properties. For more details, see the <a href='http://www.w3.org/TR/SVG/propidx.html'>list of &#8216;property attributes&#8217;</a> that can be modified with CSS and <a href='https://developer.mozilla.org/en-US/docs/SVG/Tutorial/Fills_and_Strokes'>this tutorial on Fills and Strokes</a>.</p>
+
+<h2 id='id23'><code>.css(property)</code></h2>
+
+<p>Returns the value of the named CSS property from the first element in the collection.</p>
+
+<pre><code>var rect  = Pablo.rect({
+    style: &#39;fill:orange; cursor:pointer&#39;
+});
+
+alert(rect.css(&#39;cursor&#39;)); // &#39;pointer&#39;</code></pre>
+
+<p>Note, this is not a <em>computed style</em>. This method only returns the value of CSS properties that have been set <em>directly</em> on the element, not those set in any stylesheet.</p>
+
+<h2 id='id24'><code>.css(property, value)</code></h2>
+
+<p>Sets the named property to the specified value, on all elements in the collection and returns the collection.</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:100}),
+    rect  = paper.rect({
+        width: 200,
+        height: 100
+    });
+
+rect.css(&#39;fill&#39;, &#39;green&#39;);</code></pre>
+
+<p>Styles set on elements with <code>.css()</code> will override CSS rules set in stylesheets - unlike style properties set with the <code>.attr()</code> method. See the section on &#8216;Style precedence&#8217; below.</p>
+
+<h2 id='id25'><code>.css(styles)</code></h2>
+
+<p>Sets multiple styles (passed in as an object), on all elements in the collection and returns the collection.</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:100}),
+    rect  = paper.rect({
+        width: 200,
+        height: 100
+    });
+
+rect.css({fill:&#39;black&#39;, opacity:0.4});</code></pre>
+
+<h2 id='id26'><code>.cssPrefix(property, value)</code></h2>
+
+<p>Performs the same action as <code>.css(property, value)</code>, but also sets the CSS property with each of the common browser vendor prefixes: <code>-moz-</code>, <code>-webkit-</code>, <code>-ms-</code>, <code>-o-</code> and <code>-khtml-</code>.</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:140}),
+    square = paper.rect({
+        width: 100,
+        height: 100,
+        x:50, y:-50,
+        fill: &#39;gold&#39;
+    });
+
+square.cssPrefix(&#39;transform&#39;, &#39;rotate(45deg)&#39;);</code></pre>
+
+<p>In this example, the last line is equivalent to:</p>
+
+<pre><code>square.css({
+    transform: &#39;rotate(45deg)&#39;,
+    &#39;-moz-transform&#39;: &#39;rotate(45deg)&#39;,
+    &#39;-webkit-transform&#39;: &#39;rotate(45deg)&#39;,
+    &#39;-ms-transform&#39;: &#39;rotate(45deg)&#39;,
+    &#39;-o-transform&#39;: &#39;rotate(45deg)&#39;,
+    &#39;-khtml-transform&#39;: &#39;rotate(45deg)&#39;
+});</code></pre>
+
+<p>See also <code>Pablo.cssPrefix()</code> and <code>Pablo.vendorPrefixes</code>.</p>
+
+<h2 id='id27'><code>.cssPrefix(styles)</code></h2>
+
+<p>Performs the same action as <code>.css(styles)</code>, but also sets the CSS properties with each of the browser vendor prefixes.</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:180}),
+    square = paper.rect({
+        width: 100,
+        height: 100,
+        x:80, y:40,
+        fill: &#39;gold&#39;
+    });
+
+window.setTimeout(function(){
+    // Add CSS after timeout, to allow animation
+    square.cssPrefix({
+        transform:  &#39;rotate(180deg)&#39;,
+        &#39;transform-origin&#39;: &#39;50%&#39;,
+        &#39;transition-duration&#39;: &#39;1s&#39;
+    });
+}, 4);</code></pre>
+
+<p><code>Pablo.cssPrefix()</code> provides a comma-separated list of property values:</p>
+
+<pre><code>square.cssPrefix({
+    transform:  &#39;rotate(45deg)&#39;,
+    transition: Pablo.cssPrefix(&#39;transform&#39;)
+});</code></pre>
+
+<p>which is equivalent to:</p>
+
+<pre><code>square.cssPrefix({
+    transform:  &#39;rotate(45deg)&#39;,
+    transition: &#39;transform, -moz-transform, -webkit-transform, -ms-transform, -o-transform, -khtml-transform&#39;
+});</code></pre>
+
+<h2 id='style_functions'>Style functions</h2>
+
+<p>As with <code>.attr()</code> and other methods, CSS values may also be specified as a function. The function is passed two arguments: the element and its index in the collection. This can be used for varying the CSS values for different elements in a collection:</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:200})
+    squares = paper.rect({
+        x:50, y:60,
+        width:80, height:80,
+        fill:&#39;rgba(120,30,0,0.3)&#39;,
+        stroke:&#39;rgba(30,60,90,0.7)&#39;
+    }).duplicate(11);
+    
+squares.cssPrefix({
+    transform: function(el, i){
+        return &#39;rotate(&#39; + (i * 30) + &#39;deg)&#39;;
+    },
+    &#39;transform-origin&#39;: 140
+});</code></pre>
+
+<h2 id='style_arrays'>Style arrays</h2>
+
+<p>As with <code>.attr()</code> and other methods, CSS values may also be specified as an array, where the index of the element in the collection is used to pluck a corresponding value from the array:</p>
+
+<pre><code>var paper   = Pablo(demoElement).root({height:100}),
+    colors  = [&#39;red&#39;, &#39;green&#39;, &#39;blue&#39;],
+    opacity = [1, 0.4, 0.1];
+
+paper.append(&#39;circle&#39;, {cx:50,  cy:50, r:50})
+     .append(&#39;circle&#39;, {cx:120, cy:50, r:50})
+     .append(&#39;circle&#39;, {cx:190, cy:50, r:50});
+
+paper.find(&#39;circle&#39;)
+     .css({fill:colors, opacity:opacity});</code></pre>
+
+<h2 id='id28'><code>.addClass(className)</code></h2>
+
+<p>Adds the specified CSS class to all elements in the collection and returns the collection.</p>
+
+<pre><code>var rect = Pablo.rect();
+
+rect.addClass(&#39;ringo&#39;);
+alert(rect.attr(&#39;class&#39;)); // &#39;ringo&#39;</code></pre>
+
+<h2 id='id29'><code>.removeClass(className)</code></h2>
+
+<p>Removes the specified CSS class from all elements in the collection and returns the collection.</p>
+
+<pre><code>var rect = Pablo.rect({&#39;class&#39;: &#39;john paul george stimpy ringo&#39;});
+    
+rect.removeClass(&#39;stimpy&#39;);
+alert(rect.attr(&#39;class&#39;)); // &#39;john paul george ringo&#39;</code></pre>
+
+<h2 id='id30'><code>.hasClass(className)</code></h2>
+
+<p>Returns boolean <code>true</code> if <em>any</em> element in the collection has the CSS class, otherwise <code>false</code>.</p>
+
+<pre><code>var rect = Pablo.rect({&#39;class&#39;: &#39;john paul george ringo&#39;});
+alert(rect.hasClass(&#39;george&#39;)); // true</code></pre>
+
+<h2 id='id31'><code>.toggleClass(className)</code></h2>
+
+<p>For each element in the collection, if the CSS class is present it will be removed, otherwise it will be added.</p>
+
+<pre><code>var rect = Pablo.rect({&#39;class&#39;: &#39;john paul george ringo&#39;});
+rect.toggleClass(&#39;george&#39;);
+alert(rect.hasClass(&#39;george&#39;)); // false</code></pre>
+
+<h2 id='_elements'><code>&lt;style&gt;</code> elements</h2>
+
+<p>As in HTML documents, SVG <code>&lt;style&gt;</code> elements can hold CSS rules to style other elements. Be careful, because the rules can affect styling on the containing HTML document and other inline SVG structures on the page.</p>
+
+<p>Create a <code>&lt;style&gt;</code> element with the <code>.style()</code> element method, and then add rules to it by setting its <code>.content()</code>:</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:120});
+
+paper.circle({cx:70, cy:60, r:40}).addClass(&#39;bob&#39;);
+
+// Append a &lt;style&gt; element
+paper.style()
+    // Set the text content of the style element to the CSS rules
+    .content(
+        &#39;circle.bob {fill:#c00; stroke:#009; stroke-width:30}&#39;
+    );</code></pre>
+
+<h2 id='style_precedence'>Style precedence</h2>
+
+<p>In which order of priority will style properties on an SVG element be processed?</p>
+
+<ol>
+<li><code>!important</code> styles set on the element, or on an embedded or linked stylesheet. (See the related projects, &#8217;<a href='https://github.com/premasagar/cleanslate'>Cleanslate</a>&#8217; and &#8217;<a href='https://github.com/premasagar/important'>important.js</a>&#8217;).</li>
+</ol>
+
+<ol>
+<li>
+<p>Styles set directly on the element. For example, set via the element&#8217;s <code>style</code> DOM attribute or the object&#8217;s <code>style</code> property. In Pablo, styles can be set directly on the elements in a collection via the <code>.css()</code> method. E.g:</p>
+
+<p>Pablo(el).css({fill:&#8217;green&#8217;});</p>
+</li>
+
+<li>
+<p>A <code>&lt;style&gt;</code> element or linked stylesheet will take next priority, whether it is in the containing HTML document or within any inline SVG documents on the page. In Pablo, a <code>&lt;style&gt;</code> element can be created with the <code>.style()</code> element method. E.g:</p>
+
+<p>Pablo(el).style().content(&#8216;* {fill:green}&#8217;);</p>
+</li>
+
+<li>
+<p>The element&#8217;s <code>property attributes</code> take next priority. In Pablo, an attribute is set via the <code>.attr()</code> method. E.g:</p>
+
+<p>Pablo(el).attr({fill:&#8217;green&#8217;});</p>
+</li>
+</ol>
+
+<p>Precedence of styles:</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:40}),
+    // Create &lt;style&gt; element
+    style = paper.style(),
+
+    // Create circles and set x position
+    c1 = paper.circle({cx:20}),
+    c2 = paper.circle({cx:70}),
+    c3 = paper.circle({cx:120});
+
+// Set circles&#39; shared attributes
+Pablo([c1, c2, c3]).attr({cy:20, r:20}).addClass(&#39;moo&#39;);
+
+// Set styles
+style.content(&#39;circle.moo {fill:green}&#39;);
+c2.attr({fill: &#39;orange&#39;});
+c3.css({fill: &#39;red&#39;});</code></pre>

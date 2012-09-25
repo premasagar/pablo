@@ -1,0 +1,20 @@
+<p>For production, <a target='_blank' href='https://github.com/downloads/dharmafly/pablo/pablo.min.js'>download the minified script</a>.</p>
+
+<p>Include it in your HTML:</p>
+
+<pre><code>&lt;script src=&quot;pablo.min.js&quot;&gt;&lt;/script&gt;</code></pre>
+
+<p>Start drawing:</p>
+
+<pre><code>if (Pablo.isSupported){
+	// Wrap an HTML element (or CSS selector, array or nodeList)
+	Pablo(demoElement)
+		// Create an &lt;svg&gt; root element
+		.root({height:200})
+		// Add SVG elements
+		.circle({cx:100, cy:100, r:100, fill:&#39;blue&#39;});
+}</code></pre>
+
+<p>The rest is just details&#8230;</p>
+
+<p>See the <a href='reference/'>Reference section</a> for descriptions and examples of Pablo&#8217;s extensive API.</p>

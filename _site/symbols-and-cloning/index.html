@@ -1,0 +1,58 @@
+<p>See also the documentation on &#8216;Plugins and templates&#8217;.</p>
+
+<h2 id='the_native_approach___'>The native approach: <code>&lt;use&gt;</code> &amp; <code>&lt;symbol&gt;</code></h2>
+
+<p>The SVG <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/use'><code>&lt;use&gt;</code></a> element creates an cloned instance of another element. Here, a <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/symbol'><code>&lt;symbol&gt;</code></a> in a <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/defs'><code>&lt;defs&gt;</code></a> element is the reference element to be cloned:</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:200}),
+    defs = paper.defs();
+
+defs.symbol({id:&#39;sign&#39;, &#39;stroke-width&#39;:15})
+    .append(&#39;circle&#39;, {
+        cx:48, cy:40, r:30,
+        stroke:&#39;#dc241f&#39;, fill:&#39;none&#39;
+    })
+    .append(&#39;line&#39;, {
+        x1:2, y1:40, x2:94, y2:40,
+        stroke:&#39;#0019a8&#39;
+    });
+
+paper.use({x:0, y:0}).link(&#39;#sign&#39;);
+paper.use({x:200, y:0}).link(&#39;#sign&#39;);
+paper.use({x:0, y:100}).link(&#39;#sign&#39;);
+paper.use({x:200, y:100}).link(&#39;#sign&#39;);
+paper.use({x:100, y:50, transform:&#39;rotate(45 148 90)&#39;})
+    .link(&#39;#sign&#39;);</code></pre>
+
+<h2 id='id55'><code>.clone(deep)</code></h2>
+
+<p>Creates cloned copies of all elements in the collection, and returns the copies in a new collection. <code>deep</code> is a boolean value to indicate if the entire child node structure of the cloned nodes should be included (default <code>false</code>).</p>
+
+<p>In this example, click anywhere to clone and append a new square:</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:40})
+    square = paper.rect({width:40, height:40}),
+    x = 0;
+
+paper.on(&#39;click&#39;, function(){
+    x += 50;
+    square.clone()
+        // Set x position
+        .attr(&#39;x&#39;, x)
+        .appendTo(paper);
+});</code></pre>
+
+<h2 id='id56'><code>.duplicate([repeats])</code></h2>
+
+<p>Performs a <em>deep</em> clone on all the elements in the collection, inserts the new elements <em>after</em> the original elements in the DOM, and adds the new elements to the collection (i.e. it modifies the length of the original collection). <code>repeats</code> is an optional number of times to duplicate the elements (default <code>1</code>).</p>
+
+<p>In this example, a square is duplicated five times:</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:40})
+    square = paper.rect({width:40, height:40});
+
+square.duplicate(5)
+    // Set x position for each element
+    .attr(&#39;x&#39;, function(el, i){
+        return i * 50;
+    });</code></pre>

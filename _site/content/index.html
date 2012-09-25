@@ -1,0 +1,55 @@
+<h2 id='id51'><code>.content()</code></h2>
+
+<p>Returns the text content of the first element in the collection.</p>
+
+<pre><code>var text = Pablo.text().content(&#39;I dig a Pygmy&#39;);
+alert(text.content()); // &#39;I dig a Pygmy&#39;</code></pre>
+
+<h2 id='id52'><code>.content(text)</code></h2>
+
+<p>Sets the text content of all the elements in the collection to the specified text, and returns the collection.</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:40}),
+	text = paper.text({
+    	x:0, y:30,
+		fill:&#39;brown&#39;,
+		&#39;font-size&#39;:&#39;20px&#39;,
+		&#39;font-family&#39;:&#39;sans-serif&#39;
+    });
+
+text.content(&#39;Red lorry, yellow lorry&#39;);</code></pre>
+
+<p>This method is equivalent to the jQuery method <code>.text()</code>. In Pablo, the <code>.text()</code> method is used to create an SVG <code>&lt;text&gt;</code> element, and <code>.content()</code> is used to set the text content of any element.</p>
+
+<h2 id='value_functions_and_arrays'>Value functions and arrays</h2>
+
+<p>As with <code>.attr()</code>, the <code>.content()</code> method can also accept a callback function that returns the content value:</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:160}),
+	collection = paper.text({
+	    	x:0,
+			fill:&#39;brown&#39;,
+			&#39;font-size&#39;:&#39;20px&#39;,
+			&#39;font-family&#39;:&#39;sans-serif&#39;
+	    })
+	    .duplicate(4)
+	    .attr(&#39;y&#39;, [30, 60, 90, 120, 150]);
+
+collection.content(function(el, i){
+	return (i + 1) + &#39; × 5 is &#39; + (i + 1) * 5;
+});</code></pre>
+
+<p>Or an array to look up the value:</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:100}),
+	collection = paper.text({
+	    	x:0,
+			fill:&#39;brown&#39;,
+			&#39;font-size&#39;:&#39;20px&#39;,
+			&#39;font-family&#39;:&#39;sans-serif&#39;
+	    })
+	    .duplicate(2)
+	    .attr(&#39;y&#39;, [30, 60, 90]),
+	    names = [&#39;Jim&#39;, &#39;Bob&#39;, &#39;Mary-Sue&#39;];
+
+collection.content(names);</code></pre>

@@ -1,0 +1,1965 @@
+<!doctype html>
+<!--
+
+
+  _____  __                               ___ __        
+ |     \|  |~-.~-~.-.-~-~.-~-~-~-~.-~-.-.'  _|  |.-~.~-.
+ |  |   |     |  _  |   _|        |  _  |   _|  ||  |  |
+ |_____/|__|__|___._|__| |__|__|__|___._|__| |__||___  |
+                                                 |_____|
+
+  Greetings, source geek.
+
+ 
+-->
+
+
+
+
+
+    
+    
+
+
+<!--[if IE 9]><html class="ie" lang="en"><![endif]-->
+<!--[if lt IE 9 ]> <html class="ie ltIE9" lang="en"> <![endif]-->
+<!--[if !IE ]><!-->
+<html lang="en"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=0.75">
+    <title>Pablo</title>
+      <script type="text/javascript">
+    WebFontConfig = {
+        google: {
+            families: [
+                'Lato:400,700,400italic:latin',
+                'Advent+Pro::latin',
+                 'Inconsolata::latin'
+            ]
+        }
+    };
+    (function() {
+        var wf = document.createElement('script');
+        wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
+          '://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+        wf.type = 'text/javascript';
+        wf.async = 'true';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(wf, s);
+    })();
+</script>
+
+
+      <!--[if lt IE 9]>
+          <script src="../javascript/html5shiv.js"></script>
+      <![endif]-->
+      <link href="../css/ocean.css" rel="stylesheet">
+      <link rel="shortcut icon" href="../img/ocean-favicon.ico">
+  </head>
+  
+  <body>
+    <header>
+      <h1 class="title">
+         <a href="../"> 
+        Pablo
+         </a> 
+      </h1>
+    </header>
+
+    <nav id="navigation">
+      <ul>
+        <li class="show-subnav"><a href="#subnav" class="icon">Go to navigation for this page</a></li>
+        
+        <li>
+            <a href="../">
+            Overview
+            </a>
+        </li>
+        
+        <li>
+            <a href="../reference">
+            Reference
+            </a>
+        </li>
+        
+        <li>
+            <a href="../details">
+            Details
+            </a>
+        </li>
+        
+      </ul>
+    </nav>
+
+
+    <section class="content">
+    
+
+
+<nav id="subnav">
+    <ul>
+    
+        <li><a href="#browser-support">
+        
+            Browser support
+        
+        </a></li>
+    
+        <li><a href="#collections">
+        
+            Collections
+        
+        </a></li>
+    
+        <li><a href="#svg-root">
+        
+            SVG root
+        
+        </a></li>
+    
+        <li><a href="#elements">
+        
+            Elements
+        
+        </a></li>
+    
+        <li><a href="#appending">
+        
+            Appending
+        
+        </a></li>
+    
+        <li><a href="#attributes">
+        
+            Attributes
+        
+        </a></li>
+    
+        <li><a href="#css">
+        
+            CSS
+        
+        </a></li>
+    
+        <li><a href="#array-methods">
+        
+            Array methods
+        
+        </a></li>
+    
+        <li><a href="#links">
+        
+            Links
+        
+        </a></li>
+    
+        <li><a href="#content">
+        
+            Content
+        
+        </a></li>
+    
+        <li><a href="#removing">
+        
+            Removing
+        
+        </a></li>
+    
+        <li><a href="#symbols-and-cloning">
+        
+            Symbols & cloning
+        
+        </a></li>
+    
+        <li><a href="#traversal">
+        
+            Traversal
+        
+        </a></li>
+    
+        <li><a href="#events">
+        
+            Events
+        
+        </a></li>
+    
+        <li><a href="#templates-and-plugins">
+        
+            Templates & plugins
+        
+        </a></li>
+    
+        <li><a href="#utilities-and-advanced">
+        
+            Utilities & advanced
+        
+        </a></li>
+    
+    </ul>
+</nav>
+
+
+    
+    <section>
+        <h1><a id="browser-support" class="permalink" href="#browser-support">&#9875;</a>
+        
+            Browser support
+        
+        </h1>
+        <article class="embedded markdown">
+        <h2 id='id1'><code>Pablo.isSupported</code></h2>
+
+<p>Boolean <code>true</code> or <code>false</code>, denoting whether or not the current browser supports the web technologies required by Pablo.</p>
+
+<pre><code>if (Pablo.isSupported){
+    alert(&#39;Pablo works!&#39;);
+}
+else {
+    alert(&#39;Not supported!&#39;);
+}</code></pre>
+
+<p>Use this check in unknown environments to ensure that Pablo-specific code is only executed if the browser supports it.</p>
+
+<p>Some discrepancies between browsers are supported, but Pablo&#8217;s code is kept lean by targeting only modern desktop and mobile browsers. The browser must provide <a href='http://caniuse.com/#search=svg'>basic SVG support</a>, as well as some <a href='http://kangax.github.com/es5-compat-table/'>ECMAScript5 features</a> (the browsers that support SVG also usually support ECMAScript5). Pablo exits gracefully in non-supported browsers.</p>
+        </article>
+    </section>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+ <aside>
+    <ul>
+        <li class="github"><a href="https://github.com/dharmafly/pablo" title="Pablo on Github">Pablo on Github</a></li>
+        
+        <li class="twitter"><a href="https://twitter.com/dharmafly" title="Pablo on Twitter">
+        Pablo on Twitter</a></li>
+        
+         
+            <li class="code-javascript" title="This is a JavaScript project"><span>This is a JavaScript project</span></li>
+           
+    </ul>
+</aside>
+
+
+    
+
+    
+    <section>
+        <h1><a id="collections" class="permalink" href="#collections">&#9875;</a>
+        
+            Collections
+        
+        </h1>
+        <article class="embedded markdown">
+        <h2 id='creating_pablo_collections'>Creating Pablo collections</h2>
+
+<p>A Pablo collection is a wrapper around a DOM element or multiple DOM elements. They work in a similar way to jQuery collections, which also wrap around DOM elements e.g. <code>jQuery(&#39;img&#39;)</code>.</p>
+
+<p>SVG elements are the main target for the library, but Pablo can also wrap other element types, such as HTML.</p>
+
+<p>A Pablo collection behaves likes an array - it can contain zero, one or multiple elements - and it has a number of useful methods for manipulating the elements within.</p>
+
+<h2 id='id2'><code>Pablo()</code></h2>
+
+<p>Creates an empty Pablo collection.</p>
+
+<p>When <code>Pablo()</code> is called without arguments, an empty Pablo collection is returned. This can be used as an empty container into which elements will later be added (see <code>.push()</code> and related methods).</p>
+
+<h2 id='id3'><code>Pablo(element)</code></h2>
+
+<p>Creates a Pablo collection, wrapping a single DOM element.</p>
+
+<pre><code>var element = document.getElementById(&#39;foo&#39;),
+	collection = Pablo(element);</code></pre>
+
+<h2 id='id4'><code>Pablo(list)</code></h2>
+
+<p>Creates a Pablo collection, wrapping multiple DOM elements. The elements could be in a NodeList, an array of elements, a jQuery collection or another Pablo collection.</p>
+
+<pre><code>// Any of these could be passed to Pablo()
+var list = 
+	// NodeList
+	document.body.childNodes ||
+	// Array
+	[element1, element2] ||
+	// jQuery collection
+	jQuery(&#39;p&#39;) ||
+	// Pablo collection
+	Pablo(&#39;circle&#39;);
+
+var collection = Pablo(list);</code></pre>
+
+<h2 id='id5'><code>Pablo(selectors)</code></h2>
+
+<p>Creates a Pablo collection, wrapping elements specified by a CSS selector or comma-separated list of selectors.</p>
+
+<pre><code>// A single element
+Pablo(&#39;#foo&#39;);
+
+// Multiple elements
+Pablo(&#39;.bar&#39;);
+
+// Multiple selectors
+Pablo(&#39;circle, line, #foo, .bar&#39;);
+
+// Complex selectors
+Pablo(&#39;#paper g.foo &gt; circle[data-foo=bar]:first-child&#39;)</code></pre>
+
+<p>Both SVG and HTML elements can be targeted. Pablo uses the browser&#8217;s native selector engine, and so accepts any selector that the browser supports. It uses <a href='https://developer.mozilla.org/en-US/docs/DOM/Element.querySelectorAll'><code>Element.querySelectorAll</code></a> under the hood.</p>
+
+<h2 id='id6'><code>Pablo(elementName, attributes)</code></h2>
+
+<p>Creates a new, named SVG element, with attributes specified as an object:</p>
+
+<pre><code>Pablo(&#39;rect&#39;, {x:10, y:10, width:50, height:50});</code></pre>
+
+<p>Here, the attributes object is required, even if it is an empty object. (If the attributes argument is omitted, then <code>Pablo(&#39;rect&#39;)</code> will select all <code>&lt;rect&gt;</code> elements already in the document).</p>
+
+<p>Typically, elements are instead created with an &#8216;element method&#8217; - see the &#8216;Elements&#8217; documentation.</p>
+
+<h2 id='id7'><code>Pablo(elementNames, [attributes])</code></h2>
+
+<p>When an array of element names is passed to Pablo, a new element is created for each name. Attributes can optionally be applied to each element.</p>
+
+<pre><code>Pablo([&#39;rect&#39;, &#39;line&#39;, &#39;line&#39;], {stroke:&#39;black&#39;});</code></pre>
+
+<p>The attributes object is optional.</p>
+
+<h2 id='innersvg'>innerSVG</h2>
+
+<p>Note that Pablo does not (currently) support the form <code>Pablo(svgMarkup)</code> - e.g. <code>Pablo(&#39;&lt;circle cx=&quot;50&quot;/&gt;&#39;)</code> - in the same way that jQuery supports <code>jQuery(&#39;&lt;div id=&quot;foo&quot;&gt;&#39;</code>). There is no native <code>innerSVG</code> property on SVG elements in the same way as there is an <code>innerHTML</code> property on HTML elements. See the &#8217;<a href='http://code.google.com/p/innersvg/'>innerSVG</a>&#8217; project for a potential polyfill.</p>
+
+<h2 id='_methods'><code>Pablo</code> methods</h2>
+
+<p>The global <code>Pablo</code> object has a number of methods and properties. In the documentation, these are written as <code>Pablo.methodName()</code>, e.g. <code>Pablo.extend()</code>.</p>
+
+<h2 id='collection_methods'>Collection methods</h2>
+
+<p>Collections also have a number of methods and properties, which manipulate the elements within the collection. In the documentation, these are written as <code>.methodName()</code>, e.g. <code>.append()</code>.</p>
+
+<h2 id='method_chaining'>Method chaining</h2>
+
+<p>Most methods return <code>this</code>, the collection. This allows methods to be chained, one after another.</p>
+
+<pre><code>Pablo.circle())
+	.addClass(&#39;foo&#39;)
+	.append(&#39;rect&#39;, {width:50})
+	.append(&#39;line&#39;, {})
+	.on(&#39;click&#39;, function(){
+		// clicked
+	});</code></pre>
+
+<h2 id='creating_new_collection_methods'>Creating new collection methods</h2>
+
+<p>See <code>Pablo.fn</code> in the &#8216;Plugins&#8217; section, to learn how to add new methods to Pablo collections.</p>
+        </article>
+    </section>
+    
+
+    
+    <section>
+        <h1><a id="svg-root" class="permalink" href="#svg-root">&#9875;</a>
+        
+            SVG root
+        
+        </h1>
+        <article class="embedded markdown">
+        <h2 id='embed_svg_within_html'>Embed SVG within HTML</h2>
+
+<p>With the advent of HTML5, SVG documents can be easily inserted into HTML documents, simply by appending the SVG document&#8217;s root <code>&lt;svg&gt;</code> element to one of the HTML document&#8217;s elements:</p>
+
+<pre><code>&lt;!doctype html&gt;
+&lt;html&gt;
+&lt;body&gt;
+	&lt;div id=&#39;foo&#39;&gt;
+		&lt;svg version=&quot;1.1&quot;&gt;
+			&lt;circle cx=&quot;30&quot; cy=&quot;30&quot; r=&quot;30&quot;/&gt;
+		&lt;/svg&gt;
+	&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+<p>Using Pablo, we could create the SVG above and insert it into the HTML document as follows:</p>
+
+<pre><code>// Wrap the target HTML element
+Pablo(&#39;#foo&#39;)
+	// Create a root &lt;svg&gt; element
+	.root()
+	// Append a &lt;circle&gt; element to the root
+	.circle({cx:30, cy:30, r:30});</code></pre>
+
+<p>In this documentation, the root <code>&lt;svg&gt;</code> element is sometimes referred to as the &#8216;SVG root&#8217;.</p>
+
+<h2 id='id8'><code>.root([attributes])</code></h2>
+
+<p>Creates and appends a root <code>&lt;svg&gt;</code> element to each element in the collection.</p>
+
+<pre><code>var paper = Pablo(htmlElement).root();</code></pre>
+
+<p>If you need to ensure the HTML container element is empty, then call <code>empty()</code> on it first:</p>
+
+<pre><code>var paper = Pablo(htmlElement).empty().root();</code></pre>
+
+<p>Multiple HTML containers can be targeted via a CSS selector, to create multiple SVG roots:</p>
+
+<pre><code>var paper = Pablo(&#39;div.my-svg-container&#39;).root();</code></pre>
+
+<p>If an object of attributes is given as a argument, these will be passed on to the SVG root:</p>
+
+<pre><code>var paper = Pablo(htmlElement).root({width:300, height:420});</code></pre>
+
+<h2 id='id9'><code>Pablo.root([attributes])</code></h2>
+
+<p>To create an SVG root, but not append it to an HTML element straight away, use <code>Pablo.root()</code>:</p>
+
+<pre><code>var paper = Pablo.root();
+
+paper.appendTo(htmlElement);</code></pre>
+
+<h2 id='namespaces'>Namespaces</h2>
+
+<p>Pablo takes care of declaring the appropriate <a href='https://developer.mozilla.org/en-US/docs/SVG/Namespaces_Crash_Course'>namespaces</a> on the SVG elements, so you don&#8217;t have to think about it. For advanced use, see <code>Pablo.svgns</code>.</p>
+        </article>
+    </section>
+    
+
+    
+    <section>
+        <h1><a id="elements" class="permalink" href="#elements">&#9875;</a>
+        
+            Elements
+        
+        </h1>
+        <article class="embedded markdown">
+        <h2 id='svg_elements'>SVG elements</h2>
+
+<p>Pablo allows <em>any</em> SVG element to be created and manipulated. See MDN&#8217;s <a href='https://developer.mozilla.org/en/SVG/Element'>SVG elements</a> and <a href='https://developer.mozilla.org/en/SVG/Attribute'>SVG attributes</a> references for everything you need to know about elements.</p>
+
+<h2 id='creating_elements'>Creating elements</h2>
+
+<p>There are a few ways to create elements.</p>
+
+<p>At the lowest level, you can pass any element name along with an attributes object to <code>Pablo()</code>:</p>
+
+<pre><code>var circle = Pablo(&#39;circle&#39;, {cx:100, cy:100, r:50});</code></pre>
+
+<p>In this example, a new Pablo collection with a single new <code>&lt;circle&gt;</code> element is returned. The circle is given three attributes, as specified in the second argument. The equivalent SVG markup is <code>&lt;circle cx=&quot;100&quot; cy=&quot;100&quot; r=&quot;50&quot;/&gt;</code>.</p>
+
+<p>When creating elements with the <code>Pablo()</code> method, the attributes object is required (even if it contains no properties), since if the attributes argument is omitted, then <code>Pablo(&#39;circle&#39;)</code> acts with the first argument as a CSS selector, selecting all <code>&lt;circle&gt;</code> elements in the current document.</p>
+
+<p>Typically, elements are created not with the <code>Pablo()</code> method, but with one of the &#8216;element methods&#8217; instead, as described in the next section.</p>
+
+<h2 id='element_methods'>Element methods</h2>
+
+<p>Create an SVG element with one of the &#8216;element methods&#8217;:</p>
+
+<pre><code>Pablo.circle();</code></pre>
+
+<p>Create an SVG element, with attributes:</p>
+
+<pre><code>var circle = Pablo.circle({cx:100, cy:100, r:50});</code></pre>
+
+<p>Each of the following SVG elements can be created by calling their corresponding element method:</p>
+
+<p><a href='https://developer.mozilla.org/en-US/docs/SVG/Element/a'>a</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/altGlyph'>altGlyph</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/altGlyphDef'>altGlyphDef</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/altGlyphItem'>altGlyphItem</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/animate'>animate</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/animateColor'>animateColor</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/animateMotion'>animateMotion</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/animateTransform'>animateTransform</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/circle'>circle</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/clipPath'>clipPath</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/color-profile'>color-profile</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/cursor'>cursor</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/defs'>defs</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/desc'>desc</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/ellipse'>ellipse</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feBlend'>feBlend</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feColorMatrix'>feColorMatrix</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feComponentTransfer'>feComponentTransfer</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feComposite'>feComposite</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feConvolveMatrix'>feConvolveMatrix</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feDiffuseLighting'>feDiffuseLighting</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feDisplacementMap'>feDisplacementMap</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feDistantLight'>feDistantLight</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feFlood'>feFlood</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feFuncA'>feFuncA</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feFuncB'>feFuncB</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feFuncG'>feFuncG</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feFuncR'>feFuncR</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feGaussianBlur'>feGaussianBlur</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feImage'>feImage</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feMerge'>feMerge</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feMergeNode'>feMergeNode</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feMorphology'>feMorphology</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feOffset'>feOffset</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/fePointLight'>fePointLight</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feSpecularLighting'>feSpecularLighting</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feSpotLight'>feSpotLight</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feTile'>feTile</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/feTurbulence'>feTurbulence</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/filter'>filter</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/font'>font</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/font-face'>font-face</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/font-face-format'>font-face-format</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/font-face-name'>font-face-name</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/font-face-src'>font-face-src</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/font-face-uri'>font-face-uri</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/foreignObject'>foreignObject</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/g'>g</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/glyph'>glyph</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/glyphRef'>glyphRef</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/hkern'>hkern</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/image'>image</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/line'>line</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/linearGradient'>linearGradient</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/marker'>marker</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/mask'>mask</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/metadata'>metadata</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/missing-glyph'>missing-glyph</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/mpath'>mpath</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/path'>path</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/pattern'>pattern</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/polygon'>polygon</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/polyline'>polyline</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/radialGradient'>radialGradient</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/rect'>rect</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/script'>script</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/set'>set</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/stop'>stop</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/style'>style</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/svg'>svg</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/switch'>switch</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/symbol'>symbol</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/text'>text</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/textPath'>textPath</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/title'>title</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/tref'>tref</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/tspan'>tspan</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/use'>use</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/view'>view</a>, <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/vkern'>vkern</a></p>
+
+<p>e.g. <code>Pablo.polyline()</code>, <code>Pablo.animate()</code></p>
+
+<h2 id='hyphenated_element_names_are_camelcased'>Hyphen-ated element names are camelCased</h2>
+
+<p>SVG elements that contain hyphens &#8216;-&#8217; can also be created with an equivalient, camelCased element method:</p>
+
+<p><code>.colorProfile()</code>, <code>.fontFace()</code>, <code>.fontFaceFormat()</code>, <code>.fontFaceName()</code>, <code>.fontFaceSrc()</code>, <code>.fontFaceUri()</code>, <code>.missingGlyph()</code></p>
+
+<h2 id='create_element_as_child_of_an_existing_element'>Create element as child of an existing element:</h2>
+
+<p>When an element method is called on a Pablo collection, a new element is created and then appended, for each element in the collection.</p>
+
+<p>Add an element to the SVG root, or <em>any</em> collection of elements:</p>
+
+<pre><code>var paper, group;
+
+// Create SVG root
+paper = Pablo(htmlElement).root();
+
+// Append a &lt;g&gt; element to the SVG root
+group = paper.g();
+
+// Append elements to the &lt;g&gt; element
+group.circle();
+group.line();</code></pre>
+
+<p>An attributes object can be passed to the element method:</p>
+
+<pre><code>var paper  = Pablo(demoElement).root({height:100}),
+    circle = paper.circle({cx:50, cy:50, r:50});</code></pre>
+
+<h2 id='creating_a_nested_svg_structure'>Creating a nested SVG structure</h2>
+
+<pre><code>var paper = Pablo(demoElement).root({height:58}),
+    group = paper.g({
+        stroke:&#39;green&#39;,
+        &#39;stroke-width&#39;:4
+    });
+
+// Add children to the group
+group.rect({height:50, x:4,   y:4, width:50,  fill:&#39;blue&#39;});
+group.rect({height:50, x:70,  y:4, width:100, fill:&#39;red&#39;});
+group.rect({height:50, x:180, y:4, width:50,  fill:&#39;yellow&#39;});</code></pre>
+
+<h2 id='creating_templates'>Creating templates</h2>
+
+<p>SVG has <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/symbol'><code>&lt;symbol&gt;</code></a> and <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/use'><code>&lt;use&gt;</code></a> elements, as a built-in way to create multiple instances of elements and nested structures. Pablo also allows the creation of variable, repeatable templates - see the &#8216;Plugins &amp; templates&#8217; section.</p>
+        </article>
+    </section>
+    
+
+    
+    <section>
+        <h1><a id="appending" class="permalink" href="#appending">&#9875;</a>
+        
+            Appending
+        
+        </h1>
+        <article class="embedded markdown">
+        <p>A number of methods exist to append one collection of elements to the elements in another collection. Each of these methods accepts either one or two arguments, which correspond to the different ways of creating collections with the <code>Pablo()</code> method.</p>
+
+<p>The first argument can be an element, an array of elements, a nodeList, a selector, a Pablo collection or a jQuery collection. Or, the first argument can be the name of a new element (e.g. <code>&#39;circle&#39;</code>) and the second argument an object that lists the element&#8217;s attributes (e.g. <code>{r:50}</code>).</p>
+
+<h2 id='id10'><code>.append(elements, [attributes])</code></h2>
+
+<p>Appends the elements to the element(s) in the collection, and returns the collection.</p>
+
+<pre><code>// Create a &lt;g&gt; &#39;group&#39; element
+paper.g()
+	// Append an element
+	.append(document.getElementById(&#39;foo&#39;))
+	// Append elements targeted by a CSS selector
+	.append(&#39;.bar&#39;)
+	// Append elements in a Pablo collection
+	.append(Pablo.circle()))
+	// Append elements in a jQuery collection
+	.append(jQuery(&#39;#example&#39;))
+	// Append elements in an array
+	.append([Pablo.a(), Pablo.g()]);</code></pre>
+
+<p>If <code>elements</code> is an element name string and an <code>attributes</code> object is supplied, or if <code>elements</code> is an <em>array</em> of element names, then new elements will be created and appended for each element in the collection:</p>
+
+<pre><code>paper.g()
+	// Append single created element
+	.append(&#39;line&#39;, {stroke:&#39;black&#39;})
+	// Append multiple created elements
+	.append([&#39;line&#39;, &#39;circle&#39;, &#39;path&#39;], {stroke:red});</code></pre>
+
+<p>The attributes object is optional when an array of element names is passed.</p>
+
+<h2 id='id11'><code>.appendTo(elements, [attributes])</code></h2>
+
+<p>Appends the elements in the current collection to the element or elements in the first argument, and returns the collection.</p>
+
+<pre><code>Pablo.circle().appendTo(paper);</code></pre>
+
+<h2 id='id12'><code>.prepend(elements, [attributes])</code></h2>
+
+<p>Same as <code>.append()</code> but, with this method, the passed <code>elements</code> are inserted into the DOM <em>as the first child</em> of each of the elements in the collection.</p>
+
+<pre><code>Pablo.g().prepend(&#39;circle&#39;, {r:50});</code></pre>
+
+<h2 id='id13'><code>.prependTo(elements, [attributes])</code></h2>
+
+<p>Same as <code>.appendTo()</code> but, with this method, the elements in the collection are inserted <em>as the first child</em> of the passed <code>elements</code>.</p>
+
+<pre><code>Pablo.circle().prependTo(paper);</code></pre>
+
+<h2 id='id14'><code>.children(elements, [attributes])</code></h2>
+
+<p>Same as <code>.append()</code>, but with this method, the <em>newly appended elements</em> are returned as a Pablo collection.</p>
+
+<pre><code>Pablo.g().children(&#39;circle&#39;, {r:50});</code></pre>
+
+<h2 id='id15'><code>.before(elements, [attributes])</code></h2>
+
+<p>Same as <code>.append()</code> but, with this method, the passed <code>elements</code> are inserted into the DOM <em>before</em> each of the elements in the collection.</p>
+
+<pre><code>Pablo.circle().before(&#39;.foo&#39;);</code></pre>
+
+<h2 id='id16'><code>.after(elements, [attributes])</code></h2>
+
+<p>Same as <code>.append()</code> but, with this method, the passed <code>elements</code> are inserted into the DOM after each of the elements in the collection.</p>
+
+<pre><code>Pablo.circle().after(&#39;.foo&#39;);</code></pre>
+        </article>
+    </section>
+    
+
+    
+    <section>
+        <h1><a id="attributes" class="permalink" href="#attributes">&#9875;</a>
+        
+            Attributes
+        
+        </h1>
+        <article class="embedded markdown">
+        <h2 id='id17'><code>.attr()</code></h2>
+
+<p>Returns an object listing all the attributes from the first element in the collection.</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:100}),
+    rect  = paper.rect({
+        width: 200,
+        height:100,
+        fill: &#39;gold&#39;
+    }),
+    attributes = rect.attr();
+
+alert(JSON.stringify(attributes));
+// {width:200, height:100, fill:&#39;gold&#39;}</code></pre>
+
+<h2 id='id18'><code>.attr(attributeName)</code></h2>
+
+<p>Returns the value of the named attribute on the first element in the collection.</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:100}),
+    rect  = paper.rect({
+        width: 200,
+        height:100,
+        fill: &#39;gold&#39;
+    }),
+    value = rect.attr(&#39;fill&#39;);
+
+alert(value); // &#39;gold&#39;</code></pre>
+
+<h2 id='id19'><code>.attr(attributeName, value)</code></h2>
+
+<p>Sets the named attribute to the specified value, on all elements in the collection and returns the collection.</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:100}),
+    rect  = paper.rect({
+        width: 200,
+        height:100,
+        fill: &#39;gold&#39;
+    });
+
+rect.attr(&#39;fill&#39;, &#39;silver&#39;);</code></pre>
+
+<h2 id='id20'><code>.attr(attributes)</code></h2>
+
+<p>Sets multiple attributes (supplied as an object), on all elements in the collection and returns the collection.</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:220}),
+rect  = paper.rect();
+
+rect.attr({
+    x: 50,
+    y: -50,
+    width: 200,
+    height:100,
+    fill: &#39;orange&#39;,
+    transform: &#39;rotate(45)&#39;
+});</code></pre>
+
+<h2 id='attribute_value_functions'>Attribute value functions</h2>
+
+<p>Attribute values may alternatively be supplied as a callback function. The callback is passed two arguments: the element and its index in the collection. This can be used for varying the attribute value for successive elements in a collection:</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:220}),
+    circle = paper.circle({
+        cy:110,
+        fill:&#39;rgba(120,150,90,0.2)&#39;,
+        stroke:&#39;#777&#39;
+    });
+
+circle.duplicate(20)
+      .attr({
+          cx: function(el, i){
+              return i * 10 + ((i + 1) * 10);
+          },
+          r: function(el, i){
+              return i * 5 + 10;
+          }
+      });</code></pre>
+
+<h2 id='attribute_value_arrays'>Attribute value arrays</h2>
+
+<p>Attribute values may alternatively be supplied as an array. For each element in the collection, the element&#8217;s index in the collection is used to pluck a value from the array:</p>
+
+<pre><code>var paper  = Pablo(demoElement).root({height:100}),
+    circle = paper.circle({cy:50, r:50}),
+    colors = [&#39;red&#39;, &#39;green&#39;, &#39;blue&#39;, &#39;yellow&#39;, &#39;purple&#39;],
+    cx     = [50, 150, 250, 350, 450];
+
+circle.duplicate(4)
+      .attr({fill:colors, cx:cx});</code></pre>
+
+<h2 id='id21'><code>.removeAttr(attributeName)</code></h2>
+
+<p>Removes an attribute and returns the collection.</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:100}),
+    rect  = paper.rect({
+        width: 200,
+        height:100,
+        fill: &#39;gold&#39;
+    });
+
+rect.removeAttr(&#39;fill&#39;);
+// the default fill is black</code></pre>
+
+<h2 id='id22'><code>.transform(functionName, value)</code></h2>
+
+<p>Modifies the value of a <em>transform function</em> in each element&#8217;s <code>transform</code> attribute, and returns the collection. Each transform function can be modified individually.</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:160});
+
+paper.rect({width:100, height:100, fill:&#39;red&#39;})
+     .transform(&#39;translate&#39;, &#39;180 30&#39;)
+     .transform(&#39;rotate&#39;, &#39;45 50 50&#39;);</code></pre>
+
+<p>The method can also accept the <code>value</code> as a function or array, as with <code>.attr()</code> and other methods:</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:210})
+    squares = paper.rect({
+        x:90, y:110,
+        width:80, height:80,
+        fill:&#39;rgba(120,30,0,0.3)&#39;,
+        stroke:&#39;rgba(30,60,90,0.7)&#39;
+    }).duplicate(11);
+    
+squares.transform(&#39;rotate&#39;, function(el, i){
+    return i * 30 + &#39; 110 105&#39;;
+});</code></pre>
+        </article>
+    </section>
+    
+
+    
+    <section>
+        <h1><a id="css" class="permalink" href="#css">&#9875;</a>
+        
+            CSS
+        
+        </h1>
+        <article class="embedded markdown">
+        <p>Many CSS properties available for styling HTML can also used to style SVG. Additionally, many SVG attributes can be used as CSS properties. For more details, see the <a href='http://www.w3.org/TR/SVG/propidx.html'>list of &#8216;property attributes&#8217;</a> that can be modified with CSS and <a href='https://developer.mozilla.org/en-US/docs/SVG/Tutorial/Fills_and_Strokes'>this tutorial on Fills and Strokes</a>.</p>
+
+<h2 id='id23'><code>.css(property)</code></h2>
+
+<p>Returns the value of the named CSS property from the first element in the collection.</p>
+
+<pre><code>var rect  = Pablo.rect({
+    style: &#39;fill:orange; cursor:pointer&#39;
+});
+
+alert(rect.css(&#39;cursor&#39;)); // &#39;pointer&#39;</code></pre>
+
+<p>Note, this is not a <em>computed style</em>. This method only returns the value of CSS properties that have been set <em>directly</em> on the element, not those set in any stylesheet.</p>
+
+<h2 id='id24'><code>.css(property, value)</code></h2>
+
+<p>Sets the named property to the specified value, on all elements in the collection and returns the collection.</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:100}),
+    rect  = paper.rect({
+        width: 200,
+        height: 100
+    });
+
+rect.css(&#39;fill&#39;, &#39;green&#39;);</code></pre>
+
+<p>Styles set on elements with <code>.css()</code> will override CSS rules set in stylesheets - unlike style properties set with the <code>.attr()</code> method. See the section on &#8216;Style precedence&#8217; below.</p>
+
+<h2 id='id25'><code>.css(styles)</code></h2>
+
+<p>Sets multiple styles (passed in as an object), on all elements in the collection and returns the collection.</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:100}),
+    rect  = paper.rect({
+        width: 200,
+        height: 100
+    });
+
+rect.css({fill:&#39;black&#39;, opacity:0.4});</code></pre>
+
+<h2 id='id26'><code>.cssPrefix(property, value)</code></h2>
+
+<p>Performs the same action as <code>.css(property, value)</code>, but also sets the CSS property with each of the common browser vendor prefixes: <code>-moz-</code>, <code>-webkit-</code>, <code>-ms-</code>, <code>-o-</code> and <code>-khtml-</code>.</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:140}),
+    square = paper.rect({
+        width: 100,
+        height: 100,
+        x:50, y:-50,
+        fill: &#39;gold&#39;
+    });
+
+square.cssPrefix(&#39;transform&#39;, &#39;rotate(45deg)&#39;);</code></pre>
+
+<p>In this example, the last line is equivalent to:</p>
+
+<pre><code>square.css({
+    transform: &#39;rotate(45deg)&#39;,
+    &#39;-moz-transform&#39;: &#39;rotate(45deg)&#39;,
+    &#39;-webkit-transform&#39;: &#39;rotate(45deg)&#39;,
+    &#39;-ms-transform&#39;: &#39;rotate(45deg)&#39;,
+    &#39;-o-transform&#39;: &#39;rotate(45deg)&#39;,
+    &#39;-khtml-transform&#39;: &#39;rotate(45deg)&#39;
+});</code></pre>
+
+<p>See also <code>Pablo.cssPrefix()</code> and <code>Pablo.vendorPrefixes</code>.</p>
+
+<h2 id='id27'><code>.cssPrefix(styles)</code></h2>
+
+<p>Performs the same action as <code>.css(styles)</code>, but also sets the CSS properties with each of the browser vendor prefixes.</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:180}),
+    square = paper.rect({
+        width: 100,
+        height: 100,
+        x:80, y:40,
+        fill: &#39;gold&#39;
+    });
+
+window.setTimeout(function(){
+    // Add CSS after timeout, to allow animation
+    square.cssPrefix({
+        transform:  &#39;rotate(180deg)&#39;,
+        &#39;transform-origin&#39;: &#39;50%&#39;,
+        &#39;transition-duration&#39;: &#39;1s&#39;
+    });
+}, 4);</code></pre>
+
+<p><code>Pablo.cssPrefix()</code> provides a comma-separated list of property values:</p>
+
+<pre><code>square.cssPrefix({
+    transform:  &#39;rotate(45deg)&#39;,
+    transition: Pablo.cssPrefix(&#39;transform&#39;)
+});</code></pre>
+
+<p>which is equivalent to:</p>
+
+<pre><code>square.cssPrefix({
+    transform:  &#39;rotate(45deg)&#39;,
+    transition: &#39;transform, -moz-transform, -webkit-transform, -ms-transform, -o-transform, -khtml-transform&#39;
+});</code></pre>
+
+<h2 id='style_functions'>Style functions</h2>
+
+<p>As with <code>.attr()</code> and other methods, CSS values may also be specified as a function. The function is passed two arguments: the element and its index in the collection. This can be used for varying the CSS values for different elements in a collection:</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:200})
+    squares = paper.rect({
+        x:50, y:60,
+        width:80, height:80,
+        fill:&#39;rgba(120,30,0,0.3)&#39;,
+        stroke:&#39;rgba(30,60,90,0.7)&#39;
+    }).duplicate(11);
+    
+squares.cssPrefix({
+    transform: function(el, i){
+        return &#39;rotate(&#39; + (i * 30) + &#39;deg)&#39;;
+    },
+    &#39;transform-origin&#39;: 140
+});</code></pre>
+
+<h2 id='style_arrays'>Style arrays</h2>
+
+<p>As with <code>.attr()</code> and other methods, CSS values may also be specified as an array, where the index of the element in the collection is used to pluck a corresponding value from the array:</p>
+
+<pre><code>var paper   = Pablo(demoElement).root({height:100}),
+    colors  = [&#39;red&#39;, &#39;green&#39;, &#39;blue&#39;],
+    opacity = [1, 0.4, 0.1];
+
+paper.append(&#39;circle&#39;, {cx:50,  cy:50, r:50})
+     .append(&#39;circle&#39;, {cx:120, cy:50, r:50})
+     .append(&#39;circle&#39;, {cx:190, cy:50, r:50});
+
+paper.find(&#39;circle&#39;)
+     .css({fill:colors, opacity:opacity});</code></pre>
+
+<h2 id='id28'><code>.addClass(className)</code></h2>
+
+<p>Adds the specified CSS class to all elements in the collection and returns the collection.</p>
+
+<pre><code>var rect = Pablo.rect();
+
+rect.addClass(&#39;ringo&#39;);
+alert(rect.attr(&#39;class&#39;)); // &#39;ringo&#39;</code></pre>
+
+<h2 id='id29'><code>.removeClass(className)</code></h2>
+
+<p>Removes the specified CSS class from all elements in the collection and returns the collection.</p>
+
+<pre><code>var rect = Pablo.rect({&#39;class&#39;: &#39;john paul george stimpy ringo&#39;});
+    
+rect.removeClass(&#39;stimpy&#39;);
+alert(rect.attr(&#39;class&#39;)); // &#39;john paul george ringo&#39;</code></pre>
+
+<h2 id='id30'><code>.hasClass(className)</code></h2>
+
+<p>Returns boolean <code>true</code> if <em>any</em> element in the collection has the CSS class, otherwise <code>false</code>.</p>
+
+<pre><code>var rect = Pablo.rect({&#39;class&#39;: &#39;john paul george ringo&#39;});
+alert(rect.hasClass(&#39;george&#39;)); // true</code></pre>
+
+<h2 id='id31'><code>.toggleClass(className)</code></h2>
+
+<p>For each element in the collection, if the CSS class is present it will be removed, otherwise it will be added.</p>
+
+<pre><code>var rect = Pablo.rect({&#39;class&#39;: &#39;john paul george ringo&#39;});
+rect.toggleClass(&#39;george&#39;);
+alert(rect.hasClass(&#39;george&#39;)); // false</code></pre>
+
+<h2 id='_elements'><code>&lt;style&gt;</code> elements</h2>
+
+<p>As in HTML documents, SVG <code>&lt;style&gt;</code> elements can hold CSS rules to style other elements. Be careful, because the rules can affect styling on the containing HTML document and other inline SVG structures on the page.</p>
+
+<p>Create a <code>&lt;style&gt;</code> element with the <code>.style()</code> element method, and then add rules to it by setting its <code>.content()</code>:</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:120});
+
+paper.circle({cx:70, cy:60, r:40}).addClass(&#39;bob&#39;);
+
+// Append a &lt;style&gt; element
+paper.style()
+    // Set the text content of the style element to the CSS rules
+    .content(
+        &#39;circle.bob {fill:#c00; stroke:#009; stroke-width:30}&#39;
+    );</code></pre>
+
+<h2 id='style_precedence'>Style precedence</h2>
+
+<p>In which order of priority will style properties on an SVG element be processed?</p>
+
+<ol>
+<li><code>!important</code> styles set on the element, or on an embedded or linked stylesheet. (See the related projects, &#8217;<a href='https://github.com/premasagar/cleanslate'>Cleanslate</a>&#8217; and &#8217;<a href='https://github.com/premasagar/important'>important.js</a>&#8217;).</li>
+</ol>
+
+<ol>
+<li>
+<p>Styles set directly on the element. For example, set via the element&#8217;s <code>style</code> DOM attribute or the object&#8217;s <code>style</code> property. In Pablo, styles can be set directly on the elements in a collection via the <code>.css()</code> method. E.g:</p>
+
+<p>Pablo(el).css({fill:&#8217;green&#8217;});</p>
+</li>
+
+<li>
+<p>A <code>&lt;style&gt;</code> element or linked stylesheet will take next priority, whether it is in the containing HTML document or within any inline SVG documents on the page. In Pablo, a <code>&lt;style&gt;</code> element can be created with the <code>.style()</code> element method. E.g:</p>
+
+<p>Pablo(el).style().content(&#8216;* {fill:green}&#8217;);</p>
+</li>
+
+<li>
+<p>The element&#8217;s <code>property attributes</code> take next priority. In Pablo, an attribute is set via the <code>.attr()</code> method. E.g:</p>
+
+<p>Pablo(el).attr({fill:&#8217;green&#8217;});</p>
+</li>
+</ol>
+
+<p>Precedence of styles:</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:40}),
+    // Create &lt;style&gt; element
+    style = paper.style(),
+
+    // Create circles and set x position
+    c1 = paper.circle({cx:20}),
+    c2 = paper.circle({cx:70}),
+    c3 = paper.circle({cx:120});
+
+// Set circles&#39; shared attributes
+Pablo([c1, c2, c3]).attr({cy:20, r:20}).addClass(&#39;moo&#39;);
+
+// Set styles
+style.content(&#39;circle.moo {fill:green}&#39;);
+c2.attr({fill: &#39;orange&#39;});
+c3.css({fill: &#39;red&#39;});</code></pre>
+        </article>
+    </section>
+    
+
+    
+    <section>
+        <h1><a id="array-methods" class="permalink" href="#array-methods">&#9875;</a>
+        
+            Array methods
+        
+        </h1>
+        <article class="embedded markdown">
+        <p>Pablo collections are essentially arrays, with some enhanced and additional methods. In general, <a href='https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array#Methods'>array methods</a> and properties also apply to Pablo collections. Some array methods have been tailored to suit collections, while exhibiting the same, expected behaviour.</p>
+
+<h2 id='id32'><code>.toArray()</code></h2>
+
+<p>Returns a native Array of the elements in the collection.</p>
+
+<h2 id='__'><code>.size()</code> &amp; <code>length</code></h2>
+
+<p>The <code>.size()</code> method and the <code>length</code> property give the number of elements in a collection.</p>
+
+<pre><code>var collection = Pablo([&#39;circle&#39;, &#39;line&#39;]);
+alert(collection.size()); // 2
+alert(collection.length); // 2</code></pre>
+
+<h2 id='__'><code>.get(index)</code> &amp; <code>[index]</code></h2>
+
+<p>The <code>.get(index)</code> method returns the DOM element at <code>index</code> in the collection. Square-bracket array notation can also be used, e.g. <code>collection[3]</code>.</p>
+
+<pre><code>var collection = Pablo([&#39;circle&#39;, &#39;line&#39;]),
+	el = collection.get(1); // same as `collection[1]`
+
+alert(el.nodeName); // &#39;line&#39;</code></pre>
+
+<h2 id='id33'><code>.eq(index)</code></h2>
+
+<p>Returns a new collection, containing the element at <code>index</code>.</p>
+
+<pre><code>var collection = Pablo([
+		Pablo.circle({id:&#39;john&#39;}),
+		Pablo.circle({id:&#39;paul&#39;}),
+		Pablo.circle({id:&#39;george&#39;}),
+		Pablo.circle({id:&#39;ringo&#39;})
+	]),
+  	beatle = collection.eq(2);
+
+alert(beatle.attr(&#39;id&#39;)); // &#39;george&#39;</code></pre>
+
+<h2 id='id34'><code>.push(elements)</code></h2>
+
+<p>Adds the elements to the end of the collection and returns the collection.</p>
+
+<pre><code>var collection = Pablo([&#39;circle&#39;, &#39;line&#39;]);
+
+collection.push(Pablo.path());
+alert(collection.length); // 3</code></pre>
+
+<p>This works in the same was as jQuery&#8217;s <code>.add()</code> method.</p>
+
+<h2 id='id35'><code>.add(elements)</code></h2>
+
+<p>An alias for <code>.push()</code>.</p>
+
+<h2 id='id36'><code>.concat(elements)</code></h2>
+
+<p>An alias for <code>.push()</code>.</p>
+
+<h2 id='id37'><code>.unshift(elements)</code></h2>
+
+<p>Adds the elements to the start of the collection and returns the collection.</p>
+
+<pre><code>var collection = Pablo([&#39;circle&#39;, &#39;line&#39;]);
+
+collection.unshift(Pablo.path());
+alert(collection[0].nodeName); // &#39;path&#39;</code></pre>
+
+<h2 id='id38'><code>.pop()</code></h2>
+
+<p>Removes the last element in the collection and returns it, wrapped in a new collection.</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:100}),
+    collection = Pablo([&#39;circle&#39;, &#39;line&#39;, &#39;rect&#39;]);
+
+// Removes and returns the last element, the &lt;rect&gt;
+collection.pop()
+	.attr({width:100, height:100})
+	.appendTo(paper);
+
+alert(collection.length); // 2</code></pre>
+
+<h2 id='id39'><code>.shift()</code></h2>
+
+<p>Removes the first element in the collection and returns it, wrapped in a new collection.</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:100}),
+    collection = Pablo([&#39;circle&#39;, &#39;line&#39;, &#39;rect&#39;]);
+
+// Removes and returns the first element, the &lt;circle&gt;
+collection.shift()
+	.attr({cx:50, cy:50, r:50})
+	.appendTo(paper);
+
+alert(collection.length); // 2</code></pre>
+
+<h2 id='id40'><code>.slice(begin, [end])</code></h2>
+
+<p>Slices the collection from the <code>begin</code> index, to the <code>end</code> index (or to the end of the collection, if <code>end</code> is omitted). This works in the same manner as <a href='https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/slice'>Array.slice</a>.</p>
+
+<p>If either of the arguments is a negative number, the index is counted backwards, from the end of the collection.</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:100}),
+    collection = Pablo([&#39;circle&#39;, &#39;line&#39;, &#39;rect&#39;]);
+
+// Returns the &lt;line&gt; element
+collection.slice(1, 2)
+	.attr({y1:100, x2:100, stroke:&#39;red&#39;, &#39;stroke-width&#39;:2})
+	.appendTo(paper);</code></pre>
+
+<h2 id='id41'><code>.each(callback)</code></h2>
+
+<p>Calls the callback function for each element in the collection and returns the collection. The callback is passed two arguments: the element and its index.</p>
+
+<h2 id='id42'><code>.map(iterator)</code></h2>
+
+<p>Passes each element in the collection through a callback function, returning a new collection from all the return values of the callback. The callback is passed two arguments: the element and its index.</p>
+
+<h2 id='id43'><code>.filterElements(callback)</code></h2>
+
+<p>Passes each element in the collection through an iterator function, returning a new collection of all the elements for which the iterator returns true. The iterator is passed two arguments: the element and its index.</p>
+
+<p>This method is called &#8216;filterElements&#8217; because <code>.filter()</code> is a method to create an SVG <code>&lt;filter&gt;</code> method.</p>
+
+<h2 id='other_array_methods'>Other array methods</h2>
+
+<p>The following methods are not modified from native array methods. See <a href='https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array#Methods'>MDN&#8217;s Array reference for details</a>.</p>
+
+<h2 id='id44'><code>.indexOf(element)</code></h2>
+
+<p>Returns the first index of the element within the collection, or -1 if not found.</p>
+
+<h2 id='id45'><code>.lastIndexOf()</code></h2>
+
+<p>Returns the last index of the element within the collection, or -1 if not found.</p>
+
+<h2 id='id46'><code>.every(callback)</code></h2>
+
+<p>Returns <code>true</code> if every element in the collection satisfies the provided testing function.</p>
+
+<h2 id='id47'><code>.some(callback)</code></h2>
+
+<p>Returns true if at least one element in the collection satisfies the provided testing function.</p>
+
+<h2 id='id48'><code>.reduce(callback)</code></h2>
+
+<p>Apply a function simultaneously against two elements of the collection (from left-to-right) as to reduce it to a single value.</p>
+
+<h2 id='id49'><code>.reduceRight(callback)</code></h2>
+
+<p>Apply a function simultaneously against two elements of the collection (from right-to-left) as to reduce it to a single value.</p>
+        </article>
+    </section>
+    
+
+    
+    <section>
+        <h1><a id="links" class="permalink" href="#links">&#9875;</a>
+        
+            Links
+        
+        </h1>
+        <article class="embedded markdown">
+        <h2 id='id50'><code>.link(url)</code></h2>
+
+<p>Creates a link to a resource (via an <a href='https://developer.mozilla.org/en-US/docs/SVG/Attribute/xlink:href'><code>xlink:href</code></a> attribute).</p>
+
+<pre><code>paper.a().link(&#39;http://example.com&#39;);</code></pre>
+
+<p>As with HTML, an SVG element may be hyperlinked to a resource by appending the element to an <code>&lt;a&gt;</code> (anchor) element and linking from the anchor:</p>
+
+<pre><code>var paper  = Pablo(demoElement).root({height: 100}),
+    anchor = paper.a({target: &#39;_blank&#39;})
+        .link(&#39;https://github.com/dharmafly/pablo&#39;)
+        .append(
+            Pablo.circle({cx:50, cy:50, r:50, fill:&#39;green&#39;})
+        )
+        .append(
+            Pablo.text({x:14, y:55, fill:&#39;white&#39;})
+                .content(&#39;➵ ♥ pablo&#39;)
+        );</code></pre>
+
+<p>See also <code>Pablo.xlinkns</code>.</p>
+
+<h2 id='link_functions_and_arrays'>Link functions and arrays</h2>
+
+<p>As with <code>.attr()</code> and other methods, the <code>.link()</code> method can also accept a callback function that returns the content value:</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:100}),
+    collection = paper.a({target: &#39;_blank&#39;})
+        .duplicate(2);
+        
+collection.text().content(&#39;I am a link&#39;)
+    .attr({x:0, y:[30, 60, 90]});
+
+collection.link(function(el, i){
+    return &#39;http://example.com/posts/&#39; + i;
+});</code></pre>
+
+<p>Or an array to look up the value:</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:100}),
+    collection = paper.a({target: &#39;_blank&#39;})
+        .duplicate(2),
+    links = [
+        &#39;http://dharmafly.com&#39;,
+        &#39;http://asyncjs.com&#39;,
+        &#39;http://L4RP.com&#39;
+    ];
+        
+collection.text().content(&#39;I am a link&#39;)
+    .attr({x:0, y:[30, 60, 90]});
+
+collection.link(links);</code></pre>
+
+<p>Xlinks, and so the <code>.link()</code> method, can be used to link <a href='https://developer.mozilla.org/en-US/docs/SVG/Attribute/xlink:href#Elements'>many different SVG elements</a> to other element. For example, for repeating symbols, to animate along a path, draw along a text path, etc.</p>
+
+<h2 id='images'>Images</h2>
+
+<pre><code>var paper = Pablo(demoElement).root({height:157}),
+    // &#39;Guernica&#39; by Pablo Picasso
+    url = &#39;https://upload.wikimedia.org/wikipedia/en/thumb/7/74/PicassoGuernica.jpg/350px-PicassoGuernica.jpg&#39;;
+
+paper.image({x:0, y:0, width:&#39;350px&#39;, height:&#39;157px&#39;})
+     .link(url);</code></pre>
+
+<h2 id='linking_text_to_a_path'>Linking text to a path</h2>
+
+<pre><code>var paper = Pablo(demoElement).root({height:240});
+
+// Create a definition element and append a path to it
+paper.defs()
+     .path({
+         id: &#39;squiggle&#39;,
+         d: &#39;M 0 0 C 20 100 120 20 200 100 C 320 260 420 300 300 100&#39;
+     });
+     
+// Create a text element and append a textPath to it
+paper.text()
+     .textPath({fill:&#39;#e70&#39;})
+        .content(&quot;* Johnny&#39;s in the basement, mixing up the medicine *&quot;)
+        // Link the &lt;textPath&gt; to the &lt;path&gt; definition
+        .link(&#39;#squiggle&#39;);</code></pre>
+
+<h2 id='linking_to_symbols'>Linking to symbols</h2>
+
+<p>The SVG <code>&lt;use&gt;</code> element creates an cloned instance of another element. Here, a <code>&lt;symbol&gt;</code> in a <code>&lt;defs&gt;</code> element is the reference element to be cloned:</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:200}),
+    defs = paper.defs();
+
+defs.symbol({id:&#39;sign&#39;, &#39;stroke-width&#39;:15})
+    .append(&#39;circle&#39;, {
+        cx:48, cy:40, r:30,
+        stroke:&#39;#dc241f&#39;, fill:&#39;none&#39;
+    })
+    .append(&#39;line&#39;, {
+        x1:2, y1:40, x2:94, y2:40,
+        stroke:&#39;#0019a8&#39;
+    });
+
+paper.use({x:0, y:0}).link(&#39;#sign&#39;);
+paper.use({x:200, y:0}).link(&#39;#sign&#39;);
+paper.use({x:0, y:100}).link(&#39;#sign&#39;);
+paper.use({x:200, y:100}).link(&#39;#sign&#39;);
+paper.use({x:100, y:50})
+    .transform(&#39;rotate&#39;, &#39;45 148 90&#39;)
+    .link(&#39;#sign&#39;);</code></pre>
+
+<h2 id='linking_to_a_gradient'>Linking to a gradient</h2>
+
+<p>Other kinds of link can be made without the use of the <code>.link()</code> method:</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:200}),
+    gradient = paper.defs().linearGradient({
+        id: &#39;fire&#39;,
+        x1: &#39;0%&#39;,
+        y1: &#39;100%&#39;,
+        x2: &#39;100%&#39;,
+        y2: &#39;0%&#39;
+    });
+
+gradient.stop({offset:&#39;5%&#39;,  &#39;stop-color&#39;:&#39;red&#39;});
+gradient.stop({offset:&#39;95%&#39;, &#39;stop-color&#39;:&#39;yellow&#39;});
+
+paper.circle({
+    fill:&#39;url(#fire)&#39;,
+    cx:100, cy:100, r:100
+});
+
+paper.rect({
+    fill:&#39;url(#fire)&#39;,
+    width:70,
+    height:70,
+    x: 230,
+    y: 10
+});</code></pre>
+
+<h2 id='linking_to_a_pattern'>Linking to a pattern</h2>
+
+<pre><code>var paper = Pablo(demoElement).root({height:200}),
+    pattern = paper.defs().pattern({
+        id:&#39;triangle&#39;,
+        width:20,
+        height:20,
+        patternUnits:&#39;userSpaceOnUse&#39;
+    });
+
+pattern.polygon({
+    points:&#39;20,0 20,20 0,20&#39;,
+    fill:&#39;#36c&#39;
+});
+
+paper.circle({
+    cx:100,
+    cy:100,
+    r:100,
+    fill:&#39;url(#triangle)&#39;
+});</code></pre>
+        </article>
+    </section>
+    
+
+    
+    <section>
+        <h1><a id="content" class="permalink" href="#content">&#9875;</a>
+        
+            Content
+        
+        </h1>
+        <article class="embedded markdown">
+        <h2 id='id51'><code>.content()</code></h2>
+
+<p>Returns the text content of the first element in the collection.</p>
+
+<pre><code>var text = Pablo.text().content(&#39;I dig a Pygmy&#39;);
+alert(text.content()); // &#39;I dig a Pygmy&#39;</code></pre>
+
+<h2 id='id52'><code>.content(text)</code></h2>
+
+<p>Sets the text content of all the elements in the collection to the specified text, and returns the collection.</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:40}),
+	text = paper.text({
+    	x:0, y:30,
+		fill:&#39;brown&#39;,
+		&#39;font-size&#39;:&#39;20px&#39;,
+		&#39;font-family&#39;:&#39;sans-serif&#39;
+    });
+
+text.content(&#39;Red lorry, yellow lorry&#39;);</code></pre>
+
+<p>This method is equivalent to the jQuery method <code>.text()</code>. In Pablo, the <code>.text()</code> method is used to create an SVG <code>&lt;text&gt;</code> element, and <code>.content()</code> is used to set the text content of any element.</p>
+
+<h2 id='value_functions_and_arrays'>Value functions and arrays</h2>
+
+<p>As with <code>.attr()</code>, the <code>.content()</code> method can also accept a callback function that returns the content value:</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:160}),
+	collection = paper.text({
+	    	x:0,
+			fill:&#39;brown&#39;,
+			&#39;font-size&#39;:&#39;20px&#39;,
+			&#39;font-family&#39;:&#39;sans-serif&#39;
+	    })
+	    .duplicate(4)
+	    .attr(&#39;y&#39;, [30, 60, 90, 120, 150]);
+
+collection.content(function(el, i){
+	return (i + 1) + &#39; × 5 is &#39; + (i + 1) * 5;
+});</code></pre>
+
+<p>Or an array to look up the value:</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:100}),
+	collection = paper.text({
+	    	x:0,
+			fill:&#39;brown&#39;,
+			&#39;font-size&#39;:&#39;20px&#39;,
+			&#39;font-family&#39;:&#39;sans-serif&#39;
+	    })
+	    .duplicate(2)
+	    .attr(&#39;y&#39;, [30, 60, 90]),
+	    names = [&#39;Jim&#39;, &#39;Bob&#39;, &#39;Mary-Sue&#39;];
+
+collection.content(names);</code></pre>
+        </article>
+    </section>
+    
+
+    
+    <section>
+        <h1><a id="removing" class="permalink" href="#removing">&#9875;</a>
+        
+            Removing
+        
+        </h1>
+        <article class="embedded markdown">
+        <h2 id='id53'><code>.empty()</code></h2>
+
+<p>Removes all child nodes of each element in the collection, and returns the collection.</p>
+
+<p>In this example, click to empty the SVG root:</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:100});
+
+paper.on(&#39;click&#39;, function(){
+    paper.empty();
+    alert(paper.children().length + &#39; children&#39;);
+});
+
+paper.rect({width:100, height:100, fill:&#39;red&#39;});
+paper.circle({cx:200, cy:50, r:50, fill:&#39;purple&#39;});
+alert(paper.children().length + &#39; children&#39;);</code></pre>
+
+<h2 id='id54'><code>.remove()</code></h2>
+
+<p>Removes all elements in the collection from their parent nodes, and returns the collection.</p>
+
+<p>In this example, click a shape to remove it:</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:100});
+
+paper.on(&#39;click&#39;, function(event){
+    Pablo(event.target).remove();
+    alert(paper.children().length + &#39; children&#39;);
+});
+
+paper.rect({width:100, height:100, fill:&#39;blue&#39;});
+paper.circle({cx:200, cy:50, r:50, fill:&#39;orange&#39;});
+alert(paper.children().length + &#39; children&#39;);</code></pre>
+        </article>
+    </section>
+    
+
+    
+    <section>
+        <h1><a id="symbols-and-cloning" class="permalink" href="#symbols-and-cloning">&#9875;</a>
+        
+            Symbols & cloning
+        
+        </h1>
+        <article class="embedded markdown">
+        <p>See also the documentation on &#8216;Plugins and templates&#8217;.</p>
+
+<h2 id='the_native_approach___'>The native approach: <code>&lt;use&gt;</code> &amp; <code>&lt;symbol&gt;</code></h2>
+
+<p>The SVG <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/use'><code>&lt;use&gt;</code></a> element creates an cloned instance of another element. Here, a <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/symbol'><code>&lt;symbol&gt;</code></a> in a <a href='https://developer.mozilla.org/en-US/docs/SVG/Element/defs'><code>&lt;defs&gt;</code></a> element is the reference element to be cloned:</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:200}),
+    defs = paper.defs();
+
+defs.symbol({id:&#39;sign&#39;, &#39;stroke-width&#39;:15})
+    .append(&#39;circle&#39;, {
+        cx:48, cy:40, r:30,
+        stroke:&#39;#dc241f&#39;, fill:&#39;none&#39;
+    })
+    .append(&#39;line&#39;, {
+        x1:2, y1:40, x2:94, y2:40,
+        stroke:&#39;#0019a8&#39;
+    });
+
+paper.use({x:0, y:0}).link(&#39;#sign&#39;);
+paper.use({x:200, y:0}).link(&#39;#sign&#39;);
+paper.use({x:0, y:100}).link(&#39;#sign&#39;);
+paper.use({x:200, y:100}).link(&#39;#sign&#39;);
+paper.use({x:100, y:50, transform:&#39;rotate(45 148 90)&#39;})
+    .link(&#39;#sign&#39;);</code></pre>
+
+<h2 id='id55'><code>.clone(deep)</code></h2>
+
+<p>Creates cloned copies of all elements in the collection, and returns the copies in a new collection. <code>deep</code> is a boolean value to indicate if the entire child node structure of the cloned nodes should be included (default <code>false</code>).</p>
+
+<p>In this example, click anywhere to clone and append a new square:</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:40})
+    square = paper.rect({width:40, height:40}),
+    x = 0;
+
+paper.on(&#39;click&#39;, function(){
+    x += 50;
+    square.clone()
+        // Set x position
+        .attr(&#39;x&#39;, x)
+        .appendTo(paper);
+});</code></pre>
+
+<h2 id='id56'><code>.duplicate([repeats])</code></h2>
+
+<p>Performs a <em>deep</em> clone on all the elements in the collection, inserts the new elements <em>after</em> the original elements in the DOM, and adds the new elements to the collection (i.e. it modifies the length of the original collection). <code>repeats</code> is an optional number of times to duplicate the elements (default <code>1</code>).</p>
+
+<p>In this example, a square is duplicated five times:</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:40})
+    square = paper.rect({width:40, height:40});
+
+square.duplicate(5)
+    // Set x position for each element
+    .attr(&#39;x&#39;, function(el, i){
+        return i * 50;
+    });</code></pre>
+        </article>
+    </section>
+    
+
+    
+    <section>
+        <h1><a id="traversal" class="permalink" href="#traversal">&#9875;</a>
+        
+            Traversal
+        
+        </h1>
+        <article class="embedded markdown">
+        <h2 id='id57'><code>.children()</code></h2>
+
+<p>Returns a collection containing the direct child nodes for each element in the collection.</p>
+
+<pre><code>// Create SVG root
+var paper = Pablo(demoElement).root({height:120}),
+
+	// Text label
+    label = paper.text({
+    	y:100,
+		&#39;font-size&#39;:&#39;30px&#39;,
+		&#39;font-family&#39;:&#39;sans-serif&#39;
+	}),
+
+	// Array of IDs
+	ids = [&#39;rebbie&#39;, &#39;jackie&#39;, &#39;tito&#39;, &#39;jermaine&#39;,
+		&#39;la-toya&#39;, &#39;marlon&#39;, &#39;michael&#39;, &#39;randy&#39;, &#39;janet&#39;],
+
+	// 9 &lt;circle&gt;&#39;s
+	circles = Pablo.circle().duplicate(8),
+
+	// &lt;g&gt; group element
+	jacksons = paper.g({id:&#39;jacksons&#39;})
+		// Change label on interaction
+		.on(&#39;mouseover touchstart&#39;, function(event){
+			label.content(event.target.id);
+		})
+
+		// Append children and switch to children context
+		.append(circles, {
+	    	r: 30, cy: 30,
+	    	// Apply IDs in sequence
+	    	id: ids,
+			cx: function(el, i){return 40 * i + 30;},
+			fill: function(el){
+				return el.id === &#39;michael&#39; ?
+					&#39;gold&#39; : &#39;rgba(90,30,30,0.5)&#39;;
+			}
+		}),
+
+	// Child nodes
+	children = jacksons.children();
+
+// Change label - &#39;9 jacksons&#39;
+label.content(children.length + &#39; &#39; + jacksons.attr(&#39;id&#39;));</code></pre>
+
+<h2 id='id58'><code>.parent()</code></h2>
+
+<p>Returns a collection containing the parent node for each element in the collection.</p>
+
+<pre><code>Pablo(&#39;#michael&#39;).parent()
+	.attr(&#39;id&#39;); // &#39;jackson&#39;</code></pre>
+
+<h2 id='id59'><code>.siblings()</code></h2>
+
+<p>Returns a collection containing elements that have the same parent as elements in the collection.</p>
+
+<pre><code>Pablo(&#39;#michael&#39;).siblings()
+	.length; // 8</code></pre>
+
+<h2 id='id60'><code>.prevSibling()</code></h2>
+
+<p>Returns a collection containing the previous sibling element of each element in the collection.</p>
+
+<pre><code>Pablo(&#39;#michael&#39;).prevSibling()
+	.attr(&#39;id&#39;); // &#39;marlon&#39;</code></pre>
+
+<h2 id='id61'><code>.nextSibling()</code></h2>
+
+<p>Returns a collection containing the next sibling element of each element in the collection.</p>
+
+<pre><code>Pablo(&#39;#michael&#39;).nextSibling()
+	.attr(&#39;id&#39;); // &#39;randy&#39;</code></pre>
+
+<h2 id='id62'><code>.find(selectors)</code></h2>
+
+<p>Returns a collection containing elements that are descendents of elements in the collection and that match the supplied CSS selector or comma-separated list of selectors.</p>
+
+<pre><code>parent.find(&#39;circle#jermaine&#39;)
+	.length; // 1</code></pre>
+
+<p>See also <code>Pablo(selectors)</code>, which can find elements in the whole of the current document.</p>
+        </article>
+    </section>
+    
+
+    
+    <section>
+        <h1><a id="events" class="permalink" href="#events">&#9875;</a>
+        
+            Events
+        
+        </h1>
+        <article class="embedded markdown">
+        <p>Pablo can be used to attach DOM events to SVG elements with <code>on()</code>.</p>
+
+<h2 id='id63'><code>.on(type, listener, [useCapture])</code></h2>
+
+<p>Adds the listener to each element in the collection, for the event <code>type</code>, e.g. <code>&#39;click&#39;</code> or <code>&#39;mouseout&#39;</code>, and returns the collection.</p>
+
+<p>To set the listener for multiple event types, supply them as a space-separated list, e.g. &#8216;mouseover touchstart&#8217;.</p>
+
+<p><code>useCapture</code> specifies whether the listener should be executed in the capturing (<code>true</code>) or bubbling phase (<code>false</code>, the default). See <a href='https://developer.mozilla.org/en-US/docs/DOM/element.addEventListener'>MDN&#8217;s addEventListener page</a> for more details.</p>
+
+<pre><code>var paper = Pablo(demoElement).root({height:100}),
+    shape = paper.path(),
+    pathStrings = [
+        &#39;m2,50l0,0c0,-26 21,-47 47,-47l0,0c12,0 24,5 33,13c9,9 14,21 14,33l0,0c0,26 -21,47 -47,47l0,0c-26,0 -47,-21 -47,-47l0,0z&#39;,
+        &#39;m2,11l0,0c0,-5 4,-9 9,-9l4,0l0,0l20,0l37,0c2,0 4,0 6,2c1,1 2,4 2,6l0,23l0,0l0,14l0,0c0,5 -4,9 -9,9l-37,0l-26,24l6,-24l-4,0c-5,0 -9,-4 -9,-9l0,0l0,-14l0,0l0,-23l0,-0z&#39;,
+        &#39;m2,39l50,-36l50,36l-19,59l-62,0l-19,-59z&#39;,
+        &#39;m2,49l23,-46l62,0l23,46l-23,46l-62,0l-23,-46z&#39;,
+        &#39;m2,43l41,-40l40,40l-20,0l0,41l-41,0l0,-41l-20,0z&#39;,
+    ];
+
+function drawShape(){
+    var hue = Math.round(Math.random() * 360),
+        sat = Math.round(Math.random() * 100),
+        fill = &#39;hsl(&#39;+hue+&#39;,&#39;+sat+&#39;%,50%)&#39;,
+        i = Math.floor(Math.random() * pathStrings.length);
+        
+    shape.attr({d:pathStrings[i], fill:fill});
+}
+
+paper.on(&#39;touchstart click&#39;, drawShape)
+     .css({cursor:&#39;pointer&#39;});
+     
+drawShape();</code></pre>
+
+<h2 id='id64'><code>.off(type, listener, [useCapture])</code></h2>
+
+<p>Removes the previously added event listeners from each element in the collection, and returns the collection.</p>
+
+<h2 id='id65'><code>.one(type, listener, [useCapture])</code></h2>
+
+<p>Adds the listener to each element in the collection, but removes the listener as soon as it has been triggered once, on <em>any</em> of the elements. Returns the collection.</p>
+
+<h2 id='id66'><code>.oneEach(type, listener, [useCapture])</code></h2>
+
+<p>Adds the listener to each element in the collection, but removes the listener on a single element as soon as it has been triggered once <em>on that element</em>. The listener will still be able to trigger once on other elements in the collection. Returns the collection.</p>
+        </article>
+    </section>
+    
+
+    
+    <section>
+        <h1><a id="templates-and-plugins" class="permalink" href="#templates-and-plugins">&#9875;</a>
+        
+            Templates & plugins
+        
+        </h1>
+        <article class="embedded markdown">
+        <p>In the &#8216;Symbols &amp; duplication&#8217; section, some ways are describe to create multiple, repeating SVG structures:</p>
+
+<ul>
+<li>SVG&#8217;s native <code>&lt;symbol&gt;</code> and <code>&lt;use&gt;</code> elements, which are a built-in way to create multiple instances of elements and nested structures. They can be created with Pablo&#8217;s <code>.symbol()</code> and <code>.use()</code> element methods.</li>
+
+<li>The collection methods, <code>.clone()</code> and <code>.duplicate()</code>, to replicate existing SVG elements and nested structures.</li>
+</ul>
+
+<p>In addition to these, and described below, there is a <code>Pablo.template()</code>, which allows <em>fine-grained control</em> of each instance of a template structure, and a <code>Pablo.fn</code> object that can be extended to provide new methods to Pablo collections.</p>
+
+<h2 id='id67'><code>Pablo.template(namespace, constructor)</code></h2>
+
+<p>Allows variable, repeatable SVG structures to be created, e.g. polygons, stars, or any other complex collection of elements. Each structures can be assigned a namespace, so that creating new instances is as simple as creating any of the basic SVG elements with Pablo.</p>
+
+<p>Unlike SVG&#8217;s built in <code>&lt;use&gt;</code> and <code>&lt;symbol&gt;</code> elements, <code>Pablo.template()</code> allows <em>fine-grained control</em> of each instance of the template structure.</p>
+
+<p>The method accepts a <code>namespace</code> (e.g. <code>star</code>) and a <code>constructor</code> function that, when called, will create a new instance of the template. The constructor can accept any number arguments (e.g. <code>Pablo.star(&#39;red&#39;, 50, {foo:&#39;bar&#39;})</code>).</p>
+
+<p>As with Pablo element methods, new instances of the namespace can either be created via the <code>Pablo</code> object (e.g. <code>Pablo.star()</code>) or as a new child of an element or collection (e.g. <code>Pablo.g().star()</code>). If the latter, then the <code>this</code> context inside the constructor will be the parent element, otherwise <code>this</code> will be null.</p>
+
+<pre><code>Pablo.template(&#39;star&#39;, function(options){
+    var points = options.points || 6,
+        size = options.size || 50,
+        x = options.x || 0,
+        y = options.y || 0,
+        theta = 360 / points,
+        pathString = &#39;m&#39; + size*1.5 + &#39;,&#39; + size*0.75,
+        // Should be 1/points to 0.5*points
+        depth = points * 0.375,
+        angle = 0, i, x1, y1, x2, y2;
+
+    size = (size * 8) / (points+5.5);
+    for (i=0; i&lt;points; i++){
+        angle = Math.PI * theta * i / 180; 
+        x1 = size * Math.cos(angle); 
+        y1 = size * Math.sin(angle);
+        angle = Math.PI * theta * (i+depth) / 180; 
+        x2 = size * Math.cos(angle); 
+        y2 = size * Math.sin(angle);
+        pathString += &#39;l&#39;+x1+&#39;,&#39;+y1+&#39;l&#39;+x2+&#39;,&#39;+y2;
+    }
+    return Pablo.path({
+        d: pathString,
+        transform: &#39;translate(&#39;+x+&#39;,&#39;+y+&#39;)&#39;
+    });
+});
+
+var paper = Pablo(demoElement).root({height:120});
+
+// Pablo.star() is now available
+Pablo.star({points:5})
+    .attr({fill:&#39;red&#39;})
+    .appendTo(paper);
+
+// And so is collection.star()
+paper.star({points:7, x:120})
+    .attr({fill:&#39;orange&#39;});
+    
+paper.star({points:13, x:245})
+    .attr({fill:&#39;blue&#39;});</code></pre>
+
+<h2 id='id68'><code>Pablo.fn</code></h2>
+
+<p>Pablo collections can be given a new method by extending the <code>Pablo.fn</code> object with a Pablo plugin. <code>Pablo.fn</code> is the Pablo collections <code>prototype</code> object, containing all the methods available to collections.</p>
+
+<pre><code>// Create Pablo plugin: - rotate an element by 45 degrees
+Pablo.fn.rotate45 = function(value){
+    return this.attr(&#39;transform&#39;, &#39;rotate(45)&#39;);
+};
+
+var paper = Pablo(demoElement).root({height:110});
+
+paper.rect({width:100, height:50, x:25, y:-25, fill:&#39;blue&#39;})
+     .rotate45();
+
+paper.ellipse({cx:125, cy:-60, rx:50, ry:25, fill:&#39;orange&#39;})
+     .rotate45();</code></pre>
+        </article>
+    </section>
+    
+
+    
+    <section>
+        <h1><a id="utilities-and-advanced" class="permalink" href="#utilities-and-advanced">&#9875;</a>
+        
+            Utilities & advanced
+        
+        </h1>
+        <article class="embedded markdown">
+        <h2 id='id69'><code>Pablo.extend(target, source, [source2], [deep]</code>)</h2>
+
+<p>Copies properties from the <code>source</code> object to the <code>target</code> object and returns the target.</p>
+
+<pre><code>var obj = Pablo.extend({foo:1}, {bar:2});
+alert(JSON.stringify(obj)); // {&quot;foo&quot;:1,&quot;bar&quot;:2}</code></pre>
+
+<p>If more than one source object is passed, then each one will be copied across from right-to-left. Only the target object is modified.</p>
+
+<p>If <code>deep</code> is <code>true</code> then properties from the sources&#8217; prototype chains will also be copied. If the target is not an object, a new blank object will be created first.</p>
+
+<h2 id='id70'><code>Pablo.cssPrefix(property)</code></h2>
+
+<p>Returns a comma-separated list of vendor-prefixed property values.</p>
+
+<pre><code>alert(Pablo.cssPrefix(&#39;transform&#39;));</code></pre>
+
+<p>This is useful, for example, in setting transition properties:</p>
+
+<pre><code>shape.cssPrefix({
+    transform:  &#39;rotate(45deg)&#39;,
+    transition: Pablo.cssPrefix(&#39;transform&#39;)
+});</code></pre>
+
+<h2 id='id71'><code>Pablo.cssPrefix(property, value)</code></h2>
+
+<p>Returns a semicolon-separated list vendor-prefixed CSS rules.</p>
+
+<pre><code>alert(Pablo.cssPrefix(&#39;transform&#39;, &#39;rotate(45deg)&#39;));</code></pre>
+
+<p>This is useful, for example, when creating a CSS ruleset for a stylesheet:</p>
+
+<pre><code>var style = Pablo(&#39;svg&#39;).style();
+style.content(&#39;#foo{&#39; + Pablo.cssPrefix(&#39;transform&#39;, &#39;rotate(45deg)&#39;) + &#39;}&#39;);</code></pre>
+
+<h2 id='id72'><code>Pablo.vendorPrefixes</code></h2>
+
+<p>An array of vendor-prefixes that are used by the <code>.cssPrefix()</code> and <code>Pablo.cssPrefix()</code> methods. This can be modified to serve new browsers.</p>
+
+<pre><code>Pablo.vendorPrefixes.push(&#39;-foo-&#39;);
+alert(Pablo.cssPrefix(&#39;transform&#39;));</code></pre>
+
+<p>(Note, by default, the array includes a blank string, to allow the non-prefixed version of CSS properties to be set.)</p>
+
+<h2 id='id73'><code>Pablo.toArray(obj)</code></h2>
+
+<p>Converts the array-like object into a true array.</p>
+
+<pre><code>var obj = Pablo.toArray({0:&#39;foo&#39;, 1:&#39;bar&#39;, length:2});
+alert(JSON.stringify(obj)); // [&quot;foo&quot;, &quot;bar&quot;]</code></pre>
+
+<h2 id='id74'><code>Pablo.isPablo(obj)</code></h2>
+
+<p>Returns boolean <code>true</code> if the object is an instance of a Pablo collection; otherwise <code>false</code>.</p>
+
+<pre><code>var collection = Pablo.circle();
+alert(Pablo.isPablo(collection)); // true</code></pre>
+
+<h2 id='id75'><code>Pablo.isElement(obj)</code></h2>
+
+<p>Returns boolean <code>true</code> if the object is an HTML, SVG or other element; otherwise <code>false</code>.</p>
+
+<pre><code>alert(Pablo.isElement(document.body)); // true</code></pre>
+
+<h2 id='id76'><code>Pablo.isSvg(obj)</code></h2>
+
+<p>Returns boolean <code>true</code> if the object is an SVG element; otherwise <code>false</code>.</p>
+
+<pre><code>var el = Pablo.circle()[0];
+alert(Pablo.isSvg(el)); // true</code></pre>
+
+<h2 id='id77'><code>Pablo.isNodeList(obj)</code></h2>
+
+<p>Returns boolean <code>true</code> if the object is DOM NodeList - e.g. the result of a selector query or child nodes of an element; otherwise <code>false</code>.</p>
+
+<pre><code>var el = Pablo.g()[0];
+alert(Pablo.isNodeList(el.childNodes)); // true</code></pre>
+
+<h2 id='id78'><code>Pablo.isArrayLike(obj)</code></h2>
+
+<p>Returns boolean <code>true</code> if the argument is an object and can be iterated like an Array; otherwise <code>false</code>.</p>
+
+<pre><code>var obj = Pablo.toArray({0:&#39;foo&#39;, 1:&#39;bar&#39;, length:2});
+alert(Pablo.isArrayLike(obj));</code></pre>
+
+<h2 id='id79'><code>Pablo.hyphensToCamelCase(string)</code></h2>
+
+<p>Converts the hyphenated-string to a camelCase string.</p>
+
+<pre><code>alert(Pablo.hyphensToCamelCase(&#39;foo-bar-three&#39;));</code></pre>
+
+<h2 id='id80'><code>Pablo.getAttributes(element)</code></h2>
+
+<p>Returns the attributes of an element as an object, similarly to the <code>.attr()</code> method.</p>
+
+<pre><code>var obj = Pablo.getAttributes(Pablo.root()[0]);
+alert(JSON.stringify(obj));</code></pre>
+
+<h2 id='id81'><code>Pablo.canBeWrapped(obj)</code></h2>
+
+<p>Returns <code>true</code> if the node can be wrapped by Pablo into a collection - e.g. if the object is an HTML or SVG element, NodeList, Pablo collection, jQuery collection or array of elements.</p>
+
+<pre><code>alert(Pablo.canBeWrapped(document.body)); // true</code></pre>
+
+<h2 id='id82'><code>Pablo.create(elements, [attributes])</code></h2>
+
+<p>The method used internally when <code>Pablo(elements, [attributes])</code> is called.</p>
+
+<h2 id='id83'><code>Pablo.select(selectors)</code></h2>
+
+<p>The method used internally when <code>Pablo(selectors)</code> is called.</p>
+
+<h2 id='id84'><code>Pablo.Collection</code></h2>
+
+<p>The constructor function used internally for creating a new Pablo collection.</p>
+
+<h2 id='id85'><code>Pablo.svgVersion</code></h2>
+
+<p>The version of SVG used internally on SVG root elements. Currently <code>1.1</code>.</p>
+
+<h2 id='id86'><code>Pablo.svgns</code></h2>
+
+<p>The SVG namespace URI used internally when creating SVG elements. Currently <code>&quot;http://www.w3.org/2000/svg&quot;</code>.</p>
+
+<h2 id='id87'><code>Pablo.xlinkns</code></h2>
+
+<p>The Xlink namespace URI used internally when creating links. Currently <code>&quot;http://www.w3.org/1999/xlink&quot;</code>.</p>
+
+<h2 id='id88'><code>Pablo.v</code></h2>
+
+<p>The current version of the Pablo library. E.g. <code>&quot;1.2.23&quot;</code>.</p>
+        </article>
+    </section>
+    
+
+
+    
+      <section class="quote">
+        <blockquote>
+            Painting is just another way of keeping a diary.
+        </blockquote>
+        <cite>Pablo Picasso</cite>
+      </section>
+    
+    </section>
+
+    <footer>
+      <div>
+        <p>
+          <em>by</em> <a href="http://dharmafly.com">Dharmafly</a>
+        </p>
+      </div>
+    </footer>
+
+    <!-- scripts -->
+    <script>
+      var GLOBAL = GLOBAL || {};
+      GLOBAL.narrowScreen = ((window.innerWidth > 0) ? window.innerWidth : screen.width) < 480;
+      GLOBAL.isltIE10 = false;
+      GLOBAL.relative_path = '../';
+    </script>
+    
+    <!--[if lt IE 10]> 
+      <script>
+        GLOBAL.isltIE10 = true;
+      </script>
+    <![endif]-->
+      
+    <!--[if IE 9]>
+      <script src="../javascript/IEshims.js"></script>
+    <![endif]-->
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../javascript/jquery-1.7.1.min.js"><\/script>')</script>
+    
+    <!-- <script src="../javascript/jquery.js"></script> -->
+    <script src="../javascript/main.js"></script>
+
+    
+    <script src="https://raw.github.com/dharmafly/pablo/master/pablo.js"></script>
+          
+
+    
+    <script>
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-34978047-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      }());
+
+    </script>
+        
+  </body>
+</html>
