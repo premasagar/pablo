@@ -22,9 +22,18 @@
         // CREATE SVG ROOT
         // (optional) Pass HTML element or CSS selector to be SVG container
         var container = Pablo('#paper'),
+            width = 500,
+            height = 480,
+
+            scale = container[0].clientWidth < width ?
+                container[0].clientWidth / width : 1,
 
             // SVG root element
-            paper = container.root({width:500, height:480});
+            paper = container.root({width:width, height:height})
+                .cssPrefix({
+                    'transform':'scale(' + scale + ')',
+                    'transform-origin':'0 0'
+                });
 
         /////
 
@@ -394,6 +403,7 @@
         // SCALE SLIDER
         var scaleRange = document.getElementById('scale');
         if (scaleRange){
+            scaleRange.value = scale;
             scaleRange.addEventListener('change', function(){
                 // paper.el[0].currentScale = scaleRange.value;
                 paper.cssPrefix({
