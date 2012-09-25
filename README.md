@@ -4,7 +4,7 @@ Pablo is a lightweight, expressive JavaScript SVG library. Pablo creates interac
 
 Pablo exposes a simple interface to create and manipulate SVG elements and to create complex templates. The library stays lean by targetting the most recent desktop and mobile browsers, and failing gracefully in older browsers.
 
-**For full documentation and interactive examples**, see [pablojs.com][pablo-site].
+**For full documentation and interactive examples, see [pablojs.com][pablo-site].**
 
 - By [Premasagar Rose][prem] ([Dharmafly][df])
 - Repo: [github.com/dharmafly/pablo][pablo-repo]
