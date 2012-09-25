@@ -157,17 +157,6 @@ Passes each element in the collection through an iterator function, returning a 
 This method is called 'filterElements' because `.filter()` is a method to create an SVG `<filter>` method.
 
 
-<!--
-`.filterElements(selectors)`
------------------------------
-
-Returns a collection containing elements in the collection that match the supplied CSS selector or comma-separated list of selectors.
-
-	jacksons.filterSelectors('circle#janet')
-		.attr('id'); // 'janet'
--->
-
-
 Other array methods
 -------------------
 
