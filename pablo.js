@@ -97,7 +97,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
     }
 
     function isArrayLike(obj){
-        return obj && typeof obj === 'object' && typeof obj.length === 'number';
+        return !!(obj && typeof obj === 'object' && typeof obj.length === 'number');
     }
     
     function isElement(obj){
@@ -885,11 +885,13 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
         svgns: svgns,
         xlinkns: xlinkns,
         svgVersion: svgVersion,
-        fn: pabloCollectionApi,
         Collection: PabloCollection,
+        fn: pabloCollectionApi,
+        root: pabloCollectionApi.root,
 
         create: createPablo,
         select: selectPablo,
+        isArrayLike: isArrayLike,
         isElement: isElement,
         isNodeList: isNodeList,
         isSvg: isSvg,
@@ -907,7 +909,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
         vendorPrefixes: vendorPrefixes,
         cssPrefix: cssPrefix,
             // e.g. Pablo('svg').style().content('#foo{' + Pablo.cssPrefix('transform', 'rotate(45deg)') + '}');
-            // e.g. myElement.css({'transition-property': Pablo.cssPrefix('transform)});
+            // e.g. myElement.css({'transition-property': Pablo.cssPrefix('transform')});
 
         // TODO: support `collection.append('myshape')`
         template: function(name, callback){
