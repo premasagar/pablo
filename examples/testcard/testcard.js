@@ -21,7 +21,7 @@
 
         // CREATE SVG ROOT
         // (optional) Pass HTML element or CSS selector to be SVG container
-        var container = Pablo('#paper'),
+        var container = Pablo('#testcard'),
             defaultWidth = 500,
             defaultHeight = 480,
 
