@@ -274,7 +274,6 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
     extend(pabloCollectionApi, {
         collection: null,
         constructor: PabloCollection,
-        make: make,
         pablo: pabloVersion,
         
         get: function(index){
@@ -912,6 +911,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
         fn: pabloCollectionApi,
         root: pabloCollectionApi.root,
 
+        make: make,
         create: createPablo,
         select: selectPablo,
         isArrayLike: isArrayLike,
