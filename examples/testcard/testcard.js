@@ -13,6 +13,10 @@
         return selectInRange(Math.random(), min, max);
     }
 
+    function randomIntRange(min, max){
+        return randomInt(max + 1 - min) + min;
+    }
+
     // Check browser supports Pablo
     if (Pablo.isSupported){
 
@@ -221,14 +225,13 @@
 
         
         // duplicate() & ATTRIBUTE FUNCTIONS
-        Pablo.g()
+        Pablo.g({
+                stroke: '#8bb',
+                'stroke-width': 1,
+                opacity: 0.7
+            })
             .prependTo(paper)
             .line()
-                .css({
-                    stroke:'#8bb',
-                    'stroke-width':1,
-                    opacity:0.7
-                })
                 .duplicate(18)
                 .attr({
                     x1: function(el, i){
@@ -344,10 +347,10 @@
 
         while (numShapes--){
             paper.star({
-                points: randomInRange(4, 13),
-                size: randomInRange(3, 18),
-                x: randomInRange(250, 440),
-                y: randomInRange(0, 420)
+                points: randomIntRange(4, 13),
+                size: randomIntRange(3, 18),
+                x: randomIntRange(250, 440),
+                y: randomIntRange(0, 420)
             })
             .attr({
                 opacity: randomInRange(1, 5) / 10,
@@ -379,10 +382,11 @@
             .duplicate(8)
             .attr({
                 x: function(el, i){
-                    return (- i * 3 + 280 + Math.random() * 100).toFixed(2);
+                    // voodoo incantation
+                    return Math.ceil(- i * 3 + 280 + Math.random() * 100);
                 },
                 y: function(el, i){
-                    return (i * 40 + Math.random() * 40).toFixed(2);
+                    return Math.ceil(i * 40 + Math.random() * 40);
                 }
             })
             .on('mouseover touchstart', function(event){
@@ -391,8 +395,8 @@
                 
                 intervalRef = setInterval(function(){
                     instance.attr({
-                        x: (Number(attr.x) + Math.random() * 15 - 7.5).toFixed(2),
-                        y: (Number(attr.y) + Math.random() * 15 - 7.5).toFixed(2)
+                        x: Math.ceil(Number(attr.x) + Math.random() * 15 - 7.5),
+                        y: Math.ceil(Number(attr.y) + Math.random() * 15 - 7.5)
                     });
                 }, 1000 / 30);
             })

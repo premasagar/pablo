@@ -1,25 +1,25 @@
 <?xml version="1.0"?>
 <svg width="1432" height="678" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <g>
-        <line style="stroke: #88bbbb; stroke-width: 1px; opacity: 0.7; " x1="20" y1="70" x2="200" y2="200" transform="rotate(-55, 0, 0)"></line>
-        <line style="stroke: #88bbbb; stroke-width: 1px; opacity: 0.7; " x1="20" y1="70" x2="200" y2="200" transform="rotate(35, 0, 0)"></line>
-        <line style="stroke: #88bbbb; stroke-width: 1px; opacity: 0.7; " x1="50" y1="50" x2="200" y2="200" transform="rotate(35, 0, 0)"></line>
-        <line style="stroke: #88bbbb; stroke-width: 1px; opacity: 0.7; " x1="20" y1="70" x2="200" y2="200" transform="rotate(25, 0, 0)"></line>
-        <line style="stroke: #88bbbb; stroke-width: 1px; opacity: 0.7; " x1="50" y1="50" x2="200" y2="200" transform="rotate(25, 0, 0)"></line>
-        <line style="stroke: #88bbbb; stroke-width: 1px; opacity: 0.7; " x1="20" y1="70" x2="200" y2="200" transform="rotate(15, 0, 0)"></line>
-        <line style="stroke: #88bbbb; stroke-width: 1px; opacity: 0.7; " x1="50" y1="50" x2="200" y2="200" transform="rotate(15, 0, 0)"></line>
-        <line style="stroke: #88bbbb; stroke-width: 1px; opacity: 0.7; " x1="20" y1="70" x2="200" y2="200" transform="rotate(5, 0, 0)"></line>
-        <line style="stroke: #88bbbb; stroke-width: 1px; opacity: 0.7; " x1="50" y1="50" x2="200" y2="200" transform="rotate(5, 0, 0)"></line>
-        <line style="stroke: #88bbbb; stroke-width: 1px; opacity: 0.7; " x1="20" y1="70" x2="200" y2="200" transform="rotate(-5, 0, 0)"></line>
-        <line style="stroke: #88bbbb; stroke-width: 1px; opacity: 0.7; " x1="50" y1="50" x2="200" y2="200" transform="rotate(-5, 0, 0)"></line>
-        <line style="stroke: #88bbbb; stroke-width: 1px; opacity: 0.7; " x1="20" y1="70" x2="200" y2="200" transform="rotate(-15, 0, 0)"></line>
-        <line style="stroke: #88bbbb; stroke-width: 1px; opacity: 0.7; " x1="50" y1="50" x2="200" y2="200" transform="rotate(-15, 0, 0)"></line>
-        <line style="stroke: #88bbbb; stroke-width: 1px; opacity: 0.7; " x1="20" y1="70" x2="200" y2="200" transform="rotate(-25, 0, 0)"></line>
-        <line style="stroke: #88bbbb; stroke-width: 1px; opacity: 0.7; " x1="50" y1="50" x2="200" y2="200" transform="rotate(-25, 0, 0)"></line>
-        <line style="stroke: #88bbbb; stroke-width: 1px; opacity: 0.7; " x1="20" y1="70" x2="200" y2="200" transform="rotate(-35, 0, 0)"></line>
-        <line style="stroke: #88bbbb; stroke-width: 1px; opacity: 0.7; " x1="50" y1="50" x2="200" y2="200" transform="rotate(-35, 0, 0)"></line>
-        <line style="stroke: #88bbbb; stroke-width: 1px; opacity: 0.7; " x1="20" y1="70" x2="200" y2="200" transform="rotate(-45, 0, 0)"></line>
-        <line style="stroke: #88bbbb; stroke-width: 1px; opacity: 0.7; " x1="50" y1="50" x2="200" y2="200" transform="rotate(-45, 0, 0)"></line>
+    <g stroke="#88bbbb" stroke-width="1" opacity="0.7">
+        <line x1="20" y1="70" x2="200" y2="200" transform="rotate(-55, 0, 0)"></line>
+        <line x1="20" y1="70" x2="200" y2="200" transform="rotate(35, 0, 0)"></line>
+        <line x1="50" y1="50" x2="200" y2="200" transform="rotate(35, 0, 0)"></line>
+        <line x1="20" y1="70" x2="200" y2="200" transform="rotate(25, 0, 0)"></line>
+        <line x1="50" y1="50" x2="200" y2="200" transform="rotate(25, 0, 0)"></line>
+        <line x1="20" y1="70" x2="200" y2="200" transform="rotate(15, 0, 0)"></line>
+        <line x1="50" y1="50" x2="200" y2="200" transform="rotate(15, 0, 0)"></line>
+        <line x1="20" y1="70" x2="200" y2="200" transform="rotate(5, 0, 0)"></line>
+        <line x1="50" y1="50" x2="200" y2="200" transform="rotate(5, 0, 0)"></line>
+        <line x1="20" y1="70" x2="200" y2="200" transform="rotate(-5, 0, 0)"></line>
+        <line x1="50" y1="50" x2="200" y2="200" transform="rotate(-5, 0, 0)"></line>
+        <line x1="20" y1="70" x2="200" y2="200" transform="rotate(-15, 0, 0)"></line>
+        <line x1="50" y1="50" x2="200" y2="200" transform="rotate(-15, 0, 0)"></line>
+        <line x1="20" y1="70" x2="200" y2="200" transform="rotate(-25, 0, 0)"></line>
+        <line x1="50" y1="50" x2="200" y2="200" transform="rotate(-25, 0, 0)"></line>
+        <line x1="20" y1="70" x2="200" y2="200" transform="rotate(-35, 0, 0)"></line>
+        <line x1="50" y1="50" x2="200" y2="200" transform="rotate(-35, 0, 0)"></line>
+        <line x1="20" y1="70" x2="200" y2="200" transform="rotate(-45, 0, 0)"></line>
+        <line x1="50" y1="50" x2="200" y2="200" transform="rotate(-45, 0, 0)"></line>
     </g>
     <circle cx="10" cy="10" r="250" fill="url(#triangle)">
         <animate attributeName="opacity" from="0" to="1" dur="16.2s" repeatCount="1"></animate>
