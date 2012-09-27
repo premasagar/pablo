@@ -128,32 +128,55 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
         return Pablo(node, attr);
     }
     
-    function addElementIfUnique(node, elements, prepend){
-        var toPush, el;
+    function addElementIfUnique(node, collection, prepend){
+        var toPush;
         
-        if (Pablo.isPablo(node)){
-            // See extensions/functional.js for example usage of node.collection
-            toPush = node.collection || node;
+        // Create new element from elementName
+        if (typeof node === 'string'){
+            node = make(node);
         }
-        else if (Array.isArray(node)){
-            toPush = node;
-        }
-        else if (isArrayLike(node)){
-            toPush = toArray(node);
-        }
-        else {
-            el = isElement(node) ? node : make(node);
 
-            // Is an element, but is not found in the node list
-            if (el && elements.indexOf(el) === -1){
-                Array.prototype[prepend ? 'unshift' : 'push'].call(elements, el);
+        // Is an existing element; check if already in collection
+        else if (isElement(node)){
+            if (collection.indexOf(node) >= 0){
+                return;
             }
-            return;
+            // If the element is not yet in the collection, it will be added below
         }
 
-        toPush.forEach(function(el){
-            addElementIfUnique(el, elements);
-        });
+        // Probably some kind of list of elements
+        else {
+            // A Pablo collection
+            if (Pablo.isPablo(node)){
+                // See extensions/functional.js for example usage of node.collection
+                // The check for node.collection is for extenstions/functional.js
+                toPush = node.collection || node;
+            }
+
+            // An array of elements
+            else if (Array.isArray(node)){
+                toPush = node;
+            }
+
+            // A nodeList (e.g. result of a selector query, or childNodes)
+            // or is an object like an array, e.g. a jQuery collection
+            else if (isNodeList(node) || isArrayLike(node)){
+                toPush = toArray(node);
+            }
+
+            // Whatever it is, it isn't supported
+            else {
+                return;
+            }
+
+            // Add each element in the list
+            return toPush.forEach(function(el){
+                addElementIfUnique(el, collection);
+            });
+        }
+
+        // Add element to collection
+        Array.prototype[prepend ? 'unshift' : 'push'].call(collection, node);
     }
 
     // Return CSS styles with browser vendor prefixes
