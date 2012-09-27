@@ -132,7 +132,7 @@
         // Animate colour of red circle on interaction
         paper.find('circle')
             .attr({style:'cursor:pointer'})
-            .on('mouseover', function(event){
+            .on('mouseover touchstart', function(event){
                 Pablo(this)
                     .empty()
                     .append('animate', {
@@ -150,7 +150,7 @@
                         repeatCount:'indefinite'
                     })
             })
-            .on('mouseout', function(event){
+            .on('mouseout touchend', function(event){
                 Pablo(this).empty();
             })
             .on('mousedown', function(event){
@@ -291,14 +291,14 @@
                 },
                 
             })
-            .on('mouseover', function(event){
+            .on('mouseover touchstart', function(event){
                 Pablo(this)
                     .attr({
                         fill:'#300',
                         opacity:1
                     });
             })
-            .on('mouseout', function(event){
+            .on('mouseout touchend', function(event){
                 Pablo(this)
                     .attr({
                         fill:'orange',
@@ -385,7 +385,7 @@
                     return (i * 40 + Math.random() * 40).toFixed(2);
                 }
             })
-            .on('mouseover', function(event){
+            .on('mouseover touchstart', function(event){
                 var instance = Pablo(this),
                     attr = instance.attr();
                 
@@ -396,7 +396,7 @@
                     });
                 }, 1000 / 30);
             })
-            .on('mouseout', function(event){
+            .on('mouseout touchend', function(event){
                 clearTimeout(intervalRef);
             });
 
