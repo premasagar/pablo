@@ -4,16 +4,41 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width,initial-scale=1.0">
         <title>Pablo</title>
+
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            #testcard-controls {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                padding: 1em;
+                background-color: rgba(33,44,120,0.6);
+                color: white;
+                z-index:1;
+            }
+            #testcard-controls a {
+                color: white;
+            }
+            #testcard-controls h1 {
+                margin: 0;
+            }
+        </style>
     </head>
     <body>
-        <h1><a href="https://github.com/dharmafly/pablo">Pablo</a></h1>
-        
-        <!-- Scale slider -->
-        <label for="scale">scale: </label>
-        <input id="scale" type="range" min="0.125" max="3" step="0.05" value="1">
+        <section id="testcard-controls">
+            <h1><a href="https://github.com/dharmafly/pablo">Pablo</a></h1>
+            
+            <!-- Scale slider -->
+            <label for="scale">scale: </label>
+            <input id="scale" type="range" min="0.125" max="3" step="0.05" value="1">
+        </section>
         
         <!-- HTML container for the SVG root node -->
-        <div id="testcard"></div>
+        <section id="testcard"></section>
 
         <!-- Pablo -->
         <script src="../../pablo.js"></script>

@@ -17,30 +17,40 @@
         return randomInt(max + 1 - min) + min;
     }
 
+    function setViewBox(naturalWidth, naturalHeight, options){
+        var constrainAspect = options.constrainAspect !== false,
+            scaleX = options.constrainWidth ?
+                options.constrainWidth / naturalWidth : 1,
+            scaleY = options.constrainHeight ?
+                options.constrainHeight / naturalHeight : 
+                (constrainAspect ? scaleX : 1),
+            width = scaleX * naturalWidth,
+            height = scaleY * naturalHeight;
+
+        return this.attr({
+            width: width,
+            height: height,
+            viewBox: '0 0 ' + naturalWidth + ' ' + naturalHeight
+        });
+    }
+
     // Check browser supports Pablo
     if (Pablo.isSupported){
-
         // Use of the extension functional.js (uncomment next line)
            // Pablo.useFunctional(true);
 
         // CREATE SVG ROOT
         // (optional) Pass HTML element or CSS selector to be SVG container
         var container = Pablo('#testcard'),
-            defaultWidth = 500,
-            defaultHeight = 480,
-
-            scale = container[0].clientWidth < defaultWidth ?
-                container[0].clientWidth / defaultWidth : 1,
-
-            width = defaultWidth * scale,
-            height = defaultHeight * scale,
 
             // SVG root element
-            paper = container.root({
-                width: width,
-                height: height,
-                viewBox: '0 0 ' + defaultWidth + ' ' + defaultHeight
-            });
+            paper = container.root();
+
+        // Set viewBox dimensions
+        setViewBox.call(paper, 500, 480, {
+            constrainWidth: container[0].clientWidth,
+            constrainHeight: container[0].clientHeight
+        });
 
         /////
 
