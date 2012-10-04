@@ -29,7 +29,7 @@ The [Changelog][changelog] lists API changes. Please add bug reports and feedbac
 
 
 <!-- Testcard demo -->
-<div id="testcard" style="margin-top:40px">
+<div id="testcard">
 	<script>
 		if (document.addEventListener){
 			document.addEventListener('DOMContentLoaded', function(){
