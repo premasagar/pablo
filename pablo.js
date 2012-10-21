@@ -634,9 +634,17 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
         },
 
         link: function(href){
+            var el;
+
+            // Get first element's textContent
+            if (typeof href === 'undefined'){
+                el = this.get(0);
+                return el && el.getAttributeNS(xlinkns, 'href') || '';
+            }
+
             return this.each(function(el, i){
                 var link = getValue(href, el, i, this);
-                el.setAttributeNS(xlinkns, 'xlink:href', link);
+                el.setAttributeNS(xlinkns, 'href', link);
             });
         },
         
