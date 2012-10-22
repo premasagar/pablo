@@ -1,0 +1,41 @@
+#########################################
+# project site config
+
+project_name: Pablo
+project_url: https://github.com/dharmafly/pablo
+version: '0.2.1'
+# options: forest, ocean, horus, seagrass, sundae, slate
+theme: horus
+twitter_url: https://twitter.com/dharmafly
+# options: javascript, css, html5
+lang: javascript
+scripts:
+- src: https://raw.github.com/dharmafly/pablo/master/pablo.js
+quote:
+- quote: Painting is just another way of keeping a diary.
+- cite: Pablo Picasso
+# analytics
+ga_id: UA-34978047-1
+download_links:
+download_links:
+  - text: pablo.js
+    subtext: v{{ version }}
+    href: https://raw.github.com/dharmafly/pablo/master/pablo.js
+    title: Full source code, for use in development
+  - text: pablo.min.js
+    subtext: v{{ version }}
+    href: https://github.com/downloads/dharmafly/pablo/pablo.min.js
+    title: Minified, for use in production
+  - text: Edge
+    subtext: (master)
+    href: https://github.com/dharmafly/PROJECT-REPO/zipball/master
+    title: The repo's latest codebase (zip). Potentially unstable.
+sections:
+ - path: /index.html
+   name: Overview
+ - path: /reference/index.html
+   name: Reference
+ - path: /details/index.html
+   name: Details
+
+######## END project site config ########
