@@ -19,13 +19,20 @@
 
     function setViewBox(naturalWidth, naturalHeight, options){
         var constrainAspect = options.constrainAspect !== false,
-            scaleX = options.constrainWidth ?
-                options.constrainWidth / naturalWidth : 1,
-            scaleY = options.constrainHeight ?
-                options.constrainHeight / naturalHeight : 
-                (constrainAspect ? scaleX : 1),
-            width = scaleX * naturalWidth,
+            scaleX, scaleY, width, height;
+
+        scaleX = options.constrainWidth ?
+            options.constrainWidth / naturalWidth : 1;
+        scaleY = options.constrainHeight ?
+            Math.min(scaleX, options.constrainHeight / naturalHeight) : 
+            (constrainAspect ? scaleX : 1);
+        width = scaleX * naturalWidth;
+        height = scaleY * naturalHeight;
+
+        if (scaleY > scaleX){
+            scaleY = scaleX;
             height = scaleY * naturalHeight;
+        }
 
         return this.attr({
             width: width,

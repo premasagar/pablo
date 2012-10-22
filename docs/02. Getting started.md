@@ -29,8 +29,9 @@ The [Changelog][changelog] lists API changes. Please add bug reports and feedbac
 
 
 <!-- Testcard demo -->
-<div id="testcard">
+<div id="testcard" style="margin-top:40px">
 	<script>
+		// Load testcard script on DOM ready
 		if (document.addEventListener){
 			document.addEventListener('DOMContentLoaded', function(){
 				var script = document.createElement('script');
