@@ -531,13 +531,20 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
         
         duplicate: function(repeats){
             var duplicates = Pablo();
-            repeats || (repeats = 1);
-            
-            while (repeats --){
-                duplicates.push(this.clone(true).get(0));
+
+            if (repeats !== 0){
+                typeof repeats === 'number' && repeats > 0 || (repeats = 1);
+                
+                // Clone the collection
+                while (repeats --){
+                    duplicates.push(this.clone(true).get(0));
+                }
+                // Insert in the DOM after the collection
+                this.after(duplicates)
+                    // Add new elements the collection
+                    .push(duplicates);
             }
-            this.after(duplicates);
-            return this.push(duplicates);
+            return this;
         },
         
         attr: function(attr, value){
