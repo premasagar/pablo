@@ -968,9 +968,12 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
         .forEach(function(nodeName){
             var camelCase = hyphensToCamelCase(nodeName);
             
+            // Add a new method namespace for each element name
             Pablo.template(nodeName, function(attr){
                 return Pablo.create(nodeName, attr);
             });
+
+            // Create methods aliases to allow camelCase element name
             Pablo[camelCase] = Pablo[nodeName];
             pabloCollectionApi[camelCase] = pabloCollectionApi[nodeName];
         });
