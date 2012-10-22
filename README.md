@@ -16,20 +16,20 @@ Pablo exposes a simple interface to create and manipulate SVG elements and compl
 
 For production, download <a href="https://github.com/downloads/dharmafly/pablo/pablo.min.js" target="_blank">the minified script</a> and call it from your HTML:
 
-	<script src="pablo.min.js"></script>
+    <script src="pablo.min.js"></script>
 
 Start drawing:
 
-	if (Pablo.isSupported){
-		// Inside an HTML element, append an <svg> root
-		var paper = Pablo(demoElement).root({height:160});
+    if (Pablo.isSupported){
+        // Inside an HTML element, append an <svg> root
+        var paper = Pablo(demoElement).root({height:160});
 
-		// Append SVG elements, specifying their attributes
-		paper.circle({
-			r:80, cx:80, cy:80,
-			fill:'orange'
-		});
-	}
+        // Append SVG elements, specifying their attributes
+        paper.circle({
+            r:80, cx:80, cy:80,
+            fill:'orange'
+        });
+    }
 
 Pablo can do anything that SVG can do, in a simple, expressive way. See the [API Reference][reference] to discover Pablo's extensive API.
 
