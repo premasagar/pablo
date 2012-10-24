@@ -28,7 +28,7 @@ download_links:
     title: Minified, for use in production
   - text: Edge
     subtext: (master)
-    href: https://github.com/dharmafly/PROJECT-REPO/zipball/master
+    href: https://github.com/dharmafly/pablo/zipball/master
     title: The repo's latest codebase (zip). Potentially unstable.
 sections:
  - path: /index.html
