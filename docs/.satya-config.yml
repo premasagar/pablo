@@ -17,7 +17,6 @@ quote:
 # analytics
 ga_id: UA-34978047-1
 download_links:
-download_links:
   - text: pablo.js
     subtext: v{{ version }}
     href: https://raw.github.com/dharmafly/pablo/master/pablo.js
