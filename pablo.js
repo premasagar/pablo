@@ -201,15 +201,16 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
         if (typeof styles === 'string'){
             prop = styles;
 
-            // e.g. cssPrefix('transform', 'rotate(45deg)') -> 'transform:rotate(45deg);-webkit-transform:rotate(45deg);...'
-            if (typeof value === 'string'){
-                rule = prop + ':' + value + ';';
-                res = vendorPrefixes.join(rule) + rule;
-            }
             // e.g. cssPrefix('transform') -> 'transform,-webkit-transform,...'
             // useful for adding prefixed properties when setting active properties in a CSS transition
-            else {
+            if (typeof value === 'undefined'){
                 res = vendorPrefixes.join(prop + ',') + prop;
+            }
+
+            // e.g. cssPrefix('transform', 'rotate(45deg)') -> 'transform:rotate(45deg);-webkit-transform:rotate(45deg);...'
+            else {
+                rule = prop + ':' + value + ';';
+                res = vendorPrefixes.join(rule) + rule;
             }
         }
         return res;
@@ -705,7 +706,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
         cssPrefix: function(styles, value){
             var styleProperty;
             
-            if (typeof styles === 'string' && typeof value === 'string'){
+            if (typeof styles === 'string' && typeof value !== 'undefined'){
                 // Create styles object
                 styleProperty = styles;
                 styles = {};
