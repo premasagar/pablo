@@ -3,7 +3,7 @@
 
 project_name: Pablo
 project_url: https://github.com/dharmafly/pablo
-version: '0.2.1'
+version: '0.2.2'
 # options: forest, ocean, horus, seagrass, sundae, slate
 theme: horus
 twitter_url: https://twitter.com/dharmafly
