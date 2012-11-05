@@ -1,13 +1,17 @@
 # Pablo
 
-[Pablo][pablo-site] is a lightweight, expressive JavaScript library to create interactive drawings with [SVG][svg] (Scalable Vector Graphics).
+[Pablo][pablo-site] is a lightweight, expressive JavaScript library for creating and manipulating collections of [SVG][svg] elements, to generate interactive drawings. A bit like [Raphaël][raphael] + [jQuery][jquery] + [Underscore][_]. _In just 3KB._
 
-Pablo exposes a simple interface to create and manipulate SVG elements and complex structures, giving access to all of SVG's granularity and power. The library stays lean by targetting the most recent desktop and mobile browsers, and failing gracefully in older browsers.
+Pablo exposes a simple interface that gives access to all of SVG's granularity and power. The library stays lean by targetting the most recent desktop and mobile browsers, while failing gracefully elsewhere.
+
+_Example uses:_ low-level, interactive drawing, data visualisation, game canvases, responsive graphics and rich visual interfaces.
+
+Pablo can create anything that SVG can, but makes it simple for JavaScript to generate the graphics, manipulate them over time or hook them together with other parts of a JavaScript program.
 
 - By [Premasagar Rose][prem] ([Dharmafly][df])
 - Repo: [github.com/dharmafly/pablo][repo]
 - Open source: [MIT license][mit]
-- &lt;3KB [minified & gzipped][pablo-min]
+- 3KB [minified & gzipped][pablo-min]
 
 **For full documentation and interactive examples, see [pablojs.com][pablo-site].**
 
@@ -18,22 +22,62 @@ For production, download <a href="https://github.com/downloads/dharmafly/pablo/p
 
     <script src="pablo.min.js"></script>
 
-Start drawing:
+
+Check that the browser supports basic SVG:
 
     if (Pablo.isSupported){
-        // Inside an HTML element, append an <svg> root
-        var paper = Pablo(demoElement).root({height:160});
-
-        // Append SVG elements, specifying their attributes
-        paper.circle({
-            r:80, cx:80, cy:80,
-            fill:'orange'
-        });
+        /* Pablo code here */
+        alert('Yes!');
+    }
+    else {
+        /* Alternative content */
+        alert("Noo");
     }
 
-Pablo can do anything that SVG can do, in a simple, expressive way. See the [API Reference][reference] to discover Pablo's extensive API.
 
-The [Changelog][changelog] lists API changes. Please add bug reports and feedback on the GitHub ['Issues' page][issues] or contact [@premasagar][prem-twitter].
+Start drawing:
+
+    /* Inside an HTML element, append an <svg> root */
+    var paper = Pablo(demoElement).root({height:220}),
+        /* Create <circle> element, with attributes */
+        circle = paper.circle({
+            cy: '50%',
+            fill: 'rgba(127, 159, 95, 0.2)',
+            stroke: '#777'
+        });
+
+    /* Duplicate the element */
+    circle.duplicate(20)
+        /* Modify attributes */
+        .attr({
+            /* Attribute functions, called for each element */
+            cx: function(el, i) {return i * 4 + 1 + '%'},
+            r:  function(el, i) {return i + 1 + '%'}
+        })
+        /* Add a listener for mouseover & touchstart events */
+        .on('mouseover touchstart', function(){
+            /* Wrap this element in a Pablo collection */
+            var circle = Pablo(this),
+                /* Create a random position and colour */
+                r = parseInt(circle.attr('r'), 10),
+                xMax = 100 - r * 2,
+                cx = xMax * Math.random() + r + '%',
+                hue = Math.random() * 360,
+                color = 'hsla(' + hue + ', 90%, 50%, 0.2)';
+
+            / * Apply new attributes to the <circle> element */
+            circle.attr({cx:cx, fill:color});
+        });
+
+
+BTW, these runnable code snippets are editable (except on mobiles). Just edit the code and run again.
+
+
+**See the [API Reference][reference] for full details.**
+
+It's early days, so your feedback is welcome. For bug reports and requests, please use the GitHub ['Issues' page][issues] or contact [@premasagar][prem-twitter].
+
+[Pull requests][pull-requests] are welcome. To update the pages on [pablojs.com][pablo-site], the [Markdown][markdown-syntax] files in the [/docs folder][docs-folder] should be changed.
 
 
 [prem]: http://premasagar.com
@@ -46,3 +90,10 @@ The [Changelog][changelog] lists API changes. Please add bug reports and feedbac
 [issues]: https://github.com/dharmafly/pablo/issues
 [changelog]: http://pablojs.com/details/#changelog
 [pablo-min]: https://github.com/downloads/dharmafly/pablo/pablo.min.js
+[raphael]: http://raphaeljs.com
+[jquery]: http://jquery.com
+[_]: http://documentcloud.github.com/underscore/
+[reference]: http://pablojs.com/reference/
+[docs-folder]: https://github.com/dharmafly/pablo/tree/master/docs
+[pull-requests]: https://help.github.com/articles/using-pull-requests
+[markdown-syntax]: http://daringfireball.net/projects/markdown/syntax
