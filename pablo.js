@@ -13,7 +13,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
     'use strict';
     
     var /* SETTINGS */
-        pabloVersion = '0.2.2',
+        pabloVersion = '0.2.3',
         svgVersion = 1.1,
         svgns = 'http://www.w3.org/2000/svg',
         xlinkns = 'http://www.w3.org/1999/xlink',
@@ -297,6 +297,14 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
             return this.length;
         },
 
+        first: function(){
+            return this.eq(0);
+        },
+
+        last: function(){
+            return this.eq(this.length-1);
+        },
+
         // Add new node(s) to the collection; accepts arrays or nodeLists
         push: function(node){
             addElementIfUnique(node, this);
@@ -396,7 +404,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
             return parents;
         },
 
-        nextSibling: function(){
+        next: function(){
             var siblings = Pablo();
             
             this.each(function(el){
@@ -405,7 +413,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
             return siblings;
         },
 
-        prevSibling: function(){
+        prev: function(){
             var siblings = Pablo();
             
             this.each(function(el){
@@ -506,7 +514,19 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
                 }
             });
         },
+
+        // Insert every element in the set of matched elements after the target.
+        insertAfter: function(node, attr){
+            node.after(this);
+            return this;
+        },
         
+        // Insert every element in the set of matched elements before the target.
+        insertBefore: function(node, attr){
+            node.before(this);
+            return this;
+        },
+
         prepend: function(node, attr){
             return this.each(function(el){
                 var first = el.firstChild;
