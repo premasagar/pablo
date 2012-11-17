@@ -1,15 +1,11 @@
 'use strict';
 
 /*
-    TODO:
-    - convert Symbol to Symbolset or to Circleset
+    IDEAS:
     - explode into 4 squares on click, shoot off-screen never to return (a new Symbolset); worth many points; use same stroke-color as mother
-    - "Floaters"
     - click within union between symbols, for double points
-    - highlight stroke-color on mouseover
-    - keep score
     - `panic` param -> greater velocity
-    - keep time; time is taken off score for that round; ticker sound, LED font
+    - keep time; time is taken off score for that round; ticker sound
 */
 
 function createRoot(container){
