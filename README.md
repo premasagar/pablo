@@ -1,19 +1,20 @@
 # Pablo
 
-[Pablo][pablo-site] is a lightweight, expressive JavaScript library for creating and manipulating collections of [SVG][svg] elements, to generate interactive drawings. A bit like [Raphaël][raphael] + [jQuery][jquery] + [Underscore][_]. _In just 3KB._
+**For full documentation and interactive examples, see [pablojs.com][pablo-site].**
 
-Pablo exposes a simple interface that gives access to all of SVG's granularity and power. The library stays lean by targetting the most recent desktop and mobile browsers, while failing gracefully elsewhere.
 
-_Example uses:_ low-level, interactive drawing, data visualisation, game canvases, responsive graphics and rich visual interfaces.
+**[Pablo][pablo-site]** is a high-performance JavaScript wrapper library for SVG ([scalable vector graphics][svg]). It's a bit like [Raphaël][raphael] + [jQuery][jquery] + [Underscore][_]. In just 3KB.
 
-Pablo can create anything that SVG can, but makes it simple for JavaScript to generate the graphics, manipulate them over time or hook them together with other parts of a JavaScript program.
+_Some example uses:_ interactive drawings, data visualisation, games, responsive graphics and rich visual interfaces.
+
+Pablo is low-level, lightweight and expressive. It exposes a simple interface that gives access to all of SVG's granularity and power, creating and manipulating collections of SVG elements. The library stays fast and lean by targetting the most recent desktop and mobile browsers, while failing gracefully elsewhere.
+
+Pablo can create anything that SVG can. It simplifies the task of generating, modifying and interacting with the graphics, and connecting it to the other parts of a JavaScript program.
 
 - By [Premasagar Rose][prem] ([Dharmafly][df])
 - Repo: [github.com/dharmafly/pablo][repo]
 - Open source: [MIT license][mit]
 - 3KB [minified & gzipped][pablo-min]
-
-**For full documentation and interactive examples, see [pablojs.com][pablo-site].**
 
 
 ## Getting started
