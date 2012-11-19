@@ -107,6 +107,10 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
     function isNodeList(obj){
         return obj instanceof NodeList;
     }
+
+    function hasSvgNamespace(obj){
+        return obj.namespaceURI && obj.namespaceURI === svgns;
+    }
     
     function isSvg(obj){
         return obj instanceof SVGElement;
@@ -117,7 +121,8 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
             isElement(obj) ||
             isNodeList(obj) ||
             Array.isArray(obj) ||
-            isArrayLike(obj);
+            isArrayLike(obj) ||
+            hasSvgNamespace(obj);
     }
     
     // Return node (with attributes) if a Pablo collection, otherwise create one
@@ -137,7 +142,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
         }
 
         // Is an existing element; check if already in collection
-        else if (isElement(node)){
+        else if (isElement(node) || hasSvgNamespace(node)){
             if (collection.indexOf(node) >= 0){
                 return;
             }
