@@ -109,7 +109,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
     }
 
     function hasSvgNamespace(obj){
-        return obj.namespaceURI && obj.namespaceURI === svgns;
+        return obj && obj.namespaceURI && obj.namespaceURI === svgns;
     }
     
     function isSvg(obj){
