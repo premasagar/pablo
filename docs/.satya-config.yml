@@ -10,7 +10,7 @@ twitter_url: https://twitter.com/dharmafly
 # options: javascript, css, html5
 lang: javascript
 scripts:
-- src: https://github.com/downloads/dharmafly/pablo/pablo.min.js
+- src: http://cloud.github.com/downloads/dharmafly/pablo/pablo.min.js
 quote:
 - quote: Painting is just another way of keeping a diary.
 - cite: Pablo Picasso
@@ -23,7 +23,7 @@ download_links:
     title: Full source code, for use in development
   - text: pablo.min.js
     subtext: v{{ version }}
-    href: https://github.com/downloads/dharmafly/pablo/pablo.min.js
+    href: http://cloud.github.com/downloads/dharmafly/pablo/pablo.min.js
     title: Minified, for use in production
   - text: Edge
     subtext: (master)
