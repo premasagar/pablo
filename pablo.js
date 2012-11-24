@@ -522,13 +522,13 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
 
         // Insert every element in the set of matched elements after the target.
         insertAfter: function(node, attr){
-            node.after(this);
+            Pablo(node, attr).after(this);
             return this;
         },
         
         // Insert every element in the set of matched elements before the target.
         insertBefore: function(node, attr){
-            node.before(this);
+            Pablo(node, attr).before(this);
             return this;
         },
 
