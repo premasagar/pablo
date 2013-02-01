@@ -34,7 +34,7 @@ sections:
    name: Overview
  - path: /reference/index.html
    name: Reference
- - path: /details/index.html
-   name: Details
+ - path: /resources/index.html
+   name: Resources
 
 ######## END project site config ########

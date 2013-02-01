@@ -3,7 +3,7 @@
 **For full documentation and interactive examples, see [pablojs.com][pablo-site].**
 
 
-**[Pablo][pablo-site]** is a high-performance JavaScript wrapper library for SVG ([scalable vector graphics][svg]). It's a bit like [Raphaël][raphael] + [jQuery][jquery] + [Underscore][_]. In just 3KB.
+**[Pablo][pablo-site]** is a high-performance JavaScript wrapper library for SVG ([scalable vector graphics][svg]). It's a bit like [Raphaël][raphael] + [jQuery][jquery] + [Underscore][_]. In just 3KB, with no dependencies.
 
 _Some example uses:_ interactive drawings, data visualisation, games, responsive graphics and rich visual interfaces.
 
