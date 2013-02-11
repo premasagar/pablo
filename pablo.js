@@ -260,6 +260,69 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         }
         return val;
     }
+
+    // `behaviour` can be 'some', 'every' or 'filter'
+    function matchSelectors(collection, selectors, behaviour){
+        var i, len, node, docMatches, ancestor, ancestors, matches, matchesCache, ancestorsLength, isMatch, filtered;
+
+        if (behaviour === 'filter'){
+            filtered = Pablo();
+        }
+
+        for (i=0, len=collection.length; i<len; i++){
+            node = collection.eq(i);
+            ancestor = node.parents().last();
+
+            // Use ancestor to find element via a selector query
+            if (ancestor.length){
+                // Have we previously cached the result of the query?
+                matches = matchesCache && matchesCache[ancestors.indexOf(ancestor)];
+
+                if (!matches){
+                    matches = ancestor.find(selectors);
+
+                    // If more than one element in the collection, then
+                    // we cache the result of the query
+                    if (len > 1){
+                        // Create the cache containers
+                        if (!matchesCache){
+                            ancestors = [];
+                            matchesCache = [];
+                        }
+                        // Cache the result
+                        ancestorsLength = ancestors.push(ancestor);
+                        matchesCache[ancestorsLength-1] = matches;
+                    }
+                }
+            }
+
+            // Element has no parent, so clone it and append to a
+            // temporary element
+            else {
+                node = node.clone();
+                ancestor = Pablo.g().append(node);
+                matches = ancestor.find(selectors);
+            }
+
+            isMatch = matches.indexOf(node) > -1;
+
+            if (isMatch){
+                if (behaviour === 'some'){
+                    return true;
+                }
+                if (behaviour === 'filter'){
+                    filtered.push(node);
+                }
+            }
+            else if (behaviour === 'every'){
+                return false;
+            }
+        }
+
+        // If filtering, return the collection; other boolean
+        return behaviour === 'filter' ? filtered :
+              (behaviour === 'every'  ? true : false);
+    }
     
     
     /////
@@ -355,16 +418,28 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         },
         
         map: function(fn){
-            return Pablo(
-                arrayProto.map.call(this, fn)
-            );
+            return Pablo(arrayProto.map.call(this, fn));
         },
-        
-        // Note: name due to conflict with 'filter' element method
-        filterElements: function(fn){
-            return Pablo(
-                arrayProto.filter.call(this, fn)
-            );
+
+        some: function(fnOrSelector){
+            return typeof fnOrSelector === 'string' ?
+                matchSelectors(this, fnOrSelector, 'some') :
+                arrayProto.some.call(this, fn);
+        },
+
+        every: function(fnOrSelector){
+            return typeof fnOrSelector === 'string' ?
+                matchSelectors(this, fnOrSelector, 'every') :
+                arrayProto.every.call(this, fn);
+        },
+
+        // Note: this method is analogous to Array.filter but is called `select`
+        // here (as in Underscore.js) because Pablo's filter() method is used to
+        // create a `<filter>` SVG element
+        select: function(fnOrSelector){
+            return typeof fnOrSelector === 'string' ?
+                matchSelectors(this, fnOrSelector, 'filter') :
+                Pablo(arrayProto.filter.call(this, fn));
         },
 
         indexOf: function(element){
@@ -374,149 +449,94 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             return arrayProto.indexOf.call(this, element);
         },
 
-        is: function(selector){
-            var len = this.length,
-                i, node, docMatches, ancestor, ancestors, matches, matchesCache, ancestorsLength;
-
-            for (i=0, len=this.length; i<len; i++){
-                node = this.eq(i);
-                ancestor = node.parents().last();
-
-                // Use ancestor to find element via a selector query
-                if (ancestor.length){
-                    // Have we previously cached the result of the query?
-                    matches = matchesCache && matchesCache[ancestors.indexOf(ancestor)];
-
-                    if (!matches){
-                        matches = ancestor.find(selector);
-
-                        // If more than one element in the collection, then
-                        // we cache the result of the query
-                        if (len > 1){
-                            // Create the cache containers
-                            if (!matchesCache){
-                                ancestors = [];
-                                matchesCache = [];
-                            }
-                            // Cache the result
-                            ancestorsLength = ancestors.push(ancestor);
-                            matchesCache[ancestorsLength-1] = matches;
-                        }
-                    }
-                }
-
-                // Element has no parent, so clone it and append to a
-                // temporary element
-                else {
-                    node = node.clone();
-                    ancestor = Pablo.g().append(node);
-                    matches = ancestor.find(selector);
-                }
-
-                if (matches.indexOf(node) > -1){
-                    return true;
-                }
-            }
-
-            return false;
-        },
-
 
         /////
 
 
         // TRAVERSAL
-
-        child: function(i){
+        
+        children: function(nodeOrSelector, attr){
             var children = Pablo();
 
-            this.each(function(el){
-                children.push(el.childNodes[i]);
-            });
-            return children;
-        },
-        
-        children: function(node, attr){
-            var children;
-            
-            // Append and return new children
-            if (node){
-                return toPablo(node, attr).appendTo(this);
+            // Append new children
+            if (attr){
+                children.push(nodeOrSelector)
+                        .attr(attr)
+                        .appendTo(this);
             }
 
             // Get children
-            children = Pablo();
-            this.each(function(el){
-                toArray(el.childNodes).forEach(function(child){
-                    children.push(child);
+            else {
+                this.each(function(el){
+                    children.push(el.childNodes);
                 });
-            });
+
+                // Filter with DOM selectors or filter function
+                if (nodeOrSelector){
+                    children = children.select(nodeOrSelector);
+                }
+            }
             return children;
         },
         
-        parent: function(){
+        parent: function(selectors){
             var parents = Pablo();
             
             this.each(function(el){
                 parents.push(el.parentNode);
             });
-            return parents;
+            return selectors ? parents.select(selectors) : parents;
         },
 
         // TODO: should this include document?
-        parents: function(){
+        parents: function(selectors){
             var parents = Pablo(),
                 parent;
 
             this.each(function(el){
-                parent = el.parentNode;
-                while (parent){
-                    parents.push(parent);
-                    parent = parent.parentNode;
+                while (el = el.parentNode){
+                    parents.push(el);
                 }
             });
-            return parents;
+            return selectors ? parents.select(selectors) : parents;
         },
 
-        next: function(){
+        next: function(selectors){
             var siblings = Pablo();
             
             this.each(function(el){
                 siblings.push(el.nextSibling);
             });
-            return siblings;
+            return selectors ? siblings.select(selectors) : siblings;
         },
 
-        prev: function(){
+        prev: function(selectors){
             var siblings = Pablo();
             
             this.each(function(el){
                 siblings.push(el.previousSibling);
             });
-            return siblings;
+            return selectors ? siblings.select(selectors) : siblings;
         },
 
-        siblings: function(){
+        siblings: function(selectors){
             var siblings = Pablo();
 
             this.each(function(el){
-                var nodeSiblings = Pablo(el).parent().children().filterElements(function(child){
-                    return child !== el;
-                });
+                var selfAndSiblings = Pablo(el).parent().children(),
+                    i = selfAndSiblings.indexOf(el);
 
-                siblings.push(nodeSiblings);
+                siblings.push(selfAndSiblings.slice(0, i))
+                        .push(selfAndSiblings.slice(i+1));
             });
-
-            return siblings;
+            return selectors ? siblings.select(selectors) : siblings;
         },
         
         find: function(selectors){
             var found = Pablo();
             
             this.each(function(el){
-                toArray(el.querySelectorAll(selectors)).forEach(function(target){
-                    found.push(target);
-                });
+                found.push(el.querySelectorAll(selectors));
             });
             return found;
         },
@@ -872,8 +892,13 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
     }());
 
     // Pablo Collection API Aliases
-    pabloCollectionApi.add = pabloCollectionApi.concat = pabloCollectionApi.push;
-    pabloCollectionApi.forEach = pabloCollectionApi.each;
+    extend(pabloCollectionApi, {
+        elements: pabloCollectionApi.toArray,
+        add:      pabloCollectionApi.push,
+        concat:   pabloCollectionApi.push,
+        forEach:  pabloCollectionApi.each,
+        is:       pabloCollectionApi.some
+    });
 
 
     /////
@@ -989,7 +1014,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
     
     // Select existing nodes in the document
     function selectPablo(selectors, context){
-        // Valid selector
+        // Valid selectors
         if (selectors && typeof selectors === 'string'){
             return Pablo((context || document).querySelectorAll(selectors));
         }
