@@ -424,13 +424,13 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         some: function(fnOrSelector){
             return typeof fnOrSelector === 'string' ?
                 matchSelectors(this, fnOrSelector, 'some') :
-                arrayProto.some.call(this, fn);
+                arrayProto.some.call(this, fnOrSelector);
         },
 
         every: function(fnOrSelector){
             return typeof fnOrSelector === 'string' ?
                 matchSelectors(this, fnOrSelector, 'every') :
-                arrayProto.every.call(this, fn);
+                arrayProto.every.call(this, fnOrSelector);
         },
 
         // Note: this method is analogous to Array.filter but is called `select`
@@ -439,7 +439,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         select: function(fnOrSelector){
             return typeof fnOrSelector === 'string' ?
                 matchSelectors(this, fnOrSelector, 'filter') :
-                Pablo(arrayProto.filter.call(this, fn));
+                Pablo(arrayProto.filter.call(this, fnOrSelector));
         },
 
         indexOf: function(element){
@@ -681,7 +681,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
                         nsURI = Pablo.ns[nsPrefix];
                         attr = attr.slice(colonIndex+1);
                     }
-                    return el && el.getAttributeNS(nsURI, attr);
+                    return el && el.getAttributeNS(nsURI || null, attr);
                 }
 
                 // Create attributes object
