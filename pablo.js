@@ -350,7 +350,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         },
         
         each: function(fn){
-            this.forEach(fn, this);
+            arrayProto.forEach.call(this, fn, this);
             return this;
         },
         
@@ -892,6 +892,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
 
     // Pablo Collection API Aliases
     pabloCollectionApi.add = pabloCollectionApi.concat = pabloCollectionApi.push;
+    pabloCollectionApi.forEach = pabloCollectionApi.each;
 
 
     /////
