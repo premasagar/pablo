@@ -547,10 +547,12 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
 
         // MANIPULATION
         
+        // DEPRECATED
         // Create SVG root wrapper
-        // TODO: getRoot() method returns closest parent root to the element
         root: function(attr){
-            attr = extend(attr, {version: Pablo.svgVersion});
+            if (window.console && window.console.warn){
+                window.console.warn('Pablo.root() is deprecated. Use Pablo.svg() instead');
+            }
             return this.svg(attr);
         },
         
@@ -1084,12 +1086,20 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
     // SVG ELEMENT METHODS
     'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop style svg switch symbol text textPath title tref tspan use view vkern'.split(' ')
         .forEach(function(nodeName){
-            var camelCase = hyphensToCamelCase(nodeName);
+            var camelCase = hyphensToCamelCase(nodeName),
+                createElement = function(attr){
+                    return Pablo.create(nodeName, attr);
+                };
+
+            if (nodeName === 'svg'){
+                createElement = function(attr){
+                    attr = extend(attr, {version: svgVersion});
+                    return Pablo.create(nodeName, attr);
+                };
+            }
             
             // Add a new method namespace for each element name
-            Pablo.template(nodeName, function(attr){
-                return Pablo.create(nodeName, attr);
-            });
+            Pablo.template(nodeName, createElement);
 
             // Create methods aliases to allow camelCase element name
             Pablo[camelCase] = Pablo[nodeName];
