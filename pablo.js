@@ -60,13 +60,12 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
     // UTILITIES
     
     function extend(target/*, any number of source objects*/){
-        var i = 1,
-            len = arguments.length,
+        var len = arguments.length,
             withPrototype = arguments[len-1] === true,
-            obj, prop;
+            i, obj, prop;
         
         target || (target = {});
-        for (; i < len; i++){
+        for (i = 1; i < len; i++){
             obj = arguments[i];
             if (typeof obj === 'object'){
                 for (prop in obj){
@@ -333,6 +332,16 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
         
         slice: function(begin, end){
             return Pablo(Array.prototype.slice.call(this, begin, end));
+        },
+
+        reverse: function(){
+            Array.prototype.reverse.call(this);
+            return this;
+        },
+
+        sort: function(fn){
+            Array.prototype.sort.call(this, fn);
+            return this;
         },
         
         each: function(fn){
