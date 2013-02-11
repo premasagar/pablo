@@ -663,7 +663,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         },
         
         attr: function(attr, value){
-            var el, attributeName;
+            var el, attributeName, colonIndex, nsPrefix, nsURI;
 
             if (typeof attr === 'undefined'){
                 return getAttributes(this.get(0));
@@ -673,7 +673,15 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
                 // Get attribute
                 if (typeof value === 'undefined'){
                     el = this.get(0);
-                    return el && el.getAttribute(attr);
+
+                    // Namespaced attributes
+                    colonIndex = attr.indexOf(':');
+                    if (colonIndex > -1){
+                        nsPrefix = attr.slice(0, colonIndex);
+                        nsURI = Pablo.ns[nsPrefix];
+                        attr = attr.slice(colonIndex+1);
+                    }
+                    return el && el.getAttributeNS(nsURI, attr);
                 }
 
                 // Create attributes object
@@ -690,24 +698,13 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
                     if (attr.hasOwnProperty(prop)){
                         val = getValue(attr[prop], el, i, this);
                     
-                        // TODO: remove these
-                        switch (prop){
-                            case '_content':
-                            (PabloCollection || (PabloCollection = Pablo(el)))
-                                .content(val);
-                            continue;
-                        
-                            case '_children':
-                            (PabloCollection || (PabloCollection = Pablo(el)))
-                                .append(val);
-                            continue;
-                        
-                            case '_link':
-                            (PabloCollection || (PabloCollection = Pablo(el)))
-                                .link(val);
-                            continue;
+                        // Namespaced attributes, e.g. 'xlink:href'
+                        colonIndex = prop.indexOf(':');
+                        if (colonIndex > -1){
+                            nsPrefix = prop.slice(0, colonIndex);
+                            nsURI = Pablo.ns[nsPrefix];
                         }
-                        el.setAttributeNS(null, prop, val);
+                        el.setAttributeNS(nsURI || null, prop, val);
                     }
                 }
             });
@@ -750,23 +747,16 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         },
         
         removeAttr: function (attr) {
-            return this.each(function (el){
-                el.removeAttributeNS(null, attr);
-            });
-        },
+            var colonIndex = attr.indexOf(':'),
+                nsPrefix, nsURI;
 
-        link: function(href){
-            var el;
-
-            // Get first element's textContent
-            if (typeof href === 'undefined'){
-                el = this.get(0);
-                return el && el.getAttributeNS(xlinkns, 'href') || '';
+            if (colonIndex > -1){
+                nsPrefix = attr.slice(0, colonIndex);
+                nsURI = Pablo.ns[nsPrefix];
+                attr = attr.slice(colonIndex+1);
             }
-
-            return this.each(function(el, i){
-                var link = getValue(href, el, i, this);
-                el.setAttributeNS(xlinkns, 'href', link);
+            return this.each(function (el){
+                el.removeAttributeNS(nsURI || null, attr);
             });
         },
         
@@ -775,14 +765,13 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
 
             // Get first element's textContent
             if (typeof text === 'undefined'){
-                el = this.get(0);
+                el = this[0];
                 return el && el.textContent || '';
             }
 
             // Set every element's textContent
             return this.each(function(el, i){
-                var textValue = getValue(text, el, i, this);
-                el.textContent = textValue;
+                el.textContent = getValue(text, el, i, this);
             });
         },
 
@@ -1040,8 +1029,10 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
     extend(Pablo, {
         v: pabloVersion,
         isSupported: true,
-        svgns: svgns,
-        xlinkns: xlinkns,
+        ns: {
+            svg: svgns,
+            xlink: xlinkns
+        },
         svgVersion: svgVersion,
         Collection: PabloCollection,
         fn: pabloCollectionApi,

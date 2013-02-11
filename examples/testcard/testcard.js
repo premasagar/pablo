@@ -108,22 +108,17 @@
         
         
         // TEXT ON A PATH
-        paper.append(
-            Pablo.defs()
-                .append('path', {
-                    id:'squiggle',
-                    transform:'rotate(-90 300 170)',
-                    d:'M 20 320 C 120 220 220 120 320 220 C 420 320 520 420 620 320'
-                })
-            )
-            .append(
-                Pablo.text()
-                    .append('textPath', {
-                        _link:'#squiggle',
-                        _content:'★ In Xanadu, did Kublah Khan a stately pleasuredome decree…',
+        paper.defs()
+             .path({
+                id:'squiggle',
+                transform:'rotate(-90 300 170)',
+                d:'M 20 320 C 120 220 220 120 320 220 C 420 320 520 420 620 320'
+             });
+
+        paper.text().textPath({
+                        'xlink:href':'#squiggle',
                         fill:'#997099'
-                    })
-            );
+                    }).content('★ In Xanadu, did Kublah Khan a stately pleasuredome decree…');
 
 
         /////
@@ -133,16 +128,15 @@
         // NOTE: currently underneath the bubbles and not clickable
         paper.append(
             Pablo.a({
-                _link:'https://github.com/dharmafly/pablo',
+                'xlink:href':'https://github.com/dharmafly/pablo',
                 target:'_blank'
             })
             .append('text', {
-                _content:'➵ ♥ pablo',
                 x:300,
                 y:170,
                 fill:'#777',
                 transform:'rotate(-45 300 170)'
-            })
+            }).content('➵ ♥ pablo')
         );
 
 
@@ -285,8 +279,7 @@
             })
             .css({'stroke-width':15});
             
-        paper.use()
-            .link('#square')
+        paper.use({'xlink:href': '#square'})
             .duplicate(5)
             .attr({
                 fill:'orange',
@@ -394,8 +387,7 @@
             });
         
 
-        bubbleInstances = paper.use()
-            .link('#bubble')
+        bubbleInstances = paper.use({'xlink:href': '#bubble'})
             .duplicate(8)
             .attr({
                 x: function(el, i){
