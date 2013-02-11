@@ -421,25 +421,6 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             return false;
         },
 
-        /*
-        // TODO: merge with filterElements ?
-        // Filter children with CSS selectors
-        filterSelectors: (function(){
-            // Use single element, to avoid object creation
-            var container = make('g');
-
-            return function(selectors){
-                return this.filterElements(function(el){
-                    var g = Pablo(container),
-                        isMatch = g.append(Pablo(el).clone())
-                            .find(selectors).length;
-                    g.empty();
-                    return isMatch;
-                });
-            }
-        }()),
-        */
-
 
         /////
 
