@@ -427,6 +427,21 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
             return parents;
         },
 
+        // TODO: should this include document?
+        parents: function(){
+            var parents = Pablo(),
+                parent;
+
+            this.each(function(el){
+                parent = el.parentNode;
+                while (parent){
+                    parents.push(parent);
+                    parent = parent.parentNode;
+                }
+            });
+            return parents;
+        },
+
         next: function(){
             var siblings = Pablo();
             
