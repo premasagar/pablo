@@ -8,7 +8,7 @@
     MIT license: http://opensource.org/licenses/mit-license.php
 
 */
-
+/*jshint newcap:false, expr:false */
 var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocument){
     'use strict';
     
@@ -19,7 +19,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         xlinkns = 'http://www.w3.org/1999/xlink',
         vendorPrefixes = ['', '-moz-', '-webkit-', '-khtml-', '-o-', '-ms-'],
 
-        arrayProto = Array.prototype,
+        arrayProto = Array && Array.prototype,
         testElement, supportsClassList, hyphensToCamelCase, cssClassApi, pabloCollectionApi;
 
     
@@ -35,14 +35,14 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
 
     // TEST BROWSER COMPATIBILITY
 
-    testElement = document.createElementNS && make('svg');
+    testElement = document && document.createElementNS && make('svg');
     
     // Incompatible browser
     if (!(
-        document && document.querySelectorAll &&
+        testElement && testElement.createSVGRect &&
+        document.querySelectorAll &&
         Array && Array.isArray && arrayProto.forEach &&
-        Element && SVGElement && NodeList &&
-        testElement && testElement.createSVGRect
+        Element && SVGElement && NodeList && HTMLDocument
     )){
         // Return a simplified version of the Pablo API
         return {
@@ -194,15 +194,16 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
     // e.g. cssPrefix('transform') will return a string sequence of CSS properties
     function cssPrefix(styles, value){
         var vendorPrefixes = Pablo.vendorPrefixes,
-            prop, res, rule;
+            prop, res, rule, setStyle;
         
         if (typeof styles === 'object'){
             res = {};
             for (prop in styles){
                 if (styles.hasOwnProperty(prop)){
-                    vendorPrefixes.forEach(function(prefix){
+                    setStyle = function(prefix){
                         res[prefix + prop] = styles[prop];
-                    });
+                    };
+                    vendorPrefixes.forEach(setStyle);
                 }
             }
         }
@@ -263,7 +264,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
 
     // `behaviour` can be 'some', 'every' or 'filter'
     function matchSelectors(collection, selectors, behaviour){
-        var i, len, node, docMatches, ancestor, ancestors, matches, matchesCache, ancestorsLength, isMatch, filtered;
+        var i, len, node, ancestor, ancestors, matches, matchesCache, ancestorsLength, isMatch, filtered;
 
         if (behaviour === 'filter'){
             filtered = Pablo();
@@ -490,8 +491,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
 
         // TODO: should this include document?
         parents: function(selectors){
-            var parents = Pablo(),
-                parent;
+            var parents = Pablo();
 
             this.each(function(el){
                 while (el = el.parentNode){
@@ -591,7 +591,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             return this.each(function(el){
                 var parentNode = el.parentNode;
                 if (parentNode){
-                    Pablo(node, attr).each(function(toInsert){
+                    toPablo(node, attr).each(function(toInsert){
                         parentNode.insertBefore(toInsert, el);
                     });
                 }
@@ -602,7 +602,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             return this.each(function(el){
                 var parentNode = el.parentNode;
                 if (parentNode){
-                    Pablo(node, attr).each(function(toInsert){
+                    toPablo(node, attr).each(function(toInsert){
                         parentNode.insertBefore(toInsert, el.nextSibling);
                     });
                 }
@@ -611,20 +611,20 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
 
         // Insert every element in the set of matched elements after the target.
         insertAfter: function(node, attr){
-            Pablo(node, attr).after(this);
+            toPablo(node, attr).after(this);
             return this;
         },
         
         // Insert every element in the set of matched elements before the target.
         insertBefore: function(node, attr){
-            Pablo(node, attr).before(this);
+            toPablo(node, attr).before(this);
             return this;
         },
 
         prepend: function(node, attr){
             return this.each(function(el){
                 var first = el.firstChild;
-                Pablo(node, attr).each(function(child){
+                toPablo(node, attr).each(function(child){
                     el.insertBefore(child, first);
                 });
             });
@@ -636,12 +636,10 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         },
         
         clone: function(deep){
-            deep = deep || false;
-            return Pablo(
-                this.map(function(el){
-                    return el.cloneNode(deep);
-                })
-            );
+            deep = (deep || false);
+            return this.map(function(el){
+                return el.cloneNode(deep);
+            });
         },
         
         duplicate: function(repeats){
@@ -652,7 +650,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
                 
                 // Clone the collection
                 while (repeats --){
-                    duplicates.push(this.clone(true).get(0));
+                    duplicates.push(this.clone(true)[0]);
                 }
                 // Insert in the DOM after the collection
                 this.after(duplicates)
@@ -666,13 +664,13 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             var el, attributeName, colonIndex, nsPrefix, nsURI;
 
             if (typeof attr === 'undefined'){
-                return getAttributes(this.get(0));
+                return getAttributes(this[0]);
             }
 
             if (typeof attr === 'string'){
                 // Get attribute
                 if (typeof value === 'undefined'){
-                    el = this.get(0);
+                    el = this[0];
 
                     // Namespaced attributes
                     colonIndex = attr.indexOf(':');
@@ -692,7 +690,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             
             // Set multiple attributes
             this.each(function(el, i){
-                var PabloCollection, prop, val;
+                var prop, val;
                 
                 for (prop in attr){
                     if (attr.hasOwnProperty(prop)){
