@@ -367,12 +367,62 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             );
         },
 
-        /*
-        is: function(){
-
+        indexOf: function(element){
+            if (Pablo.isPablo(element)){
+                element = element[0];
+            }
+            return Array.prototype.indexOf.call(this, element);
         },
 
-        // TODO: merge with filterElements
+        is: function(selector){
+            var len = this.length,
+                i, node, docMatches, ancestor, ancestors, matches, matchesCache, ancestorsLength;
+
+            for (i=0, len=this.length; i<len; i++){
+                node = this.eq(i);
+                ancestor = node.parents().last();
+
+                // Use ancestor to find element via a selector query
+                if (ancestor.length){
+                    // Have we previously cached the result of the query?
+                    matches = matchesCache && matchesCache[ancestors.indexOf(ancestor)];
+
+                    if (!matches){
+                        matches = ancestor.find(selector);
+
+                        // If more than one element in the collection, then
+                        // we cache the result of the query
+                        if (len > 1){
+                            // Create the cache containers
+                            if (!matchesCache){
+                                ancestors = [];
+                                matchesCache = [];
+                            }
+                            // Cache the result
+                            ancestorsLength = ancestors.push(ancestor);
+                            matchesCache[ancestorsLength-1] = matches;
+                        }
+                    }
+                }
+
+                // Element has no parent, so clone it and append to a
+                // temporary element
+                else {
+                    node = node.clone();
+                    ancestor = Pablo.g().append(node);
+                    matches = ancestor.find(selector);
+                }
+
+                if (matches.indexOf(node) > -1){
+                    return true;
+                }
+            }
+
+            return false;
+        },
+
+        /*
+        // TODO: merge with filterElements ?
         // Filter children with CSS selectors
         filterSelectors: (function(){
             // Use single element, to avoid object creation
