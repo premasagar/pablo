@@ -207,7 +207,7 @@ if (Pablo.isSupported){
     });
     
     // SVG root node
-    solarsystem = Pablo('#paper').root({
+    solarsystem = Pablo('#paper').svg({
         width: width,
         height: height
     });

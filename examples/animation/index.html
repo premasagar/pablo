@@ -19,11 +19,11 @@
         <!-- scripts -->
         <script src="../../pablo.js"></script>
         <script>
-        var paper = Pablo('#paper').root({
+        var svg = Pablo('#paper').svg({
                 width: window.innerWidth,
                 height: window.innerHeight
             }),
-            circle = paper.circle({
+            circle = svg.circle({
                 cx: 0,
                 cy: 60,
                 r: 50
@@ -120,7 +120,7 @@
             });
         });
 
-        var stars = paper.g();
+        var stars = svg.g();
 
         // Use of templates
         // Pablo.star() is now available

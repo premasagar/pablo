@@ -22,7 +22,7 @@
         <!-- scripts -->
         <script src="../../pablo.js"></script>
         <script>
-        var paper = Pablo('#paper').root({
+        var svg = Pablo('#paper').svg({
                 width: window.innerWidth,
                 height: window.innerHeight
             });
@@ -30,7 +30,7 @@
         /////
 
 
-        paper.g({id:'roundabout'})
+        svg.g({id:'roundabout'})
             .transform('matrix', '1.25,0,0,-1.25,0,300')
             .transform('scale', '0.5')
             .append([
@@ -54,7 +54,7 @@
             ]);
 
         
-        paper.g({id:'train'})
+        svg.g({id:'train'})
             .transform('scale', '0.5')
             .transform('translate', '700')
             .append([

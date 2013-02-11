@@ -89,7 +89,7 @@
 
         function train(root){
             var train = root.g(),
-                blackPaths = root.find('path').filterElements(function(el){
+                blackPaths = root.find('path').select(function(el){
                     return Pablo(el).css('fill') === '#000000';
                 });
 
@@ -110,7 +110,7 @@
 
         /////
 
-        var paper = Pablo('#paper'),
+        var svg = Pablo('#paper'),
 
         /*
             iframe = importFromIframe(
@@ -128,7 +128,7 @@
                 train
             );
 
-        iframe.appendTo(paper);
+        iframe.appendTo(svg);
         </script>
     </body>
 </html>

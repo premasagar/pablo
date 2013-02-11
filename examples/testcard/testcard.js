@@ -51,10 +51,10 @@
         var container = Pablo('#testcard'),
 
             // SVG root element
-            paper = container.root();
+            svg = container.svg();
 
         // Set viewBox dimensions
-        setViewBox.call(paper, 500, 480, {
+        setViewBox.call(svg, 500, 480, {
             constrainWidth: container[0].clientWidth,
             constrainHeight: container[0].clientHeight
         });
@@ -62,13 +62,13 @@
         /////
 
         // `<style>` ELEMENT
-        paper.append(
+        svg.append(
             Pablo.style().content(
-                '#paper > svg text' +
+                '#svg > svg text' +
                     '{font-family:sans-serif; font-size:16px}' +
                     
-                '#paper > svg g.basic line,' +
-                '#paper > svg g.basic ellipse' +
+                '#svg > svg g.basic line,' +
+                '#svg > svg g.basic ellipse' +
                     '{stroke-width:10}'
             )
         );
@@ -78,7 +78,7 @@
 
 
         // BASIC SHAPES
-        paper.append(
+        svg.append(
             Pablo.g({'stroke-width': 20})
                 .addClass('basic')
                 .append('line', {x1:10, y1:5, x2:200, y2:350, stroke:'purple'})
@@ -108,14 +108,14 @@
         
         
         // TEXT ON A PATH
-        paper.defs()
+        svg.defs()
              .path({
                 id:'squiggle',
                 transform:'rotate(-90 300 170)',
                 d:'M 20 320 C 120 220 220 120 320 220 C 420 320 520 420 620 320'
              });
 
-        paper.text().textPath({
+        svg.text().textPath({
                         'xlink:href':'#squiggle',
                         fill:'#997099'
                     }).content('★ In Xanadu, did Kublah Khan a stately pleasuredome decree…');
@@ -126,7 +126,7 @@
         
         // HYPERLINKS
         // NOTE: currently underneath the bubbles and not clickable
-        paper.append(
+        svg.append(
             Pablo.a({
                 'xlink:href':'https://github.com/dharmafly/pablo',
                 target:'_blank'
@@ -145,7 +145,7 @@
             
         // MOUSE EVENTS
         // Animate colour of red circle on interaction
-        paper.find('circle')
+        svg.find('circle')
             .attr({style:'cursor:pointer'})
             .on('mouseover touchstart', function(event){
                 Pablo(this)
@@ -181,7 +181,7 @@
 
         // ANIMATED PATTERN
         // In a prepended background circle
-        paper.append(
+        svg.append(
             Pablo.defs()
                 .append(
                     Pablo('pattern', {
@@ -241,7 +241,7 @@
                 'stroke-width': 1,
                 opacity: 0.7
             })
-            .prependTo(paper)
+            .prependTo(svg)
             .line()
                 .duplicate(18)
                 .attr({
@@ -268,7 +268,7 @@
 
         // <use> INSTANCES
                 
-        var rect = paper.defs()
+        var rect = svg.defs()
             .g({id:'square'})
             .rect({
                 x:0,
@@ -279,7 +279,7 @@
             })
             .css({'stroke-width':15});
             
-        paper.use({'xlink:href': '#square'})
+        svg.use({'xlink:href': '#square'})
             .duplicate(5)
             .attr({
                 fill:'orange',
@@ -356,7 +356,7 @@
             colors = ['purple', 'orange', 'gray', 'yellow', 'red'];
 
         while (numShapes--){
-            paper.star({
+            svg.star({
                 points: randomIntRange(4, 13),
                 size: randomIntRange(3, 18),
                 x: randomIntRange(250, 440),
@@ -374,7 +374,7 @@
         var bubble, bubbleInstances, intervalRef;
             
         // SHAKY BUBBLES
-        bubble = paper.defs()
+        bubble = svg.defs()
             .g({id:'bubble'})
             .circle({
                 cx:53,
@@ -387,7 +387,7 @@
             });
         
 
-        bubbleInstances = paper.use({'xlink:href': '#bubble'})
+        bubbleInstances = svg.use({'xlink:href': '#bubble'})
             .duplicate(8)
             .attr({
                 x: function(el, i){
@@ -420,8 +420,8 @@
         var scaleRange = document.getElementById('scale');
         if (scaleRange){
             scaleRange.addEventListener('change', function(){
-                // paper.el[0].currentScale = scaleRange.value;
-                paper.cssPrefix({
+                // svg.el[0].currentScale = scaleRange.value;
+                svg.cssPrefix({
                     'transform':'scale(' + scaleRange.value + ')',
                     'transform-origin':'0 0'
                 });

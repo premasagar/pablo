@@ -26,7 +26,7 @@ function createRoot(container){
     });
 
     // SVG root node
-    return Pablo('#paper').root({
+    return Pablo('#paper').svg({
         width: width,
         height: height
     });
