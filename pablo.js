@@ -9,11 +9,11 @@
 
 */
 
-var Pablo = (function(document, Array, Element, SVGElement, NodeList){
+var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocument){
     'use strict';
     
     var /* SETTINGS */
-        pabloVersion = '0.2.3',
+        pabloVersion = '0.2.4',
         svgVersion = 1.1,
         svgns = 'http://www.w3.org/2000/svg',
         xlinkns = 'http://www.w3.org/1999/xlink',
@@ -106,6 +106,10 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
     function isNodeList(obj){
         return obj instanceof NodeList;
     }
+    
+    function isHTMLDocument(obj){
+        return obj instanceof HTMLDocument;
+    }
 
     function hasSvgNamespace(obj){
         return obj && obj.namespaceURI && obj.namespaceURI === svgns;
@@ -119,6 +123,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
         return Pablo.isPablo(obj) ||
             isElement(obj) ||
             isNodeList(obj) ||
+            isHTMLDocument(obj) ||
             Array.isArray(obj) ||
             isArrayLike(obj) ||
             hasSvgNamespace(obj);
@@ -141,7 +146,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
         }
 
         // Is an existing element; check if already in collection
-        else if (isElement(node) || hasSvgNamespace(node)){
+        else if (isElement(node) || isHTMLDocument(node) || hasSvgNamespace(node)){
             if (collection.indexOf(node) >= 0){
                 return;
             }
@@ -991,6 +996,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
         isArrayLike: isArrayLike,
         isElement: isElement,
         isNodeList: isNodeList,
+        isHTMLDocument: isHTMLDocument,
         isSvg: isSvg,
         // isPablo is overwritten in functional.js extension
         isPablo: function(obj){
@@ -1048,4 +1054,4 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
     /////
     
     return Pablo;
-}(window.document, window.Array, window.Element, window.SVGElement, window.NodeList));
+}(window.document, window.Array, window.Element, window.SVGElement, window.NodeList, window.HTMLDocument));
