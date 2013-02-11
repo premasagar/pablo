@@ -107,7 +107,7 @@ if (window.Pablo.isSupported){
         }
 
         Pablo.isPablo = function(obj){
-            return isPabloDefault(obj) || obj.collection instanceof Pablo.Collection;
+            return isPabloDefault(obj) || !!obj && obj.collection instanceof Pablo.Collection;
         };
 
         // Turn on or off the functional wrapper API. The default API returns when functional wrapper is switched off.
