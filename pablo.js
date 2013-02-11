@@ -390,6 +390,15 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList){
 
 
         // TRAVERSAL
+
+        child: function(i){
+            var children = Pablo();
+
+            this.each(function(el){
+                children.push(el.childNodes[i]);
+            });
+            return children;
+        },
         
         children: function(node, attr){
             var children;
