@@ -8,7 +8,7 @@
     MIT license: http://opensource.org/licenses/mit-license.php
 
 */
-/*jshint newcap:false, expr:false */
+/*jshint newcap:false */
 var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocument){
     'use strict';
     
@@ -19,8 +19,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         xlinkns = 'http://www.w3.org/1999/xlink',
         vendorPrefixes = ['', '-moz-', '-webkit-', '-khtml-', '-o-', '-ms-'],
 
-        arrayProto = Array && Array.prototype,
-        testElement, supportsClassList, hyphensToCamelCase, cssClassApi, pabloCollectionApi;
+        testElement, arrayProto, supportsClassList, hyphensToCamelCase, cssClassApi, pabloCollectionApi;
 
     
     function make(elementName){
@@ -41,8 +40,9 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
     if (!(
         testElement && testElement.createSVGRect &&
         document.querySelectorAll &&
-        Array && Array.isArray && arrayProto.forEach &&
-        Element && SVGElement && NodeList && HTMLDocument
+        Array && Array.isArray && Array.prototype.forEach &&
+        Element && SVGElement && NodeList && HTMLDocument &&
+        document.body.children && document.body.previousElementSibling
     )){
         // Return a simplified version of the Pablo API
         return {
@@ -52,6 +52,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
     }
 
     supportsClassList = !!testElement.classList;
+    arrayProto = Array.prototype;
 
     
     /////
@@ -64,7 +65,10 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             withPrototype = arguments[len-1] === true,
             i, obj, prop;
         
-        target || (target = {});
+        if (!target){
+            target = {};
+        }
+
         for (i = 1; i < len; i++){
             obj = arguments[i];
             if (typeof obj === 'object'){
@@ -197,12 +201,13 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             prop, res, rule, setStyle;
         
         if (typeof styles === 'object'){
+            setStyle = function(prefix){
+                res[prefix + prop] = styles[prop];
+            };
+
             res = {};
             for (prop in styles){
                 if (styles.hasOwnProperty(prop)){
-                    setStyle = function(prefix){
-                        res[prefix + prop] = styles[prop];
-                    };
                     vendorPrefixes.forEach(setStyle);
                 }
             }
@@ -323,6 +328,17 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         // If filtering, return the collection; other boolean
         return behaviour === 'filter' ? filtered :
               (behaviour === 'every'  ? true : false);
+    }
+
+    function traverse(prop){
+        return function(selectors){
+            var collection = Pablo();
+            
+            this.each(function(el){
+                collection.push(el[prop]);
+            });
+            return selectors ? collection.select(selectors) : collection;
+        };
     }
     
     
@@ -456,67 +472,34 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
 
         // TRAVERSAL
         
-        children: function(nodeOrSelector, attr){
-            var children = Pablo();
-
-            // Append new children
+        children: function(nodeOrSelectors, attr){
+            // Append children and return them
             if (attr){
-                children.push(nodeOrSelector)
-                        .attr(attr)
-                        .appendTo(this);
+                return toPablo(nodeOrSelectors, attr).appendTo(this);
             }
 
-            // Get children
+            // Get children, optionally filtered by selectors
             else {
-                this.each(function(el){
-                    children.push(el.childNodes);
-                });
-
-                // Filter with DOM selectors or filter function
-                if (nodeOrSelector){
-                    children = children.select(nodeOrSelector);
-                }
+                return traverse('children').call(this, nodeOrSelectors);
             }
-            return children;
         },
-        
-        parent: function(selectors){
-            var parents = Pablo();
-            
-            this.each(function(el){
-                parents.push(el.parentNode);
-            });
-            return selectors ? parents.select(selectors) : parents;
-        },
+        next: traverse('nextElementSibling'),
+        prev: traverse('previousElementSibling'),
+        parent: traverse('parentNode'),
 
-        // TODO: should this include document?
+        // NOTE: `parent` and `parents` matches jQuery's behaviour:
+        // the former allows `document` in the response; the latter excludes it
         parents: function(selectors){
             var parents = Pablo();
 
             this.each(function(el){
-                while (el = el.parentNode){
+                el = el.parentNode;
+                while (el && el !== document){
                     parents.push(el);
+                    el = el.parentNode;
                 }
             });
             return selectors ? parents.select(selectors) : parents;
-        },
-
-        next: function(selectors){
-            var siblings = Pablo();
-            
-            this.each(function(el){
-                siblings.push(el.nextSibling);
-            });
-            return selectors ? siblings.select(selectors) : siblings;
-        },
-
-        prev: function(selectors){
-            var siblings = Pablo();
-            
-            this.each(function(el){
-                siblings.push(el.previousSibling);
-            });
-            return selectors ? siblings.select(selectors) : siblings;
         },
 
         siblings: function(selectors){
@@ -645,15 +628,20 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         },
         
         duplicate: function(repeats){
-            var duplicates = Pablo();
+            var duplicates;
 
             if (repeats !== 0){
-                typeof repeats === 'number' && repeats > 0 || (repeats = 1);
+                duplicates = Pablo();
+
+                if (typeof repeats !== 'number' || repeats < 0){
+                    repeats = 1;
+                }
                 
                 // Clone the collection
                 while (repeats --){
                     duplicates.push(this.clone(true)[0]);
                 }
+
                 // Insert in the DOM after the collection
                 this.after(duplicates)
                     // Add new elements the collection
