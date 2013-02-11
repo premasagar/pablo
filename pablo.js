@@ -305,7 +305,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
                 matches = ancestor.find(selectors);
             }
 
-            isMatch = matches.indexOf(node) > -1;
+            isMatch = matches.indexOf(node) >= 0;
 
             if (isMatch){
                 if (behaviour === 'some'){
@@ -676,7 +676,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
 
                     // Namespaced attributes
                     colonIndex = attr.indexOf(':');
-                    if (colonIndex > -1){
+                    if (colonIndex >= 0){
                         nsPrefix = attr.slice(0, colonIndex);
                         nsURI = Pablo.ns[nsPrefix];
                         attr = attr.slice(colonIndex+1);
@@ -700,7 +700,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
                     
                         // Namespaced attributes, e.g. 'xlink:href'
                         colonIndex = prop.indexOf(':');
-                        if (colonIndex > -1){
+                        if (colonIndex >= 0){
                             nsPrefix = prop.slice(0, colonIndex);
                             nsURI = Pablo.ns[nsPrefix];
                         }
@@ -750,7 +750,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             var colonIndex = attr.indexOf(':'),
                 nsPrefix, nsURI;
 
-            if (colonIndex > -1){
+            if (colonIndex >= 0){
                 nsPrefix = attr.slice(0, colonIndex);
                 nsURI = Pablo.ns[nsPrefix];
                 attr = attr.slice(colonIndex+1);
