@@ -19,8 +19,8 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         xlinkns = 'http://www.w3.org/1999/xlink',
         vendorPrefixes = ['', '-moz-', '-webkit-', '-khtml-', '-o-', '-ms-'],
 
-        testElement, supportsClassList, hyphensToCamelCase, cssClassApi,
-        pabloCollectionApi;
+        arrayProto = Array.prototype,
+        testElement, supportsClassList, hyphensToCamelCase, cssClassApi, pabloCollectionApi;
 
     
     function make(elementName){
@@ -40,7 +40,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
     // Incompatible browser
     if (!(
         document && document.querySelectorAll &&
-        Array && Array.isArray && Array.prototype.forEach &&
+        Array && Array.isArray && arrayProto.forEach &&
         Element && SVGElement && NodeList &&
         testElement && testElement.createSVGRect
     )){
@@ -79,7 +79,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
     }
     
     function toArray(obj){
-        return Array.prototype.slice.call(obj);
+        return arrayProto.slice.call(obj);
     }
     
     function getAttributes(el){
@@ -185,7 +185,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         }
 
         // Add element to collection
-        Array.prototype[prepend ? 'unshift' : 'push'].call(collection, node);
+        arrayProto[prepend ? 'unshift' : 'push'].call(collection, node);
     }
 
     // Return CSS styles with browser vendor prefixes
@@ -328,24 +328,24 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         
         // Remove node from end of the collection
         pop: function(){
-            return Pablo(Array.prototype.pop.call(this));
+            return Pablo(arrayProto.pop.call(this));
         },
         
         shift: function(){
-            return Pablo(Array.prototype.shift.call(this));
+            return Pablo(arrayProto.shift.call(this));
         },
         
         slice: function(begin, end){
-            return Pablo(Array.prototype.slice.call(this, begin, end));
+            return Pablo(arrayProto.slice.call(this, begin, end));
         },
 
         reverse: function(){
-            Array.prototype.reverse.call(this);
+            arrayProto.reverse.call(this);
             return this;
         },
 
         sort: function(fn){
-            Array.prototype.sort.call(this, fn);
+            arrayProto.sort.call(this, fn);
             return this;
         },
         
@@ -356,14 +356,14 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         
         map: function(fn){
             return Pablo(
-                Array.prototype.map.call(this, fn)
+                arrayProto.map.call(this, fn)
             );
         },
         
         // Note: name due to conflict with 'filter' element method
         filterElements: function(fn){
             return Pablo(
-                Array.prototype.filter.call(this, fn)
+                arrayProto.filter.call(this, fn)
             );
         },
 
@@ -371,7 +371,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             if (Pablo.isPablo(element)){
                 element = element[0];
             }
-            return Array.prototype.indexOf.call(this, element);
+            return arrayProto.indexOf.call(this, element);
         },
 
         is: function(selector){
