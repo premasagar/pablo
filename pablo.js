@@ -530,15 +530,6 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
 
         // MANIPULATION
         
-        // DEPRECATED
-        // Create SVG root wrapper
-        root: function(attr){
-            if (window.console && window.console.warn){
-                window.console.warn('Pablo.root() is deprecated. Use Pablo.svg() instead');
-            }
-            return this.svg(attr);
-        },
-        
         empty: function(){
             return this.each(function(el){
                 while (el.firstChild) {
@@ -1024,8 +1015,8 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         svgVersion: svgVersion,
         Collection: PabloCollection,
         fn: pabloCollectionApi,
-        root: pabloCollectionApi.root,
 
+        // methods
         make: make,
         create: createPablo,
         select: selectPablo,
