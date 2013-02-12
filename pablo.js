@@ -690,7 +690,12 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             return this;
         },
 
-        transform: function(functionName, value){
+        transform: function(functionName, value/* , additional values*/){
+            // Additional arguments are space-delimited as part of the value
+            if (arguments.length > 2){
+                value = toArray(arguments).slice(1).join(' ');
+            }
+
             return this.each(function(el, i){
                 var node = Pablo(el),
                     transformAttr = node.attr('transform'),
