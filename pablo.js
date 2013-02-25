@@ -277,7 +277,9 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
 
         for (i=0, len=collection.length; i<len; i++){
             node = collection.eq(i);
-            ancestor = node.parents().last();
+            // Get the root ancestor
+            // `null` is passed as the 2nd arg to parents() to include `document` in ancestors
+            ancestor = node.parents(null, null).last();
 
             // Use ancestor to find element via a selector query
             if (ancestor.length){
@@ -302,15 +304,15 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
                 }
             }
 
-            // Element has no parent, so clone it and append to a
-            // temporary element
-            else {
+            // Element has no parent
+            // If it is an element, clone it and append to a temporary element
+            else if (!isElement(node[0])) {
                 node = node.clone();
                 ancestor = Pablo.g().append(node);
                 matches = ancestor.find(selectors);
             }
 
-            isMatch = matches.indexOf(node) >= 0;
+            isMatch = matches && matches.indexOf(node) >= 0;
 
             if (isMatch){
                 if (behaviour === 'some'){
@@ -332,10 +334,8 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
 
     function traverse(prop){
         return function(selectors){
-            var collection = Pablo();
-            
-            this.each(function(el){
-                collection.push(el[prop]);
+            var collection = this.map(function(el){
+                return el[prop];
             });
             return selectors ? collection.select(selectors) : collection;
         };
@@ -471,30 +471,28 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
 
 
         // TRAVERSAL
-        
-        children: function(nodeOrSelectors, attr){
-            // Append children and return them
-            if (attr){
-                return toPablo(nodeOrSelectors, attr).appendTo(this);
-            }
 
-            // Get children, optionally filtered by selectors
-            else {
-                return traverse('children').call(this, nodeOrSelectors);
-            }
-        },
+        children: traverse('childNodes'),
         next: traverse('nextElementSibling'),
         prev: traverse('previousElementSibling'),
         parent: traverse('parentNode'),
 
         // NOTE: `parent` and `parents` matches jQuery's behaviour:
-        // the former allows `document` in the response; the latter excludes it
-        parents: function(selectors){
+        // the former allows `document` in the response; the latter excludes it.
+        // `checkType` is for internal use; it is a comparison function and stops
+        // the loop when it returns false; see parentsSvg() and matchSelectors()
+        parents: function(selectors, checkType){
             var parents = Pablo();
+
+            if (typeof checkType === 'undefined'){
+                checkType = isElement;
+            }
 
             this.each(function(el){
                 el = el.parentNode;
-                while (el && el !== document){
+                // Check element has parent and, if `checkType` isn't falsey, use it to
+                // check the element's type
+                while (el && (checkType ? checkType(el) : true)){
                     parents.push(el);
                     el = el.parentNode;
                 }
@@ -502,15 +500,28 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             return selectors ? parents.select(selectors) : parents;
         },
 
+        // Same as parents() but only returns SVG nodes
+        parentsSvg: function(selectors){
+            return this.parents(selectors, isSvg);
+        },
+
+        // Find each element's SVG root element
+        root: function(selectors){
+            // Find the SVG element ancestors and return those that have a non-SVG parent
+            return this.parentsSvg(selectors).select(function(el){
+                return !isSvg(el.parentNode);
+            });
+        },
+
         siblings: function(selectors){
             var siblings = Pablo();
 
             this.each(function(el){
-                var selfAndSiblings = Pablo(el).parent().children(),
-                    i = selfAndSiblings.indexOf(el);
-
-                siblings.push(selfAndSiblings.slice(0, i))
-                        .push(selfAndSiblings.slice(i+1));
+                siblings.push(
+                    Pablo(el).parent().children().select(function(child){
+                        return el !== child;
+                    })
+                );
             });
             return selectors ? siblings.select(selectors) : siblings;
         },
@@ -561,6 +572,10 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         appendTo: function(node, attr){
             toPablo(node, attr).append(this);
             return this;
+        },
+        
+        child: function(node, attr){
+            return toPablo(node, attr).appendTo(this);
         },
         
         before: function(node, attr){
@@ -688,6 +703,15 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
                 }
             });
             return this;
+        },
+
+        // Return an array of values from an attribute for each element 
+        // in the collection
+        pluck: function(attr){
+            return toArray(this).map(function(el){
+                return Pablo(el).attr(attr);
+
+            });
         },
 
         transform: function(functionName, value/* , additional values*/){
