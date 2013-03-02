@@ -348,21 +348,28 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             }
         }
     }
-    
-    // Node prototype
     pabloCollectionApi = PabloCollection.prototype = [];
 
     extend(pabloCollectionApi, {
         collection: null,
         constructor: PabloCollection,
         pablo: pabloVersion,
-        
-        get: function(index){
-            return this[index];
-        },
+
+
+        /////
+
+        // ARRAY-LIKE BEHAVIOUR
 
         toArray: function(){
             return toArray(this);
+        },
+        
+        size: function(){
+            return this.length;
+        },
+        
+        get: function(index){
+            return this[index];
         },
         
         eq: function(index){
@@ -371,10 +378,6 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
                 Pablo(this[index]) :
                 // Return node, counting backwards from end of elements array
                 (index < -1 ? this.slice(index, index + 1) : this.slice(index));
-        },
-        
-        size: function(){
-            return this.length;
         },
 
         first: function(){
@@ -450,11 +453,11 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
                 Pablo(arrayProto.filter.call(this, fnOrSelector));
         },
 
-        indexOf: function(element){
-            if (Pablo.isPablo(element)){
-                element = element[0];
+        indexOf: function(el){
+            if (Pablo.isPablo(el)){
+                el = el[0];
             }
-            return arrayProto.indexOf.call(this, element);
+            return arrayProto.indexOf.call(this, el);
         },
 
 
@@ -791,7 +794,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
     /////
 
 
-    // DOM EVENT METHODS
+    // DOM EVENTS
 
     (function(){
         // Allow either single or multiple events to be triggered
@@ -889,7 +892,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
     /////
 
     
-    // CSS CLASS METHODS
+    // CSS CLASSES
 
     cssClassApi = supportsClassList ?
 
