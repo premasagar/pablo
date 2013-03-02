@@ -632,14 +632,20 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
                 if (typeof value === 'undefined'){
                     el = this[0];
 
+                    if (!el){
+                        return;
+                    }
+
                     // Namespaced attributes
                     colonIndex = attr.indexOf(':');
+
                     if (colonIndex >= 0){
                         nsPrefix = attr.slice(0, colonIndex);
                         nsURI = Pablo.ns[nsPrefix];
                         attr = attr.slice(colonIndex+1);
+                        return el.getAttributeNS(nsURI || null, attr);
                     }
-                    return el && el.getAttributeNS(nsURI || null, attr);
+                    return el.getAttribute(attr);
                 }
 
                 // Create attributes object
@@ -727,6 +733,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
                 attr = attr.slice(colonIndex+1);
             }
             return this.each(function (el){
+                // TODO: does `removeAttribute` behave differently?
                 el.removeAttributeNS(nsURI || null, attr);
             });
         },
@@ -752,7 +759,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             if (typeof styles === 'string'){
                 // Get style
                 if (typeof value === 'undefined'){
-                    el = this.get(0);
+                    el = this[0];
                     return el && el.style.getPropertyValue(styles);
                     // or document.defaultView.getComputedStyle(el, null).getPropertyValue(styles);
                 }
