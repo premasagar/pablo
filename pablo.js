@@ -34,15 +34,18 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
 
     // TEST BROWSER COMPATIBILITY
 
-    testElement = document && document.createElementNS && make('svg');
+    testElement = document && 'createElementNS' in document && make('svg');
     
     // Incompatible browser
     if (!(
-        testElement && testElement.createSVGRect &&
-        document.querySelectorAll &&
-        Array && Array.isArray && Array.prototype.forEach &&
-        Element && SVGElement && NodeList && HTMLDocument &&
-        document.body.children && document.body.previousElementSibling
+        testElement &&
+        Array && Element && SVGElement && NodeList && HTMLDocument &&
+        'createSVGRect' in testElement &&
+        'querySelectorAll' in document &&
+        'isArray' in Array &&
+        'forEach' in Array.prototype &&
+        'children' in document.body &&
+        'previousElementSibling' in document.body
     )){
         // Return a simplified version of the Pablo API
         return {
@@ -51,7 +54,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         };
     }
 
-    supportsClassList = !!testElement.classList;
+    supportsClassList = 'classList' in testElement;
     arrayProto = Array.prototype;
 
     
