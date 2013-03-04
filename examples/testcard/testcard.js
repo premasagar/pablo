@@ -43,9 +43,6 @@
 
     // Check browser supports Pablo
     if (Pablo.isSupported){
-        // Use of the extension functional.js (uncomment next line)
-           // Pablo.useFunctional(true);
-
         // CREATE SVG ROOT
         // (optional) Pass HTML element or CSS selector to be SVG container
         var container = Pablo('#testcard'),
