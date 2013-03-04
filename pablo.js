@@ -806,60 +806,71 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
 
     // DOM EVENTS
 
-    (function(){
-        // Allow either single or multiple events to be triggered
-        function eventMethod(method){        
-            return function(type, listener, useCapture){
-                // Multiple events
-                if (type.indexOf(' ') > 0){
-                    type.split(' ').forEach(function(type){
-                        method.call(this, type, listener, useCapture);
-                    }, this);
-                }
-                // Single event
-                else {
-                    method.call(this, type, listener, useCapture);
-                }
-                return this;
-            };
+    // TODO: use for adding / removing CSS classes too
+    function processList(item, fn){
+        // Multiple items
+        if (item.indexOf(' ') > 0){
+            item.split(' ').forEach(function(item){
+                processList(item, fn);
+            });
         }
+        // Single item
+        else {
+            fn(item);
+        }
+    }
 
-        extend(pabloCollectionApi, {
-            on: eventMethod(function(type, listener, useCapture){
-                this.each(function(el){
-                    el.addEventListener(type, listener, useCapture || false);
-                });
-            }),
+    // Allow either single or multiple events to be triggered
+    function eventListener(fn){
+        return function(type, listener, useCapture, context){
+            context || (context = this);
+            processList(type, function(type){
+                fn.call(context, type, listener, useCapture || false);
+            });
+            return this;
+        };
+    }
 
-            off: eventMethod(function(type, listener, useCapture){
-                this.each(function(el){
-                    el.removeEventListener(type, listener, useCapture || false);
-                });
-            }),
+    extend(pabloCollectionApi, {
+        on: eventListener(function(type, listener, useCapture){
+            this.each(function(el){
+                el.addEventListener(type, listener, useCapture);
+            });
+        }),
 
-            // Trigger listener once per collection
-            one: eventMethod(function(type, listener, useCapture){
-                var thisNode = this;
-                this.on(type, function addListener(){
+        off: eventListener(function(type, listener, useCapture){
+            this.each(function(el){
+                el.removeEventListener(type, listener, useCapture);
+            });
+        }),
+
+        // Trigger listener once per collection
+        one: eventListener(function(type, listener, useCapture){
+            var node = this,
+                args = arguments;
+
+            this.on(type, function addListener(){
+                // Remove listener, then trigger
+                node.off(type, addListener, useCapture);
+                listener.apply(node, args);
+            }, useCapture, context);
+        }),
+
+        // Trigger listener once per element in the collection
+        oneEach: eventListener(function(type, listener, useCapture, context){
+            var args = arguments;
+
+            this.each(function(el){
+                var node = Pablo(el);
+
+                node.on(type, function addListener(){
                     // Remove listener, then trigger
-                    thisNode.off(type, addListener, useCapture);
-                    listener.apply(thisNode, arguments);
+                    node.off(type, addListener, useCapture);
+                    listener.apply(node, args);
                 }, useCapture);
-            }),
-
-            // Trigger listener once per element in the collection
-            oneEach: eventMethod(function(type, listener, useCapture){
-                this.each(function(el){
-                    var node = Pablo(el);
-                    node.on(type, function addListener(){
-                        // Remove listener, then trigger
-                        node.off(type, addListener, useCapture);
-                        listener.apply(node, arguments);
-                    }, useCapture);
-                });
-            })
-        });
-    }());
+            });
+        })
+    });
 
 
     /////
