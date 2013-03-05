@@ -12,6 +12,7 @@ if (window.Pablo.isSupported){
 
         // TODO: process space-delimited list of event types
         // TODO: implement `.off()` with no args to remove all listeners
+        // TODO: add `context` in `one()` and `oneEach`
 
         var prefix = '__events__',
         	_on  = Pablo.fn.on,
