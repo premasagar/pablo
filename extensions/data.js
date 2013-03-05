@@ -1,6 +1,6 @@
 
 if (window.Pablo.isSupported){
-    (function(Pablo, Date){
+    (function(Pablo){
         'use strict';
 
         // CACHE
@@ -62,5 +62,5 @@ if (window.Pablo.isSupported){
         	return this.removeData().detach();
         }
 
-    }(window.Pablo, window.Date));
+    }(window.Pablo));
 }
