@@ -426,6 +426,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             return this;
         },
         
+        // TODO: add `thisp` / `context` to array method arguments
         each: function(fn){
             arrayProto.forEach.call(this, fn, this);
             return this;
@@ -855,6 +856,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         off: addRemoveListener('removeEventListener'),
 
         // Trigger listener once per collection
+        // TODO: rename to `once` like Backbone?
         one: function(type, listener, useCapture){
             var node = this;
             return oneEvent.call(this, node);            
