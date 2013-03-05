@@ -3,7 +3,7 @@ if (window.Pablo.isSupported){
     (function(Pablo){
         'use strict';
 
-        var data = {},
+        var cache = {},
         	nextId = 1,
         	expando = 'pabloId';
 
@@ -13,34 +13,51 @@ if (window.Pablo.isSupported){
 
         function createId(el){
         	var id = el[expando] = nextId ++;
-    		data[id] = {values: {}};
+    		cache[id] = {};
     		return id;
         }
 
-        Pablo.fn.data = function(key, value){
-        	var id;
+        function removeId(el){
+        	var id = getId(el);
+			if (id && id in cache){
+				delete cache[id];
+			}
+        }
 
-        	if (typeof value === 'undefined'){
-        		id = getId(this[0]);
-        		if (id in data){
-        			return data[id].values[key];
-        		}
-        	}
-        	else {
-        		return this.each(function(el){
-        			var id = getId(el) || createId(el);
-        			data[id].values[key] = value;
-        		});
-        	}
-        };
+        // -> Pablo.dataType()
+        function createCache(cacheType){
+        	return function(key, value){
+	        	var id;
+
+	        	// Get value
+	        	if (typeof value === 'undefined'){
+	        		id = getId(this[0]);
+
+	        		if (id && id in cache && cacheType in cache[id]){
+	        			return cache[id][cacheType][key];
+	        		}
+	        	}
+	        	// Set value
+	        	else {
+	        		return this.each(function(el){
+	        			var id = getId(el) || createId(el);
+
+	        			if (!cache[id]){
+	        				cache[id] = {};
+	        			}
+	        			if (!(cacheType in cache[id])){
+	        				cache[id][cacheType] = {};
+	        			}
+						cache[id][cacheType][key] = value;
+	        		});
+	        	}
+	        };
+        }
+
+        Pablo.fn.data = createCache('data');
 
         Pablo.fn.removeData = function(){
-        	return this.each(function(el){
-    			var id = getId(el);
-    			if (id in data){
-    				delete data[id];
-    			}
-    		});	
+        	return this.each(removeId);	
         }
 
         Pablo.fn.detach = Pablo.fn.remove;
