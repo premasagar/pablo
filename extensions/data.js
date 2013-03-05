@@ -1,11 +1,13 @@
 
 if (window.Pablo.isSupported){
-    (function(Pablo){
+    (function(Pablo, Date){
         'use strict';
+
+        // CACHE
 
         var cache = {},
         	nextId = 1,
-        	expando = 'pabloId';
+        	expando = 'pablo';
 
         function getId(el){
         	return el[expando];
@@ -17,47 +19,41 @@ if (window.Pablo.isSupported){
     		return id;
         }
 
-        function removeId(el){
+        function removeData(el){
         	var id = getId(el);
-			if (id && id in cache){
-				delete cache[id];
-			}
+        	delete(cache[id]);
         }
 
-        // -> Pablo.dataType()
-        function createCache(cacheType){
-        	return function(key, value){
-	        	var id;
+        /////
 
-	        	// Get value
-	        	if (typeof value === 'undefined'){
-	        		id = getId(this[0]);
+        // DATA
 
-	        		if (id && id in cache && cacheType in cache[id]){
-	        			return cache[id][cacheType][key];
-	        		}
-	        	}
-	        	// Set value
-	        	else {
-	        		return this.each(function(el){
-	        			var id = getId(el) || createId(el);
+        Pablo.fn.data = function(key, value){
+        	var id;
 
-	        			if (!cache[id]){
-	        				cache[id] = {};
-	        			}
-	        			if (!(cacheType in cache[id])){
-	        				cache[id][cacheType] = {};
-	        			}
-						cache[id][cacheType][key] = value;
-	        		});
-	        	}
-	        };
-        }
+        	// Get value
+        	if (typeof value === 'undefined'){
+        		id = getId(this[0]);
 
-        Pablo.fn.data = createCache('data');
+        		if (id && id in cache){
+        			return cache[id][key];
+        		}
+        	}
+        	// Set value
+        	else {
+        		return this.each(function(el){
+        			var id = getId(el) || createId(el);
+
+        			if (!cache[id]){
+        				cache[id] = {};
+        			}
+					cache[id][key] = value;
+        		});
+        	}
+        };
 
         Pablo.fn.removeData = function(){
-        	return this.each(removeId);	
+        	return this.each(removeData);	
         }
 
         Pablo.fn.detach = Pablo.fn.remove;
@@ -66,5 +62,5 @@ if (window.Pablo.isSupported){
         	return this.removeData().detach();
         }
 
-    }(window.Pablo));
+    }(window.Pablo, window.Date));
 }
