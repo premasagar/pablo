@@ -834,21 +834,20 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         };
     }
 
-    function oneEvent(node){
-        return function(type, removeListener, useCapture){
-            // Add the original listener, and an additional listener that removes
-            // the first, and itself. The reason a wrapper listener is not used
-            // instead of two separate listeners is to allow manual removal of
-            // the original listener (with `.off()`) before it ever triggers.
-            this.on(type, listener, useCapture)
-                .on(type, function removeListener(){
-                    // Remove listener and additional listener
-                    node.off(type, listener, useCapture)
-                        .off(type, removeListener, useCapture);
-                }, useCapture);
+    function oneEvent(type, listener, useCapture){
+        var node = this;
 
-            return this;
-        };
+        // Add the original listener, and an additional listener that removes
+        // the first, and itself. The reason a wrapper listener is not used
+        // instead of two separate listeners is to allow manual removal of
+        // the original listener (with `.off()`) before it ever triggers.
+        this.on(type, listener, useCapture)
+            .on(type, function removeListener(){
+                // Remove listener and additional listener
+                node.off(type, listener, useCapture)
+                    .off(type, removeListener, useCapture);
+            }, useCapture);
+        return this;
     }
 
     extend(pabloCollectionApi, {
@@ -858,15 +857,13 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         // Trigger listener once per collection
         // TODO: rename to `once` like Backbone?
         one: function(type, listener, useCapture){
-            var node = this;
-            return oneEvent.call(this, node);            
+            return oneEvent.call(this, type, listener, useCapture);
         },
 
         // Trigger listener once per element in the collection
         oneEach: function(type, listener, useCapture){
             return this.each(function(el){
-                var node = Pablo(el);
-                oneEvent.call(this, node); 
+                oneEvent.call(Pablo(el), type, listener, useCapture);
             });
         }
     });
