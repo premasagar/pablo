@@ -807,69 +807,66 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
     // DOM EVENTS
 
     // TODO: use for adding / removing CSS classes too
-    function processList(item, fn){
+    function processList(item, fn, context){
         // Multiple items
         if (item.indexOf(' ') > 0){
             item.split(' ').forEach(function(item){
-                processList(item, fn);
+                processList(item, fn, context);
             });
         }
         // Single item
         else {
-            fn(item);
+            fn.call(context, item);
         }
+        return context;
     }
 
-    // Allow either single or multiple events to be triggered
-    function eventListener(fn){
-        return function(type, listener, useCapture, context){
-            context || (context = this);
-            processList(type, function(type){
-                fn.call(context, type, listener, useCapture || false);
-            });
+    function addRemoveListener(domMethod){
+        return function(type, listener, useCapture){
+            // Allow `type` to be a single event type, or a space-delimited list
+            return processList(type, function(type){
+                // Add or remove the listener to each element
+                this.each(function(el){
+                    el[domMethod](type, listener, useCapture || false);
+                });
+            }, this);
+        };
+    }
+
+    function oneEvent(node){
+        return function(type, removeListener, useCapture){
+            // Add the original listener, and an additional listener that removes
+            // the first, and itself. The reason a wrapper listener is not used
+            // instead of two separate listeners is to allow manual removal of
+            // the original listener (with `.off()`) before it ever triggers.
+            this.on(type, listener, useCapture)
+                .on(type, function removeListener(){
+                    // Remove listener and additional listener
+                    node.off(type, listener, useCapture)
+                        .off(type, removeListener, useCapture);
+                }, useCapture);
+
             return this;
         };
     }
 
     extend(pabloCollectionApi, {
-        on: eventListener(function(type, listener, useCapture){
-            this.each(function(el){
-                el.addEventListener(type, listener, useCapture);
-            });
-        }),
-
-        off: eventListener(function(type, listener, useCapture){
-            this.each(function(el){
-                el.removeEventListener(type, listener, useCapture);
-            });
-        }),
+        on:  addRemoveListener('addEventListener'),
+        off: addRemoveListener('removeEventListener'),
 
         // Trigger listener once per collection
-        one: eventListener(function(type, listener, useCapture){
-            var node = this,
-                args = arguments;
-
-            this.on(type, function addListener(){
-                // Remove listener, then trigger
-                node.off(type, addListener, useCapture);
-                listener.apply(node, args);
-            }, useCapture, context);
-        }),
+        one: function(type, listener, useCapture){
+            var node = this;
+            return oneEvent.call(this, node);            
+        },
 
         // Trigger listener once per element in the collection
-        oneEach: eventListener(function(type, listener, useCapture, context){
-            var args = arguments;
-
-            this.each(function(el){
+        oneEach: function(type, listener, useCapture){
+            return this.each(function(el){
                 var node = Pablo(el);
-
-                node.on(type, function addListener(){
-                    // Remove listener, then trigger
-                    node.off(type, addListener, useCapture);
-                    listener.apply(node, args);
-                }, useCapture);
+                oneEvent.call(this, node); 
             });
-        })
+        }
     });
 
 
