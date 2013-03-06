@@ -259,17 +259,6 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
     });
     */
 
-    // Determine a value passed to attr(), css(), content()
-    function getValue(val, el, i, collection){
-        if (typeof val === 'function'){
-            val = val.call(collection, el, i);
-        }
-        else if (Array.isArray(val)){
-            val = val[i];
-        }
-        return val;
-    }
-
     // `behaviour` can be 'some', 'every' or 'filter'
     function matchSelectors(collection, selectors, behaviour){
         var i, len, node, ancestor, ancestors, matches, matchesCache, ancestorsLength, isMatch, filtered;
@@ -623,6 +612,19 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             }
             return this;
         },
+
+        getValue: function(val, i){
+            if (Array.isArray(val)){
+                // If array is shorter than collection, then cycle back to start
+                // of array
+                i = i % val.length;
+                val = val[i];
+            }
+            else if (typeof val === 'function'){
+                val = val.call(this, this[i], i);
+            }
+            return val;
+        },
         
         attr: function(attr, value){
             var el, attributeName, colonIndex, nsPrefix, nsURI;
@@ -664,7 +666,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
                 
                 for (prop in attr){
                     if (attr.hasOwnProperty(prop)){
-                        val = getValue(attr[prop], el, i, this);
+                        val = this.getValue(attr[prop], i);
                     
                         // Namespaced attributes, e.g. 'xlink:href'
                         colonIndex = prop.indexOf(':');
@@ -675,7 +677,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
                         el.setAttributeNS(nsURI || null, prop, val);
                     }
                 }
-            });
+            }, this);
             return this;
         },
 
@@ -697,7 +699,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
                 var node = Pablo(el),
                     transformAttr = node.attr('transform'),
                     newTransformAttr, pos, posEnd, transformAttrEnd,
-                    functionString = functionName + '(' + getValue(value, el, i, this) + ')';
+                    functionString = functionName + '(' + this.getValue(value, i) + ')';
 
                 // There's already a transform attribute
                 if (transformAttr){
@@ -724,7 +726,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
 
                 // Set transform attribute
                 node.attr('transform', newTransformAttr || functionString);
-            });
+            }, this);
         },
         
         removeAttr: function (attr) {
@@ -753,8 +755,8 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
 
             // Set every element's textContent
             return this.each(function(el, i){
-                el.textContent = getValue(text, el, i, this);
-            });
+                el.textContent = this.getValue(text, i);
+            }, this);
         },
 
         css: function(styles, value){
@@ -780,11 +782,11 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
                 
                 for (prop in styles){
                     if (styles.hasOwnProperty(prop)){
-                        val = getValue(styles[prop], el, i, this);
+                        val = this.getValue(styles[prop], i);
                         style.setProperty(prop, val, '');
                     }
                 }
-            });
+            }, this);
         },
 
         // Add prefixed CSS styles to elements in collection
@@ -919,6 +921,9 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
 
     
     // CSS CLASSES
+
+    // TODO: support getValue, for attribute values and function values
+    // TODO: support space-delimited multiple classNames
 
     cssClassApi = supportsClassList ?
 
