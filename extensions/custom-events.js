@@ -8,61 +8,85 @@ if (window.Pablo.isSupported){
         	* Optional `context` argument
         	* Events can be triggered manually
         	* Custom event types can be created
+
+        	Note:
+        	`one()` and `oneEach()` are not modified in this extension but they
+        	anyway utilise the optional `context` argument in Pablo core
         */
 
-        // TODO: process space-delimited list of event types
         // TODO: implement `.off()` with no args to remove all listeners
-        // TODO: add `context` in `one()` and `oneEach`
+        // TODO: implement delegate events (will need to change core one/oneEach too)
 
-        var prefix = '__events__',
-        	_on  = Pablo.fn.on,
-        	_off = Pablo.fn.off;
+        var prefix = '__events__'; 
 
         Pablo.fn.on = function(type, listener, useCapture, context){
-        	var key = prefix + type,
-        		eventCache = this.data(key),
-        		wrapper;
+        	var wrapper, event;
 
-        	if (!eventCache){
-        		eventCache = [];
-        		this.data(key, eventCache);
-        	}
 			if (context){
 				wrapper = function(){
 					listener.apply(context, arguments);
 				};
 			}
-			eventCache.push({
+			event = {
 				listener:   listener,
 				wrapper:    wrapper,
 				useCapture: useCapture || false
-			});
-			_on.call(this, type, wrapper || listener, useCapture);
+			};
 
-        	return this;
-        }
+			return this.processList(type, function(type){
+				var key = prefix + type;
+
+				this.each(function(el){
+	        		var node = Pablo(el),
+	        			eventCache = node.data(key);
+
+		        	if (!eventCache){
+		        		eventCache = [];
+		        		node.data(key, eventCache);
+		        	}
+
+		        	// Add to cache
+					eventCache.push(event);
+
+					// Add DOM listener
+					el.addEventListener(type, wrapper || listener, useCapture);
+	        	});
+			});
+        };
 
         Pablo.fn.off = function(type, listener, useCapture){
-        	var key = prefix + type,
-        		eventCache = this.data(key),
-        		wrapper;
+        	return this.processList(type, function(type){
+        		var key = prefix + type;
 
-        	if (eventCache){
-        		useCapture || (useCapture = false);
+        		if (typeof useCapture === 'undefined'){
+        			useCapture = false;
+        		}
 
-        		// Use `some` rather than `forEach` to allow breaking the loop.
-        		// Only defined array elements appear, unlike with a `for` loop.
-        		eventCache.some(function(event, id){
-        			if (event.listener === listener && event.useCapture === useCapture){
-        				wrapper = event.wrapper;
-        				delete eventCache[id];
-        				_off.call(this, type, wrapper || listener, useCapture);
-        				return true;
-        			}
-        		}, this);
-        	}
-        	return this;
-        }
+        		this.each(function(el){
+        			var node = Pablo(el),
+        				eventCache = this.data(key);
+
+        			if (eventCache){
+		        		// Use `some` rather than `forEach` to allow breaking 
+		        		// the loop. Use `some` rather than `for` as it's a 
+		        		// sparse array.
+		        		eventCache.some(function(event, id){
+		        			var wrapper;
+		        			if (event.listener === listener && event.useCapture === useCapture){
+		        				wrapper = event.wrapper;
+
+		        				// Remove from cache
+		        				delete eventCache[id];
+
+		        				// Remove DOM listener
+								el.removeEventListener(type, wrapper || listener, useCapture);
+		        				return true;
+		        			}
+		        		}, this);
+		        	}
+        		});
+        	});
+        };
 
         Pablo.fn.trigger = function(type){
         	var key = prefix + type,
