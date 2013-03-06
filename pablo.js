@@ -260,6 +260,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
     */
 
     // `behaviour` can be 'some', 'every' or 'filter'
+    // TODO: include an optional parent node to use as the root node
     function matchSelectors(collection, selectors, behaviour){
         var i, len, node, ancestor, ancestors, matches, matchesCache, ancestorsLength, isMatch, filtered;
 
@@ -809,6 +810,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
 
     // DOM EVENTS
 
+    // TODO: support getValue for `type`
     function addRemoveListener(domMethod){
         return function(type, listener, useCapture){
             // `type` can be a single event type, or a space-delimited list
@@ -858,7 +860,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             return this;
         },
 
-        on:  addRemoveListener('addEventListener'),
+        on: addRemoveListener('addEventListener'),
 
         // Note that if a listener has been added multiple times to an element, 
         // then it must be removed as many times.
@@ -888,7 +890,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
     function walk(prop, doWhile){
         return function(selectors){
             return this.relations(prop, selectors, doWhile);
-        }
+        };
     }
 
     extend(pabloCollectionApi, {
@@ -940,9 +942,10 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         cssClassApi = {
             // Return true if _any_ element has className
             hasClass: function(className){
-                return this.some(function(el){
-                    return el.classList.contains(className);
-                });
+                return this.some(function(el, i){
+                    var val = this.getValue(className, i);
+                    return el.classList.contains(val);
+                }, this);
             },
             addClass: classlistMethod('add'),
             removeClass: classlistMethod('remove'),
@@ -955,13 +958,14 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         cssClassApi = {
             // Return true if _any_ element has className
             hasClass: function(className){
-                return this.some(function(el){
+                return this.some(function(el, i){
                     var node = Pablo(el),
+                        val = this.getValue(className, i),
                         classString = node.attr('class');
 
                     return classString && (' ' + classString + ' ')
-                        .indexOf(' ' + className + ' ') >= 0;
-                });
+                        .indexOf(' ' + val + ' ') >= 0;
+                }, this);
             },
 
             addClass: function(className){
@@ -986,7 +990,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
                         val = this.getValue(className, i);
 
                     this.processList(val, function(className){
-                        // TODO: avoid RegExp creation by putting each inside processList?
+                        // TODO: avoid excessive RegExp creation
                         var classPattern = new RegExp('(?:^|\\s)' + className + '(\\s|$)'),
                             classString;
 
