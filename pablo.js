@@ -260,30 +260,46 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
     */
 
     // `behaviour` can be 'some', 'every' or 'filter'
-    // TODO: include an optional parent node to use as the root node
-    function matchSelectors(collection, selectors, behaviour){
-        var i, len, node, ancestor, ancestors, matches, matchesCache, ancestorsLength, isMatch, filtered;
+    function matchSelectors(collection, selectors, ancestor, behaviour){
+        var i, len, node, ancestors, matches, matchesCache, 
+            ancestorsLength, isMatch, filtered;
 
+        // The optional `ancestor` node is used to perform the selection on.
+        if (ancestor){
+            if (!Pablo.isPablo(ancestor)){
+                ancestor = toPablo(ancestor);
+            }
+        }
+
+        // Filter to as subset of the collection
         if (behaviour === 'filter'){
             filtered = Pablo();
         }
 
         for (i=0, len=collection.length; i<len; i++){
             node = collection.eq(i);
-            // Get the root ancestor
-            // `null` is passed as the 2nd arg to parents() to include `document` in ancestors
-            ancestor = node.parents(null, null).last();
+
+            // If no `ancestor` given, then find the element's root ancestor. If 
+            // the element is currently in the DOM, this will be the `document`.
+            if (!ancestor) {
+                ancestor = node.relations('parentNode', null, null, function(el){
+                    return isElement(el) || isHTMLDocument(el);
+                }).last();
+            }
 
             // Use ancestor to find element via a selector query
             if (ancestor.length){
                 // Have we previously cached the result of the query?
-                matches = matchesCache && matchesCache[ancestors.indexOf(ancestor)];
+                // E.g. when many elements in the same collection are being
+                // queried against the `document` node
+                matches = ancestors && matchesCache[ancestors.indexOf(ancestor)];
 
                 if (!matches){
                     matches = ancestor.find(selectors);
 
                     // If more than one element in the collection, then
-                    // we cache the result of the query
+                    // we temporarily cache the result of the query (the cache
+                    // expires when the function completes
                     if (len > 1){
                         // Create the cache containers
                         if (!matchesCache){
@@ -298,29 +314,33 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             }
 
             // Element has no parent
-            // If it is an element, clone it and append to a temporary element
-            else if (!isElement(node[0])) {
+            // If it is an element (e.g. not `document`), then clone it and 
+            // append to a temporary element
+            else if (isElement(node[0])){
                 node = node.clone();
                 ancestor = Pablo.g().append(node);
                 matches = ancestor.find(selectors);
             }
 
+            // Is node contained within the list of matches?
             isMatch = matches && matches.indexOf(node) >= 0;
-
             if (isMatch){
+                // At least one element matched
                 if (behaviour === 'some'){
                     return true;
                 }
+                // Add this element to the filtered subset
                 if (behaviour === 'filter'){
                     filtered.push(node);
                 }
             }
+            // Not every element matched
             else if (behaviour === 'every'){
                 return false;
             }
         }
 
-        // If filtering, return the collection; other boolean
+        // If filtering, return the collection; otherwise a boolean.
         return behaviour === 'filter' ? filtered :
               (behaviour === 'every'  ? true : false);
     }
@@ -416,7 +436,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             return this;
         },
         
-        // TODO: add `thisp` / `context` to array method arguments
+        // TODO: support optional `context` argument for array methods
         each: function(fn){
             arrayProto.forEach.call(this, fn, this);
             return this;
@@ -426,24 +446,24 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             return Pablo(arrayProto.map.call(this, fn));
         },
 
-        some: function(fnOrSelector){
+        some: function(fnOrSelector, ancestor){
             return typeof fnOrSelector === 'string' ?
-                matchSelectors(this, fnOrSelector, 'some') :
+                matchSelectors(this, fnOrSelector, ancestor, 'some') :
                 arrayProto.some.call(this, fnOrSelector);
         },
 
-        every: function(fnOrSelector){
+        every: function(fnOrSelector, ancestor){
             return typeof fnOrSelector === 'string' ?
-                matchSelectors(this, fnOrSelector, 'every') :
+                matchSelectors(this, fnOrSelector, ancestor, 'every') :
                 arrayProto.every.call(this, fnOrSelector);
         },
 
         // Note: this method is analogous to Array.filter but is called `select`
         // here (as in Underscore.js) because Pablo's filter() method is used to
         // create a `<filter>` SVG element
-        select: function(fnOrSelector){
+        select: function(fnOrSelector, ancestor){
             return typeof fnOrSelector === 'string' ?
-                matchSelectors(this, fnOrSelector, 'filter') :
+                matchSelectors(this, fnOrSelector, ancestor, 'filter') :
                 Pablo(arrayProto.filter.call(this, fnOrSelector));
         },
 
@@ -462,7 +482,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
 
         // See below for traversal shortcuts using `relations()` e.g. `parents()`
 
-        relations: function(prop, selectors, doWhile){
+        relations: function(prop, selectors, ancestor, doWhile){
             var collection = Pablo(),
                 isFn = typeof doWhile === 'function';
 
@@ -474,7 +494,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
                         el[prop] : null;
                 }
             });
-            return selectors ? collection.select(selectors) : collection;
+            return selectors ? collection.select(selectors, ancestor) : collection;
         },
 
         siblings: function(selectors){
@@ -888,8 +908,8 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
     // API SHORTCUTS
 
     function walk(prop, doWhile){
-        return function(selectors){
-            return this.relations(prop, selectors, doWhile);
+        return function(selectors, ancestor){
+            return this.relations(prop, selectors, ancestor, doWhile);
         };
     }
 
