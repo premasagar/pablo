@@ -19,7 +19,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         xlinkns = 'http://www.w3.org/1999/xlink',
         vendorPrefixes = ['', '-moz-', '-webkit-', '-khtml-', '-o-', '-ms-'],
 
-        testElement, arrayProto, supportsClassList, hyphensToCamelCase, cssClassApi, pabloCollectionApi;
+        testElement, arrayProto, supportsClassList, hyphensToCamelCase, cssClassApi, pabloCollectionApi, classlistMethod;
 
     
     function make(elementName){
@@ -922,43 +922,37 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
     
     // CSS CLASSES
 
-    // TODO: support getValue, for attribute values and function values
-    // TODO: support space-delimited multiple classNames
+    // Supports space-delimited multiple classNames, as well as attribute values
+    // and function values
+    if (supportsClassList){
+        classlistMethod = function(method){
+            return function(className){
+                return this.each(function(el, i){
+                    var val = this.getValue(className, i);
+                    this.processList(val, function(className){
+                        el.classList[method](className);
+                    });
+                }, this);
+            };
+        };
 
-    cssClassApi = supportsClassList ?
-
-        // Browser supports native classLists in SVG
-        // e.g. Firefox
-        {
+        // Browser supports native classLists in SVG, e.g. Firefox
+        cssClassApi = {
             // Return true if _any_ element has className
             hasClass: function(className){
                 return this.some(function(el){
                     return el.classList.contains(className);
                 });
             },
+            addClass: classlistMethod('add'),
+            removeClass: classlistMethod('remove'),
+            toggleClass: classlistMethod('toggle')
+        };
+    }
 
-            addClass: function(className){
-                return this.each(function(el){
-                    el.classList.add(className);
-                });
-            },
-
-            removeClass: function(className){
-                return this.each(function(el){
-                    el.classList.remove(className);
-                });
-            },
-
-            toggleClass: function(className){
-                return this.each(function(el){
-                    el.classList.toggle(className);
-                });
-            }
-        } :
-
-        // Browser doesn't support native classLists in SVG
-        // e.g. Internet Explorer 9, Chrome 21
-        {
+    // Browser doesn't support native classLists in SVG, e.g. IE9, Chrome 21
+    else {
+        cssClassApi = {
             // Return true if _any_ element has className
             hasClass: function(className){
                 return this.some(function(el){
@@ -971,46 +965,57 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             },
 
             addClass: function(className){
-                return this.each(function(el){
+                return this.each(function(el, i){
                     var node = Pablo(el),
+                        val = this.getValue(className, i),
                         classString;
 
-                    if (!node.hasClass(className)){
-                        classString = node.attr('class');
-                        classString = classString ? (classString + ' ') : '';
-                        node.attr('class',  classString + className);
-                    }
+                    this.processList(val, function(className){
+                        if (!node.hasClass(className)){
+                            classString = node.attr('class');
+                            classString = classString ? (classString + ' ') : '';
+                            node.attr('class',  classString + className);
+                        }
+                    });
                 });
             },
 
             removeClass: function(className){
-                var classPattern = new RegExp('(^|\\s)' + className + '(\\s|$)');
-
-                return this.each(function(el){
+                return this.each(function(el, i){
                     var node = Pablo(el),
-                        classString;
+                        val = this.getValue(className, i);
 
-                    if (node.hasClass(className)){
-                        classString = node.attr('class');
-                        classString = classString.replace(classPattern, '$2');
-                        node.attr('class', classString);
-                    }
+                    this.processList(val, function(className){
+                        // TODO: avoid RegExp creation by putting each inside processList?
+                        var classPattern = new RegExp('(?:^|\\s)' + className + '(\\s|$)'),
+                            classString;
+
+                        if (node.hasClass(className)){
+                            classString = node.attr('class');
+                            classString = classString.replace(classPattern, '$1');
+                            node.attr('class', classString);
+                        }
+                    });
                 });
             },
 
             toggleClass: function(className){
-                return this.each(function(el){
-                    var node = Pablo(el);
+                return this.each(function(el, i){
+                    var node = Pablo(el),
+                        val = this.getValue(className, i);
 
-                    if (node.hasClass(className)){
-                        node.removeClass(className);
-                    }
-                    else {
-                        node.addClass(className);
-                    }
+                    this.processList(val, function(className){
+                        if (node.hasClass(className)){
+                            node.removeClass(className);
+                        }
+                        else {
+                            node.addClass(className);
+                        }
+                    });
                 });
             }
         };
+    }
 
     extend(pabloCollectionApi, cssClassApi);
 
