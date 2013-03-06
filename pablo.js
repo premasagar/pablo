@@ -807,63 +807,72 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
 
     // DOM EVENTS
 
-    // TODO: use for adding / removing CSS classes too
-    function processList(item, fn, context){
-        // Multiple items
-        if (item.indexOf(' ') > 0){
-            item.split(' ').forEach(function(item){
-                processList(item, fn, context);
-            });
-        }
-        // Single item
-        else {
-            fn.call(context, item);
-        }
-        return context;
-    }
-
     function addRemoveListener(domMethod){
         return function(type, listener, useCapture){
-            // Allow `type` to be a single event type, or a space-delimited list
-            return processList(type, function(type){
-                // Add or remove the listener to each element
+            // `type` can be a single event type, or a space-delimited list
+            return this.processList(type, function(type){
                 this.each(function(el){
+                    // Add or remove the listener
                     el[domMethod](type, listener, useCapture || false);
                 });
-            }, this);
+            });
         };
     }
 
-    function oneEvent(type, listener, useCapture){
-        var node = this;
+    // Note: the `context` argument is unused in Pablo core, but required for 
+    // the custom-events extension
+    function oneEvent(type, listener, useCapture, context){
+        var collection = this;
+
+        function removeListener(){
+            // Remove listener and additional listener
+            collection.off(type, listener,       useCapture, context)
+                      .off(type, removeListener, useCapture, context);
+        }
 
         // Add the original listener, and an additional listener that removes
         // the first, and itself. The reason a wrapper listener is not used
         // instead of two separate listeners is to allow manual removal of
         // the original listener (with `.off()`) before it ever triggers.
-        this.on(type, listener, useCapture)
-            .on(type, function removeListener(){
-                // Remove listener and additional listener
-                node.off(type, listener, useCapture)
-                    .off(type, removeListener, useCapture);
-            }, useCapture);
-        return this;
+        return this.on(type, listener,       useCapture, context)
+                   .on(type, removeListener, useCapture, context);
     }
 
     extend(pabloCollectionApi, {
+        // TODO: use for adding / removing CSS classes too
+        processList: function(item, fn){
+            var collection = this;
+
+            // Multiple items
+            if (item.indexOf(' ') > 0){
+                item.split(' ').forEach(function(item){
+                    collection.processList(item, fn, this);
+                });
+            }
+            // Single item
+            else {
+                fn.call(this, item);
+            }
+            return this;
+        },
+
         on:  addRemoveListener('addEventListener'),
+
+        // Note that if a listener has been added multiple times to an element, 
+        // then it must be removed as many times.
         off: addRemoveListener('removeEventListener'),
 
         // Trigger listener once per collection
         // TODO: rename to `once` like Backbone?
-        one: function(type, listener, useCapture){
-            return oneEvent.call(this, type, listener, useCapture);
+        one: function(){
+            return oneEvent.apply(this, arguments);
         },
 
         // Trigger listener once per element in the collection
-        oneEach: function(type, listener, useCapture){
+        oneEach: function(){
+            var args = arguments;
             return this.each(function(el){
-                oneEvent.call(Pablo(el), type, listener, useCapture);
+                oneEvent.apply(Pablo(el), args);
             });
         }
     });
