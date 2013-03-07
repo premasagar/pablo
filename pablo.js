@@ -843,25 +843,6 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         };
     }
 
-    // Note: the `context` argument is unused in Pablo core, but required for 
-    // the custom-events extension
-    function oneEvent(type, listener, useCapture, context){
-        var collection = this;
-
-        function removeListener(){
-            // Remove listener and additional listener
-            collection.off(type, listener,       useCapture, context)
-                      .off(type, removeListener, useCapture, context);
-        }
-
-        // Add the original listener, and an additional listener that removes
-        // the first, and itself. The reason a wrapper listener is not used
-        // instead of two separate listeners is to allow manual removal of
-        // the original listener (with `.off()`) before it ever triggers.
-        return this.on(type, listener,       useCapture, context)
-                   .on(type, removeListener, useCapture, context);
-    }
-
     extend(pabloCollectionApi, {
         // TODO: use for adding / removing CSS classes too
         processList: function(item, fn){
@@ -887,16 +868,30 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         off: addRemoveListener('removeEventListener'),
 
         // Trigger listener once per collection
-        // TODO: rename to `once` like Backbone?
-        one: function(){
-            return oneEvent.apply(this, arguments);
+        one: function(type, listener, useCapture, context){
+            var collection = this;
+
+            function removeListener(){
+                // Remove listener and additional listener
+                collection.off(type, listener,       useCapture, context)
+                          .off(type, removeListener, useCapture, context);
+            }
+
+            // Add the original listener, and an additional listener that removes
+            // the first, and itself. The reason a wrapper listener is not used
+            // instead of two separate listeners is to allow manual removal of
+            // the original listener (with `.off()`) before it ever triggers.
+            return this.on(type, listener,       useCapture, context)
+                       .on(type, removeListener, useCapture, context);
         },
 
         // Trigger listener once per element in the collection
         oneEach: function(){
             var args = arguments;
+
             return this.each(function(el){
-                oneEvent.apply(Pablo(el), args);
+                var node = Pablo(el);
+                node.one.apply(node, args);
             });
         }
     });
