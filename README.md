@@ -78,7 +78,8 @@ BTW, these runnable code snippets are editable (except on mobiles). Just edit th
 
 ## Tests
 
-Run the tests in your browser via `tests/index.html`.
+The test suite is not completed yet but developers are free to run it in their 
+browser via `tests/index.html`.
 
 ## Extra
 
