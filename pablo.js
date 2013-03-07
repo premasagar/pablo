@@ -852,7 +852,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             var collection = this;
 
             // Multiple items
-            if (item.indexOf(' ') > 0){
+            if (item && item.indexOf(' ') > 0){
                 item.split(' ').forEach(function(item){
                     collection.processList(item, fn, this);
                 });
