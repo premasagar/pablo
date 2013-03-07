@@ -20,9 +20,18 @@
         return id;
     }
 
-    function removeData(el){
+    function removeData(el, key){
         var id = getId(el);
-        delete(cache[id]);
+
+        // Delete all keys
+        if (!key){
+            delete cache[id];
+        }
+
+        // Delete a specific key
+        else if (cache[id]){
+            delete cache[id][key];
+        }
     }
 
     /////
@@ -53,8 +62,12 @@
         }
     };
 
-    Pablo.fn.removeData = function(){
-        return this.each(removeData);    
+    Pablo.fn.removeData = function(keys){
+        return this.each(function(el){
+            this.processList(keys, function(key){
+                removeData(el, key);
+            });
+        });
     };
 
     Pablo.fn.detach = Pablo.fn.remove;
