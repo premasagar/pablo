@@ -21,16 +21,25 @@
     }
 
     function removeData(el, key){
-        var id = getId(el);
+        var id = getId(el),
+            data;
 
         // Delete all keys
         if (!key){
             delete cache[id];
+            return;
         }
 
         // Delete a specific key
-        else if (cache[id]){
-            delete cache[id][key];
+        data = cache[id];
+        if (data){
+            // Delete the key
+            if (Object.keys(data).length > 1){
+                delete cache[id][key];
+            }
+
+            // The data container is empty, so delete it
+            delete cache[id];
         }
     }
 
