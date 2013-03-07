@@ -141,30 +141,34 @@
                             el.removeEventListener(type, eventData.wrapper, eventData.useCapture);
                         }
                     });
-
-                    // Remove cache for this type
-                    delete eventsCache[type];
-                    // TODO: delete cache container if empty
-                    return;
                 }
 
-                // Use `some` rather than `forEach` to allow breaking 
-                // the loop. Use `some` rather than `for` as it's a 
-                // sparse array.
-                cache.some(function(eventData, i){
-                    if (listener   === eventData.listener &&
-                        useCapture === eventData.useCapture &&
-                        selectors  === eventData.selectors
-                    ){
-                        // Remove DOM listener
-                        el.removeEventListener(type, eventData.wrapper, useCapture);
+                else {
+                    // Use `some` rather than `forEach` to allow breaking 
+                    // the loop. Use `some` rather than `for` as it's a 
+                    // sparse array.
+                    cache.some(function(eventData, i){
+                        if (listener   === eventData.listener &&
+                            useCapture === eventData.useCapture &&
+                            selectors  === eventData.selectors
+                        ){
+                            // Remove DOM listener
+                            el.removeEventListener(type, eventData.wrapper, useCapture);
 
-                        // Remove from cache
-                        delete eventData[i];
-                        // TODO: delete cache container if empty
-                        return true;
-                    }
-                });
+                            // Remove from cache
+                            delete cache[i];
+                            return true;
+                        }
+                    });
+                }
+
+                // Delete cache containers if empty
+                if (!listener || !Object.keys(eventsCache[type]).length){
+                    delete eventsCache[type];
+                }
+                if (!Object.keys(eventsCache).length){
+                    node.removeData(namespace); 
+                }
             });
         });
     };
