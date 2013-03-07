@@ -109,6 +109,10 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
     function isElement(obj){
         return obj instanceof Element;
     }
+
+    function isElementOrDocument(el){
+        return isElement(el) || isHTMLDocument(el);
+    }
     
     function isNodeList(obj){
         return obj instanceof NodeList;
@@ -282,9 +286,9 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             // If no `ancestor` given, then find the element's root ancestor. If 
             // the element is currently in the DOM, this will be the `document`.
             if (!ancestor) {
-                ancestor = node.relations('parentNode', null, null, function(el){
-                    return isElement(el) || isHTMLDocument(el);
-                }).last();
+                ancestor = node
+                    .relations('parentNode', null, null, isElementOrDocument)
+                    .last();
             }
 
             // Use ancestor to find element via a selector query
