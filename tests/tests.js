@@ -92,12 +92,11 @@ describe('Pablo', function () {
       });
     });
 
-    describe('Pablo(element, attribute)', function () {
+    describe('Pablo(element, [attributes])', function () {
       it('should create a new Pablo collection containing the specified element with the specified attributes', function () {
         var pCollection = Pablo('rect', {x:10, y:10, width:50, height:50});
         expect(pCollection instanceof Pablo.Collection).to.eql(true);
         expect(pCollection.length).to.eql(1);
-        debugger;
         expect(pCollection[0].getAttribute('x')).to.eql('10');
         expect(pCollection[0].getAttribute('y')).to.eql('10');
         expect(pCollection[0].getAttribute('width')).to.eql('50');
@@ -115,8 +114,68 @@ describe('Pablo', function () {
     });
   });
 
-  describe('Collection methods', function () {
+  describe('Pablo collection methods', function () {
+    describe('.append(element, [attributes])', function () {
+      it('should return a Pablo collection', function () {
+        expect(Pablo.circle().append(Pablo.rect()) instanceof Pablo.Collection).to.eql(true);
+      });
 
+      it('.append(elements) should append the specified element(s) as a child of the specific Pablo collection and return ', function () {
+        var pCollection = Pablo.circle();
+        pCollection.append(Pablo.rect());
+
+        expect(pCollection[0].childNodes.length).to.eql(1);
+        expect(pCollection[0].childNodes[0] instanceof SVGRectElement).to.eql(true);
+      });
+
+      it('.append(elementName, attributes) should create a new element as a child of the specific Pablo collection', function () {
+        var pCollection = Pablo.circle();
+        pCollection.append('rect', {foo: 'bar'});
+
+        expect(pCollection[0].childNodes.length).to.eql(1);
+        expect(pCollection[0].childNodes[0] instanceof SVGRectElement).to.eql(true);
+        expect(pCollection[0].childNodes[0].getAttribute('foo')).to.eql('bar');
+      });
+    });
+
+    describe('.appendTo(element, [attributes]', function () {
+      it('should return a Pablo collection', function () {
+        expect(Pablo.circle().appendTo(Pablo.rect()) instanceof Pablo.Collection).to.eql(true);
+      });
+
+      it('.appendTo(elements) should append the subject collection to the passed in element', function () {
+        var pCollection  = Pablo.circle({foo:'bar'}),
+            pCollection2 = Pablo.rect();
+
+        pCollection.appendTo(pCollection2);
+
+        expect(pCollection2[0].childNodes.length).to.eql(1);
+        expect(pCollection2[0].childNodes[0] instanceof SVGCircleElement).to.eql(true);
+        expect(pCollection2[0].childNodes[0].getAttribute('foo')).to.eql('bar');
+      });
+    });
+  });
+
+  describe('Pablo.ELEMENT_NAME([attributes])', function () {
+    it('Pable.svg([attributes]) should return a Pablo collection of that element and with the attribute "version=1.1" on it', function () {
+      var pCollection = Pablo.svg();
+
+      expect(pCollection instanceof Pablo.Collection).to.eql(true);
+      expect(pCollection[0].tagName.toLowerCase()).to.eql('svg');
+      expect(pCollection[0].getAttribute('version')).to.eql('1.1');
+    });
+
+    'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop style svg switch symbol text textPath title tref tspan use view vkern'
+    .split(' ')
+    .forEach(function (element) {
+      it('Pablo.' + element + '([attributes]) should return a Pablo collection of that element', function () {
+        var pCollection = Pablo[element]({foo:'bar'});
+
+        expect(pCollection instanceof Pablo.Collection).to.eql(true);
+        expect(pCollection[0].tagName.toLowerCase()).to.eql(element.toLowerCase());
+        expect(pCollection[0].getAttribute('foo')).to.eql('bar');
+      });
+    });    
   });
 
 });
