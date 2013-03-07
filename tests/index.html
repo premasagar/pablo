@@ -1,0 +1,25 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Mocha Tests for Pablo</title>
+  <link rel="stylesheet" href="mocha.css" />
+</head>
+<body>
+  <div id="mocha"></div>
+
+  <ul id="test-subjects" style="display: none">
+    <li id="test-subject-a"></li>
+    <li id="test-subject-b"></li>
+    <li id="test-subject-c"></li>
+  </ul>
+  <script src="../vendor/jquery.min.js"></script>
+  <script src="../vendor/mocha.js"></script>
+  <script src="../vendor/chai.js"></script>
+  <script src="../pablo.js"></script>
+  <script>mocha.setup('bdd')</script>
+  <script src="tests.js"></script>
+  <script>
+    mocha.run();
+  </script>
+</body>
+</html>
