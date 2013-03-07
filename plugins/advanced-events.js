@@ -159,6 +159,7 @@
                    .on(type, selectors, removeListener, useCapture, context);
     };
 
+    // TODO: optional `context` as second argument?
     Pablo.fn.trigger = function(type /*, arbitrary args to pass to listener*/){
         var key = prefix + type,
             eventCache = this.data(key),
@@ -166,7 +167,7 @@
 
         if (eventCache){
             eventCache.forEach(function(event){
-                (event.wrapper || event.listener).apply(this, args);
+                event.wrapper.apply(this, args);
             }, this);
         }
         return this;
