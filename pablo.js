@@ -439,43 +439,42 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             arrayProto.sort.call(this, fn);
             return this;
         },
-        
-        // TODO: support optional `context` argument for array methods
-        each: function(fn){
-            arrayProto.forEach.call(this, fn, this);
-            return this;
-        },
-        
-        map: function(fn){
-            return Pablo(arrayProto.map.call(this, fn));
-        },
-
-        some: function(fnOrSelector, ancestor){
-            return typeof fnOrSelector === 'string' ?
-                matchSelectors(this, fnOrSelector, ancestor, 'some') :
-                arrayProto.some.call(this, fnOrSelector);
-        },
-
-        every: function(fnOrSelector, ancestor){
-            return typeof fnOrSelector === 'string' ?
-                matchSelectors(this, fnOrSelector, ancestor, 'every') :
-                arrayProto.every.call(this, fnOrSelector);
-        },
-
-        // Note: this method is analogous to Array.filter but is called `select`
-        // here (as in Underscore.js) because Pablo's filter() method is used to
-        // create a `<filter>` SVG element
-        select: function(fnOrSelector, ancestor){
-            return typeof fnOrSelector === 'string' ?
-                matchSelectors(this, fnOrSelector, ancestor, 'filter') :
-                Pablo(arrayProto.filter.call(this, fnOrSelector));
-        },
 
         indexOf: function(el){
             if (Pablo.isPablo(el)){
                 el = el[0];
             }
             return arrayProto.indexOf.call(this, el);
+        },
+        
+        each: function(fn, context){
+            arrayProto.forEach.call(this, fn, context || this);
+            return this;
+        },
+        
+        map: function(fn, context){
+            return Pablo(arrayProto.map.call(this, fn, context || this));
+        },
+
+        some: function(fnOrSelector, context){
+            return typeof fnOrSelector === 'string' ?
+                matchSelectors(this, fnOrSelector, context, 'some') :
+                arrayProto.some.call(this, fnOrSelector, context || this);
+        },
+
+        every: function(fnOrSelector, context){
+            return typeof fnOrSelector === 'string' ?
+                matchSelectors(this, fnOrSelector, context, 'every') :
+                arrayProto.every.call(this, fnOrSelector, context || this);
+        },
+
+        // Note: this method is analogous to Array.filter but is called `select`
+        // here (as in Underscore.js) because Pablo's filter() method is used to
+        // create a `<filter>` SVG element
+        select: function(fnOrSelector, context){
+            return typeof fnOrSelector === 'string' ?
+                matchSelectors(this, fnOrSelector, context, 'filter') :
+                Pablo(arrayProto.filter.call(this, fnOrSelector, context || this));
         },
 
 
