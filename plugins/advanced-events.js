@@ -11,18 +11,17 @@
         * Supports optional `context` argument
         * Events can be triggered manually
         * Custom event types can be created
+        * Remove all events from an element, or all events of a particular type from an element
 
         Note:
         `oneEach()` is not modified in this extension because it already
         passes all its arguments through to `on()` and `off()`
     */
 
-    // TODO: implement `.off()` with no args to remove all listeners
-
-    var prefix = '__events__'; 
+    var namespace = '__events__'; 
 
     Pablo.fn.on = function(type, selectors, listener, useCapture, context){
-        var boundContext, wrapper, event;
+        var boundContext, wrapper, eventData;
 
         // `selectors` argument not given
         if (typeof selectors === 'function'){
@@ -48,7 +47,7 @@
         }
 
         // Prepare data to be cached about the event
-        event = {
+        eventData = {
             selectors:  selectors,
             listener:   listener,
             wrapper:    wrapper,
@@ -58,34 +57,38 @@
         // If there are multiple, space-delimited event type, then cycle through
         // each one
         return this.processList(type, function(type){
-            var key = prefix + type;
-
             // Cycle through each element in the collection
             this.each(function(el){
                 var node = Pablo(el),
-                    // Retrieve the element's cached event data
-                    eventCache = node.data(key);
+                    eventsCache = node.data(namespace),
+                    cache, nodeEventData;
 
-                // Create a container for the cached event data
-                if (!eventCache){
-                    eventCache = [];
-                    node.data(key, eventCache);
+                if (!eventsCache){
+                    eventsCache = {};
+                    node.data(namespace, eventsCache);
+                }
+            
+                cache = eventsCache[type];
+                if (!cache){
+                    cache = eventsCache[type] = [];
                 }
 
                 // Delegate events
                 if (selectors){
-                    wrapper = event.wrapper = function(event){
+                    wrapper = function(event){
                         var target = event && event.target;
                         if (target){
+                            // Find elements matching selectors within this element
                             if (Pablo(target).is(selectors, node)){
                                 (boundContext || listener).apply(null, arguments);
                             }
                         }
                     };
+                    nodeEventData = Pablo.extend({wrapper:wrapper}, eventData);
                 }
 
                 // Add to cache
-                eventCache.push(event);
+                cache.push(nodeEventData || eventData);
 
                 // Add DOM listener
                 el.addEventListener(type, wrapper, useCapture);
@@ -106,30 +109,62 @@
         }
 
         return this.processList(type, function(type){
-            var key = prefix + type;
-
             this.each(function(el){
                 var node = Pablo(el),
-                    eventCache = node.data(key);
+                    eventsCache = node.data(namespace),
+                    cache, cachedType;
 
-                if (eventCache){
-                    // Use `some` rather than `forEach` to allow breaking 
-                    // the loop. Use `some` rather than `for` as it's a 
-                    // sparse array.
-                    eventCache.some(function(event, i){
-                        if (listener === event.listener &&
-                            useCapture === event.useCapture &&
-                            selectors === event.selectors
-                        ){
-                            // Remove from cache
-                            delete eventCache[i];
-
-                            // Remove DOM listener
-                            el.removeEventListener(type, event.wrapper, useCapture);
-                            return true;
-                        }
-                    }, this);
+                if (!eventsCache){
+                    return;
                 }
+
+                // Remove all event listeners
+                if (!type){
+                    for (cachedType in eventsCache){
+                        if (eventsCache.hasOwnProperty(cachedType)){
+                            node.off(cachedType);
+                        }
+                    }
+                    return;
+                }
+
+                cache = eventsCache[type];
+                if (!cache || !cache.length){
+                    return;
+                }
+
+                // Remove event listeners of a specific type
+                if (!listener){
+                    // Remove DOM listeners
+                    cache.forEach(function(eventData){
+                        if (!selectors || (selectors && selectors === eventData.selectors)){
+                            el.removeEventListener(type, eventData.wrapper, eventData.useCapture);
+                        }
+                    });
+
+                    // Remove cache for this type
+                    delete eventsCache[type];
+                    // TODO: delete cache container if empty
+                    return;
+                }
+
+                // Use `some` rather than `forEach` to allow breaking 
+                // the loop. Use `some` rather than `for` as it's a 
+                // sparse array.
+                cache.some(function(eventData, i){
+                    if (listener   === eventData.listener &&
+                        useCapture === eventData.useCapture &&
+                        selectors  === eventData.selectors
+                    ){
+                        // Remove DOM listener
+                        el.removeEventListener(type, eventData.wrapper, useCapture);
+
+                        // Remove from cache
+                        delete eventData[i];
+                        // TODO: delete cache container if empty
+                        return true;
+                    }
+                });
             });
         });
     };
@@ -161,16 +196,26 @@
 
     // TODO: optional `context` as second argument?
     Pablo.fn.trigger = function(type /*, arbitrary args to pass to listener*/){
-        var key = prefix + type,
-            eventCache = this.data(key),
-            args = Pablo.toArray(arguments).slice(1);
+        var eventsCache = this.data(namespace),
+            args;
 
-        if (eventCache){
-            eventCache.forEach(function(event){
-                event.wrapper.apply(this, args);
-            }, this);
+        if (!eventsCache){
+            return this;
         }
-        return this;
+
+        // Additional arguments are passed on to the triggered listeners
+        if (arguments.length > 1){
+            args = Pablo.toArray(arguments).slice(1);
+        }
+
+        return this.processList(type, function(type){
+            var cache = eventsCache[type];
+            if (cache){
+                cache.forEach(function(eventData){
+                    eventData.wrapper.apply(this, args);
+                }, this);
+            }
+        });
     };
 
 }(window.Pablo));
