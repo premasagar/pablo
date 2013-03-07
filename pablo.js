@@ -13,7 +13,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
     'use strict';
     
     var /* SETTINGS */
-        pabloVersion = '0.2.5',
+        pabloVersion = '0.3.0',
         svgVersion = 1.1,
         svgns = 'http://www.w3.org/2000/svg',
         xlinkns = 'http://www.w3.org/1999/xlink',
