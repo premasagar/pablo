@@ -19,7 +19,7 @@ describe('Pablo', function () {
 
   describe('Collections', function () {
 
-    describe('Pablo()', function () {
+    describe('Pablo(input)', function () {
 
       it('should return an empty pablo collection when invoked without argument', function () {
         var pCollection   = Pablo();
@@ -81,6 +81,36 @@ describe('Pablo', function () {
         expect(pCollection[0].id).to.eql('test-subject-a');
         expect(pCollection[1].id).to.eql('test-subject-b');
         expect(pCollection[2].id).to.eql('test-subject-c');
+      });
+
+      it('should return a pablo collection containing a DOM element when passed the appropriate CSS Selector', function () {
+        var pCollection  = Pablo('#test-subjects');
+
+        expect(pCollection instanceof Pablo.Collection);
+        expect(pCollection.length).to.eql(1);
+        expect(pCollection[0].id).to.eql('test-subjects');
+      });
+    });
+
+    describe('Pablo(element, attribute)', function () {
+      it('should create a new Pablo collection containing the specified element with the specified attributes', function () {
+        var pCollection = Pablo('rect', {x:10, y:10, width:50, height:50});
+        expect(pCollection instanceof Pablo.Collection).to.eql(true);
+        expect(pCollection.length).to.eql(1);
+        debugger;
+        expect(pCollection[0].getAttribute('x')).to.eql('10');
+        expect(pCollection[0].getAttribute('y')).to.eql('10');
+        expect(pCollection[0].getAttribute('width')).to.eql('50');
+        expect(pCollection[0].getAttribute('height')).to.eql('50');
+      });
+
+      it('should create a new Pablo collection containing multiple specified elements with the specified attributes', function () {
+        var pCollection = Pablo(['rect', 'line', 'line'], {stroke:'black'});
+        expect(pCollection instanceof Pablo.Collection).to.eql(true);
+        expect(pCollection.length).to.eql(3);
+        expect(pCollection[0].getAttribute('stroke')).to.eql('black');
+        expect(pCollection[1].getAttribute('stroke')).to.eql('black');
+        expect(pCollection[2].getAttribute('stroke')).to.eql('black');
       });
     });
   });
