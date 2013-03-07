@@ -6,7 +6,7 @@
     }
     // CACHE
 
-    var cache = {},
+    var cache = Pablo.cache = {},
         nextId = 1,
         expando = 'pablo';
 
