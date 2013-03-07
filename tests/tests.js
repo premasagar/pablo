@@ -138,12 +138,12 @@ describe('Pablo', function () {
       });
     });
 
-    describe('.appendTo(element, [attributes]', function () {
+    describe('.appendTo(element)', function () {
       it('should return a Pablo collection', function () {
         expect(Pablo.circle().appendTo(Pablo.rect()) instanceof Pablo.Collection).to.eql(true);
       });
 
-      it('.appendTo(elements) should append the subject collection to the passed in element', function () {
+      it('.appendTo(element) should append the subject collection to the passed in element', function () {
         var pCollection  = Pablo.circle({foo:'bar'}),
             pCollection2 = Pablo.rect();
 
@@ -152,6 +152,29 @@ describe('Pablo', function () {
         expect(pCollection2[0].childNodes.length).to.eql(1);
         expect(pCollection2[0].childNodes[0] instanceof SVGCircleElement).to.eql(true);
         expect(pCollection2[0].childNodes[0].getAttribute('foo')).to.eql('bar');
+      });
+
+      it('.appendTo(elementName, attributes) should append the subject collection to a newly created element respective of the passed arguments', function () {
+        var pCollection = Pablo.circle({foo: 'bar'}),
+            parent      = pCollection.appendTo('rect', {})[0].parentNode;
+        
+        expect(parent.childNodes.length).to.eql(1);
+        expect(parent.childNodes[0] instanceof SVGCircleElement).to.eql(true);
+        expect(parent.childNodes[0].getAttribute('foo')).to.eql('bar');
+      });
+    });
+
+    describe('.prepend(elements, [attributes])', function () {
+      it('should return a Pablo collection', function () {
+        expect(Pablo.circle().prepend(Pablo.rect()) instanceof Pablo.Collection).to.eql(true);
+      });
+
+      it('.prepend(element) should prepend the passed element to the subject collection', function () {
+        notDone();
+      });
+
+      it('.prepend(elementName, attributes) should prepend the subject collection to the a newly created element respective of the passed arguments', function () {
+        notDone();
       });
     });
   });
