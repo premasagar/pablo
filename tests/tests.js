@@ -540,6 +540,48 @@ describe('Pablo', function () {
     });
   });
 
+  describe('Events', function () {
+    describe('.on()', function () {
+      it('.on(type, listener', function () {
+        notDone();
+      });
+
+      it('.on(type, listener, [useCapture]', function () {
+        notDone();
+      });
+    });
+
+    describe('.off()', function () {
+      it('.off(type, listener', function () {
+        notDone();
+      });
+
+      it('.off(type, listener, [useCapture]', function () {
+        notDone();
+      });
+    });
+
+    describe('.one()', function () {
+      it('.one(type, listener', function () {
+        notDone();
+      });
+
+      it('.one(type, listener, [useCapture]', function () {
+        notDone();
+      });
+    });
+
+    describe('.oneEach()', function () {
+      it('.oneEach(type, listener', function () {
+        notDone();
+      });
+
+      it('.oneEach(type, listener, [useCapture]', function () {
+        notDone();
+      });
+    });
+  });
+
   describe('Pablo.ELEMENT_NAME([attributes]) shortcuts', function () {
     it('Pable.svg([attributes]) should return a Pablo collection of that element and with the attribute "version=1.1" on it', function () {
       var pCollection = Pablo.svg();
