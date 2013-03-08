@@ -720,6 +720,9 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             }
 
             return this.each(function(el, i){
+                // TODO: replace `node = Pablo(el)` with 
+                // `node = this.length === 1 ? this : Pablo(el)` everywhere that
+                // is appropriate, to avoid unnecessary Pablo collection creation
                 var node = Pablo(el),
                     transformAttr = node.attr('transform'),
                     newTransformAttr, pos, posEnd, transformAttrEnd,
@@ -833,7 +836,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
 
     // DOM EVENTS
 
-    // TODO: support getValue for `type`
+    // TODO: support getValue for `type`?
     function addRemoveListener(domMethod){
         return function(type, listener, useCapture){
             // `type` can be a single event type, or a space-delimited list
@@ -847,7 +850,6 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
     }
 
     extend(pabloCollectionApi, {
-        // TODO: use for adding / removing CSS classes too
         processList: function(item, fn){
             var collection = this;
 
@@ -1119,7 +1121,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             // e.g. Pablo('svg').style().content('#foo{' + Pablo.cssPrefix('transform', 'rotate(45deg)') + '}');
             // e.g. myElement.css({'transition-property': Pablo.cssPrefix('transform')});
 
-        // TODO: support `collection.append('myshape')`
+        // TODO: support `collection.append('myTemplate')`
         template: function(name, callback){
             // e.g. Pablo.star()
             Pablo[name] = function(){

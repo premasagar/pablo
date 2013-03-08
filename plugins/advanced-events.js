@@ -1,4 +1,4 @@
-(function(Pablo){
+(function(Pablo, Array){
     'use strict';
 
     // Set additional requirement for support
@@ -37,6 +37,12 @@
             useCapture = false;
         }
 
+        // Allow binding and triggering events on empty collections
+        // Create a container object to store state
+        if (!this.length){
+            Array.prototype.push.call(this, {});
+        }
+
         // `listener` is the original callback function
         // `wrapper` is the function actually applied to the DOM element, and 
         // may modify the original listener, e.g. by changing the `this` object
@@ -64,7 +70,7 @@
         return this.processList(type, function(type){
             // Cycle through each element in the collection
             this.each(function(el){
-                var node = Pablo(el),
+                var node = this.length === 1 ? this : Pablo(el),
                     eventsCache = node.data(namespace),
                     cache;
 
@@ -97,7 +103,9 @@
                 cache.push(eventData);
 
                 // Add DOM listener
-                el.addEventListener(type, wrapper, useCapture);
+                if ('addEventListener' in el){
+                    el.addEventListener(type, wrapper, useCapture);
+                }
             });
         });
     };
@@ -117,7 +125,7 @@
         // through each one
         return this.processList(type, function(type){
             this.each(function(el){
-                var node = Pablo(el),
+                var node = this.length === 1 ? this : Pablo(el),
                     eventsCache = node.data(namespace),
                     cache, cachedType;
 
@@ -156,7 +164,9 @@
                         )
                     )){
                         // Remove DOM listener
-                        el.removeEventListener(type, eventData.wrapper, useCapture);
+                        if ('removeEventListener' in el){
+                            el.removeEventListener(type, eventData.wrapper, useCapture);
+                        }
 
                         // If looking for a specific listener, remove from cache
                         // and break the loop. NOTE: if the listener was set 
@@ -207,28 +217,26 @@
 
     // TODO: optional `context` as second argument?
     Pablo.fn.trigger = function(type /*, arbitrary args to pass to listener*/){
-        var eventsCache = this.data(namespace),
-            args;
+        var args = arguments.length > 1 ?
+            Pablo.toArray(arguments).slice(1) : null;
 
-        if (!eventsCache){
-            return this;
-        }
+        return this.each(function(el){
+            var node = this.length === 1 ? this : Pablo(el),
+                eventsCache = node.data(namespace);
 
-        // Additional arguments are passed on to the triggered listeners
-        if (arguments.length > 1){
-            args = Pablo.toArray(arguments).slice(1);
-        }
-
-        // If there are multiple, space-delimited event types, then cycle 
-        // through each one
-        return this.processList(type, function(type){
-            var cache = eventsCache[type];
-            if (cache){
-                cache.forEach(function(eventData){
-                    eventData.wrapper.apply(this, args);
-                }, this);
+            if (eventsCache){
+                // If there are multiple, space-delimited event types, then cycle 
+                // through each one
+                this.processList(type, function(type){
+                    var cache = eventsCache[type];
+                    if (cache){
+                        cache.forEach(function(eventData){
+                            eventData.wrapper.apply(node, args);
+                        }, node);
+                    }
+                });
             }
         });
     };
 
-}(window.Pablo));
+}(window.Pablo, window.Array));
