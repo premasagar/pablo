@@ -214,6 +214,8 @@ describe('Pablo', function () {
           var pCollection = Pablo.rect().append(Pablo.circle()).append(Pablo.circle());
           Pablo(pCollection[0].childNodes).before(Pablo.ellipse({foo:'bar'}));
 
+          notDone();
+
           expect(pCollection[0].childNodes.length).to.eql(4);
           expect(pCollection[0].childNodes[0] instanceof SVGEllipseElement).to.eql(true);
           expect(pCollection[0].childNodes[2] instanceof SVGEllipseElement).to.eql(true);
@@ -238,11 +240,13 @@ describe('Pablo', function () {
           var pCollection = Pablo.rect().append(Pablo.circle()).append(Pablo.circle());
           Pablo(pCollection[0].childNodes).after(Pablo.ellipse({foo:'bar'}));
 
+          notDone();
+
           expect(pCollection[0].childNodes.length).to.eql(4);
-          expect(pCollection[0].childNodes[0] instanceof SVGEllipseElement).to.eql(true);
-          expect(pCollection[0].childNodes[2] instanceof SVGEllipseElement).to.eql(true);
-          expect(pCollection[0].childNodes[0].getAttribute('foo')).to.eql('bar');
-          expect(pCollection[0].childNodes[2].getAttribute('foo')).to.eql('bar');
+          expect(pCollection[0].childNodes[1] instanceof SVGEllipseElement).to.eql(true);
+          expect(pCollection[0].childNodes[3] instanceof SVGEllipseElement).to.eql(true);
+          expect(pCollection[0].childNodes[1].getAttribute('foo')).to.eql('bar');
+          expect(pCollection[0].childNodes[3].getAttribute('foo')).to.eql('bar');
         });
 
         it('after(element, [attributes])', function () {
@@ -257,23 +261,59 @@ describe('Pablo', function () {
         });
       });
 
-      describe('.insertAfter(element)', function () {
-        it('insertAfter(element)', function () {
-          notDone();
-        });
-
-        it('insertAfter(element, [attributes])', function () {
-          notDone();
-        });
-      });
-
       describe('.insertBefore(element)', function () {
         it('insertBefore(element)', function () {
+          var pCollection = Pablo.rect().append(Pablo.circle()).append(Pablo.circle());
+          Pablo.ellipse({foo:'bar'}).insertBefore(pCollection[0].childNodes);
+
           notDone();
+
+          expect(pCollection[0].childNodes.length).to.eql(4);
+          expect(pCollection[0].childNodes[0] instanceof SVGEllipseElement).to.eql(true);
+          expect(pCollection[0].childNodes[2] instanceof SVGEllipseElement).to.eql(true);
+          expect(pCollection[0].childNodes[0].getAttribute('foo')).to.eql('bar');
+          expect(pCollection[0].childNodes[2].getAttribute('foo')).to.eql('bar');
         });
 
         it('insertBefore(element, [attributes])', function () {
+          var pCollection = Pablo.rect().append(Pablo.circle()).append(Pablo.circle());
+          Pablo('ellipse', {foo:'bar'}).insertBefore(pCollection[0].childNodes);
+
           notDone();
+
+          expect(pCollection[0].childNodes.length).to.eql(4);
+          expect(pCollection[0].childNodes[0] instanceof SVGEllipseElement).to.eql(true);
+          expect(pCollection[0].childNodes[2] instanceof SVGEllipseElement).to.eql(true);
+          expect(pCollection[0].childNodes[0].getAttribute('foo')).to.eql('bar');
+          expect(pCollection[0].childNodes[2].getAttribute('foo')).to.eql('bar');
+        });
+      });
+
+      describe('.insertAfter(element)', function () {
+        it('insertAfter(element)', function () {
+          var pCollection = Pablo.rect().append(Pablo.circle()).append(Pablo.circle());
+          Pablo.ellipse({foo:'bar'}).insertAfter(pCollection[0].childNodes);
+
+          notDone();
+
+          expect(pCollection[0].childNodes.length).to.eql(4);
+          expect(pCollection[0].childNodes[1] instanceof SVGEllipseElement).to.eql(true);
+          expect(pCollection[0].childNodes[3] instanceof SVGEllipseElement).to.eql(true);
+          expect(pCollection[0].childNodes[1].getAttribute('foo')).to.eql('bar');
+          expect(pCollection[0].childNodes[3].getAttribute('foo')).to.eql('bar');
+        });
+
+        it('insertAfter(element, [attributes])', function () {
+          var pCollection = Pablo.rect().append(Pablo.circle()).append(Pablo.circle());
+          Pablo('ellipse', {foo:'bar'}).insertAfter(pCollection[0].childNodes);
+
+          notDone();
+
+          expect(pCollection[0].childNodes.length).to.eql(4);
+          expect(pCollection[0].childNodes[1] instanceof SVGEllipseElement).to.eql(true);
+          expect(pCollection[0].childNodes[3] instanceof SVGEllipseElement).to.eql(true);
+          expect(pCollection[0].childNodes[1].getAttribute('foo')).to.eql('bar');
+          expect(pCollection[0].childNodes[3].getAttribute('foo')).to.eql('bar');
         });
       });
     });
