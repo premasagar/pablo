@@ -206,6 +206,38 @@ describe('Pablo', function () {
         expect(pCollection[0].parentNode.getAttribute('foo')).to.eql('bar');
       });
     });
+
+    describe('.children([filterBy])', function () {
+      it('should return the children of the subject Pablo collection', function () {
+        var children = Pablo('#test-subjects').children();
+
+        expect(children.length).to.eql(3);
+        expect(children instanceof Pablo.Collection).to.eql(true);
+        expect(children[0].id).to.eql('test-subject-a');
+        expect(children[1].id).to.eql('test-subject-b');
+        expect(children[2].id).to.eql('test-subject-c');
+      });
+
+      it('should allow the returned children to be filtered by a selector', function () {
+        var children = Pablo('#test-subjects').children('li[id="test-subject-b"]');
+
+        expect(children.length).to.eql(1);
+        expect(children instanceof Pablo.Collection).to.eql(true);
+        expect(children[0].id).to.eql('test-subject-b');
+      });
+
+      it('should allow the returned children to be filtered by a function', function () {
+        var children = Pablo('#test-subjects').children(function () {
+
+        });
+
+        notDone();
+
+        expect(children.length).to.eql(1);
+        expect(children instanceof Pablo.Collection).to.eql(true);
+        expect(children[0].id).to.eql('test-subject-b');
+      });
+    });
   });
 
   describe('Pablo.ELEMENT_NAME([attributes])', function () {
