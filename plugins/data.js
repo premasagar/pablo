@@ -1,4 +1,4 @@
-(function(Pablo){
+(function(Pablo, Array){
     'use strict';
 
     if (!Pablo.isSupported){
@@ -8,7 +8,7 @@
 
     var cache = Pablo.cache = {},
         nextId = 1,
-        expando = 'pablo';
+        expando = 'pablo-data';
 
     function getId(el){
         return el[expando];
@@ -48,18 +48,27 @@
     // DATA
 
     Pablo.fn.data = function(key, value){
-        var id;
+        var id, setValue;
 
         // Get value
         if (typeof value === 'undefined'){
-            id = getId(this[0]);
+            if (this.length){
+                // Use the id of the first element in the collection
+                id = getId(this[0]);
 
-            if (id && id in cache){
-                return cache[id][key];
+                // Return the cached value, by key
+                if (id && id in cache){
+                    return cache[id][key];
+                }
             }
         }
         // Set value
         else {
+            // Allow binding and triggering events on empty collections
+            // Create a container object to store state
+            if (!this.length){
+                Array.prototype.push.call(this, {});
+            }
             return this.each(function(el){
                 var id = getId(el) || createId(el);
 
@@ -85,4 +94,4 @@
         return this.removeData().detach();
     };
 
-}(window.Pablo));
+}(window.Pablo, window.Array));
