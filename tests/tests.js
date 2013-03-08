@@ -353,25 +353,35 @@ describe('Pablo', function () {
 
       describe('.parent()', function () {
         it('.parent()', function () {
-          notDone();
+          var child = document.getElementById('test-subject-a');
+          expect(Pablo(child).parent()[0].id).to.eql('test-subjects');
         });
       });
 
       describe('.siblings()', function () {
         it('.siblings()', function () {
-          notDone();
+          var aSibling = document.getElementById('test-subject-a'),
+              siblings = Pablo(aSibling).siblings();
+
+          expect(siblings.length).to.eql(2);
+          expect(siblings[0].id).to.eql('test-subject-b');
+          expect(siblings[1].id).to.eql('test-subject-c');
         });
       });
 
       describe('.prev()', function () {
         it('.prev()', function () {
-          notDone();
+          var b = Pablo('#test-subject-b');
+
+          expect(b.prev()[0].id).to.eql('test-subject-a');
         });
       });
 
       describe('.next()', function () {
         it('.next()', function () {
-          notDone();
+          var b = Pablo('#test-subject-b');
+
+          expect(b.next()[0].id).to.eql('test-subject-c');
         });
       });
 
@@ -383,25 +393,37 @@ describe('Pablo', function () {
 
       describe('.get()', function () {
         it('.get(index)', function () {
-          notDone();
+          var pCollection = Pablo('#test-subjects').children(),
+              chosenOne   = pCollection.get(1);
+
+          expect(chosenOne instanceof Pablo.Collection).to.eql(false);
+          expect(chosenOne.id).to.eql('test-subject-b')
         });
       });
 
       describe('.eq()', function () {
         it('.eq(index)', function () {
-          notDone();
+          var pCollection = Pablo('#test-subjects').children(),
+              chosenOne   = pCollection.eq(1);
+
+          expect(chosenOne instanceof Pablo.Collection).to.eql(true);
+          expect(chosenOne[0].id).to.eql('test-subject-b')
         });
       });
 
       describe('.first()', function () {
         it('.first()', function () {
-          notDone();
+          var first = Pablo('#test-subjects').children().first();
+
+          expect(first[0].id).to.eql('test-subject-a');
         });
       });
 
       describe('.last()', function () {
         it('.last()', function () {
-          notDone();
+          var first = Pablo('#test-subjects').children().last();
+
+          expect(first[0].id).to.eql('test-subject-c');
         });
       });
     });
