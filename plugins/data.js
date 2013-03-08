@@ -48,7 +48,7 @@
     // DATA
 
     Pablo.fn.data = function(key, value){
-        var id, setValue;
+        var id;
 
         // Get value
         if (typeof value === 'undefined'){
@@ -66,9 +66,12 @@
         else {
             // Allow binding and triggering events on empty collections
             // Create a container object to store state
+            // Temporary solution: create a new <g> element to store the state
+            // TODO: refactor to allow this.each() to cycle when element is an
             if (!this.length){
                 Array.prototype.push.call(this, {});
             }
+            
             return this.each(function(el){
                 var id = getId(el) || createId(el);
 
