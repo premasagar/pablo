@@ -210,25 +210,69 @@ describe('Pablo', function () {
       });
 
       describe('.before(element)', function () {
-        it(' ', function () {
-          notDone();
+        it('before(element)', function () {
+          var pCollection = Pablo.rect().append(Pablo.circle()).append(Pablo.circle());
+          Pablo(pCollection[0].childNodes).before(Pablo.ellipse({foo:'bar'}));
+
+          expect(pCollection[0].childNodes.length).to.eql(4);
+          expect(pCollection[0].childNodes[0] instanceof SVGEllipseElement).to.eql(true);
+          expect(pCollection[0].childNodes[2] instanceof SVGEllipseElement).to.eql(true);
+          expect(pCollection[0].childNodes[0].getAttribute('foo')).to.eql('bar');
+          expect(pCollection[0].childNodes[2].getAttribute('foo')).to.eql('bar');
+        });
+
+        it('before(element, [attributes])', function () {
+          var pCollection = Pablo.rect().append(Pablo.circle()).append(Pablo.circle());
+          Pablo(pCollection[0].childNodes).before('ellipse', {foo: 'bar'});
+
+          expect(pCollection[0].childNodes.length).to.eql(4);
+          expect(pCollection[0].childNodes[0] instanceof SVGEllipseElement).to.eql(true);
+          expect(pCollection[0].childNodes[2] instanceof SVGEllipseElement).to.eql(true);
+          expect(pCollection[0].childNodes[0].getAttribute('foo')).to.eql('bar');
+          expect(pCollection[0].childNodes[2].getAttribute('foo')).to.eql('bar');
         });
       });
 
       describe('.after(element)', function () {
-        it(' ', function () {
-          notDone();
+        it('after(element)', function () {
+          var pCollection = Pablo.rect().append(Pablo.circle()).append(Pablo.circle());
+          Pablo(pCollection[0].childNodes).after(Pablo.ellipse({foo:'bar'}));
+
+          expect(pCollection[0].childNodes.length).to.eql(4);
+          expect(pCollection[0].childNodes[0] instanceof SVGEllipseElement).to.eql(true);
+          expect(pCollection[0].childNodes[2] instanceof SVGEllipseElement).to.eql(true);
+          expect(pCollection[0].childNodes[0].getAttribute('foo')).to.eql('bar');
+          expect(pCollection[0].childNodes[2].getAttribute('foo')).to.eql('bar');
+        });
+
+        it('after(element, [attributes])', function () {
+          var pCollection = Pablo.rect().append(Pablo.circle()).append(Pablo.circle());
+          Pablo(pCollection[0].childNodes).after('ellipse', {foo:'bar'});
+
+          expect(pCollection[0].childNodes.length).to.eql(4);
+          expect(pCollection[0].childNodes[1] instanceof SVGEllipseElement).to.eql(true);
+          expect(pCollection[0].childNodes[3] instanceof SVGEllipseElement).to.eql(true);
+          expect(pCollection[0].childNodes[1].getAttribute('foo')).to.eql('bar');
+          expect(pCollection[0].childNodes[3].getAttribute('foo')).to.eql('bar');
         });
       });
 
       describe('.insertAfter(element)', function () {
-        it(' ', function () {
+        it('insertAfter(element)', function () {
+          notDone();
+        });
+
+        it('insertAfter(element, [attributes])', function () {
           notDone();
         });
       });
 
       describe('.insertBefore(element)', function () {
-        it(' ', function () {
+        it('insertBefore(element)', function () {
+          notDone();
+        });
+
+        it('insertBefore(element, [attributes])', function () {
           notDone();
         });
       });
