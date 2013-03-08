@@ -1,6 +1,9 @@
 (function(Pablo){
     'use strict';
 
+    // Set additional requirement for support
+    Pablo.isSupported = Pablo.isSupported && 'keys' in Object;
+
     if (!Pablo.isSupported){
         return;
     }
@@ -30,15 +33,17 @@
             listener = selectors;
             selectors = null;
         }
-
         if (typeof useCapture === 'undefined'){
             useCapture = false;
         }
 
+        // `listener` is the original callback function
+        // `wrapper` is the function actually applied to the DOM element, and 
+        // may modify the original listener, e.g. by changing the `this` object
         wrapper = listener;
 
-        // If a `this` object is given, then the listener is bound to a wrapper 
-        // function that uses the required `this` context
+        // If a `this` object is given, then bind the listener to the required 
+        // `this` context
         if (context){
             boundContext = function(){
                 listener.apply(context, arguments);
@@ -46,7 +51,7 @@
             wrapper = boundContext;
         }
 
-        // Prepare data to be cached about the event
+        // Prepare data to cache about the event
         eventData = {
             selectors:  selectors,
             listener:   listener,
@@ -54,14 +59,14 @@
             useCapture: useCapture
         };
 
-        // If there are multiple, space-delimited event type, then cycle through
-        // each one
+        // If there are multiple, space-delimited event types, then cycle 
+        // through each one
         return this.processList(type, function(type){
             // Cycle through each element in the collection
             this.each(function(el){
                 var node = Pablo(el),
                     eventsCache = node.data(namespace),
-                    cache, nodeEventData;
+                    cache;
 
                 if (!eventsCache){
                     eventsCache = {};
@@ -73,22 +78,23 @@
                     cache = eventsCache[type] = [];
                 }
 
-                // Delegate events
+                // `selectors` have been supplied, to set a delegate event
                 if (selectors){
+                    // Overwrite the wrapper to make it check that the event
+                    // originated on an element matching the selectors
                     wrapper = function(event){
-                        var target = event && event.target;
-                        if (target){
-                            // Find elements matching selectors within this element
-                            if (Pablo(target).is(selectors, node)){
+                        if (event && event.target){
+                            if (Pablo(event.target).is(selectors, node)){
                                 (boundContext || listener).apply(null, arguments);
                             }
                         }
                     };
-                    nodeEventData = Pablo.extend({wrapper:wrapper}, eventData);
+                    // Overwrite the wrapper in the data to be cached
+                    eventData.wrapper = wrapper;
                 }
 
                 // Add to cache
-                cache.push(nodeEventData || eventData);
+                cache.push(eventData);
 
                 // Add DOM listener
                 el.addEventListener(type, wrapper, useCapture);
@@ -103,11 +109,12 @@
             listener = selectors;
             selectors = null;
         }
-
         if (typeof useCapture === 'undefined'){
             useCapture = false;
         }
-
+        
+        // If there are multiple, space-delimited event types, then cycle 
+        // through each one
         return this.processList(type, function(type){
             this.each(function(el){
                 var node = Pablo(el),
@@ -133,39 +140,39 @@
                     return;
                 }
 
-                // Remove event listeners of a specific type
-                if (!listener){
-                    // Remove DOM listeners
-                    cache.forEach(function(eventData){
-                        if (!selectors || (selectors && selectors === eventData.selectors)){
-                            el.removeEventListener(type, eventData.wrapper, eventData.useCapture);
-                        }
-                    });
-                }
+                // Remove DOM listeners and delete from cache. This uses a `some`
+                // loop rather than `forEach` to allow breaking. And it uses
+                // `some` rather than a `for` loop as the cache is a sparse array.
+                cache.some(function(eventData, i){
+                    if (
+                        // If a listener has been passed, is this it?
+                        (listener  === eventData.listener &&
+                        useCapture === eventData.useCapture &&
+                        selectors  === eventData.selectors) ||
 
-                else {
-                    // Use `some` rather than `forEach` to allow breaking 
-                    // the loop. Use `some` rather than `for` as it's a 
-                    // sparse array.
-                    cache.some(function(eventData, i){
-                        if (listener   === eventData.listener &&
-                            useCapture === eventData.useCapture &&
-                            selectors  === eventData.selectors
-                        ){
-                            // Remove DOM listener
-                            el.removeEventListener(type, eventData.wrapper, useCapture);
+                        // Or if no listener was passed...
+                        (!listener && (
+                            !selectors || selectors === eventData.selectors
+                        )
+                    )){
+                        // Remove DOM listener
+                        el.removeEventListener(type, eventData.wrapper, useCapture);
 
-                            // Remove from cache
+                        // If looking for a specific listener, remove from cache
+                        // and break the loop. NOTE: if the listener was set 
+                        // multiple times, it will need removal multiple times.
+                        if (listener){
                             delete cache[i];
                             return true;
                         }
-                    });
-                }
+                    }
+                });
 
-                // Delete cache containers if empty
+                // Delete the cache container for this event type, if empty
                 if (!listener || !Object.keys(eventsCache[type]).length){
                     delete eventsCache[type];
                 }
+                // Delete the events container for this element, if empty
                 if (!Object.keys(eventsCache).length){
                     node.removeData(namespace); 
                 }
@@ -191,7 +198,7 @@
         }
 
         // Add the original listener, and an additional listener that removes
-        // the first, and itself. The reason a wrapper listener is not used
+        // the first, and itself. The reason a single wrapper is not used
         // instead of two separate listeners is to allow manual removal of
         // the original listener (with `.off()`) before it ever triggers.
         return this.on(type, selectors, listener,       useCapture, context)
@@ -212,6 +219,8 @@
             args = Pablo.toArray(arguments).slice(1);
         }
 
+        // If there are multiple, space-delimited event types, then cycle 
+        // through each one
         return this.processList(type, function(type){
             var cache = eventsCache[type];
             if (cache){
