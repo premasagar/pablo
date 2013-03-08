@@ -115,132 +115,432 @@ describe('Pablo', function () {
   });
 
   describe('Pablo collection methods', function () {
-    describe('.append(element, [attributes])', function () {
-      it('should return a Pablo collection', function () {
-        expect(Pablo.circle().append(Pablo.rect()) instanceof Pablo.Collection).to.eql(true);
-      });
 
-      it('.append(elements) should append the specified element(s) as a child of the specific Pablo collection and return ', function () {
-        var pCollection = Pablo.circle();
-        pCollection.append(Pablo.rect());
-
-        expect(pCollection[0].childNodes.length).to.eql(1);
-        expect(pCollection[0].childNodes[0] instanceof SVGRectElement).to.eql(true);
-      });
-
-      it('.append(elementName, attributes) should create a new element as a child of the specific Pablo collection', function () {
-        var pCollection = Pablo.circle();
-        pCollection.append('rect', {foo: 'bar'});
-
-        expect(pCollection[0].childNodes.length).to.eql(1);
-        expect(pCollection[0].childNodes[0] instanceof SVGRectElement).to.eql(true);
-        expect(pCollection[0].childNodes[0].getAttribute('foo')).to.eql('bar');
-      });
-    });
-
-    describe('.appendTo(element)', function () {
-      it('should return a Pablo collection', function () {
-        expect(Pablo.circle().appendTo(Pablo.rect()) instanceof Pablo.Collection).to.eql(true);
-      });
-
-      it('.appendTo(element) should append the subject collection to the passed in element', function () {
-        var pCollection  = Pablo.circle({foo:'bar'}),
-            pCollection2 = Pablo.rect();
-
-        pCollection.appendTo(pCollection2);
-
-        expect(pCollection2[0].childNodes.length).to.eql(1);
-        expect(pCollection2[0].childNodes[0] instanceof SVGCircleElement).to.eql(true);
-        expect(pCollection2[0].childNodes[0].getAttribute('foo')).to.eql('bar');
-      });
-
-      it('.appendTo(elementName, attributes) should append the subject collection to a newly created element respective of the passed arguments', function () {
-        var pCollection = Pablo.circle({foo: 'bar'}),
-            parent      = pCollection.appendTo('rect', {})[0].parentNode;
-        
-        expect(parent.childNodes.length).to.eql(1);
-        expect(parent.childNodes[0] instanceof SVGCircleElement).to.eql(true);
-        expect(parent.childNodes[0].getAttribute('foo')).to.eql('bar');
-      });
-    });
-
-    describe('.prepend(elements, [attributes])', function () {
-      it('should return a Pablo collection', function () {
-        expect(Pablo.circle().prepend(Pablo.rect()) instanceof Pablo.Collection).to.eql(true);
-      });
-
-      it('.prepend(element) should prepend the passed element to the subject collection', function () {
-        var pCollection = Pablo.circle().append(Pablo.rect()).append(Pablo.rect());
-        pCollection.prepend(Pablo.ellipse({foo:'bar'}));
-
-        expect(pCollection[0].childNodes.length).to.eql(3);
-        expect(pCollection[0].childNodes[0] instanceof SVGEllipseElement).to.eql(true);
-        expect(pCollection[0].childNodes[0].getAttribute('foo')).to.eql('bar');
-      });
-
-      it('.prepend(elementName, attributes) should prepend to a newly created element respective of the passed arguments', function () {
-        var pCollection = Pablo.circle().append(Pablo.rect()).append(Pablo.rect());
-        pCollection.prepend('ellipse', {foo:'bar'});
-
-        expect(pCollection[0].childNodes.length).to.eql(3);
-        expect(pCollection[0].childNodes[0] instanceof SVGEllipseElement).to.eql(true);
-        expect(pCollection[0].childNodes[0].getAttribute('foo')).to.eql('bar');
-      });
-    });
-
-    describe('.prependTo(elements, [attributes])', function () {
-      it('.prependTo(element) should prepend the subject collection to the passed element', function () {
-        var pCollection = Pablo.circle().append(Pablo.rect()).append(Pablo.rect());
-        Pablo.ellipse({foo:'bar'}).prependTo(pCollection);
-
-        expect(pCollection[0].childNodes.length).to.eql(3);
-        expect(pCollection[0].childNodes[0] instanceof SVGEllipseElement).to.eql(true);
-        expect(pCollection[0].childNodes[0].getAttribute('foo')).to.eql('bar');
-      });
-
-      it('.prependTo(elementName, attributes) should prepend the subject collection to the a newly created element respective of the passed arguments', function () {
-        var pCollection = Pablo.circle();
-        pCollection.prependTo('ellipse', {foo:'bar'});
-
-        expect(pCollection[0].parentNode instanceof SVGEllipseElement).to.eql(true);
-        expect(pCollection[0].parentNode.getAttribute('foo')).to.eql('bar');
-      });
-    });
-
-    describe('.children([filterBy])', function () {
-      it('should return the children of the subject Pablo collection', function () {
-        var children = Pablo('#test-subjects').children();
-
-        expect(children.length).to.eql(3);
-        expect(children instanceof Pablo.Collection).to.eql(true);
-        expect(children[0].id).to.eql('test-subject-a');
-        expect(children[1].id).to.eql('test-subject-b');
-        expect(children[2].id).to.eql('test-subject-c');
-      });
-
-      it('should allow the returned children to be filtered by a selector', function () {
-        var children = Pablo('#test-subjects').children('li[id="test-subject-b"]');
-
-        expect(children.length).to.eql(1);
-        expect(children instanceof Pablo.Collection).to.eql(true);
-        expect(children[0].id).to.eql('test-subject-b');
-      });
-
-      it('should allow the returned children to be filtered by a function', function () {
-        var children = Pablo('#test-subjects').children(function () {
-
+    describe('Node Positioning', function () {
+      describe('.append(element, [attributes])', function () {
+        it('should return a Pablo collection', function () {
+          expect(Pablo.circle().append(Pablo.rect()) instanceof Pablo.Collection).to.eql(true);
         });
 
-        notDone();
+        it('.append(elements) should append the specified element(s) as a child of the specific Pablo collection and return ', function () {
+          var pCollection = Pablo.circle();
+          pCollection.append(Pablo.rect());
 
-        expect(children.length).to.eql(1);
-        expect(children instanceof Pablo.Collection).to.eql(true);
-        expect(children[0].id).to.eql('test-subject-b');
+          expect(pCollection[0].childNodes.length).to.eql(1);
+          expect(pCollection[0].childNodes[0] instanceof SVGRectElement).to.eql(true);
+        });
+
+        it('.append(elementName, attributes) should create a new element as a child of the specific Pablo collection', function () {
+          var pCollection = Pablo.circle();
+          pCollection.append('rect', {foo: 'bar'});
+
+          expect(pCollection[0].childNodes.length).to.eql(1);
+          expect(pCollection[0].childNodes[0] instanceof SVGRectElement).to.eql(true);
+          expect(pCollection[0].childNodes[0].getAttribute('foo')).to.eql('bar');
+        });
+      });
+
+      describe('.appendTo(element)', function () {
+        it('should return a Pablo collection', function () {
+          expect(Pablo.circle().appendTo(Pablo.rect()) instanceof Pablo.Collection).to.eql(true);
+        });
+
+        it('.appendTo(element) should append the subject collection to the passed in element', function () {
+          var pCollection  = Pablo.circle({foo:'bar'}),
+              pCollection2 = Pablo.rect();
+
+          pCollection.appendTo(pCollection2);
+
+          expect(pCollection2[0].childNodes.length).to.eql(1);
+          expect(pCollection2[0].childNodes[0] instanceof SVGCircleElement).to.eql(true);
+          expect(pCollection2[0].childNodes[0].getAttribute('foo')).to.eql('bar');
+        });
+
+        it('.appendTo(elementName, attributes) should append the subject collection to a newly created element respective of the passed arguments', function () {
+          var pCollection = Pablo.circle({foo: 'bar'}),
+              parent      = pCollection.appendTo('rect', {})[0].parentNode;
+          
+          expect(parent.childNodes.length).to.eql(1);
+          expect(parent.childNodes[0] instanceof SVGCircleElement).to.eql(true);
+          expect(parent.childNodes[0].getAttribute('foo')).to.eql('bar');
+        });
+      });
+
+      describe('.prepend(elements, [attributes])', function () {
+        it('should return a Pablo collection', function () {
+          expect(Pablo.circle().prepend(Pablo.rect()) instanceof Pablo.Collection).to.eql(true);
+        });
+
+        it('.prepend(element) should prepend the passed element to the subject collection', function () {
+          var pCollection = Pablo.circle().append(Pablo.rect()).append(Pablo.rect());
+          pCollection.prepend(Pablo.ellipse({foo:'bar'}));
+
+          expect(pCollection[0].childNodes.length).to.eql(3);
+          expect(pCollection[0].childNodes[0] instanceof SVGEllipseElement).to.eql(true);
+          expect(pCollection[0].childNodes[0].getAttribute('foo')).to.eql('bar');
+        });
+
+        it('.prepend(elementName, attributes) should prepend to a newly created element respective of the passed arguments', function () {
+          var pCollection = Pablo.circle().append(Pablo.rect()).append(Pablo.rect());
+          pCollection.prepend('ellipse', {foo:'bar'});
+
+          expect(pCollection[0].childNodes.length).to.eql(3);
+          expect(pCollection[0].childNodes[0] instanceof SVGEllipseElement).to.eql(true);
+          expect(pCollection[0].childNodes[0].getAttribute('foo')).to.eql('bar');
+        });
+      });
+
+      describe('.prependTo(elements, [attributes])', function () {
+        it('.prependTo(element) should prepend the subject collection to the passed element', function () {
+          var pCollection = Pablo.circle().append(Pablo.rect()).append(Pablo.rect());
+          Pablo.ellipse({foo:'bar'}).prependTo(pCollection);
+
+          expect(pCollection[0].childNodes.length).to.eql(3);
+          expect(pCollection[0].childNodes[0] instanceof SVGEllipseElement).to.eql(true);
+          expect(pCollection[0].childNodes[0].getAttribute('foo')).to.eql('bar');
+        });
+
+        it('.prependTo(elementName, attributes) should prepend the subject collection to the a newly created element respective of the passed arguments', function () {
+          var pCollection = Pablo.circle();
+          pCollection.prependTo('ellipse', {foo:'bar'});
+
+          expect(pCollection[0].parentNode instanceof SVGEllipseElement).to.eql(true);
+          expect(pCollection[0].parentNode.getAttribute('foo')).to.eql('bar');
+        });
+      });
+
+      describe('.before(element)', function () {
+        it(' ', function () {
+          notDone();
+        });
+      });
+
+      describe('.after(element)', function () {
+        it(' ', function () {
+          notDone();
+        });
+      });
+
+      describe('.insertAfter(element)', function () {
+        it(' ', function () {
+          notDone();
+        });
+      });
+
+      describe('.insertBefore(element)', function () {
+        it(' ', function () {
+          notDone();
+        });
+      });
+    });
+
+    describe('Node Traversal', function () {
+      describe('.children([filterBy])', function () {
+        it('should return the children of the subject Pablo collection', function () {
+          var children = Pablo('#test-subjects').children();
+
+          expect(children.length).to.eql(3);
+          expect(children instanceof Pablo.Collection).to.eql(true);
+          expect(children[0].id).to.eql('test-subject-a');
+          expect(children[1].id).to.eql('test-subject-b');
+          expect(children[2].id).to.eql('test-subject-c');
+        });
+
+        it('should allow the returned children to be filtered by a selector', function () {
+          var children = Pablo('#test-subjects').children('li[id="test-subject-b"]');
+
+          expect(children.length).to.eql(1);
+          expect(children instanceof Pablo.Collection).to.eql(true);
+          expect(children[0].id).to.eql('test-subject-b');
+        });
+
+        it('should allow the returned children to be filtered by a function', function () {
+          var children = Pablo('#test-subjects').children(function () {
+
+          });
+
+          notDone();
+
+          expect(children.length).to.eql(1);
+          expect(children instanceof Pablo.Collection).to.eql(true);
+          expect(children[0].id).to.eql('test-subject-b');
+        });
+      });
+
+      describe('.parent()', function () {
+        it('.parent()', function () {
+          notDone();
+        });
+      });
+
+      describe('.siblings()', function () {
+        it('.siblings()', function () {
+          notDone();
+        });
+      });
+
+      describe('.prev()', function () {
+        it('.prev()', function () {
+          notDone();
+        });
+      });
+
+      describe('.next()', function () {
+        it('.next()', function () {
+          notDone();
+        });
+      });
+
+      describe('.find()', function () {
+        it('.find(selectors)', function () {
+          notDone();
+        });
+      });
+
+      describe('.get()', function () {
+        it('.get(index)', function () {
+          notDone();
+        });
+      });
+
+      describe('.eq()', function () {
+        it('.eq(index)', function () {
+          notDone();
+        });
+      });
+
+      describe('.first()', function () {
+        it('.first()', function () {
+          notDone();
+        });
+      });
+
+      describe('.last()', function () {
+        it('.last()', function () {
+          notDone();
+        });
+      });
+    });
+
+    describe('Node Properties', function () {
+      describe('.attr([attribute], [attributeValue])', function () {
+        it('.attr()', function () {
+          notDone();
+        });
+
+        it('.attr(attributeName)', function () {
+          notDone();
+        });
+
+        it('.attr(attributeName, attributeValue)', function () {
+          notDone();
+        });
+
+        it('.attr(attributes)', function () {
+          notDone();
+        });
+
+        it('.attr(attributes) attribute value as function', function () {
+          notDone();
+        });
+
+        it('.attr(attributes) attribute value as an Array', function () {
+          notDone();
+        });
+      });
+
+      describe('.removeAttr()', function () {
+        it('.removeAttr(attributeName)', function () {
+          notDone();
+        });
+      });
+
+      describe('.transform()', function () {
+        it('.transform(functionName, value)', function () {
+          notDone();
+        });
+      });
+
+      describe('.css()', function () {
+        it('.css(property)', function () {
+          notDone();
+        });
+
+        it('.css(property, value)', function () {
+          notDone();
+        });
+
+        it('.css(styles)', function () {
+          notDone();
+        });
+      });
+
+      describe('.cssPrefix()', function () {
+        it('.cssPrefix(prop, val)', function () {
+          notDone();
+        });
+
+        it('.cssPrefix(styles)', function () {
+          notDone();
+        });
+      });
+
+      describe('.addClass()', function () {
+        it('.addClass(className)', function () {
+          notDone();
+        });
+      });
+
+      describe('.removeClass()', function () {
+        it('.removeClass(className)', function () {
+          notDone();
+        });
+      });
+
+      describe('.hasClass', function () {
+        it('.hasClass(className)', function () {
+          notDone();
+        });
+      });
+
+      describe('.toggleClass()', function () {
+        it('.toggleClass(className)', function () {
+          notDone();
+        });
+      });
+
+      describe('.link()', function () {
+        it('.link()', function () {
+          notDone();
+        });
+
+        it('.link(url)', function () {
+          notDone();
+        });
+      });
+
+      describe('.content()', function () {
+        // suggest content renamed text
+        it('.content()', function () {
+          notDone();
+        });
+
+        it('.content(text)', function () {
+          notDone();
+        });
+      });
+
+      describe('.empty()', function () {
+        it('.empty()', function () {
+          notDone();
+        });
+      });
+
+      describe('.remove()', function () {
+        it('.remove()', function () {
+          notDone();
+        });
+      });
+    });
+
+    describe('Collection manipulation', function () {
+      describe('.toArray()', function () {
+        it('.toArray()', function () {
+          notDone();
+        });
+      });
+
+      describe('.size()', function () {
+        it('.size()', function () {
+          notDone();
+        });
+      });
+
+      describe('.push()', function () {
+        it('.push(elements)', function () {
+          notDone();
+        });
+      });
+
+      describe('.add()', function () {
+        it('.add(elements)', function () {
+          // alias for push
+          notDone();
+        });
+      });
+
+      describe('.concat()', function () {
+        it('.concat(elements)', function () {
+          // alias for push
+          notDone();
+        });
+      });
+
+      describe('.unshift()', function () {
+        it('.unshift(elements)', function () {
+          notDone();
+        });
+      });
+
+      describe('.pop()', function () {
+        it('.pop()', function () {
+          notDone();
+        });
+      });
+
+      describe('.shift()', function () {
+        it('.shift()', function () {
+          notDone();
+        });
+      });
+
+      describe('.slice()', function () {
+        it('.slice(begin)', function () {
+          notDone();
+        });
+
+        it('.slice(begin, [end]', function () {
+          notDone();
+        });
+      });
+    });
+    
+    describe('Collection iteration', function () {
+      describe('.each()', function () {
+        it('.each(callback)', function () {
+          notDone();
+        });
+      });
+
+      describe('.map()', function () {
+        it('.map(iterator)', function () {
+          notDone();
+        });
+      });
+
+      describe('.select()', function () {
+        it('.select(function)', function () {
+          notDone();
+        });
+      });
+    });
+
+    describe('Misc', function () {
+      describe('.clone()', function () {
+        it('.clone([isDeep])', function () {
+          notDone();
+        });
+      });
+
+      describe('.duplicate()', function () {
+        it('.duplicate([repeat])', function () {
+          notDone();
+        });
       });
     });
   });
 
-  describe('Pablo.ELEMENT_NAME([attributes])', function () {
+  describe('Pablo.ELEMENT_NAME([attributes]) shortcuts', function () {
     it('Pable.svg([attributes]) should return a Pablo collection of that element and with the attribute "version=1.1" on it', function () {
       var pCollection = Pablo.svg();
 
