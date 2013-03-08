@@ -22,7 +22,7 @@ describe('Pablo', function () {
     describe('Pablo(input)', function () {
 
       it('should return an empty pablo collection when invoked without argument', function () {
-        var pCollection   = Pablo();
+        var pCollection = Pablo();
 
         expect(pCollection instanceof Pablo.Collection).to.eql(true);
         expect(pCollection.length).to.eql(0);
@@ -170,11 +170,40 @@ describe('Pablo', function () {
       });
 
       it('.prepend(element) should prepend the passed element to the subject collection', function () {
-        notDone();
+        var pCollection = Pablo.circle().append(Pablo.rect()).append(Pablo.rect());
+        pCollection.prepend(Pablo.ellipse({foo:'bar'}));
+
+        expect(pCollection[0].childNodes.length).to.eql(3);
+        expect(pCollection[0].childNodes[0] instanceof SVGEllipseElement).to.eql(true);
+        expect(pCollection[0].childNodes[0].getAttribute('foo')).to.eql('bar');
       });
 
-      it('.prepend(elementName, attributes) should prepend the subject collection to the a newly created element respective of the passed arguments', function () {
-        notDone();
+      it('.prepend(elementName, attributes) should prepend to a newly created element respective of the passed arguments', function () {
+        var pCollection = Pablo.circle().append(Pablo.rect()).append(Pablo.rect());
+        pCollection.prepend('ellipse', {foo:'bar'});
+
+        expect(pCollection[0].childNodes.length).to.eql(3);
+        expect(pCollection[0].childNodes[0] instanceof SVGEllipseElement).to.eql(true);
+        expect(pCollection[0].childNodes[0].getAttribute('foo')).to.eql('bar');
+      });
+    });
+
+    describe('.prependTo(elements, [attributes])', function () {
+      it('.prependTo(element) should prepend the subject collection to the passed element', function () {
+        var pCollection = Pablo.circle().append(Pablo.rect()).append(Pablo.rect());
+        Pablo.ellipse({foo:'bar'}).prependTo(pCollection);
+
+        expect(pCollection[0].childNodes.length).to.eql(3);
+        expect(pCollection[0].childNodes[0] instanceof SVGEllipseElement).to.eql(true);
+        expect(pCollection[0].childNodes[0].getAttribute('foo')).to.eql('bar');
+      });
+
+      it('.prependTo(elementName, attributes) should prepend the subject collection to the a newly created element respective of the passed arguments', function () {
+        var pCollection = Pablo.circle();
+        pCollection.prependTo('ellipse', {foo:'bar'});
+
+        expect(pCollection[0].parentNode instanceof SVGEllipseElement).to.eql(true);
+        expect(pCollection[0].parentNode.getAttribute('foo')).to.eql('bar');
       });
     });
   });
