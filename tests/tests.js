@@ -431,19 +431,38 @@ describe('Pablo', function () {
     describe('Node Properties', function () {
       describe('.attr([attribute], [attributeValue])', function () {
         it('.attr()', function () {
-          notDone();
+          expect(Pablo('#test-subjects').attr()).to.eql({
+            id: "test-subjects",
+            style: "display: none"
+          });
         });
 
         it('.attr(attributeName)', function () {
-          notDone();
+          expect(Pablo('#test-subjects').attr('id')).to.eql('test-subjects')
         });
 
         it('.attr(attributeName, attributeValue)', function () {
-          notDone();
+          var subject = Pablo('#test-subjects');
+          subject.attr('foo', 'bar');
+
+          expect(subject[0].getAttribute('foo')).to.eql('bar');
+
+          subject[0].removeAttribute('foo');
         });
 
         it('.attr(attributes)', function () {
-          notDone();
+          var subject = Pablo('#test-subjects');
+
+          subject.attr({
+            'foo':'bar',
+            'zoo':'zar'
+          });
+
+          expect(subject[0].getAttribute('foo')).to.eql('bar');
+          expect(subject[0].getAttribute('zoo')).to.eql('zar');
+
+          subject[0].removeAttribute('foo');
+          subject[0].removeAttribute('zoo');
         });
 
         it('.attr(attributes) attribute value as function', function () {
