@@ -83,7 +83,10 @@
         }
     };
 
-    Pablo.fn.removeData = function(keys){
+    Pablo.fn.removeData = function(keys, recursive){
+        if (recursive && this.length){
+            this.children().removeData(keys, recursive);
+        }
         return this.each(function(el){
             this.processList(keys, function(key){
                 removeData(el, key);
@@ -94,7 +97,18 @@
     Pablo.fn.detach = Pablo.fn.remove;
 
     Pablo.fn.remove = function(){
-        return this.removeData().detach();
+        return this.removeData(null, true).detach();
+    };
+
+    Pablo.fn.empty = function(){
+        this.children().removeData(null, true);
+
+        // Remove elements, text and other nodes
+        return this.each(function(el){
+            while (el.firstChild){
+                el.removeChild(el.firstChild);
+            }
+        });
     };
 
 }(window.Pablo, window.Array));

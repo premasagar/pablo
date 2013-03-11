@@ -19,6 +19,9 @@
         Note:
         `oneEach()` is not modified in this extension because it already
         passes all its arguments through to `on()` and `off()`
+
+        // TODO
+        support multiple listeners passed as arguments to `off()`, to turn each one off
     */
 
     var namespace = '__events__'; 
@@ -27,6 +30,8 @@
         var boundContext, wrapper, eventData;
 
         // `selectors` argument not given
+        // TODO: `selectors` should be allowed to be a function
+        // but can't just check if listener is not a function
         if (typeof selectors === 'function'){
             context = useCapture;
             useCapture = listener;
@@ -46,22 +51,21 @@
         // `listener` is the original callback function
         // `wrapper` is the function actually applied to the DOM element, and 
         // may modify the original listener, e.g. by changing the `this` object
-        wrapper = listener;
 
         // If a `this` object is given, then bind the listener to the required 
         // `this` context
+        // TODO: change default context to collection instead of DOM element?
         if (context){
-            boundContext = function(){
+            wrapper = function(){
                 listener.apply(context, arguments);
             };
-            wrapper = boundContext;
         }
 
         // Prepare data to cache about the event
         eventData = {
             selectors:  selectors,
             listener:   listener,
-            wrapper:    wrapper,
+            wrapper:    wrapper || listener,
             useCapture: useCapture
         };
 
@@ -89,10 +93,13 @@
                     // Overwrite the wrapper to make it check that the event
                     // originated on an element matching the selectors
                     wrapper = function(event){
-                        if (event && event.target){
-                            if (Pablo(event.target).is(selectors, node)){
-                                (boundContext || listener).apply(null, arguments);
-                            }
+                        // Call listener if manually triggered with `trigger()`
+                        // or the event target matches the selector
+                        if (!event ||
+                            !event.target ||
+                            Pablo(event.target).is(selectors, node)
+                        ){
+                            listener.apply(context || el, arguments);
                         }
                     };
                     // Overwrite the wrapper in the data to be cached
@@ -104,7 +111,7 @@
 
                 // Add DOM listener
                 if ('addEventListener' in el){
-                    el.addEventListener(type, wrapper, useCapture);
+                    el.addEventListener(type, wrapper || listener, useCapture);
                 }
             });
         });
@@ -165,7 +172,7 @@
                     )){
                         // Remove DOM listener
                         if ('removeEventListener' in el){
-                            el.removeEventListener(type, eventData.wrapper, useCapture);
+                            el.removeEventListener(type, eventData.wrapper, eventData.useCapture);
                         }
 
                         // If looking for a specific listener, remove from cache
