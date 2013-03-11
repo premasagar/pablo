@@ -694,7 +694,7 @@ describe('Pablo', function () {
         it('.size()', function () {
           var pCollection = Pablo('#test-subjects li');
 
-          expect(pCollection.size() === pCollection[0].length)
+          expect(pCollection.size() === pCollection.length)
             .to.eql(true);
         });
       });
@@ -824,17 +824,65 @@ describe('Pablo', function () {
           expect(iterationIndices[2]).to.eql(2);
         });
         it('.each(callback, context)', function () {
-          notDone();
+          var pCollection      = Pablo([Pablo.rect(), Pablo.circle(), Pablo.a()]),
+              iterationIndices = [],
+              pabloItems       = [],
+              context          = {foo:'bar'},
+              contextWasCorrect;
+
+          pCollection.each(function (item, i) {
+            iterationIndices.push(i);
+            pabloItems.push(item);
+            if (this.foo === 'bar') {
+              contextWasCorrect = true;
+            }
+          }, context);
+          
+          expect(pabloItems[0] instanceof SVGRectElement).to.eql(true);
+          expect(pabloItems[1] instanceof SVGCircleElement).to.eql(true);
+          expect(pabloItems[2] instanceof SVGAElement).to.eql(true);
+          expect(iterationIndices[0]).to.eql(0);
+          expect(iterationIndices[1]).to.eql(1);
+          expect(iterationIndices[2]).to.eql(2);
+          expect(contextWasCorrect).to.eql(true);
         });
       });
 
       describe('.map()', function () {
         it('.map(iterator)', function () {
-          notDone();
+          var mapped = Pablo([Pablo.rect(), Pablo.circle()]).map(function (item, i) {
+            return item;
+          });
+
+          expect(mapped[0] instanceof SVGRectElement).to.eql(true);
+          expect(mapped[1] instanceof SVGCircleElement).to.eql(true);
+        });
+
+        it('.map(iterator) within the map callback; returning a Pablo collection of 2 or more elements should have both in the returned Pablo collection', function () {
+          var context = {foo:'bar'},
+              mapped = Pablo([Pablo.rect(), Pablo.circle()]).map(function (item, i) {
+                return Pablo([Pablo.ellipse(), Pablo.a()]);
+              }, context);
+
+          expect(mapped[0] instanceof SVGEllipseElement).to.eql(true);
+          expect(mapped[1] instanceof SVGAElement).to.eql(true);
+          expect(mapped[2] instanceof SVGEllipseElement).to.eql(true);
+          expect(mapped[3] instanceof SVGAElement).to.eql(true);
         });
 
         it('.map(iterator, context)', function () {
-          notDone();
+          var contextWasCorrect,
+              context = {foo:'bar'},
+              mapped = Pablo([Pablo.rect(), Pablo.circle()]).map(function (item, i) {
+                if (this.foo === 'bar') {
+                  contextWasCorrect = true;
+                }
+                return item;
+              }, context);
+
+          expect(mapped[0] instanceof SVGRectElement).to.eql(true);
+          expect(mapped[1] instanceof SVGCircleElement).to.eql(true);
+          expect(contextWasCorrect).to.eql(true);
         });
       });
 
@@ -915,17 +963,17 @@ describe('Pablo', function () {
       expect(pCollection[0].getAttribute('version')).to.eql('1.1');
     });
 
-    'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop style svg switch symbol text textPath title tref tspan use view vkern'
-    .split(' ')
-    .forEach(function (element) {
-      it('Pablo.' + element + '([attributes]) should return a Pablo collection of that element', function () {
-        var pCollection = Pablo[element]({foo:'bar'});
+    // 'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop style svg switch symbol text textPath title tref tspan use view vkern'
+    // .split(' ')
+    // .forEach(function (element) {
+    //   it('Pablo.' + element + '([attributes]) should return a Pablo collection of that element', function () {
+    //     var pCollection = Pablo[element]({foo:'bar'});
 
-        expect(pCollection instanceof Pablo.Collection).to.eql(true);
-        expect(pCollection[0].tagName.toLowerCase()).to.eql(element.toLowerCase());
-        expect(pCollection[0].getAttribute('foo')).to.eql('bar');
-      });
-    });    
+    //     expect(pCollection instanceof Pablo.Collection).to.eql(true);
+    //     expect(pCollection[0].tagName.toLowerCase()).to.eql(element.toLowerCase());
+    //     expect(pCollection[0].getAttribute('foo')).to.eql('bar');
+    //   });
+    // });    
   });
 
 });
