@@ -787,16 +787,16 @@ describe('Pablo', function () {
 
       describe('.slice()', function () {
         it('.slice(begin)', function () {
-          var pCollection = Pablo('#test-subjects');
-          pCollection.slice(1);
+          var pCollection = Pablo('#test-subjects li');
+          pCollection = pCollection.slice(1);
           expect(pCollection.length).to.eql(2);
           expect(pCollection[0].id).to.eql('test-subject-b');
           expect(pCollection[1].id).to.eql('test-subject-c');
         });
 
         it('.slice(begin, [end]', function () {
-          var pCollection = Pablo('#test-subjects');
-          pCollection.slice(0,1);
+          var pCollection = Pablo('#test-subjects li');
+          pCollection = pCollection.slice(0,2);
           expect(pCollection.length).to.eql(2);
           expect(pCollection[0].id).to.eql('test-subject-a');
           expect(pCollection[1].id).to.eql('test-subject-b');
