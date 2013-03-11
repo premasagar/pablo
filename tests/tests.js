@@ -339,15 +339,16 @@ describe('Pablo', function () {
         });
 
         it('should allow the returned children to be filtered by a function', function () {
-          var children = Pablo('#test-subjects').children(function () {
-
+          var children = Pablo('#test-subjects').children(function (item, i) {
+            if (i != 1) {
+              return true;
+            }
           });
 
-          notDone();
-
-          expect(children.length).to.eql(1);
+          expect(children.length).to.eql(2);
           expect(children instanceof Pablo.Collection).to.eql(true);
-          expect(children[0].id).to.eql('test-subject-b');
+          expect(children[0].id).to.eql('test-subject-a');
+          expect(children[1].id).to.eql('test-subject-c');
         });
       });
 
