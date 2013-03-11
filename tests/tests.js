@@ -888,12 +888,22 @@ describe('Pablo', function () {
       });
 
       describe('.select()', function () {
-        it('.select(function)', function () {
-          notDone();
+        it('.select(selectors)', function () {
+          var pCollection = Pablo.select('#test-subjects li');
+
+          expect(pCollection.length).to.eql(3);
+          expect(pCollection[0].id).to.eql('test-subject-a');
+          expect(pCollection[1].id).to.eql('test-subject-b');
+          expect(pCollection[2].id).to.eql('test-subject-c');
         });
 
-        it('.select(function, context)', function () {
-          notDone();
+        it('.select(selectors, context)', function () {
+          var pCollection = Pablo.select('li', Pablo('#test-subjects'));
+
+          expect(pCollection.length).to.eql(3);
+          expect(pCollection[0].id).to.eql('test-subject-a');
+          expect(pCollection[1].id).to.eql('test-subject-b');
+          expect(pCollection[2].id).to.eql('test-subject-c');
         });
       });
     });
@@ -920,21 +930,21 @@ describe('Pablo', function () {
 
   describe('Events', function () {
     describe('.on()', function () {
-      it('.on(type, listener', function () {
+      it('.on(type, listener)', function () {
         notDone();
       });
 
-      it('.on(type, listener, [useCapture]', function () {
+      it('.on(type, listener, [useCapture])', function () {
         notDone();
       });
     });
 
     describe('.off()', function () {
-      it('.off(type, listener', function () {
+      it('.off(type, listener)', function () {
         notDone();
       });
 
-      it('.off(type, listener, [useCapture]', function () {
+      it('.off(type, listener, [useCapture])', function () {
         notDone();
       });
     });
