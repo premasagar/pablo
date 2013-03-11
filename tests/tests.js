@@ -899,8 +899,13 @@ describe('Pablo', function () {
 
     describe('Misc', function () {
       describe('.clone()', function () {
-        it('.clone([isDeep])', function () {
+        it('.clone()', function () {
           notDone();
+        });
+
+        it('.clone([isDeep])', function () {
+          var pCollection = Pablo('#test-subjects');
+          expect(pCollection.clone(true)).to.eql(pCollection);
         });
       });
 
@@ -963,17 +968,17 @@ describe('Pablo', function () {
       expect(pCollection[0].getAttribute('version')).to.eql('1.1');
     });
 
-    // 'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop style svg switch symbol text textPath title tref tspan use view vkern'
-    // .split(' ')
-    // .forEach(function (element) {
-    //   it('Pablo.' + element + '([attributes]) should return a Pablo collection of that element', function () {
-    //     var pCollection = Pablo[element]({foo:'bar'});
+    'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop style svg switch symbol text textPath title tref tspan use view vkern'
+    .split(' ')
+    .forEach(function (element) {
+      it('Pablo.' + element + '([attributes]) should return a Pablo collection of that element', function () {
+        var pCollection = Pablo[element]({foo:'bar'});
 
-    //     expect(pCollection instanceof Pablo.Collection).to.eql(true);
-    //     expect(pCollection[0].tagName.toLowerCase()).to.eql(element.toLowerCase());
-    //     expect(pCollection[0].getAttribute('foo')).to.eql('bar');
-    //   });
-    // });    
+        expect(pCollection instanceof Pablo.Collection).to.eql(true);
+        expect(pCollection[0].tagName.toLowerCase()).to.eql(element.toLowerCase());
+        expect(pCollection[0].getAttribute('foo')).to.eql('bar');
+      });
+    });    
   });
 
 });
