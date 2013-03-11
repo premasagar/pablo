@@ -19,6 +19,9 @@
         Note:
         `oneEach()` is not modified in this extension because it already
         passes all its arguments through to `on()` and `off()`
+
+        // TODO
+        support multiple listeners passed as arguments to `off()`, to turn each one off
     */
 
     var namespace = '__events__'; 
@@ -51,6 +54,7 @@
 
         // If a `this` object is given, then bind the listener to the required 
         // `this` context
+        // TODO: change default context to collection instead of DOM element?
         if (context){
             wrapper = function(){
                 listener.apply(context, arguments);
