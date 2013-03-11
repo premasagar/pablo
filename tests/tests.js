@@ -387,7 +387,13 @@ describe('Pablo', function () {
 
       describe('.find()', function () {
         it('.find(selectors)', function () {
-          notDone();
+          var pCollection = Pablo('#test-subjects').find('li');
+
+          expect(pCollection instanceof Pablo.Collection).to.eql(true);
+          expect(pCollection.length).to.eql(3);
+          expect(pCollection[0].id).to.eql('test-subject-a');
+          expect(pCollection[1].id).to.eql('test-subject-b');
+          expect(pCollection[2].id).to.eql('test-subject-c');
         });
       });
 
@@ -466,17 +472,57 @@ describe('Pablo', function () {
         });
 
         it('.attr(attributes) attribute value as function', function () {
-          notDone();
+          var subject = Pablo('#test-subjects');
+
+          subject.attr({
+            foo: function () {
+              return 'bar';
+            }
+          });
+
+          subject.attr('zip', function () {
+            return 'zop';
+          });
+
+          expect(subject[0].getAttribute('foo')).to.eql('bar');
+          expect(subject[0].getAttribute('zip')).to.eql('zop');
+          subject[0].removeAttribute('foo');
+          subject[0].removeAttribute('zip');
         });
 
         it('.attr(attributes) attribute value as an Array', function () {
-          notDone();
+          var subject = Pablo('#test-subjects li');
+
+          subject.attr({
+            foo: ['a', 'b', 'c', 'd']
+          });
+
+          subject.attr('bar', ['d', 'e', 'f']);
+
+          expect(subject[0].getAttribute('foo')).to.eql('a');
+          expect(subject[1].getAttribute('foo')).to.eql('b');
+          expect(subject[2].getAttribute('foo')).to.eql('c');
+          expect(subject[0].getAttribute('bar')).to.eql('d');
+          expect(subject[1].getAttribute('bar')).to.eql('e');
+          expect(subject[2].getAttribute('bar')).to.eql('f');
+
+          subject[0].removeAttribute('foo');
+          subject[1].removeAttribute('foo');
+          subject[2].removeAttribute('foo');
+          subject[0].removeAttribute('bar');
+          subject[1].removeAttribute('bar');
+          subject[2].removeAttribute('bar');
         });
       });
 
       describe('.removeAttr()', function () {
         it('.removeAttr(attributeName)', function () {
-          notDone();
+          var subject = Pablo('#test-subjects');
+
+          subject[0].setAttribute('foo', 'bar');
+          expect(subject[0].getAttribute('foo')).to.eql('bar');
+          subject.removeAttr('foo');
+          expect(subject[0].getAttribute('foo')).to.eql(null);
         });
       });
 
@@ -488,15 +534,29 @@ describe('Pablo', function () {
 
       describe('.css()', function () {
         it('.css(property)', function () {
-          notDone();
+          expect(Pablo('#test-subjects').css('display')).to.eql('none');
         });
 
         it('.css(property, value)', function () {
-          notDone();
+          var subject = Pablo('#test-subjects');
+
+          subject.css('font-size', '20px');
+
+          expect(subject.css('font-size')).to.eql('20px');
+          resetTestSubjectStyles();
         });
 
         it('.css(styles)', function () {
-          notDone();
+          var subject = Pablo('#test-subjects');
+
+          subject.css({
+            'font-size': '20px',
+            'font-weight': 'bold'
+          });
+
+          expect(subject.css('font-size')).to.eql('20px');
+          expect(subject.css('font-weight')).to.eql('bold');
+          resetTestSubjectStyles();
         });
       });
 
@@ -512,58 +572,109 @@ describe('Pablo', function () {
 
       describe('.addClass()', function () {
         it('.addClass(className)', function () {
-          notDone();
+          var subject = Pablo('#test-subjects');
+
+          subject.addClass('foo');
+
+          expect(subject[0].getAttribute('class')).to.eql('foo');
+
+          subject[0].removeAttribute('class');
         });
       });
 
       describe('.removeClass()', function () {
         it('.removeClass(className)', function () {
-          notDone();
+          var subject = Pablo('#test-subjects');
+
+          subject[0].setAttribute('class', 'foo');
+          expect(subject[0].getAttribute('class')).to.eql('foo');
+
+          subject.removeClass('foo');
+
+          expect(subject[0].getAttribute('class')).to.eql('');
+          subject[0].removeAttribute('class');
         });
       });
 
       describe('.hasClass', function () {
         it('.hasClass(className)', function () {
-          notDone();
+          var subject = Pablo('#test-subjects');
+
+          subject[0].setAttribute('class', 'foo');
+
+          expect(Pablo(subject).hasClass('foo')).to.eql(true);
+          expect(Pablo(subject).hasClass('bar')).to.eql(false);
+
+          subject[0].removeAttribute('class');
         });
       });
 
       describe('.toggleClass()', function () {
         it('.toggleClass(className)', function () {
-          notDone();
-        });
-      });
+          var subject = Pablo('#test-subjects');
 
-      describe('.link()', function () {
-        it('.link()', function () {
-          notDone();
-        });
+          subject[0].setAttribute('class', 'foo');
 
-        it('.link(url)', function () {
-          notDone();
+          expect(subject[0].getAttribute('class')).to.eql('foo');
+
+          subject.toggleClass('foo');
+          expect(subject[0].getAttribute('class')).to.eql('');
+
+          subject.toggleClass('foo');
+          expect(subject[0].getAttribute('class')).to.eql('foo');
+
+          subject[0].removeAttribute('class');
         });
       });
 
       describe('.content()', function () {
-        // suggest content renamed text
         it('.content()', function () {
-          notDone();
+          var subject = Pablo(document.createElement('a'));
+
+          subject[0].innerText = 'foo';
+
+          expect(subject.content()).to.eql('foo');
         });
 
         it('.content(text)', function () {
-          notDone();
+          var subject = Pablo(document.createElement('a'));
+
+          subject.content('foo');
+
+          expect(subject[0].innerText).to.eql('foo');
         });
       });
 
       describe('.empty()', function () {
         it('.empty()', function () {
-          notDone();
+          var saved   = document.querySelectorAll('#test-subjects li'),
+              subject = Pablo('#test-subjects'),
+              cLength;
+
+          subject.empty();
+          cLength = subject[0].childNodes.length;
+
+          document.getElementById('test-subjects').appendChild(saved[0]);
+          document.getElementById('test-subjects').appendChild(saved[1]);
+          document.getElementById('test-subjects').appendChild(saved[2]);
+
+          expect(cLength).to.eql(0);
         });
       });
 
       describe('.remove()', function () {
         it('.remove()', function () {
-          notDone();
+          var saved   = document.querySelectorAll('#test-subjects')[0],
+              subject = Pablo('#test-subjects'),
+              length;
+
+          subject.remove();
+        
+          length = document.querySelectorAll('#test-subjects').length;
+
+          document.body.appendChild(saved, document.getElementById('mocha'));
+
+          expect(length).to.eql(0);
         });
       });
     });
@@ -571,61 +682,124 @@ describe('Pablo', function () {
     describe('Collection manipulation', function () {
       describe('.toArray()', function () {
         it('.toArray()', function () {
-          notDone();
+          var pCollection = Pablo.a(),
+              asArray     = pCollection.toArray();
+
+          expect(asArray instanceof Array).to.eql(true);
+          expect(asArray.css).to.eql(undefined);
         });
       });
 
       describe('.size()', function () {
         it('.size()', function () {
-          notDone();
+          var pCollection = Pablo('#test-subjects li');
+
+          expect(pCollection.size() === pCollection[0].length)
+            .to.eql(true);
         });
       });
 
       describe('.push()', function () {
         it('.push(elements)', function () {
-          notDone();
+          var pCollection = Pablo('#test-subjects li');
+
+          pCollection.push([Pablo.rect(), Pablo.circle()]);
+
+          expect(pCollection.length).to.eql(5);
+          expect(pCollection[0].id).to.eql('test-subject-a');
+          expect(pCollection[1].id).to.eql('test-subject-b');
+          expect(pCollection[2].id).to.eql('test-subject-c');
+          expect(pCollection[3] instanceof SVGRectElement).to.eql(true);
+          expect(pCollection[4] instanceof SVGCircleElement).to.eql(true);
         });
       });
 
       describe('.add()', function () {
         it('.add(elements)', function () {
           // alias for push
-          notDone();
+          var pCollection = Pablo('#test-subjects li');
+
+          pCollection.add([Pablo.rect(), Pablo.circle()]);
+
+          expect(pCollection.length).to.eql(5);
+          expect(pCollection[0].id).to.eql('test-subject-a');
+          expect(pCollection[1].id).to.eql('test-subject-b');
+          expect(pCollection[2].id).to.eql('test-subject-c');
+          expect(pCollection[3] instanceof SVGRectElement).to.eql(true);
+          expect(pCollection[4] instanceof SVGCircleElement).to.eql(true);
         });
       });
 
       describe('.concat()', function () {
         it('.concat(elements)', function () {
           // alias for push
-          notDone();
+          var pCollection = Pablo('#test-subjects li');
+
+          pCollection.concat([Pablo.rect(), Pablo.circle()]);
+
+          expect(pCollection.length).to.eql(5);
+          expect(pCollection[0].id).to.eql('test-subject-a');
+          expect(pCollection[1].id).to.eql('test-subject-b');
+          expect(pCollection[2].id).to.eql('test-subject-c');
+          expect(pCollection[3] instanceof SVGRectElement).to.eql(true);
+          expect(pCollection[4] instanceof SVGCircleElement).to.eql(true);
         });
       });
 
       describe('.unshift()', function () {
         it('.unshift(elements)', function () {
-          notDone();
+          var pCollection = Pablo('#test-subjects li');
+
+          pCollection.unshift([Pablo.rect(), Pablo.circle()]);
+
+          expect(pCollection.length).to.eql(5);
+          expect(pCollection[0] instanceof SVGRectElement).to.eql(true);
+          expect(pCollection[1] instanceof SVGCircleElement).to.eql(true);
+          expect(pCollection[2].id).to.eql('test-subject-a');
+          expect(pCollection[3].id).to.eql('test-subject-b');
+          expect(pCollection[4].id).to.eql('test-subject-c');
         });
       });
 
       describe('.pop()', function () {
         it('.pop()', function () {
-          notDone();
+          var pCollection = Pablo('#test-subjects li'),
+              popped      = pCollection.pop();
+
+          expect(pCollection.length).to.eql(2);
+          expect(pCollection[0].id).to.eql('test-subject-a');
+          expect(pCollection[1].id).to.eql('test-subject-b');
+          expect(popped[0].id).to.eql('test-subject-c');
         });
       });
 
       describe('.shift()', function () {
         it('.shift()', function () {
-          notDone();
+          var pCollection = Pablo('#test-subjects li'),
+              popped      = pCollection.shift();
+
+          expect(pCollection.length).to.eql(2);
+          expect(pCollection[0].id).to.eql('test-subject-b');
+          expect(pCollection[1].id).to.eql('test-subject-c');
+          expect(popped[0].id).to.eql('test-subject-a');
         });
       });
 
       describe('.slice()', function () {
         it('.slice(begin)', function () {
-          notDone();
+          var pCollection = Pablo('#test-subjects');
+          pCollection.slice(1);
+          expect(pCollection.length).to.eql(2);
+          expect(pCollection[0].id).to.eql('test-subject-b');
+          expect(pCollection[1].id).to.eql('test-subject-c');
         });
 
         it('.slice(begin, [end]', function () {
-          notDone();
+          var pCollection = Pablo('#test-subjects');
+          pCollection.slice(0,1);
+          expect(pCollection.length).to.eql(2);
+          expect(pCollection[0].id).to.eql('test-subject-a');
+          expect(pCollection[1].id).to.eql('test-subject-b');
         });
       });
     });
@@ -633,6 +807,23 @@ describe('Pablo', function () {
     describe('Collection iteration', function () {
       describe('.each()', function () {
         it('.each(callback)', function () {
+          var pCollection      = Pablo([Pablo.rect(), Pablo.circle(), Pablo.a()]),
+              iterationIndices = [],
+              pabloItems       = [];
+
+          pCollection.each(function (item, i) {
+            iterationIndices.push(i);
+            pabloItems.push(item);
+          });
+
+          expect(pabloItems[0] instanceof SVGRectElement).to.eql(true);
+          expect(pabloItems[1] instanceof SVGCircleElement).to.eql(true);
+          expect(pabloItems[2] instanceof SVGAElement).to.eql(true);
+          expect(iterationIndices[0]).to.eql(0);
+          expect(iterationIndices[1]).to.eql(1);
+          expect(iterationIndices[2]).to.eql(2);
+        });
+        it('.each(callback, context)', function () {
           notDone();
         });
       });
@@ -641,10 +832,18 @@ describe('Pablo', function () {
         it('.map(iterator)', function () {
           notDone();
         });
+
+        it('.map(iterator, context)', function () {
+          notDone();
+        });
       });
 
       describe('.select()', function () {
         it('.select(function)', function () {
+          notDone();
+        });
+
+        it('.select(function, context)', function () {
           notDone();
         });
       });
@@ -734,4 +933,9 @@ describe('Pablo', function () {
 
 function notDone () {
   assert.ok(false, 'Test not implemented');
+}
+
+function resetTestSubjectStyles () {
+  document.getElementById('test-subjects')
+    .setAttribute('style', 'display:none;');
 }
