@@ -191,7 +191,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
 
             // Add each element in the list
             return toPush.forEach(function(el){
-                addElementIfUnique(el, collection);
+                addElementIfUnique(el, collection, prepend);
             });
         }
 
@@ -535,7 +535,13 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         },
         
         empty: function(){
-            this.children().remove();
+            // We use these DOM methods, instead of remove(), to ensure textNodes
+            // are also removed
+            this.each(function(el){
+                while (el.firstChild){
+                    el.removeChild(el.firstChild);
+                }
+            });
             return this;
         },
         
