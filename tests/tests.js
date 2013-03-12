@@ -1066,20 +1066,42 @@ describe('Pablo', function () {
     });
   });
 
+  describe('Data', function () {
+
+  });
+
   describe('Events', function () {
+
+    describe('.trigger()', function () {
+      it('.trigger(eventName)', function (done) {
+        notDone();
+      });
+    });
+
     describe('.on()', function () {
       it('.on(type, listener)', function (done) {
         var subject = Pablo.rect();
-        // debugger;
+
         subject.on('click', function () {
           done();
         });
 
-        jQuery(subject[0]).trigger('click');
+        subject.trigger('click');
       });
 
       it('.on(type, listener) multiple events assignments in one method call', function (done) {
-        notDone();
+        var subject   = Pablo.rect(),
+            completed = 0;
+
+        subject.on('click focus', function () {
+          completed++;
+          if (completed === 2) {
+            done();
+          }
+        });
+
+        subject.trigger('click');
+        subject.trigger('focus');
       });
 
       it('.on(type, listener, [useCapture])', function (done) {
@@ -1093,7 +1115,21 @@ describe('Pablo', function () {
 
     describe('.off()', function () {
       it('.off(type, listener)', function (done) {
-        notDone();
+        var subject = Pablo.rect();
+
+        subject.on('click', failure);
+
+        function failure () {
+          done(new Error('The event should have been removed'));
+        }
+
+        subject.off('click', failure);
+
+        subject.trigger('click');
+
+        setTimeout(function () {
+          done();
+        }, 1600);
       });
 
       it('.off(type, listener, [useCapture])', function (done) {
@@ -1102,17 +1138,17 @@ describe('Pablo', function () {
     });
 
     describe('.one()', function () {
-      it('.one(type, listener', function (done) {
+      it('.one(type, listener)', function (done) {
         notDone();
       });
 
-      it('.one(type, listener, [useCapture]', function (done) {
+      it('.one(type, listener, [useCapture])', function (done) {
         notDone();
       });
     });
 
     describe('.oneEach()', function () {
-      it('.oneEach(type, listener', function (done) {
+      it('.oneEach(type, listener)', function (done) {
         notDone();
       });
 
@@ -1145,39 +1181,6 @@ describe('Pablo', function () {
   });
 
 });
-
-describe('Pablo plugins', function () {
-
-  describe('Data', function () {
-    describe('Setup', function () {
-      it('Data plugin has loaded', function (done){
-        cmd('../plugins/data.js', function (success) {
-          if (success) {
-            done();
-          } else {
-            done(new Error('Could not load data plugin'));
-          }
-        });
-      });
-    });
-  });
-
-  describe('Advanced Events', function () {
-    describe('Setup', function () {
-      it('Advanced Events plugin loaded', function (done) {
-        cmd('../plugins/advanced-events.js', function (success) {
-          if (success) {
-            done();
-          } else {
-            done(new Error('Could not load advanced events plugin'));
-          }
-        });
-      });
-    });
-  });
-
-});
-
 
 function notDone () {
   assert.ok(false, 'Test not implemented'.toUpperCase());
