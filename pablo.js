@@ -428,7 +428,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         },
 
         concat: function(){
-            return Pablo(this.add.apply(this, arguments));
+            return this.push.apply(Pablo(this), arguments);
         },
         
         // Add new node(s) to the collection; accepts arrays or nodeLists
