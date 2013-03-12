@@ -568,11 +568,48 @@ describe('Pablo', function () {
 
       describe('.cssPrefix()', function () {
         it('.cssPrefix(prop, val)', function () {
-          notDone();
+          var subject = Pablo('#test-subjects'),
+              appliedWithPrefix;
+
+          subject.cssPrefix('transition', 'opacity 0.5s');
+          appliedWithPrefix = !!(subject.css('-webkit-transition')  || 
+                              subject.css('-moz-transition')        ||
+                              subject.css('-webkit-transition')     ||
+                              subject.css('-o-transition')          ||
+                              subject.css('-ms-transition')         ||
+                              subject.css('-khtml-transition'))
+
+          expect(appliedWithPrefix).to.eql(true);
+
+          resetTestSubjectStyles();
         });
 
         it('.cssPrefix(styles)', function () {
-          notDone();
+          var subject = Pablo('#test-subjects'),
+              appliedWithPrefix1,
+              appliedWithPrefix2;
+
+          subject.cssPrefix({
+            'transform': 'rotate(180deg)',
+            'transform-origin': '50%'
+          });
+
+          appliedWithPrefix1 = !!(subject.css('-webkit-transform') || 
+                              subject.css('-moz-transform')        ||
+                              subject.css('-webkit-transform')     ||
+                              subject.css('-o-transform')          ||
+                              subject.css('-ms-transform')         ||
+                              subject.css('-khtml-transform'));
+
+          appliedWithPrefix2 = !!(subject.css('-webkit-transform-origin') || 
+                              subject.css('-moz-transform-origin')        ||
+                              subject.css('-webkit-transform-origin')     ||
+                              subject.css('-o-transform-origin')          ||
+                              subject.css('-ms-transform-origin')         ||
+                              subject.css('-khtml-transform-origin'));
+
+          expect(appliedWithPrefix1).to.eql(true);
+          expect(appliedWithPrefix2).to.eql(true);
         });
       });
 
