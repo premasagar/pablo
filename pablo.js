@@ -147,57 +147,6 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         }
         return Pablo(node, attr);
     }
-    
-    function addElementIfUnique(node, collection, prepend){
-        var toPush;
-        
-        // Create new element from elementName
-        if (typeof node === 'string'){
-            node = make(node);
-        }
-
-        // Is an existing element; check if already in collection
-        else if (isElement(node) || isHTMLDocument(node) || hasSvgNamespace(node)){
-            if (collection.indexOf(node) >= 0){
-                return;
-            }
-            // If the element is not yet in the collection, it will be added below
-        }
-
-        // Probably some kind of list of elements
-        else {
-            // A Pablo collection
-            if (Pablo.isPablo(node)){
-                // See extensions/functional.js for example usage of node.collection
-                // The check for node.collection is for extenstions/functional.js
-                toPush = node.collection || node;
-            }
-
-            // An array of elements
-            else if (Array.isArray(node)){
-                toPush = node;
-            }
-
-            // A nodeList (e.g. result of a selector query, or childNodes)
-            // or is an object like an array, e.g. a jQuery collection
-            else if (isNodeList(node) || isArrayLike(node)){
-                toPush = toArray(node);
-            }
-
-            // Whatever it is, it isn't supported
-            else {
-                return;
-            }
-
-            // Add each element in the list
-            return toPush.forEach(function(el){
-                addElementIfUnique(el, collection, prepend);
-            });
-        }
-
-        // Add element to collection
-        arrayProto[prepend ? 'unshift' : 'push'].call(collection, node);
-    }
 
     // Return CSS styles with browser vendor prefixes
     // e.g. cssPrefix({transform:'rotate(45deg)'}) will return the styles object, with additional properties containing CSS properties prefixed with the browser vendor prefixes - see vendorPrefixes
@@ -405,16 +354,84 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             return this.eq(this.length-1);
         },
 
-        // Add new node(s) to the collection; accepts arrays or nodeLists
-        push: function(node){
-            addElementIfUnique(node, this);
-            return this;  
+        add: function (node/*, node..., prepend*/){
+            var numNodes = arguments.length,
+                prepend, toBeAdded;
+
+            // Either multiple nodes or `prepend` boolean passed
+            if (numNodes > 1){
+                node = toArray(arguments);
+
+                // `prepend` boolean passed as last argument
+                if (typeof node[numNodes-1] === 'boolean'){
+                    prepend = node[numNodes-1];
+                    numNodes -= 1;
+                    node = numNodes === 1 ?
+                        node[0] : node.slice(0, -1);
+                }
+            }
+
+            if (numNodes === 1){
+                // Create new element from elementName
+                if (typeof node === 'string'){
+                    node = make(node);
+                    toBeAdded = true;
+                }
+
+                // Is an existing element
+                // TODO: document where hasSvgNamespace() is required, e.g. on iOS Safari
+                else if (isElement(node) || isHTMLDocument(node) || hasSvgNamespace(node)){
+                    // If element is already in collection then skip
+                    if (this.indexOf(node) >= 0){
+                        return this;
+                    }
+                    toBeAdded = true;
+                }
+
+                // Add element to collection
+                if (toBeAdded){
+                    arrayProto[prepend ? 'unshift' : 'push'].call(this, node);
+                    return this;
+                }
+            }
+            
+            // Convert to an array of nodes
+            if (!Array.isArray(node)){
+                // A Pablo collection
+                if (Pablo.isPablo(node)){
+                    // See extensions/functional.js for example usage of node.collection
+                    node = (node.collection || node).toArray();
+                }
+
+                // A nodeList (e.g. result of a selector query, or childNodes)
+                // or is an object like an array, e.g. a jQuery collection
+                else if (isNodeList(node) || isArrayLike(node)){
+                    node = toArray(node);
+                }
+
+                // Whatever it is, it isn't supported
+                else {
+                    return this;
+                }
+            }
+
+            // Add each element in the list
+            while (node.length){
+                if (prepend){
+                    this.add(node.pop(), prepend);
+                }
+                else {
+                    this.add(node.shift());
+                }
+            }
+            return this;
         },
         
         // Add new node(s) to the collection; accepts arrays or nodeLists
-        unshift: function(node){
-            addElementIfUnique(node, this, true);
-            return this;
+        unshift: function(){
+            var args = toArray(arguments);
+            args.push(true);
+            return this.add.apply(this, args);
         },
         
         // Remove node from end of the collection
@@ -440,11 +457,11 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             return this;
         },
 
-        indexOf: function(el){
-            if (Pablo.isPablo(el)){
-                el = el[0];
+        indexOf: function(node){
+            if (Pablo.isPablo(node)){
+                node = node[0];
             }
-            return arrayProto.indexOf.call(this, el);
+            return arrayProto.indexOf.call(this, node);
         },
         
         each: function(fn, context){
@@ -938,8 +955,8 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
 
         // Alias methods
         elements: pabloCollectionApi.toArray,
-        add:      pabloCollectionApi.push,
-        concat:   pabloCollectionApi.push,
+        push:     pabloCollectionApi.add,
+        concat:   pabloCollectionApi.add,
         forEach:  pabloCollectionApi.each,
         is:       pabloCollectionApi.some
     });
