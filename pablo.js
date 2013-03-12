@@ -534,12 +534,9 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         },
         
         find: function(selectors){
-            var found = Pablo();
-            
-            this.each(function(el){
-                found.push(el.querySelectorAll(selectors));
+            return this.map(function(el){
+                return el.querySelectorAll(selectors);
             });
-            return found;
         },
 
 
@@ -1103,12 +1100,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
     
     // Select existing nodes in the document
     function selectPablo(selectors, context){
-        // Valid selectors
-        if (selectors && typeof selectors === 'string'){
-            return Pablo((context || document).querySelectorAll(selectors));
-        }
-        // Return empty Pablo collection
-        return createPablo();
+        return toPablo(context || document).find(selectors);
     }
 
     
