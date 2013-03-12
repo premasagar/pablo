@@ -426,6 +426,10 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             }
             return this;
         },
+
+        concat: function(){
+            return Pablo(this.add.apply(this, arguments));
+        },
         
         // Add new node(s) to the collection; accepts arrays or nodeLists
         unshift: function(){
@@ -956,7 +960,6 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         // Alias methods
         elements: pabloCollectionApi.toArray,
         push:     pabloCollectionApi.add,
-        concat:   pabloCollectionApi.add,
         forEach:  pabloCollectionApi.each,
         is:       pabloCollectionApi.some
     });
