@@ -968,7 +968,6 @@ describe('Pablo', function () {
           pCollection.ellipse().ellipse().ellipse({foo:'bar'});
 
           clone = pCollection.clone(true);
-          debugger;
           expect(clone).to.eql(pCollection);
         });
       });
