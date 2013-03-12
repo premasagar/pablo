@@ -743,11 +743,23 @@ describe('Pablo', function () {
       });
 
       describe('.push()', function () {
-        it('.push(elements)', function () {
-          var pCollection = Pablo('#test-subjects li');
+        it('.push(elements) should mutate the Pablo Collection and return itself', function () {
+          var pCollection = Pablo('#test-subjects li'),
+              returned    = pCollection.push([Pablo.rect(), Pablo.circle()]);
 
-          pCollection.push([Pablo.rect(), Pablo.circle()]);
+          expect(returned).to.eql(pCollection);
+          expect(pCollection.length).to.eql(5);
+          expect(pCollection[0].id).to.eql('test-subject-a');
+          expect(pCollection[1].id).to.eql('test-subject-b');
+          expect(pCollection[2].id).to.eql('test-subject-c');
+          expect(pCollection[3] instanceof SVGRectElement).to.eql(true);
+          expect(pCollection[4] instanceof SVGCircleElement).to.eql(true);
+        });
+        it('.push(elements...) as argument list should mutate the Pablo Collection and return itself', function () {
+          var pCollection = Pablo('#test-subjects li'),
+              returned    = pCollection.push(Pablo.rect(), Pablo.circle());
 
+          expect(returned).to.eql(pCollection);
           expect(pCollection.length).to.eql(5);
           expect(pCollection[0].id).to.eql('test-subject-a');
           expect(pCollection[1].id).to.eql('test-subject-b');
@@ -758,12 +770,26 @@ describe('Pablo', function () {
       });
 
       describe('.add()', function () {
-        it('.add(elements)', function () {
+        it('.add(elements) should mutate the Pablo Collection and return itself', function () {
           // alias for push
-          var pCollection = Pablo('#test-subjects li');
+          var pCollection = Pablo('#test-subjects li'),
+              returned    = pCollection.push([Pablo.rect(), Pablo.circle()]);
 
-          pCollection.add([Pablo.rect(), Pablo.circle()]);
+          expect(returned).to.eql(pCollection);
+          expect(pCollection.length).to.eql(5);
+          expect(pCollection[0].id).to.eql('test-subject-a');
+          expect(pCollection[1].id).to.eql('test-subject-b');
+          expect(pCollection[2].id).to.eql('test-subject-c');
+          expect(pCollection[3] instanceof SVGRectElement).to.eql(true);
+          expect(pCollection[4] instanceof SVGCircleElement).to.eql(true);
+        });
 
+        it('.add(elements...) as argument list should mutate the Pablo Collection and return itself', function () {
+          // alias for push
+          var pCollection = Pablo('#test-subjects li'),
+              returned    = pCollection.push(Pablo.rect(), Pablo.circle());
+
+          expect(returned).to.eql(pCollection);
           expect(pCollection.length).to.eql(5);
           expect(pCollection[0].id).to.eql('test-subject-a');
           expect(pCollection[1].id).to.eql('test-subject-b');
@@ -774,27 +800,52 @@ describe('Pablo', function () {
       });
 
       describe('.concat()', function () {
-        it('.concat(elements)', function () {
-          // alias for push
-          var pCollection = Pablo('#test-subjects li');
+        it('.concat(elements) should return a Pablo Collection and maintain the original', function () {
+          var pCollection = Pablo('#test-subjects li'),
+              returned    = pCollection.push([Pablo.rect(), Pablo.circle()]);
 
-          pCollection.concat([Pablo.rect(), Pablo.circle()]);
+          expect(pCollection.length).to.eql(3);
+          expect(returned.length).to.eql(5);
+          expect(returned[0].id).to.eql('test-subject-a');
+          expect(returned[1].id).to.eql('test-subject-b');
+          expect(returned[2].id).to.eql('test-subject-c');
+          expect(returned[3] instanceof SVGRectElement).to.eql(true);
+          expect(returned[4] instanceof SVGCircleElement).to.eql(true);
+        });
 
-          expect(pCollection.length).to.eql(5);
-          expect(pCollection[0].id).to.eql('test-subject-a');
-          expect(pCollection[1].id).to.eql('test-subject-b');
-          expect(pCollection[2].id).to.eql('test-subject-c');
-          expect(pCollection[3] instanceof SVGRectElement).to.eql(true);
-          expect(pCollection[4] instanceof SVGCircleElement).to.eql(true);
+        it('.concat(elements...) as argument list should return a Pablo Collection and maintain the original', function () {
+          var pCollection = Pablo('#test-subjects li'),
+              returned    = pCollection.push(Pablo.rect(), Pablo.circle());
+
+          expect(pCollection.length).to.eql(3);
+          expect(returned.length).to.eql(5);
+          expect(returned[0].id).to.eql('test-subject-a');
+          expect(returned[1].id).to.eql('test-subject-b');
+          expect(returned[2].id).to.eql('test-subject-c');
+          expect(returned[3] instanceof SVGRectElement).to.eql(true);
+          expect(returned[4] instanceof SVGCircleElement).to.eql(true);
         });
       });
 
       describe('.unshift()', function () {
-        it('.unshift(elements)', function () {
-          var pCollection = Pablo('#test-subjects li');
+        it('.unshift(elements) should mutate the Pablo Collection and return itself', function () {
+          var pCollection = Pablo('#test-subjects li'),
+              returned    = pCollection.unshift([Pablo.rect(), Pablo.circle()]);
 
-          pCollection.unshift([Pablo.rect(), Pablo.circle()]);
+          expect(returned).to.eql(pCollection);
+          expect(pCollection.length).to.eql(5);
+          expect(pCollection[0] instanceof SVGRectElement).to.eql(true);
+          expect(pCollection[1] instanceof SVGCircleElement).to.eql(true);
+          expect(pCollection[2].id).to.eql('test-subject-a');
+          expect(pCollection[3].id).to.eql('test-subject-b');
+          expect(pCollection[4].id).to.eql('test-subject-c');
+        });
 
+        it('.unshift(elements...) as argument list should mutate the Pablo Collection and return itself', function () {
+          var pCollection = Pablo('#test-subjects li'),
+              returned    = pCollection.unshift(Pablo.rect(), Pablo.circle());
+
+          expect(returned).to.eql(pCollection);
           expect(pCollection.length).to.eql(5);
           expect(pCollection[0] instanceof SVGRectElement).to.eql(true);
           expect(pCollection[1] instanceof SVGCircleElement).to.eql(true);
@@ -805,7 +856,7 @@ describe('Pablo', function () {
       });
 
       describe('.pop()', function () {
-        it('.pop()', function () {
+        it('.pop() should returned the last element in a Pablo Collection and mutate the subject collection', function () {
           var pCollection = Pablo('#test-subjects li'),
               popped      = pCollection.pop();
 
@@ -817,32 +868,36 @@ describe('Pablo', function () {
       });
 
       describe('.shift()', function () {
-        it('.shift()', function () {
+        it('.shift() should return and mutate the subject Pablo Collection', function () {
           var pCollection = Pablo('#test-subjects li'),
-              popped      = pCollection.shift();
+              shifted     = pCollection.shift();
 
           expect(pCollection.length).to.eql(2);
           expect(pCollection[0].id).to.eql('test-subject-b');
           expect(pCollection[1].id).to.eql('test-subject-c');
-          expect(popped[0].id).to.eql('test-subject-a');
+          expect(shifted[0].id).to.eql('test-subject-a');
         });
       });
 
       describe('.slice()', function () {
-        it('.slice(begin)', function () {
-          var pCollection = Pablo('#test-subjects li');
-          pCollection = pCollection.slice(1);
-          expect(pCollection.length).to.eql(2);
-          expect(pCollection[0].id).to.eql('test-subject-b');
-          expect(pCollection[1].id).to.eql('test-subject-c');
+        it('.slice(begin) should return a fresh Pablo Collection and maintain the old one', function () {
+          var pCollection = Pablo('#test-subjects li'),
+              newCopy     = pCollection.slice(1);
+
+          expect(pCollection.length).to.eql(3);
+          expect(newCopy.length).to.eql(2);
+          expect(newCopy[0].id).to.eql('test-subject-b');
+          expect(newCopy[1].id).to.eql('test-subject-c');
         });
 
-        it('.slice(begin, [end]', function () {
-          var pCollection = Pablo('#test-subjects li');
-          pCollection = pCollection.slice(0,2);
-          expect(pCollection.length).to.eql(2);
-          expect(pCollection[0].id).to.eql('test-subject-a');
-          expect(pCollection[1].id).to.eql('test-subject-b');
+        it('.slice(begin, [end]) should return a fresh Pablo Collection and maintain the old one', function () {
+          var pCollection = Pablo('#test-subjects li'),
+              newCopy     = pCollection.slice(0,2);
+
+          expect(pCollection.length).to.eql(3);
+          expect(newCopy.length).to.eql(2);
+          expect(newCopy[0].id).to.eql('test-subject-a');
+          expect(newCopy[1].id).to.eql('test-subject-b');
         });
       });
     });
@@ -1013,41 +1068,55 @@ describe('Pablo', function () {
 
   describe('Events', function () {
     describe('.on()', function () {
-      it('.on(type, listener)', function () {
+      it('.on(type, listener)', function (done) {
+        var subject = Pablo.rect();
+        // debugger;
+        subject.on('click', function () {
+          done();
+        });
+
+        jQuery(subject[0]).trigger('click');
+      });
+
+      it('.on(type, listener) multiple events assignments in one method call', function (done) {
         notDone();
       });
 
-      it('.on(type, listener, [useCapture])', function () {
+      it('.on(type, listener, [useCapture])', function (done) {
+        notDone();
+      });
+
+      it('.on(type, listener, [useCapture]) multiple events assignments in one method call', function (done) {
         notDone();
       });
     });
 
     describe('.off()', function () {
-      it('.off(type, listener)', function () {
+      it('.off(type, listener)', function (done) {
         notDone();
       });
 
-      it('.off(type, listener, [useCapture])', function () {
+      it('.off(type, listener, [useCapture])', function (done) {
         notDone();
       });
     });
 
     describe('.one()', function () {
-      it('.one(type, listener', function () {
+      it('.one(type, listener', function (done) {
         notDone();
       });
 
-      it('.one(type, listener, [useCapture]', function () {
+      it('.one(type, listener, [useCapture]', function (done) {
         notDone();
       });
     });
 
     describe('.oneEach()', function () {
-      it('.oneEach(type, listener', function () {
+      it('.oneEach(type, listener', function (done) {
         notDone();
       });
 
-      it('.oneEach(type, listener, [useCapture]', function () {
+      it('.oneEach(type, listener, [useCapture]', function (done) {
         notDone();
       });
     });
@@ -1111,7 +1180,7 @@ describe('Pablo plugins', function () {
 
 
 function notDone () {
-  assert.ok(false, 'Test not implemented');
+  assert.ok(false, 'Test not implemented'.toUpperCase());
 }
 
 function resetTestSubjectStyles () {
