@@ -851,7 +851,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
                 if (typeof value === 'undefined'){
                     // Get list of vendor-prefixed versions of the property
                     // e.g. `transform,-moz-transform,-webkit-transform`
-                    cssPrefix(styleProperty).split(',')
+                    cssPrefix(styles).split(',')
                         // Find the first defined value and return
                         .some(function(vendorPrefixedProperty){
                             value = this.css(vendorPrefixedProperty);
