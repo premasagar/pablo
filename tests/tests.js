@@ -962,9 +962,13 @@ describe('Pablo', function () {
         });
 
         it('.clone([isDeep])', function () {
-          var pCollection = Pablo('#test-subjects'),
-              clone       = pCollection.clone(true);
+          var pCollection = Pablo.rect(),
+              clone;
 
+          pCollection.ellipse().ellipse().ellipse({foo:'bar'});
+
+          clone = pCollection.clone(true);
+          debugger;
           expect(clone).to.eql(pCollection);
         });
       });
