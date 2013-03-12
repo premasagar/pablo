@@ -1077,6 +1077,38 @@ describe('Pablo', function () {
 
 });
 
+describe('Pablo plugins', function () {
+
+  describe('Data', function () {
+    describe('Setup', function () {
+      it('Data plugin has loaded', function (done){
+        cmd('../plugins/data.js', function (success) {
+          if (success) {
+            done();
+          } else {
+            done(new Error('Could not load data plugin'));
+          }
+        });
+      });
+    });
+  });
+
+  describe('Advanced Events', function () {
+    describe('Setup', function () {
+      it('Advanced Events plugin loaded', function (done) {
+        cmd('../plugins/advanced-events.js', function (success) {
+          if (success) {
+            done();
+          } else {
+            done(new Error('Could not load advanced events plugin'));
+          }
+        });
+      });
+    });
+  });
+
+});
+
 
 function notDone () {
   assert.ok(false, 'Test not implemented');
