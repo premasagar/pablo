@@ -9,7 +9,8 @@
 
 */
 /*jshint newcap:false */
-var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocument){
+
+(function(root, document, Array, Element, SVGElement, NodeList, HTMLDocument){
     'use strict';
     
     var /* SETTINGS */
@@ -35,17 +36,20 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
 
     // TEST BROWSER COMPATIBILITY
 
-    head = document.head || document.getElementsByTagName('head')[0];
-    testElement = document && 'createElementNS' in document && make('svg');
+    if (document){
+        testElement = 'createElementNS' in document && make('svg');
+        head = document.head || document.getElementsByTagName('head')[0];
+        arrayProto = Array && Array.prototype;
+    }
     
     // Incompatible browser
     if (!(
-        testElement &&
-        Array && Element && SVGElement && NodeList && HTMLDocument &&
+        testElement && head && arrayProto &&
+        Element && SVGElement && NodeList && HTMLDocument &&
         'createSVGRect' in testElement &&
         'querySelectorAll' in document &&
         'isArray' in Array &&
-        'forEach' in Array.prototype &&
+        'forEach' in arrayProto &&
         'children' in head &&
         'previousElementSibling' in head
     )){
@@ -57,7 +61,6 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
     }
 
     supportsClassList = 'classList' in testElement;
-    arrayProto = Array.prototype;
 
     
     /////
@@ -1201,5 +1204,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
     
     /////
     
-    return Pablo;
-}(window.document, window.Array, window.Element, window.SVGElement, window.NodeList, window.HTMLDocument));
+    // Set as a global variable
+    root.Pablo = Pablo;
+
+}(this, this.document, this.Array, this.Element, this.SVGElement, this.NodeList, this.HTMLDocument));
