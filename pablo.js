@@ -169,7 +169,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
             }
         }
 
-        if (typeof styles === 'string'){
+        else if (typeof styles === 'string'){
             prop = styles;
 
             // e.g. cssPrefix('transform') -> 'transform,-webkit-transform,...'
@@ -846,12 +846,25 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         // Add prefixed CSS styles to elements in collection
         cssPrefix: function(styles, value){
             var styleProperty;
-            
-            if (typeof styles === 'string' && typeof value !== 'undefined'){
-                // Create styles object
-                styleProperty = styles;
-                styles = {};
-                styles[styleProperty] = value;
+
+            if (typeof styles === 'string'){
+                if (typeof value === 'undefined'){
+                    // Get list of vendor-prefixed versions of the property
+                    // e.g. `transform,-moz-transform,-webkit-transform`
+                    cssPrefix(styleProperty).split(',')
+                        // Find the first defined value and return
+                        .some(function(vendorPrefixedProperty){
+                            value = this.css(vendorPrefixedProperty);
+                            return value;
+                        }, this);
+                    return value;
+                }
+                else {
+                    // Create styles object
+                    styleProperty = styles;
+                    styles = {};
+                    styles[styleProperty] = value;
+                }
             }
             return this.css(cssPrefix(styles));
         }
