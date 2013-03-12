@@ -973,8 +973,39 @@ describe('Pablo', function () {
       });
 
       describe('.duplicate()', function () {
+        it('.duplicate()', function () {
+          var pCollection = Pablo.rect();
+
+          pCollection.ellipse({foo: 'bar'});
+
+          pCollection.duplicate();
+
+          expect(pCollection.length).to.eql(2);
+          expect(pCollection[0] instanceof SVGRectElement).to.eql(true);
+          expect(pCollection[0].firstChild instanceof SVGEllipseElement).to.eql(true);
+          expect(pCollection[0].firstChild.getAttribute('foo')).to.eql('bar');
+          expect(pCollection[1] instanceof SVGRectElement).to.eql(true);
+          expect(pCollection[1].firstChild instanceof SVGEllipseElement).to.eql(true);
+          expect(pCollection[1].firstChild.getAttribute('foo')).to.eql('bar');
+        });
+
         it('.duplicate([repeat])', function () {
-          notDone();
+          var pCollection = Pablo.rect();
+
+          pCollection.ellipse({foo: 'bar'});
+
+          pCollection.duplicate(2);
+
+          expect(pCollection.length).to.eql(3);
+          expect(pCollection[0] instanceof SVGRectElement).to.eql(true);
+          expect(pCollection[0].firstChild instanceof SVGEllipseElement).to.eql(true);
+          expect(pCollection[0].firstChild.getAttribute('foo')).to.eql('bar');
+          expect(pCollection[1] instanceof SVGRectElement).to.eql(true);
+          expect(pCollection[1].firstChild instanceof SVGEllipseElement).to.eql(true);
+          expect(pCollection[1].firstChild.getAttribute('foo')).to.eql('bar');
+          expect(pCollection[2] instanceof SVGRectElement).to.eql(true);
+          expect(pCollection[2].firstChild instanceof SVGEllipseElement).to.eql(true);
+          expect(pCollection[2].firstChild.getAttribute('foo')).to.eql('bar');
         });
       });
     });
