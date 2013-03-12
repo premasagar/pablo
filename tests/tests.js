@@ -953,12 +953,19 @@ describe('Pablo', function () {
     describe('Misc', function () {
       describe('.clone()', function () {
         it('.clone()', function () {
-          notDone();
+          var original = Pablo.rect({foo: 'bar'}),
+              clone    = original.clone();
+
+          expect(clone instanceof Pablo.Collection).to.eql(true);
+          expect(clone[0] instanceof SVGRectElement).to.eql(true);
+          expect(clone[0].getAttribute('foo')).to.eql('bar');
         });
 
         it('.clone([isDeep])', function () {
-          var pCollection = Pablo('#test-subjects');
-          expect(pCollection.clone(true)).to.eql(pCollection);
+          var pCollection = Pablo('#test-subjects'),
+              clone       = pCollection.clone(true);
+
+          expect(clone).to.eql(pCollection);
         });
       });
 
