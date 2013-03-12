@@ -19,7 +19,8 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         xlinkns = 'http://www.w3.org/1999/xlink',
         vendorPrefixes = ['', '-moz-', '-webkit-', '-khtml-', '-o-', '-ms-'],
 
-        testElement, arrayProto, supportsClassList, hyphensToCamelCase, cssClassApi, pabloCollectionApi, classlistMethod;
+        head, testElement, arrayProto, supportsClassList, hyphensToCamelCase, 
+        cssClassApi, pabloCollectionApi, classlistMethod;
 
     
     function make(elementName){
@@ -34,6 +35,7 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
 
     // TEST BROWSER COMPATIBILITY
 
+    head = document.head || document.getElementsByTagName('head')[0];
     testElement = document && 'createElementNS' in document && make('svg');
     
     // Incompatible browser
@@ -44,8 +46,8 @@ var Pablo = (function(document, Array, Element, SVGElement, NodeList, HTMLDocume
         'querySelectorAll' in document &&
         'isArray' in Array &&
         'forEach' in Array.prototype &&
-        'children' in document.body &&
-        'previousElementSibling' in document.body
+        'children' in head &&
+        'previousElementSibling' in head
     )){
         // Return a simplified version of the Pablo API
         return {
