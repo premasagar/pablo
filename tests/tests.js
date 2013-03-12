@@ -529,7 +529,12 @@ describe('Pablo', function () {
 
       describe('.transform()', function () {
         it('.transform(functionName, value)', function () {
-          notDone();
+          var pCollection = Pablo([Pablo.rect(), Pablo.rect()]);
+
+          pCollection.transform('rotate', '45 50 50');
+
+          expect(pCollection[0].getAttribute('transform')).to.eql('rotate(45 50 50)');
+          expect(pCollection[1].getAttribute('transform')).to.eql('rotate(45 50 50)');
         });
       });
 
