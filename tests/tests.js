@@ -1124,8 +1124,15 @@ describe('Pablo', function () {
   describe('Events', function () {
 
     describe('.trigger()', function () {
+      it('Warning: If trigger doesn\'t work then neither will subsequent event tests.');
       it('.trigger(eventName)', function (done) {
-        notDone();
+        var subject = Pablo.rect();
+
+        subject.on('click', function () {
+          done();
+        });
+
+        subject.trigger('click');
       });
     });
 
@@ -1190,7 +1197,25 @@ describe('Pablo', function () {
 
     describe('.one()', function () {
       it('.one(type, listener)', function (done) {
-        notDone();
+        var subject = Pablo([Pablo.rect(), Pablo.ellipse()]),
+            counter = 0;
+
+        subject.one('click', function () {
+          counter++;
+        });
+
+        subject.eq(0).trigger('click');
+        subject.eq(1).trigger('click');
+        subject.eq(0).trigger('click');
+        subject.eq(1).trigger('click');
+
+        setTimeout(function () {
+          if (counter === 1) {
+            done();
+          } else {
+            done(new Error());
+          }
+        })
       });
 
       it('.one(type, listener, [useCapture])', function (done) {
@@ -1200,7 +1225,25 @@ describe('Pablo', function () {
 
     describe('.oneEach()', function () {
       it('.oneEach(type, listener)', function (done) {
-        notDone();
+        var subject = Pablo([Pablo.rect(), Pablo.ellipse()]),
+            counter = 0;
+
+        subject.oneEach('click', function () {
+          counter++;
+        });
+
+        subject.eq(0).trigger('click');
+        subject.eq(1).trigger('click');
+        subject.eq(0).trigger('click');
+        subject.eq(1).trigger('click');
+
+        setTimeout(function () {
+          if (counter === 2) {
+            done();
+          } else {
+            done(new Error());
+          }
+        })
       });
 
       it('.oneEach(type, listener, [useCapture]', function (done) {
