@@ -1103,7 +1103,15 @@ describe('Pablo', function () {
       });
 
       it('data(option)', function () {
-        notDone();
+        var subject = Pablo.rect();
+
+        subject.data({
+          foo: 'bar',
+          fiz: 123
+        });
+
+        expect(subject.data('foo')).to.eql('bar');
+        expect(subject.data('fiz')).to.eql(123);
       });
     });
 
