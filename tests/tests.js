@@ -577,11 +577,17 @@ describe('Pablo', function () {
                               subject.css('-webkit-transition')     ||
                               subject.css('-o-transition')          ||
                               subject.css('-ms-transition')         ||
-                              subject.css('-khtml-transition'))
+                              subject.css('-khtml-transition'));
 
           expect(appliedWithPrefix).to.eql(true);
 
           resetTestSubjectStyles();
+        });
+
+        it('.cssPrefix(prop)', function () {
+          var subject = Pablo('#test-subjects');
+          subject.cssPrefix('transition', 'opacity 0.5s');
+          expect(subject.cssPrefix('transition')).to.eql('opacity 0.5s');
         });
 
         it('.cssPrefix(styles)', function () {
@@ -802,7 +808,7 @@ describe('Pablo', function () {
       describe('.concat()', function () {
         it('.concat(elements) should return a Pablo Collection and maintain the original', function () {
           var pCollection = Pablo('#test-subjects li'),
-              returned    = pCollection.push([Pablo.rect(), Pablo.circle()]);
+              returned    = pCollection.concat([Pablo.rect(), Pablo.circle()]);
 
           expect(pCollection.length).to.eql(3);
           expect(returned.length).to.eql(5);
@@ -815,7 +821,7 @@ describe('Pablo', function () {
 
         it('.concat(elements...) as argument list should return a Pablo Collection and maintain the original', function () {
           var pCollection = Pablo('#test-subjects li'),
-              returned    = pCollection.push(Pablo.rect(), Pablo.circle());
+              returned    = pCollection.concat(Pablo.rect(), Pablo.circle());
 
           expect(pCollection.length).to.eql(3);
           expect(returned.length).to.eql(5);
@@ -1069,20 +1075,115 @@ describe('Pablo', function () {
   describe('Data', function () {
     describe('data()', function () {
       it('data(key)', function () {
-        notDone();
+        var subject = Pablo.rect();
+        subject.data('foo', 'bar');
+        expect(subject.data('foo')).to.eql('bar');
       });
 
       it('data(key, [value])', function () {
-        notDone();
+        var subject = Pablo.rect();
+        subject.data('foo', 'bar');
+        expect(subject.data('foo')).to.eql('bar');
       });
     });
 
     describe('removeData()', function () {
-      it('removeData(keys)', function () {
+      it('removeData()', function () {
+        var subject = Pablo.rect();
+        subject.data('foo', 'bar');
+        subject.data('fiz', 'buz');
+        
+        expect(subject.data('foo')).to.eql('bar');
+        expect(subject.data('fiz')).to.eql('buz');
+
+        subject.removeData();
+
+        expect(subject.data('foo')).to.eql(undefined);
+        expect(subject.data('fiz')).to.eql(undefined);
+      });
+
+      it('removeData([keys])', function () {
+        var subject = Pablo.rect();
+        subject.data('foo', 'bar');
+        subject.data('fiz', 'buz');
+        
+        expect(subject.data('foo')).to.eql('bar');
+        expect(subject.data('fiz')).to.eql('buz');
+
+        subject.removeData('foo');
+
+        expect(subject.data('foo')).to.eql(undefined);
+        expect(subject.data('fiz')).to.eql('buz');
+      });
+
+      it('removeData([keys]) multiple keys', function () {
+        var subject = Pablo.rect();
         notDone();
       });
 
-      it('removeData(keys, [recursive])', function () {
+      it('removeData([keys], [recursive])', function () {
+        var subject = Pablo.rect().append([Pablo.ellipse(), Pablo.line()]);
+
+        subject.data('foo', 'bar');
+        subject.data('fiz', 'buz');
+        subject.children().eq(0).data('foo', 'bar');
+        subject.children().eq(0).data('fiz', 'buz');
+        subject.children().eq(1).data('foo', 'bar');
+        subject.children().eq(1).data('fiz', 'buz');
+
+        expect(subject.data('foo')).to.eql('bar');
+        expect(subject.data('fiz')).to.eql('buz');
+        expect(subject.children().eq(0).data('foo')).to.eql('bar');
+        expect(subject.children().eq(0).data('fiz')).to.eql('buz');
+        expect(subject.children().eq(1).data('foo')).to.eql('bar');
+        expect(subject.children().eq(1).data('fiz')).to.eql('buz');
+
+        subject.removeData('foo', true);
+
+        expect(subject.data('foo')).to.eql(undefined);
+        expect(subject.data('fiz')).to.eql('buz');
+        expect(subject.children().eq(0).data('foo')).to.eql(undefined);
+        expect(subject.children().eq(0).data('fiz')).to.eql('buz');
+        expect(subject.children().eq(1).data('foo')).to.eql(undefined);
+        expect(subject.children().eq(1).data('fiz')).to.eql('buz');
+      });
+
+      it('removeData([keys], [recursive]) multiple keys', function () {
+        notDone();
+      });
+
+      it('removeData(null, [recursive])', function () {
+        var subject = Pablo.rect().append([Pablo.ellipse(), Pablo.line()]);
+
+        subject.data('foo', 'bar');
+        subject.data('fiz', 'buz');
+        subject.children().eq(0).data('foo', 'bar');
+        subject.children().eq(0).data('fiz', 'buz');
+        subject.children().eq(1).data('foo', 'bar');
+        subject.children().eq(1).data('fiz', 'buz');
+
+        expect(subject.data('foo')).to.eql('bar');
+        expect(subject.data('fiz')).to.eql('buz');
+        expect(subject.children().eq(0).data('foo')).to.eql('bar');
+        expect(subject.children().eq(0).data('fiz')).to.eql('buz');
+        expect(subject.children().eq(1).data('foo')).to.eql('bar');
+        expect(subject.children().eq(1).data('fiz')).to.eql('buz');
+
+        subject.removeData(null, true);
+
+        expect(subject.data('foo')).to.eql(undefined);
+        expect(subject.data('fiz')).to.eql(undefined);
+        expect(subject.children().eq(0).data('foo')).to.eql(undefined);
+        expect(subject.children().eq(0).data('fiz')).to.eql(undefined);
+        expect(subject.children().eq(1).data('foo')).to.eql(undefined);
+        expect(subject.children().eq(1).data('fiz')).to.eql(undefined);
+      });
+    });
+
+    describe('detach()', function () {
+      it('detach()', function () {
+        // remove from dom but keep data
+        // it is the old remove prior to the data plugin
         notDone();
       });
     });
@@ -1124,7 +1225,6 @@ describe('Pablo', function () {
   describe('Events', function () {
 
     describe('.trigger()', function () {
-      it('Warning: If trigger doesn\'t work then neither will subsequent event tests.');
       it('.trigger(eventName)', function (done) {
         var subject = Pablo.rect();
 
