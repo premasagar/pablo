@@ -1051,7 +1051,7 @@ describe('Pablo', function () {
       });
 
       describe('.some() alias .is()', function () {
-        it('some()/.is()', function () {
+        it('.some()/.is()', function () {
           notDone();
         });
       });
@@ -1059,20 +1059,20 @@ describe('Pablo', function () {
   });
 
   describe('Data', function () {
-    describe('data()', function () {
-      it('data(key)', function () {
+    describe('.data()', function () {
+      it('.data(key)', function () {
         var subject = Pablo.rect();
         subject.data('foo', 'bar');
         expect(subject.data('foo')).to.eql('bar');
       });
 
-      it('data(key, [value])', function () {
+      it('.data(key, [value])', function () {
         var subject = Pablo.rect();
         subject.data('foo', 'bar');
         expect(subject.data('foo')).to.eql('bar');
       });
 
-      it('data(option)', function () {
+      it('.data(option)', function () {
         var subject = Pablo.rect();
 
         subject.data({
@@ -1085,8 +1085,8 @@ describe('Pablo', function () {
       });
     });
 
-    describe('removeData()', function () {
-      it('removeData()', function () {
+    describe('.removeData()', function () {
+      it('.removeData()', function () {
         var subject = Pablo.rect();
         subject.data('foo', 'bar');
         subject.data('fiz', 'buz');
@@ -1100,7 +1100,7 @@ describe('Pablo', function () {
         expect(subject.data('fiz')).to.eql(undefined);
       });
 
-      it('removeData([keys])', function () {
+      it('.removeData([keys])', function () {
         var subject = Pablo.rect();
         subject.data('foo', 'bar');
         subject.data('fiz', 'buz');
@@ -1114,20 +1114,23 @@ describe('Pablo', function () {
         expect(subject.data('fiz')).to.eql('buz');
       });
 
-      it('removeData([keys]) multiple keys', function () {
+      it('.removeData([keys]) multiple keys', function () {
         var subject = Pablo.rect();
 
         subject.data('foo', 'bar');
         subject.data('fiz', 'buz');
+        subject.data('zip', 'zap');
 
         subject.removeData('foo fiz');
+
         expect(subject.data('foo')).to.eql(undefined);
         expect(subject.data('fiz')).to.eql(undefined);
+        expect(subject.data('zip')).to.eql('zap');
       });
     });
 
-    describe('detach()', function () {
-      it('detach()', function () {
+    describe('.detach()', function () {
+      it('.detach()', function () {
         var subject = Pablo.rect().append([Pablo.ellipse(), Pablo.line()]);
 
         subject.data('foo', 'bar');
@@ -1146,7 +1149,7 @@ describe('Pablo', function () {
       });
     });
 
-    describe('remove()', function () {
+    describe('.remove()', function () {
       it('.remove() should remove data on the removed element and its children ', function () {        
         var subject = Pablo.rect().append([Pablo.ellipse(), Pablo.line()]);
 
@@ -1166,7 +1169,7 @@ describe('Pablo', function () {
       });
     });
 
-    describe('empty()', function () {
+    describe('.empty()', function () {
       it('.empty() should remove data on the element\'s children', function () {
         var subject = Pablo.rect().append([Pablo.ellipse(), Pablo.line()]);
 
