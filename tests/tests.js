@@ -1137,90 +1137,47 @@ describe('Pablo', function () {
       });
 
       it('removeData([keys]) multiple keys', function () {
-        var subject = Pablo.rect();
         notDone();
-      });
-
-      it('removeData([keys], [recursive])', function () {
-        var subject = Pablo.rect().append([Pablo.ellipse(), Pablo.line()]);
-
-        subject.data('foo', 'bar');
-        subject.data('fiz', 'buz');
-        subject.children().eq(0).data('foo', 'bar');
-        subject.children().eq(0).data('fiz', 'buz');
-        subject.children().eq(1).data('foo', 'bar');
-        subject.children().eq(1).data('fiz', 'buz');
-
-        expect(subject.data('foo')).to.eql('bar');
-        expect(subject.data('fiz')).to.eql('buz');
-        expect(subject.children().eq(0).data('foo')).to.eql('bar');
-        expect(subject.children().eq(0).data('fiz')).to.eql('buz');
-        expect(subject.children().eq(1).data('foo')).to.eql('bar');
-        expect(subject.children().eq(1).data('fiz')).to.eql('buz');
-
-        subject.removeData('foo', true);
-
-        expect(subject.data('foo')).to.eql(undefined);
-        expect(subject.data('fiz')).to.eql('buz');
-        expect(subject.children().eq(0).data('foo')).to.eql(undefined);
-        expect(subject.children().eq(0).data('fiz')).to.eql('buz');
-        expect(subject.children().eq(1).data('foo')).to.eql(undefined);
-        expect(subject.children().eq(1).data('fiz')).to.eql('buz');
-      });
-
-      it('removeData([keys], [recursive]) multiple keys', function () {
-        notDone();
-      });
-
-      it('removeData(null, [recursive])', function () {
-        var subject = Pablo.rect().append([Pablo.ellipse(), Pablo.line()]);
-
-        subject.data('foo', 'bar');
-        subject.data('fiz', 'buz');
-        subject.children().eq(0).data('foo', 'bar');
-        subject.children().eq(0).data('fiz', 'buz');
-        subject.children().eq(1).data('foo', 'bar');
-        subject.children().eq(1).data('fiz', 'buz');
-
-        expect(subject.data('foo')).to.eql('bar');
-        expect(subject.data('fiz')).to.eql('buz');
-        expect(subject.children().eq(0).data('foo')).to.eql('bar');
-        expect(subject.children().eq(0).data('fiz')).to.eql('buz');
-        expect(subject.children().eq(1).data('foo')).to.eql('bar');
-        expect(subject.children().eq(1).data('fiz')).to.eql('buz');
-
-        subject.removeData(null, true);
-
-        expect(subject.data('foo')).to.eql(undefined);
-        expect(subject.data('fiz')).to.eql(undefined);
-        expect(subject.children().eq(0).data('foo')).to.eql(undefined);
-        expect(subject.children().eq(0).data('fiz')).to.eql(undefined);
-        expect(subject.children().eq(1).data('foo')).to.eql(undefined);
-        expect(subject.children().eq(1).data('fiz')).to.eql(undefined);
       });
     });
 
     describe('detach()', function () {
       it('detach()', function () {
-        // remove from dom but keep data
-        // it is the old remove prior to the data plugin
-        notDone();
+        var subject = Pablo.rect().append([Pablo.ellipse(), Pablo.line()]);
+
+        subject.data('foo', 'bar');
+        subject.children().eq(0).data('foo', 'bar');
+        subject.children().eq(1).data('foo', 'bar');
+
+        expect(subject.data('foo')).to.eql('bar');
+        expect(subject.children().eq(0).data('foo')).to.eql('bar');
+        expect(subject.children().eq(1).data('foo')).to.eql('bar');
+
+        subject.detach();
+
+        expect(subject.data('foo')).to.eql('bar');
+        expect(subject.children().eq(0).data('foo')).to.eql('bar');
+        expect(subject.children().eq(1).data('foo')).to.eql('bar');
       });
     });
 
     describe('remove()', function () {
-      it('.remove()', function () {
-        var saved   = document.querySelectorAll('#test-subjects')[0],
-            subject = Pablo('#test-subjects'),
-            length;
+      it('.remove() should remove data on the removed element and its children ', function () {        
+        var subject = Pablo.rect().append([Pablo.ellipse(), Pablo.line()]);
+
+        subject.data('foo', 'bar');
+        subject.children().eq(0).data('foo', 'bar');
+        subject.children().eq(1).data('foo', 'bar');
+
+        expect(subject.data('foo')).to.eql('bar');
+        expect(subject.children().eq(0).data('foo')).to.eql('bar');
+        expect(subject.children().eq(1).data('foo')).to.eql('bar');
 
         subject.remove();
-      
-        length = document.querySelectorAll('#test-subjects').length;
 
-        document.body.appendChild(saved, document.getElementById('mocha'));
-
-        expect(length).to.eql(0);
+        expect(subject.data('foo')).to.eql(undefined);
+        expect(subject.children().eq(0).data('foo')).to.eql(undefined);
+        expect(subject.children().eq(1).data('foo')).to.eql(undefined);
       });
     });
 
