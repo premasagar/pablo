@@ -1,3 +1,4 @@
+/*jshint newcap:false */
 (function(Pablo, Array){
     'use strict';
 
@@ -50,39 +51,55 @@
     // DATA
 
     Pablo.fn.data = function(key, value){
-        var id;
+        var id, data;
 
-        // Get value
-        if (typeof value === 'undefined'){
-            if (this.length){
-                // Use the id of the first element in the collection
-                id = getId(this[0]);
+        if (typeof key === 'string'){
+            // Get value
+            if (typeof value === 'undefined'){
+                if (this.length){
+                    // Use the id of the first element in the collection
+                    id = getId(this[0]);
 
-                // Return the cached value, by key
-                if (id && id in cache){
-                    return cache[id][key];
+                    // Return the cached value, by key
+                    if (id && id in cache){
+                        return cache[id][key];
+                    }
                 }
+                return;
             }
+
+            // Prepare object to set
+            data = {};
+            data[key] = value;
         }
-        // Set value
+
+        // First argument is an object of key-value pairs
         else {
-            // Allow binding and triggering events on empty collections
-            // Create a container object to store state
-            // Temporary solution: create a new <g> element to store the state
-            // TODO: refactor to allow this.each() to cycle when element is an
-            if (!this.length){
-                Array.prototype.push.call(this, {});
-            }
-            
-            return this.each(function(el){
-                var id = getId(el) || createId(el);
-
-                if (!cache[id]){
-                    cache[id] = {};
-                }
-                cache[id][key] = value;
-            });
+            data = key;
         }
+
+        // Set value
+        // Allow binding and triggering events on empty collections by create a 
+        // container object to store state.
+        if (!this.length){
+            // TODO: change to arrayProto
+            Array.prototype.push.call(this, {});
+        }
+        
+        return this.each(function(el){
+            var id = getId(el) || createId(el),
+                key;
+
+            if (!cache[id]){
+                cache[id] = {};
+            }
+
+            for (key in data){
+                if (data.hasOwnProperty(key)){
+                    cache[id][key] = data[key];
+                }
+            }
+        });
     };
 
     Pablo.fn.removeData = function(keys){

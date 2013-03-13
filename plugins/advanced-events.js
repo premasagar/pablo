@@ -1,3 +1,4 @@
+/*jshint newcap:false */
 (function(Pablo, Array){
     'use strict';
 
@@ -21,13 +22,13 @@
         passes all its arguments through to `on()` and `off()`
 
         // TODO
-        support multiple listeners passed as arguments to `off()`, to turn each one off
+        support multiple listeners passed as arguments to `off()`, to turn each one off?
     */
 
     var namespace = '__events__'; 
 
     Pablo.fn.on = function(type, selectors, listener, useCapture, context){
-        var boundContext, wrapper, eventData;
+        var wrapper, eventData;
 
         // `selectors` argument not given
         // TODO: `selectors` should be allowed to be a function
