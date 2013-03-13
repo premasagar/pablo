@@ -740,8 +740,8 @@ describe('Pablo', function () {
         });
       });
 
-      describe('.push()', function () {
-        it('.push(elements) should mutate the Pablo Collection and return itself', function () {
+      describe('.push() alias .add()', function () {
+        it('.push(elements)/.add(elements) should mutate the Pablo Collection and return itself', function () {
           var pCollection = Pablo('#test-subjects li'),
               returned    = pCollection.push([Pablo.rect(), Pablo.circle()]);
 
@@ -753,37 +753,7 @@ describe('Pablo', function () {
           expect(pCollection[3] instanceof SVGRectElement).to.eql(true);
           expect(pCollection[4] instanceof SVGCircleElement).to.eql(true);
         });
-        it('.push(elements...) as argument list should mutate the Pablo Collection and return itself', function () {
-          var pCollection = Pablo('#test-subjects li'),
-              returned    = pCollection.push(Pablo.rect(), Pablo.circle());
-
-          expect(returned).to.eql(pCollection);
-          expect(pCollection.length).to.eql(5);
-          expect(pCollection[0].id).to.eql('test-subject-a');
-          expect(pCollection[1].id).to.eql('test-subject-b');
-          expect(pCollection[2].id).to.eql('test-subject-c');
-          expect(pCollection[3] instanceof SVGRectElement).to.eql(true);
-          expect(pCollection[4] instanceof SVGCircleElement).to.eql(true);
-        });
-      });
-
-      describe('.add()', function () {
-        it('.add(elements) should mutate the Pablo Collection and return itself', function () {
-          // alias for push
-          var pCollection = Pablo('#test-subjects li'),
-              returned    = pCollection.push([Pablo.rect(), Pablo.circle()]);
-
-          expect(returned).to.eql(pCollection);
-          expect(pCollection.length).to.eql(5);
-          expect(pCollection[0].id).to.eql('test-subject-a');
-          expect(pCollection[1].id).to.eql('test-subject-b');
-          expect(pCollection[2].id).to.eql('test-subject-c');
-          expect(pCollection[3] instanceof SVGRectElement).to.eql(true);
-          expect(pCollection[4] instanceof SVGCircleElement).to.eql(true);
-        });
-
-        it('.add(elements...) as argument list should mutate the Pablo Collection and return itself', function () {
-          // alias for push
+        it('.push(elements...)/.add(elements...) as argument list should mutate the Pablo Collection and return itself', function () {
           var pCollection = Pablo('#test-subjects li'),
               returned    = pCollection.push(Pablo.rect(), Pablo.circle());
 
@@ -1080,14 +1050,8 @@ describe('Pablo', function () {
         });
       });
 
-      describe('.some()', function () {
-        it('some()', function () {
-          notDone();
-        });
-      });
-
-      describe('.is()', function () {
-        it('is()', function () {
+      describe('.some() alias .is()', function () {
+        it('some()/.is()', function () {
           notDone();
         });
       });
