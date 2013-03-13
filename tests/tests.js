@@ -1145,7 +1145,14 @@ describe('Pablo', function () {
       });
 
       it('removeData([keys]) multiple keys', function () {
-        notDone();
+        var subject = Pablo.rect();
+
+        subject.data('foo', 'bar');
+        subject.data('fiz', 'buz');
+
+        subject.removeData('foo fiz');
+        expect(subject.data('foo')).to.eql(undefined);
+        expect(subject.data('fiz')).to.eql(undefined);
       });
     });
 
