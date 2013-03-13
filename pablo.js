@@ -1117,7 +1117,7 @@
         if (!context){
             return Pablo.create(document.querySelectorAll(selectors));
         }
-        return Pablo.create(context).find(selectors);
+        return Pablo(context).find(selectors);
     };
     
     // Pablo methods
