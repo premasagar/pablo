@@ -191,6 +191,10 @@ describe('Pablo', function () {
       });
 
       describe('.prependTo(elements, [attributes])', function () {
+        it('should return a Pablo collection', function () {
+          expect(Pablo.circle().prependTo(Pablo.rect()) instanceof Pablo.Collection).to.eql(true);
+        });
+
         it('.prependTo(element) should prepend the subject collection to the passed element', function () {
           var pCollection = Pablo.circle().append(Pablo.rect()).append(Pablo.rect());
           Pablo.ellipse({foo:'bar'}).prependTo(pCollection);
