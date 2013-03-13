@@ -126,7 +126,8 @@
     };
 
     Pablo.fn.empty = function(){
-        this.children().removeData(null, true);
+        // Remove data from each descendent of elements in the collection
+        this.find('*').removeData();
 
         // Remove elements, text and other nodes
         return this.each(function(el){
