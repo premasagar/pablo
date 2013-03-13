@@ -244,8 +244,6 @@ describe('Pablo', function () {
           var pCollection = Pablo.rect().append(Pablo.circle()).append(Pablo.circle());
           Pablo(pCollection[0].childNodes).after(Pablo.ellipse({foo:'bar'}));
 
-          notDone();
-
           expect(pCollection[0].childNodes.length).to.eql(4);
           expect(pCollection[0].childNodes[1] instanceof SVGEllipseElement).to.eql(true);
           expect(pCollection[0].childNodes[3] instanceof SVGEllipseElement).to.eql(true);
@@ -270,8 +268,6 @@ describe('Pablo', function () {
           var pCollection = Pablo.rect().append(Pablo.circle()).append(Pablo.circle());
           Pablo.ellipse({foo:'bar'}).insertBefore(pCollection[0].childNodes);
 
-          notDone();
-
           expect(pCollection[0].childNodes.length).to.eql(4);
           expect(pCollection[0].childNodes[0] instanceof SVGEllipseElement).to.eql(true);
           expect(pCollection[0].childNodes[2] instanceof SVGEllipseElement).to.eql(true);
@@ -282,8 +278,6 @@ describe('Pablo', function () {
         it('insertBefore(element, [attributes])', function () {
           var pCollection = Pablo.rect().append(Pablo.circle()).append(Pablo.circle());
           Pablo('ellipse', {foo:'bar'}).insertBefore(pCollection[0].childNodes);
-
-          notDone();
 
           expect(pCollection[0].childNodes.length).to.eql(4);
           expect(pCollection[0].childNodes[0] instanceof SVGEllipseElement).to.eql(true);
@@ -1247,7 +1241,7 @@ describe('Pablo', function () {
   describe('Events', function () {
 
     describe('.trigger()', function () {
-      it('.trigger(eventName)', function (done) {
+      it('.trigger(eventNames)', function (done) {
         var subject = Pablo.rect();
 
         subject.on('click', function () {
@@ -1255,6 +1249,27 @@ describe('Pablo', function () {
         });
 
         subject.trigger('click');
+      });
+
+      it('.trigger(eventNames) with multiple event names', function (done) {
+        var subject = Pablo.rect(),
+            counter = 0;
+
+        subject.on('click', function () {
+          counter++;
+          if (counter === 2) {
+            done();
+          }
+        });
+
+        subject.on('focus', function () {
+          counter++;
+          if (counter === 2) {
+            done();
+          }
+        });
+
+        subject.trigger('click focus');
       });
     });
 
