@@ -27,19 +27,21 @@
         // Delete all keys
         if (!key){
             delete cache[id];
-            return;
         }
 
-        // Delete a specific key
-        data = cache[id];
-        if (data){
-            // Delete the key
-            if (Object.keys(data).length > 1){
-                delete cache[id][key];
+        else {
+            // Delete a specific key
+            data = cache[id];
+            if (data){
+                // Delete the key
+                if (Object.keys(data).length > 1){
+                    delete cache[id][key];
+                }
+                // The data container is empty, so delete it
+                else {
+                    delete cache[id];
+                }
             }
-
-            // The data container is empty, so delete it
-            delete cache[id];
         }
     }
 
@@ -83,21 +85,27 @@
         }
     };
 
-    Pablo.fn.removeData = function(keys, recursive){
-        if (recursive && this.length){
-            this.children().removeData(keys, recursive);
-        }
-        return this.each(function(el){
-            this.processList(keys, function(key){
-                removeData(el, key);
+    Pablo.fn.removeData = function(keys){
+        // Remove single or multiple, space-delimited keys
+        if (keys){
+            return this.processList(keys, function(key){
+                this.each(function(el){
+                    removeData(el, key);
+                });
             });
-        });
+        }
+        // Remove everything
+        return this.each(removeData);
     };
 
     Pablo.fn.detach = Pablo.fn.remove;
 
     Pablo.fn.remove = function(){
-        return this.removeData(null, true).detach();
+        // Remove data from each descendent of elements in the collection
+        this.find('*').removeData();
+
+        // Remove data from elements in the collection, and detach
+        return this.removeData().detach();
     };
 
     Pablo.fn.empty = function(){
