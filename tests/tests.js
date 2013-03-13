@@ -218,8 +218,6 @@ describe('Pablo', function () {
           var pCollection = Pablo.rect().append(Pablo.circle()).append(Pablo.circle());
           Pablo(pCollection[0].childNodes).before(Pablo.ellipse({foo:'bar'}));
 
-          notDone();
-
           expect(pCollection[0].childNodes.length).to.eql(4);
           expect(pCollection[0].childNodes[0] instanceof SVGEllipseElement).to.eql(true);
           expect(pCollection[0].childNodes[2] instanceof SVGEllipseElement).to.eql(true);
@@ -312,6 +310,39 @@ describe('Pablo', function () {
           expect(pCollection[0].childNodes[3] instanceof SVGEllipseElement).to.eql(true);
           expect(pCollection[0].childNodes[1].getAttribute('foo')).to.eql('bar');
           expect(pCollection[0].childNodes[3].getAttribute('foo')).to.eql('bar');
+        });
+      });
+
+      describe('.empty()', function () {
+        it('.empty()', function () {
+          var saved   = document.querySelectorAll('#test-subjects li'),
+              subject = Pablo('#test-subjects'),
+              cLength;
+
+          subject.empty();
+          cLength = subject[0].childNodes.length;
+
+          document.getElementById('test-subjects').appendChild(saved[0]);
+          document.getElementById('test-subjects').appendChild(saved[1]);
+          document.getElementById('test-subjects').appendChild(saved[2]);
+
+          expect(cLength).to.eql(0);
+        });
+      });
+
+      describe('.remove()', function () {
+        it('.remove()', function () {
+          var saved   = document.querySelectorAll('#test-subjects')[0],
+              subject = Pablo('#test-subjects'),
+              length;
+
+          subject.remove();
+        
+          length = document.querySelectorAll('#test-subjects').length;
+
+          document.body.appendChild(saved, document.getElementById('mocha'));
+
+          expect(length).to.eql(0);
         });
       });
     });
@@ -691,39 +722,6 @@ describe('Pablo', function () {
           expect(subject[0].innerText).to.eql('foo');
         });
       });
-
-      describe('.empty()', function () {
-        it('.empty()', function () {
-          var saved   = document.querySelectorAll('#test-subjects li'),
-              subject = Pablo('#test-subjects'),
-              cLength;
-
-          subject.empty();
-          cLength = subject[0].childNodes.length;
-
-          document.getElementById('test-subjects').appendChild(saved[0]);
-          document.getElementById('test-subjects').appendChild(saved[1]);
-          document.getElementById('test-subjects').appendChild(saved[2]);
-
-          expect(cLength).to.eql(0);
-        });
-      });
-
-      describe('.remove()', function () {
-        it('.remove()', function () {
-          var saved   = document.querySelectorAll('#test-subjects')[0],
-              subject = Pablo('#test-subjects'),
-              length;
-
-          subject.remove();
-        
-          length = document.querySelectorAll('#test-subjects').length;
-
-          document.body.appendChild(saved, document.getElementById('mocha'));
-
-          expect(length).to.eql(0);
-        });
-      });
     });
 
     describe('Collection manipulation', function () {
@@ -1085,6 +1083,18 @@ describe('Pablo', function () {
           expect(pCollection[2].firstChild.getAttribute('foo')).to.eql('bar');
         });
       });
+
+      describe('.some()', function () {
+        it('some()', function () {
+          notDone();
+        });
+      });
+
+      describe('.is()', function () {
+        it('is()', function () {
+          notDone();
+        });
+      });
     });
   });
 
@@ -1196,8 +1206,8 @@ describe('Pablo', function () {
       });
     });
 
-    describe('empty() should remove data on the subject element\'s children', function () {
-      it('.empty()', function () {
+    describe('empty()', function () {
+      it('.empty() should remove data on the element\'s children', function () {
         var subject = Pablo.rect().append([Pablo.ellipse(), Pablo.line()]);
 
         subject.data('foo', 'bar');
