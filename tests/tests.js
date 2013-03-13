@@ -290,8 +290,6 @@ describe('Pablo', function () {
           var pCollection = Pablo.rect().append(Pablo.circle()).append(Pablo.circle());
           Pablo.ellipse({foo:'bar'}).insertAfter(pCollection[0].childNodes);
 
-          notDone();
-
           expect(pCollection[0].childNodes.length).to.eql(4);
           expect(pCollection[0].childNodes[1] instanceof SVGEllipseElement).to.eql(true);
           expect(pCollection[0].childNodes[3] instanceof SVGEllipseElement).to.eql(true);
@@ -302,8 +300,6 @@ describe('Pablo', function () {
         it('insertAfter(element, [attributes])', function () {
           var pCollection = Pablo.rect().append(Pablo.circle()).append(Pablo.circle());
           Pablo('ellipse', {foo:'bar'}).insertAfter(pCollection[0].childNodes);
-
-          notDone();
 
           expect(pCollection[0].childNodes.length).to.eql(4);
           expect(pCollection[0].childNodes[1] instanceof SVGEllipseElement).to.eql(true);
