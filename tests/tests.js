@@ -1181,20 +1181,23 @@ describe('Pablo', function () {
       });
     });
 
-    describe('empty()', function () {
+    describe('empty() should remove data on the subject element\'s children', function () {
       it('.empty()', function () {
-        var saved   = document.querySelectorAll('#test-subjects li'),
-            subject = Pablo('#test-subjects'),
-            cLength;
+        var subject = Pablo.rect().append([Pablo.ellipse(), Pablo.line()]);
+
+        subject.data('foo', 'bar');
+        subject.children().eq(0).data('foo', 'bar');
+        subject.children().eq(1).data('foo', 'bar');
+
+        expect(subject.data('foo')).to.eql('bar');
+        expect(subject.children().eq(0).data('foo')).to.eql('bar');
+        expect(subject.children().eq(1).data('foo')).to.eql('bar');
 
         subject.empty();
-        cLength = subject[0].childNodes.length;
 
-        document.getElementById('test-subjects').appendChild(saved[0]);
-        document.getElementById('test-subjects').appendChild(saved[1]);
-        document.getElementById('test-subjects').appendChild(saved[2]);
-
-        expect(cLength).to.eql(0);
+        expect(subject.data('foo')).to.eql('bar');
+        expect(subject.children().eq(0).data('foo')).to.eql(undefined);
+        expect(subject.children().eq(1).data('foo')).to.eql(undefined);
       });
     });
   });
