@@ -333,7 +333,7 @@ describe('Pablo', function () {
               length;
 
           subject.remove();
-        
+
           length = document.querySelectorAll('#test-subjects').length;
 
           document.body.appendChild(saved, document.getElementById('mocha'));
@@ -1163,42 +1163,60 @@ describe('Pablo', function () {
     });
 
     describe('.remove()', function () {
-      it('.remove() should remove data on the removed element and its children ', function () {        
-        var subject = Pablo.rect().append([Pablo.ellipse(), Pablo.line()]);
+      it('.remove() should remove data on the removed element and its descendants ', function () {        
+        var subject = Pablo.rect().append([Pablo.ellipse(), Pablo.ellipse()]);
+
+        subject.children().eq(0).append(Pablo.circle());
+        subject.children().eq(1).append(Pablo.circle());
 
         subject.data('foo', 'bar');
         subject.children().eq(0).data('foo', 'bar');
         subject.children().eq(1).data('foo', 'bar');
+        subject.children().eq(0).firstChild().data('foo','bar');
+        subject.children().eq(1).firstChild().data('foo','bar');
 
         expect(subject.data('foo')).to.eql('bar');
         expect(subject.children().eq(0).data('foo')).to.eql('bar');
         expect(subject.children().eq(1).data('foo')).to.eql('bar');
+        expect(subject.children().eq(0).firstChild().data('foo')).to.eql('bar');
+        expect(subject.children().eq(1).firstChild().data('foo')).to.eql('bar');
 
         subject.remove();
 
         expect(subject.data('foo')).to.eql(undefined);
         expect(subject.children().eq(0).data('foo')).to.eql(undefined);
         expect(subject.children().eq(1).data('foo')).to.eql(undefined);
+        expect(subject.children().eq(0).firstChild().data('foo')).to.eql(undefined);
+        expect(subject.children().eq(1).firstChild().data('foo')).to.eql(undefined);
       });
     });
 
     describe('.empty()', function () {
-      it('.empty() should remove data on the element\'s children', function () {
+      it('.empty() should remove data on the element\'s descendants', function () {
         var subject = Pablo.rect().append([Pablo.ellipse(), Pablo.line()]);
+
+        subject.children().eq(0).append(Pablo.circle());
+        subject.children().eq(1).append(Pablo.circle());
 
         subject.data('foo', 'bar');
         subject.children().eq(0).data('foo', 'bar');
         subject.children().eq(1).data('foo', 'bar');
+        subject.children().eq(0).firstChild().data('foo','bar');
+        subject.children().eq(1).firstChild().data('foo','bar');
 
         expect(subject.data('foo')).to.eql('bar');
         expect(subject.children().eq(0).data('foo')).to.eql('bar');
         expect(subject.children().eq(1).data('foo')).to.eql('bar');
+        expect(subject.children().eq(0).firstChild().data('foo')).to.eql('bar');
+        expect(subject.children().eq(1).firstChild().data('foo')).to.eql('bar');
 
         subject.empty();
 
         expect(subject.data('foo')).to.eql('bar');
         expect(subject.children().eq(0).data('foo')).to.eql(undefined);
         expect(subject.children().eq(1).data('foo')).to.eql(undefined);
+        expect(subject.children().eq(0).firstChild().data('foo')).to.eql(undefined);
+        expect(subject.children().eq(1).firstChild().data('foo')).to.eql(undefined);
       });
     });
   });
