@@ -990,9 +990,9 @@ describe('Pablo', function () {
         });
       });
 
-      describe('.select()', function () {
-        it('.select(selectors)', function () {
-          var pCollection = Pablo.select('#test-subjects li');
+      describe('.find()', function () {
+        it('.find(selectors)', function () {
+          var pCollection = Pablo.find('#test-subjects li');
 
           expect(pCollection.length).to.eql(3);
           expect(pCollection[0].id).to.eql('test-subject-a');
@@ -1000,8 +1000,26 @@ describe('Pablo', function () {
           expect(pCollection[2].id).to.eql('test-subject-c');
         });
 
-        it('.select(selectors, context)', function () {
-          var pCollection = Pablo.select('li', Pablo('#test-subjects'));
+        it('.find(selectors, context) context as Pablo object', function () {
+          var pCollection = Pablo.find('li', Pablo('#test-subjects'));
+
+          expect(pCollection.length).to.eql(3);
+          expect(pCollection[0].id).to.eql('test-subject-a');
+          expect(pCollection[1].id).to.eql('test-subject-b');
+          expect(pCollection[2].id).to.eql('test-subject-c');
+        });
+
+        it('.find(selectors, context) context as selector', function () {
+          var pCollection = Pablo.find('li', '#test-subjects');
+
+          expect(pCollection.length).to.eql(3);
+          expect(pCollection[0].id).to.eql('test-subject-a');
+          expect(pCollection[1].id).to.eql('test-subject-b');
+          expect(pCollection[2].id).to.eql('test-subject-c');
+        });
+
+        it('.find(selectors, context) context as DOM Element', function () {
+          var pCollection = Pablo.find('li', Pablo('#test-subjects')[0]);
 
           expect(pCollection.length).to.eql(3);
           expect(pCollection[0].id).to.eql('test-subject-a');
