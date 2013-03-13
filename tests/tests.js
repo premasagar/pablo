@@ -1055,6 +1055,19 @@ describe('Pablo', function () {
           notDone();
         });
       });
+
+      describe('.processList()', function () {
+        it('processList(list, callback)', function () {
+          var items = [];
+
+          Pablo().processList('foo bar', function (item) {
+            items.push(item);
+          });
+
+          expect(items[0]).to.eql('foo');
+          expect(items[1]).to.eql('bar');
+        });
+      });
     });
   });
 
