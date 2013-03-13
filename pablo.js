@@ -150,7 +150,7 @@
         if (Pablo.isPablo(node)){
             return attr ? node.attr(attr) : node;
         }
-        return Pablo(node, attr);
+        return Pablo.create(node, attr);
     }
 
     // Return CSS styles with browser vendor prefixes
@@ -1096,29 +1096,29 @@
 
     // PABLO API
 
-    // Create Pablo: return a PabloCollection instance
-    function createPablo(node, attr){
-        return new PabloCollection(node, attr);
-    }
-    
-    // Select existing nodes in the document
-    function selectPablo(selectors, context){
-        return toPablo(context || document).find(selectors);
-    }
-
-    
-    // **
-    
-
     // Pablo main function
     function Pablo(node, attr){
+        // TODO: if `node` is a string and `attr` is an object, but not a plain object, then use it as a context and pass it with `node` to `find()`
         if (!node || attr || Pablo.canBeWrapped(node)){
             return Pablo.create(node, attr);
         }
         else {
-            return Pablo.select(node);
+            return Pablo.find(node);
         }
     }
+
+    // Create a Pablo collection
+    Pablo.create = function(node, attr){
+        return new PabloCollection(node, attr);
+    };
+    
+    // Select existing nodes
+    Pablo.find = function(selectors, context){
+        if (!context){
+            return Pablo.create(document.querySelectorAll(selectors));
+        }
+        return Pablo.create(context).find(selectors);
+    };
     
     // Pablo methods
     extend(Pablo, {
@@ -1134,8 +1134,6 @@
 
         // methods
         make: make,
-        create: createPablo,
-        select: selectPablo,
         isArrayLike: isArrayLike,
         isElement: isElement,
         isSVGElement: isSVGElement,
