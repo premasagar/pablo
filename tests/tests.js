@@ -1101,6 +1101,10 @@ describe('Pablo', function () {
         subject.data('foo', 'bar');
         expect(subject.data('foo')).to.eql('bar');
       });
+
+      it('data(option)', function () {
+        notDone();
+      });
     });
 
     describe('removeData()', function () {
