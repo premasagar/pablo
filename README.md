@@ -28,52 +28,79 @@ For production, download <a href="https://raw.github.com/dharmafly/pablo/master/
 
 Check that the browser supports basic SVG:
 
-    if (Pablo.isSupported){
-        /* Pablo code here */
-        alert('Yes!');
-    }
-    else {
-        /* Alternative content */
-        alert("Noo");
-    }
-
+```javascript
+if (Pablo.isSupported){
+    /* Pablo code here */
+    alert('Yes!');
+}
+else {
+    /* Alternative content */
+    alert("Noo");
+}
+```
 
 Start drawing:
 
-    /* Inside an HTML element, append an <svg> root */
-    var paper = Pablo(demoElement).svg({height:220}),
-        /* Create <circle> element, with attributes */
-        circle = paper.circle({
-            cy: '50%',
-            fill: 'rgba(127, 159, 95, 0.2)',
-            stroke: '#777'
-        });
+```javascript
+/* Inside an HTML element, append an <svg> root */
+var paper = Pablo(demoElement).svg({height:220}),
+    /* Create <circle> element, with attributes */
+    circle = paper.circle({
+        cy: '50%',
+        fill: 'rgba(127, 159, 95, 0.2)',
+        stroke: '#777'
+    });
 
-    /* Duplicate the element */
-    circle.duplicate(20)
-        /* Modify attributes */
-        .attr({
-            /* Attribute functions, called for each element */
-            cx: function(el, i) {return i * 4 + 1 + '%'},
-            r:  function(el, i) {return i + 1 + '%'}
-        })
-        /* Add a listener for mouseover & touchstart events */
-        .on('mouseover touchstart', function(){
-            /* Wrap this element in a Pablo collection */
-            var circle = Pablo(this),
-                /* Create a random position and colour */
-                r = parseInt(circle.attr('r'), 10),
-                xMax = 100 - r * 2,
-                cx = xMax * Math.random() + r + '%',
-                hue = Math.random() * 360,
-                color = 'hsla(' + hue + ', 90%, 50%, 0.2)';
+/* Duplicate the element */
+circle.duplicate(20)
+    /* Modify attributes */
+    .attr({
+        /* Attribute functions, called for each element */
+        cx: function(el, i) {return i * 4 + 1 + '%'},
+        r:  function(el, i) {return i + 1 + '%'}
+    })
+    /* Add a listener for mouseover & touchstart events */
+    .on('mouseover touchstart', function(){
+        /* Wrap this element in a Pablo collection */
+        var circle = Pablo(this),
+            /* Create a random position and colour */
+            r = parseInt(circle.attr('r'), 10),
+            xMax = 100 - r * 2,
+            cx = xMax * Math.random() + r + '%',
+            hue = Math.random() * 360,
+            color = 'hsla(' + hue + ', 90%, 50%, 0.2)';
 
-            / * Apply new attributes to the <circle> element */
-            circle.attr({cx:cx, fill:color});
-        });
-
+        / * Apply new attributes to the <circle> element */
+        circle.attr({cx:cx, fill:color});
+    });
+```
 
 **See the [API Reference][api] for full details.**
+
+## Build process
+
+The build process handles code linting and minification. [Grunt](http://gruntjs.com) is Pablo's build tool so [node](http://nodejs.org/) is required.
+
+Installing grunt
+
+```bash
+$ npm uninstall -g grunt # for old grunt users
+$ npm install -g grunt-cli
+```
+
+Building
+
+```bash
+$ git clone git@github.com:dharmafly/pablo.git
+$ cd pablo
+$ npm install
+$ grunt
+```
+
+A fresh copy of `pablo.min.js` can be found in the `build` directory.
+
+In the future the build process can be used to concatinate multiple Pablo files 
+for customized Pablo distributions.
 
 ## Tests
 
