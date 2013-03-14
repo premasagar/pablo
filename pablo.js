@@ -19,9 +19,10 @@
         svgns = 'http://www.w3.org/2000/svg',
         xlinkns = 'http://www.w3.org/1999/xlink',
         vendorPrefixes = ['', '-moz-', '-webkit-', '-khtml-', '-o-', '-ms-'],
+        cacheExpando = 'pablo-data',
 
         head, testElement, arrayProto, supportsClassList, hyphensToCamelCase, 
-        cssClassApi, pabloCollectionApi, classlistMethod;
+        cssClassApi, pabloCollectionApi, classlistMethod, cache, cacheNextId;
 
     
     function make(elementName){
@@ -41,11 +42,10 @@
         head = document.head || document.getElementsByTagName('head')[0];
         arrayProto = Array && Array.prototype;
     }
-    
-    // Incompatible browser
+
     if (!(
-        testElement && Element && SVGElement && NodeList && HTMLDocument && 
-        head && arrayProto &&
+        testElement && head && arrayProto && 
+        Element && SVGElement && NodeList && HTMLDocument && 
         'createSVGRect' in testElement &&
         'querySelectorAll' in document &&
         'previousElementSibling' in head &&
@@ -58,7 +58,7 @@
         'every'    in arrayProto &&
         'filter'   in arrayProto
     )){
-        // Return a simplified version of the Pablo API
+        // Incompatible browser: return a simplified version of the Pablo API
         return {
             v: pabloVersion,
             isSupported: false
@@ -307,6 +307,10 @@
         return behaviour === 'filter' ? filtered :
               (behaviour === 'every'  ? true : false);
     }
+
+    // Data cache
+    cache = {};
+    cacheNextId = 1;
     
     
     /////
@@ -553,7 +557,7 @@
 
         // MANIPULATION
         
-        remove: function(){
+        detach: function(){
             return this.each(function(el){
                 var parentNode = el.parentNode;
                 if (parentNode){
@@ -561,16 +565,35 @@
                 }
             });
         },
+
+        remove: function(){
+            // If the cache has any contents
+            if (Object.keys(cache).length){
+                // Remove data for each element in the collection
+                this.removeData()
+                    // Remove data for each descendent of each element
+                    .find('*').removeData();
+            }
+
+            // Remove from the DOM
+            return this.detach();
+        },
         
         empty: function(){
-            // We use these DOM methods, instead of remove(), to ensure textNodes
-            // are also removed
-            this.each(function(el){
+            // If the cache has any contents
+            if (Object.keys(cache).length){
+                // Remove data for each descendent of elements in the collection
+                this.find('*').removeData();
+            }
+
+            // Remove elements, text and other nodes
+            // This uses native DOM methods, rather than `detach()`, to ensure that
+            // non-element nodes are also removed.
+            return this.each(function(el){
                 while (el.firstChild){
                     el.removeChild(el.firstChild);
                 }
             });
-            return this;
         },
         
         // NOTE: the following append-related functions all require attr to exist, even as a blank object, if a new element is to be created. Otherwise, if the first argument is a string, then a selection operation will be performed.
@@ -899,6 +922,110 @@
 
     /////
 
+    // DATA
+
+    (function(){
+        function removeData(el, key){
+            var id = el[cacheExpando],
+                data;
+
+            // Delete all keys
+            if (!key){
+                delete cache[id];
+            }
+
+            else {
+                // Delete a specific key
+                data = cache[id];
+                if (data){
+                    // Delete the key
+                    if (Object.keys(data).length > 1){
+                        delete cache[id][key];
+                    }
+                    // The data container is empty, so delete it
+                    else {
+                        delete cache[id];
+                    }
+                }
+            }
+        }
+
+        extend(pabloCollectionApi, {
+            data: function(key, value){
+                var id, data;
+
+                if (typeof key === 'string'){
+                    // Get value
+                    if (typeof value === 'undefined'){
+                        if (this.length){
+                            // Use the id of the first element in the collection
+                            id = this[0][cacheExpando];
+
+                            // Return the cached value, by key
+                            if (id && id in cache){
+                                return cache[id][key];
+                            }
+                        }
+                        return;
+                    }
+
+                    // Prepare object to set
+                    data = {};
+                    data[key] = value;
+                }
+
+                // First argument is an object of key-value pairs
+                else {
+                    data = key;
+                }
+
+                // Set value
+                // Allow binding and triggering events on empty collections by create a 
+                // container object to store state.
+                if (!this.length){
+                    arrayProto.push.call(this, {});
+                }
+                
+                return this.each(function(el){
+                    var id = el[cacheExpando],
+                        key;
+
+                    if (!id){
+                        id = el[cacheExpando] = cacheNextId ++;
+                        cache[id] = {};
+                    }
+
+                    if (!cache[id]){
+                        cache[id] = {};
+                    }
+
+                    for (key in data){
+                        if (data.hasOwnProperty(key)){
+                            cache[id][key] = data[key];
+                        }
+                    }
+                });
+            },
+
+            removeData: function(keys){
+                return this.each(function(el){
+                    // Remove single or multiple, space-delimited keys
+                    if (keys){
+                        this.processList(keys, function(key){
+                            removeData(el, key);
+                        });
+                    }
+                    // Remove everything
+                    else {
+                        removeData(el);
+                    }
+                });
+            }
+        });
+    }());
+
+    /////
+
 
     // DOM EVENTS
 
@@ -1178,6 +1305,9 @@
         cssPrefix: cssPrefix,
             // e.g. Pablo('svg').style().content('#foo{' + Pablo.cssPrefix('transform', 'rotate(45deg)') + '}');
             // e.g. myElement.css({'transition-property': Pablo.cssPrefix('transform')});
+
+        // data
+        cache: cache,
 
         // TODO: support `collection.append('myTemplate')`
         template: function(name, callback){
