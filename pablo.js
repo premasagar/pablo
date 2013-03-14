@@ -1540,6 +1540,14 @@
     // Set as a global variable
     root.Pablo = Pablo;
 
+    // AMD support - see amdWebGlobal pattern: https://github.com/umdjs/umd
+    // Info: http://requirejs.org/docs/whyamd.html
+    if (typeof define === 'function' && define.amd) {
+        define('pablo', function(){
+            return Pablo;
+        });
+    }
+
 }(
     this,
     this.Object,
