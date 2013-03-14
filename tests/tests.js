@@ -1072,6 +1072,19 @@ describe('Pablo', function () {
   });
 
   describe('Data', function () {
+    it('a PabloCollection which had data previously deleted should have that data if it is added again', function () {
+      var subject = Pablo.rect();
+
+      subject.data('foo', 'bar');
+      expect(subject.data('foo')).to.eql('bar');
+
+      subject.removeData('foo');
+      expect(subject.data('foo')).to.eql(undefined);
+
+      subject.data('foo', 'bar');
+      expect(subject.data('foo')).to.eql('bar');
+    });
+
     describe('.data()', function () {
       it('.data(key)', function () {
         var subject = Pablo.rect();
@@ -1222,6 +1235,24 @@ describe('Pablo', function () {
   });
 
   describe('Events', function () {
+    it('a PabloCollection which had an event previously removed should have it function if its reassigned', function (done) {
+      var subject = Pablo.rect(),
+          counter = 0;
+
+      function handler () {
+        counter++;
+        subject.off('foo', handler);
+        subject.on('foo', handler);
+        if (counter === 2) {
+          done();
+        } else {
+          subject.trigger('foo');
+        }
+      }
+
+      subject.on('foo', handler);
+      subject.trigger('foo');
+    });
 
     describe('.trigger()', function () {
       it('.trigger(eventNames)', function (done) {
@@ -1253,6 +1284,16 @@ describe('Pablo', function () {
         });
 
         subject.trigger('click focus');
+      });
+
+      it('.trigger(eventNames) works with an empty collection', function (done) {
+        var subject = Pablo();
+
+        subject.on('foo', function () {
+          done();
+        });
+
+        subject.trigger('foo');
       });
     });
 
@@ -1289,6 +1330,16 @@ describe('Pablo', function () {
       it('.on(type, listener, [useCapture]) multiple events assignments in one method call', function (done) {
         notDone();
       });
+
+      it('.on(type, listener) works with an empty collection', function (done) {        var subject = Pablo();
+        var subject = Pablo();
+
+        subject.on('foo', function () {
+          done();
+        });
+
+        subject.trigger('foo');
+      });
     });
 
     describe('.off()', function () {
@@ -1313,6 +1364,24 @@ describe('Pablo', function () {
       it('.off(type, listener, [useCapture])', function (done) {
         notDone();
       });
+
+      it('.off(type, listener) works with an empty collection', function (done) {
+        var subject = Pablo();
+
+        subject.on('click', failure);
+
+        function failure () {
+          done(new Error('The event should have been removed'));
+        }
+
+        subject.off('click', failure);
+
+        subject.trigger('click');
+
+        setTimeout(function () {
+          done();
+        }, 1600);
+      });
     });
 
     describe('.one()', function () {
@@ -1333,13 +1402,34 @@ describe('Pablo', function () {
           if (counter === 1) {
             done();
           } else {
-            done(new Error());
+            done(new Error('The event persisted'));
           }
-        })
+        }, 1600)
       });
 
       it('.one(type, listener, [useCapture])', function (done) {
         notDone();
+      });
+
+      it('.one(type, listener) works with an empty collection', function (done) {
+        var subject = Pablo(),
+            counter = 0;
+
+        subject.one('click', function () {
+          counter++;
+        });
+
+        subject.trigger('click');
+        subject.trigger('click');
+        subject.trigger('click');
+
+        setTimeout(function () {
+          if (counter === 1) {
+            done();
+          } else {
+            done(new Error('The event persisted'));
+          }
+        }, 1600)
       });
     });
 
