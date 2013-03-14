@@ -26,10 +26,9 @@ The SVG [`<use>`][use] element creates an cloned instance of another element. He
         });
 
     instances
-        // Link to the symbol
-        .link('#sign')
-        // Set coordinates with attribute arrays
+        // Link to the symbol and set coordinates with attribute arrays
         .attr({
+            'xlink:href': '#sign',
             x: [100, 0, 200, 0, 200],
             y: [50, 0, 0, 100, 100]
         });
