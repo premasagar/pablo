@@ -755,8 +755,11 @@
                         if (colonIndex >= 0){
                             nsPrefix = prop.slice(0, colonIndex);
                             nsURI = Pablo.ns[nsPrefix];
+                            el.setAttributeNS(nsURI, prop, val);
                         }
-                        el.setAttributeNS(nsURI || null, prop, val);
+                        else {
+                            el.setAttributeNS(null, prop, val);
+                        }
                     }
                 }
             }, this);
