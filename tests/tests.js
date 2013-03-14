@@ -468,18 +468,18 @@ describe('Pablo', function () {
 
     describe('Node Properties', function () {
       describe('.attr([attribute], [attributeValue])', function () {
-        it('.attr()', function () {
+        it('.attr() should return a map of attributes of the element', function () {
           expect(Pablo('#test-subjects').attr()).to.eql({
             id: "test-subjects",
             style: "display: none"
           });
         });
 
-        it('.attr(attributeName)', function () {
+        it('.attr(attributeName) should return the value of the specified attribute of the element', function () {
           expect(Pablo('#test-subjects').attr('id')).to.eql('test-subjects')
         });
 
-        it('.attr(attributeName, attributeValue)', function () {
+        it('.attr(attributeName, attributeValue) should set the value of the specified attribute of the element', function () {
           var subject = Pablo('#test-subjects');
           subject.attr('foo', 'bar');
 
@@ -548,7 +548,7 @@ describe('Pablo', function () {
       });
 
       describe('.removeAttr()', function () {
-        it('.removeAttr(attributeName)', function () {
+        it('.removeAttr(attributeName) should remove the specified attribute of the element', function () {
           var subject = Pablo('#test-subjects');
 
           subject[0].setAttribute('foo', 'bar');
@@ -559,7 +559,7 @@ describe('Pablo', function () {
       });
 
       describe('.transform()', function () {
-        it('.transform(functionName, value)', function () {
+        it('.transform(functionName, value) should add a transform attribute and value to the element', function () {
           var pCollection = Pablo([Pablo.rect(), Pablo.rect()]);
 
           pCollection.transform('rotate', '45 50 50');
@@ -570,11 +570,11 @@ describe('Pablo', function () {
       });
 
       describe('.css()', function () {
-        it('.css(property)', function () {
+        it('.css(property) should return the specified css property of the element', function () {
           expect(Pablo('#test-subjects').css('display')).to.eql('none');
         });
 
-        it('.css(property, value)', function () {
+        it('.css(property, value) should set the specified css property of the element', function () {
           var subject = Pablo('#test-subjects');
 
           subject.css('font-size', '20px');
@@ -583,7 +583,7 @@ describe('Pablo', function () {
           resetTestSubjectStyles();
         });
 
-        it('.css(styles)', function () {
+        it('.css(styles) should set the specified css properties of the element in relation to the styles map', function () {
           var subject = Pablo('#test-subjects');
 
           subject.css({
@@ -598,7 +598,7 @@ describe('Pablo', function () {
       });
 
       describe('.cssPrefix()', function () {
-        it('.cssPrefix(prop, val)', function () {
+        it('.cssPrefix(prop, val) should set and prefix the passed css property with a browser namespace', function () {
           var subject = Pablo('#test-subjects'),
               appliedWithPrefix;
 
@@ -615,13 +615,13 @@ describe('Pablo', function () {
           resetTestSubjectStyles();
         });
 
-        it('.cssPrefix(prop)', function () {
+        it('.cssPrefix(prop) should return the value of the css property of the element', function () {
           var subject = Pablo('#test-subjects');
           subject.cssPrefix('transition', 'opacity 0.5s');
           expect(subject.cssPrefix('transition')).to.eql('opacity 0.5s');
         });
 
-        it('.cssPrefix(styles)', function () {
+        it('.cssPrefix(styles) should set and prefix the css properties with a browser namespace in relation to the style map', function () {
           var subject = Pablo('#test-subjects'),
               appliedWithPrefix1,
               appliedWithPrefix2;
@@ -651,7 +651,7 @@ describe('Pablo', function () {
       });
 
       describe('.addClass()', function () {
-        it('.addClass(className)', function () {
+        it('.addClass(className) should set the class attribute on the element with the passed string', function () {
           var subject = Pablo('#test-subjects');
 
           subject.addClass('foo');
@@ -663,7 +663,7 @@ describe('Pablo', function () {
       });
 
       describe('.removeClass()', function () {
-        it('.removeClass(className)', function () {
+        it('.removeClass(className) should remove the class of the element matching the passed string', function () {
           var subject = Pablo('#test-subjects');
 
           subject[0].setAttribute('class', 'foo');
@@ -677,7 +677,7 @@ describe('Pablo', function () {
       });
 
       describe('.hasClass', function () {
-        it('.hasClass(className)', function () {
+        it('.hasClass(className) should return true or false based on if the element has that class name', function () {
           var subject = Pablo('#test-subjects');
 
           subject[0].setAttribute('class', 'foo');
@@ -690,7 +690,7 @@ describe('Pablo', function () {
       });
 
       describe('.toggleClass()', function () {
-        it('.toggleClass(className)', function () {
+        it('.toggleClass(className) should set the class on the element if it does not already have it and vice versa', function () {
           var subject = Pablo('#test-subjects');
 
           subject[0].setAttribute('class', 'foo');
@@ -708,7 +708,7 @@ describe('Pablo', function () {
       });
 
       describe('.content()', function () {
-        it('.content()', function () {
+        it('.content() should gets the innerText property of the element', function () {
           var subject = Pablo(document.createElement('a'));
 
           subject[0].innerText = 'foo';
@@ -716,7 +716,7 @@ describe('Pablo', function () {
           expect(subject.content()).to.eql('foo');
         });
 
-        it('.content(text)', function () {
+        it('.content(text) should sets the innerText property of the element', function () {
           var subject = Pablo(document.createElement('a'));
 
           subject.content('foo');
@@ -878,7 +878,7 @@ describe('Pablo', function () {
     
     describe('Collection iteration', function () {
       describe('.each()', function () {
-        it('.each(callback)', function () {
+        it('.each(callback) should iterate over every element in the collection passing to a callback the element and an iterator', function () {
           var pCollection      = Pablo([Pablo.rect(), Pablo.circle(), Pablo.a()]),
               iterationIndices = [],
               pabloItems       = [];
@@ -895,7 +895,7 @@ describe('Pablo', function () {
           expect(iterationIndices[1]).to.eql(1);
           expect(iterationIndices[2]).to.eql(2);
         });
-        it('.each(callback, context)', function () {
+        it('.each(callback, context) like above but the this property refers to the passed context', function () {
           var pCollection      = Pablo([Pablo.rect(), Pablo.circle(), Pablo.a()]),
               iterationIndices = [],
               pabloItems       = [],
@@ -921,7 +921,7 @@ describe('Pablo', function () {
       });
 
       describe('.map()', function () {
-        it('.map(iterator)', function () {
+        it('.map(iterator) returns a new array comprising of the total returned elements from the iteration callback', function () {
           var mapped = Pablo([Pablo.rect(), Pablo.circle()]).map(function (item, i) {
             return item;
           });
@@ -942,7 +942,7 @@ describe('Pablo', function () {
           expect(mapped[3] instanceof SVGAElement).to.eql(true);
         });
 
-        it('.map(iterator, context)', function () {
+        it('.map(iterator, context) like above but with the this property refering to the passed context', function () {
           var contextWasCorrect,
               context = {foo:'bar'},
               mapped = Pablo([Pablo.rect(), Pablo.circle()]).map(function (item, i) {
@@ -959,7 +959,7 @@ describe('Pablo', function () {
       });
 
       describe('.find()', function () {
-        it('.find(selectors)', function () {
+        it('.find(selectors) should return a PabloCollection representative of the matching selector matching the PabloCollection', function () {
           var pCollection = Pablo.find('#test-subjects li');
 
           expect(pCollection.length).to.eql(3);
@@ -968,7 +968,7 @@ describe('Pablo', function () {
           expect(pCollection[2].id).to.eql('test-subject-c');
         });
 
-        it('.find(selectors, context) context as Pablo object', function () {
+        it('.find(selectors, searchContext) like above but the with an additional search context as Pablo object', function () {
           var pCollection = Pablo.find('li', Pablo('#test-subjects'));
 
           expect(pCollection.length).to.eql(3);
@@ -977,7 +977,7 @@ describe('Pablo', function () {
           expect(pCollection[2].id).to.eql('test-subject-c');
         });
 
-        it('.find(selectors, context) context as selector', function () {
+        it('.find(selectors, searchContext) like above but with an additional search context as selector', function () {
           var pCollection = Pablo.find('li', '#test-subjects');
 
           expect(pCollection.length).to.eql(3);
@@ -986,7 +986,7 @@ describe('Pablo', function () {
           expect(pCollection[2].id).to.eql('test-subject-c');
         });
 
-        it('.find(selectors, context) context as DOM Element', function () {
+        it('.find(selectors, searchContext) like above but with an additional search context as DOM Element', function () {
           var pCollection = Pablo.find('li', Pablo('#test-subjects')[0]);
 
           expect(pCollection.length).to.eql(3);
@@ -997,7 +997,7 @@ describe('Pablo', function () {
       });
 
       describe('.pluck()', function () {
-        it('.pluck(property)', function () {
+        it('.pluck(property) should return an array of values of default type attributes for each element in the collection', function () {
           var pCollection = Pablo([
                               Pablo.rect({foo: '123'}),
                               Pablo.ellipse({foo: '456'})
@@ -1008,7 +1008,7 @@ describe('Pablo', function () {
           expect(arr[1]).to.eql('456');
         });
 
-        it('.pluck(property, [attr])', function () {
+        it('.pluck(property, [attr]) should return an array of values of the type attributes for each element in the collection', function () {
           var pCollection = Pablo([
                               Pablo.rect({foo: '123'}),
                               Pablo.ellipse({foo: '456'})
@@ -1019,7 +1019,7 @@ describe('Pablo', function () {
           expect(arr[1]).to.eql('456');
         });
 
-        it('.pluck(property, [prop])', function () {
+        it('.pluck(property, [prop]) like above but with the type being a property set on the object', function () {
           var pCollection = Pablo([Pablo.rect(), Pablo.ellipse()]),
               arr;
           
@@ -1032,7 +1032,7 @@ describe('Pablo', function () {
           expect(arr[1]).to.eql('456');
         });
 
-        it('.pluck(property, [data])', function () {
+        it('.pluck(property, [data]) like above but with the type being a pablo data value', function () {
           var pCollection = Pablo([Pablo.rect(), Pablo.ellipse()]),
               arr;
 
@@ -1045,7 +1045,7 @@ describe('Pablo', function () {
           expect(arr[1]).to.eql('456');
         });
 
-        it('.pluck(property, [css])', function () {
+        it('.pluck(property, [css]) like above but with the type being a css rule', function () {
           var pCollection = Pablo([
                               Pablo('span', {style: 'display: block'}),
                               Pablo('span', {style: 'display: inline'})
@@ -1058,7 +1058,7 @@ describe('Pablo', function () {
           expect(arr[1]).to.eql('inline');
         });
 
-        it('.pluck(property, [cssPrefix])', function () {
+        it('.pluck(property, [cssPrefix]) like above but with the type being a prefixed css rule', function () {
           var pCollection = Pablo([Pablo.rect(), Pablo.ellipse()]),
               arr;
 
@@ -1074,7 +1074,7 @@ describe('Pablo', function () {
     });
 
     describe('Misc', function () {
-      describe('.clone()', function () {
+      describe('.clone() should return a shallow copy of the PabloCollection', function () {
         it('.clone()', function () {
           var original = Pablo.rect({foo: 'bar'}),
               clone    = original.clone();
@@ -1084,7 +1084,7 @@ describe('Pablo', function () {
           expect(clone[0].getAttribute('foo')).to.eql('bar');
         });
 
-        it('.clone([isDeep])', function () {
+        it('.clone([isDeep]) should return a deep copy (includes children, events and data) of the PabloCollection', function () {
           var pCollection = Pablo.rect(),
               clone;
 
@@ -1096,7 +1096,7 @@ describe('Pablo', function () {
       });
 
       describe('.duplicate()', function () {
-        it('.duplicate()', function () {
+        it('.duplicate() should change the length of the PabloCollection by duplicating it with itself', function () {
           var pCollection = Pablo.rect();
 
           pCollection.ellipse({foo: 'bar'});
@@ -1112,7 +1112,7 @@ describe('Pablo', function () {
           expect(pCollection[1].firstChild.getAttribute('foo')).to.eql('bar');
         });
 
-        it('.duplicate([repeat])', function () {
+        it('.duplicate([repeat]) should change the length of the array up to the specified integer by duplicating it with itself', function () {
           var pCollection = Pablo.rect();
 
           pCollection.ellipse({foo: 'bar'});
