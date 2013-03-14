@@ -74,7 +74,7 @@ Start drawing:
 BTW, these runnable code snippets are editable (except on mobiles). Just edit the code and run again.
 
 
-**See the [API Reference][reference] for full details.**
+**See the [API Reference][api] for full details.**
 
 ## Tests
 
@@ -101,7 +101,7 @@ It's early days, so your feedback is welcome. For bug reports and requests, plea
 [raphael]: http://raphaeljs.com
 [jquery]: http://jquery.com
 [_]: http://underscorejs.org
-[reference]: http://pablojs.com/reference/
+[api]: http://pablojs.com/api/
 [docs-folder]: https://github.com/dharmafly/pablo/tree/master/docs
 [pull-requests]: https://help.github.com/articles/using-pull-requests
 [markdown-syntax]: http://daringfireball.net/projects/markdown/syntax

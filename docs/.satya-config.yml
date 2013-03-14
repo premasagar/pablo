@@ -32,8 +32,8 @@ download_links:
 sections:
  - path: /index.html
    name: Overview
- - path: /reference/index.html
-   name: Reference
+ - path: /api/index.html
+   name: API
  - path: /resources/index.html
    name: Resources
 
