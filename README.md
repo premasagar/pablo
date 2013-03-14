@@ -19,7 +19,7 @@ Pablo can create anything that SVG can. It simplifies the task of generating, mo
 
 ## Getting started
 
-For production, download <a href="https://github.com/downloads/dharmafly/pablo/pablo.min.js" target="_blank">the minified script</a> and call it from your HTML:
+For production, download <a href="https://raw.github.com/dharmafly/pablo/master/build/pablo.min.js" target="_blank">the minified script</a> and call it from your HTML:
 
     <script src="pablo.min.js"></script>
 
@@ -39,7 +39,7 @@ Check that the browser supports basic SVG:
 Start drawing:
 
     /* Inside an HTML element, append an <svg> root */
-    var paper = Pablo(demoElement).root({height:220}),
+    var paper = Pablo(demoElement).svg({height:220}),
         /* Create <circle> element, with attributes */
         circle = paper.circle({
             cy: '50%',
@@ -78,8 +78,7 @@ BTW, these runnable code snippets are editable (except on mobiles). Just edit th
 
 ## Tests
 
-The test suite is not completed yet but developers are free to run it in their 
-browser via `tests/index.html`.
+The (currently incomplete) [test suite][tests] is available to run in the browser at `tests/index.html`.
 
 ## Extra
 
@@ -96,11 +95,12 @@ It's early days, so your feedback is welcome. For bug reports and requests, plea
 [pablo-site]: http://pablojs.com
 [repo]: https://github.com/dharmafly/pablo
 [issues]: https://github.com/dharmafly/pablo/issues
+[tests]: https://github.com/dharmafly/pablo/tree/master/tests
 [changelog]: http://pablojs.com/details/#changelog
 [pablo-min]: https://github.com/downloads/dharmafly/pablo/pablo.min.js
 [raphael]: http://raphaeljs.com
 [jquery]: http://jquery.com
-[_]: http://documentcloud.github.com/underscore/
+[_]: http://underscorejs.org
 [reference]: http://pablojs.com/reference/
 [docs-folder]: https://github.com/dharmafly/pablo/tree/master/docs
 [pull-requests]: https://help.github.com/articles/using-pull-requests
