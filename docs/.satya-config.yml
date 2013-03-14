@@ -3,14 +3,14 @@
 
 project_name: Pablo
 project_url: https://github.com/dharmafly/pablo
-version: '0.2.3'
+version: '0.3.0'
 # options: forest, ocean, horus, seagrass, sundae, slate
 theme: horus
 twitter_url: https://twitter.com/dharmafly
 # options: javascript, css, html5
 lang: javascript
 scripts:
-- src: http://cloud.github.com/downloads/dharmafly/pablo/pablo.min.js
+- src: https://raw.github.com/dharmafly/pablo/master/build/pablo.min.js
 quote:
 - quote: Painting is just another way of keeping a diary.
 - cite: Pablo Picasso
@@ -23,7 +23,7 @@ download_links:
     title: Full source code, for use in development
   - text: pablo.min.js
     subtext: v{{ version }}
-    href: http://cloud.github.com/downloads/dharmafly/pablo/pablo.min.js
+    href: https://raw.github.com/dharmafly/pablo/master/build/pablo.min.js
     title: Minified, for use in production
   - text: Edge
     subtext: (master)
@@ -32,8 +32,8 @@ download_links:
 sections:
  - path: /index.html
    name: Overview
- - path: /reference/index.html
-   name: Reference
+ - path: /api/index.html
+   name: API
  - path: /resources/index.html
    name: Resources
 

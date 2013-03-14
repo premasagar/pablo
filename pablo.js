@@ -19,9 +19,11 @@
         svgns = 'http://www.w3.org/2000/svg',
         xlinkns = 'http://www.w3.org/1999/xlink',
         vendorPrefixes = ['', '-moz-', '-webkit-', '-khtml-', '-o-', '-ms-'],
+        cacheExpando = 'pablo-data',
+        eventsNamespace = '__events',
 
         head, testElement, arrayProto, supportsClassList, hyphensToCamelCase, 
-        cssClassApi, pabloCollectionApi, classlistMethod;
+        cssClassApi, pabloCollectionApi, classlistMethod, cache, cacheNextId;
 
     
     function make(elementName){
@@ -41,11 +43,10 @@
         head = document.head || document.getElementsByTagName('head')[0];
         arrayProto = Array && Array.prototype;
     }
-    
-    // Incompatible browser
+
     if (!(
-        testElement && Element && SVGElement && NodeList && HTMLDocument && 
-        head && arrayProto &&
+        testElement && head && arrayProto && 
+        Element && SVGElement && NodeList && HTMLDocument && 
         'createSVGRect' in testElement &&
         'querySelectorAll' in document &&
         'previousElementSibling' in head &&
@@ -58,7 +59,7 @@
         'every'    in arrayProto &&
         'filter'   in arrayProto
     )){
-        // Return a simplified version of the Pablo API
+        // Incompatible browser: return a simplified version of the Pablo API
         return {
             v: pabloVersion,
             isSupported: false
@@ -307,6 +308,10 @@
         return behaviour === 'filter' ? filtered :
               (behaviour === 'every'  ? true : false);
     }
+
+    // Data cache
+    cache = {};
+    cacheNextId = 1;
     
     
     /////
@@ -553,7 +558,7 @@
 
         // MANIPULATION
         
-        remove: function(){
+        detach: function(){
             return this.each(function(el){
                 var parentNode = el.parentNode;
                 if (parentNode){
@@ -561,16 +566,35 @@
                 }
             });
         },
+
+        remove: function(){
+            // If the cache has any contents
+            if (Object.keys(cache).length){
+                // Remove data for each element in the collection
+                this.removeData()
+                    // Remove data for each descendent of each element
+                    .find('*').removeData();
+            }
+
+            // Remove from the DOM
+            return this.detach();
+        },
         
         empty: function(){
-            // We use these DOM methods, instead of remove(), to ensure textNodes
-            // are also removed
-            this.each(function(el){
+            // If the cache has any contents
+            if (Object.keys(cache).length){
+                // Remove data for each descendent of elements in the collection
+                this.find('*').removeData();
+            }
+
+            // Remove elements, text and other nodes
+            // This uses native DOM methods, rather than `detach()`, to ensure that
+            // non-element nodes are also removed.
+            return this.each(function(el){
                 while (el.firstChild){
                     el.removeChild(el.firstChild);
                 }
             });
-            return this;
         },
         
         // NOTE: the following append-related functions all require attr to exist, even as a blank object, if a new element is to be created. Otherwise, if the first argument is a string, then a selection operation will be performed.
@@ -893,29 +917,8 @@
                 }
             }
             return this.css(cssPrefix(styles));
-        }
-    });
-
-
-    /////
-
-
-    // DOM EVENTS
-
-    // TODO: support getValue for `type`?
-    function addRemoveListener(domMethod){
-        return function(type, listener, useCapture){
-            // `type` can be a single event type, or a space-delimited list
-            return this.processList(type, function(type){
-                this.each(function(el){
-                    // Add or remove the listener
-                    el[domMethod](type, listener, useCapture || false);
-                });
-            });
-        };
-    }
-
-    extend(pabloCollectionApi, {
+        },
+        
         processList: function(item, fn){
             var collection = this;
 
@@ -932,28 +935,204 @@
             return this;
         },
 
-        on: addRemoveListener('addEventListener'),
 
-        // Note that if a listener has been added multiple times to an element, 
-        // then it must be removed as many times.
-        off: addRemoveListener('removeEventListener'),
+        // EVENTS
+
+        on: function(type, selectors, listener, useCapture, context){
+            var wrapper, eventData;
+
+            // `selectors` argument not given
+            // TODO: `selectors` should be allowed to be a function
+            // but can't just check if listener is not a function
+            if (typeof selectors === 'function'){
+                context = useCapture;
+                useCapture = listener;
+                listener = selectors;
+                selectors = null;
+            }
+            if (typeof useCapture === 'undefined'){
+                useCapture = false;
+            }
+
+            // Allow binding and triggering events on empty collections
+            // Create a container object to store state
+            if (!this.length){
+                Array.prototype.push.call(this, {});
+            }
+
+            // `listener` is the original callback function
+            // `wrapper` is the function actually applied to the DOM element, and 
+            // may modify the original listener, e.g. by changing the `this` object
+
+            // If a `this` object is given, then bind the listener to the required 
+            // `this` context
+            // TODO: change default context to collection instead of DOM element?
+            if (context){
+                wrapper = function(){
+                    listener.apply(context, arguments);
+                };
+            }
+
+            // Prepare data to cache about the event
+            eventData = {
+                selectors:  selectors,
+                listener:   listener,
+                wrapper:    wrapper || listener,
+                useCapture: useCapture
+            };
+
+            // If there are multiple, space-delimited event types, then cycle 
+            // through each one
+            return this.processList(type, function(type){
+                // Cycle through each element in the collection
+                this.each(function(el){
+                    var node = this.length === 1 ? this : Pablo(el),
+                        eventsCache = node.data(eventsNamespace),
+                        cache;
+
+                    if (!eventsCache){
+                        eventsCache = {};
+                        node.data(eventsNamespace, eventsCache);
+                    }
+                
+                    cache = eventsCache[type];
+                    if (!cache){
+                        cache = eventsCache[type] = [];
+                    }
+
+                    // `selectors` have been supplied, to set a delegate event
+                    if (selectors){
+                        // Overwrite the wrapper to make it check that the event
+                        // originated on an element matching the selectors
+                        wrapper = function(event){
+                            // Call listener if manually triggered with `trigger()`
+                            // or the event target matches the selector
+                            if (!event ||
+                                !event.target ||
+                                Pablo(event.target).is(selectors, node)
+                            ){
+                                listener.apply(context || el, arguments);
+                            }
+                        };
+                        // Overwrite the wrapper in the data to be cached
+                        eventData.wrapper = wrapper;
+                    }
+
+                    // Add to cache
+                    cache.push(eventData);
+
+                    // Add DOM listener
+                    if ('addEventListener' in el){
+                        el.addEventListener(type, wrapper || listener, useCapture);
+                    }
+                });
+            });
+        },
+
+        off: function(type, selectors, listener, useCapture){
+            // `selectors` argument not given
+            if (typeof selectors === 'function'){
+                useCapture = listener;
+                listener = selectors;
+                selectors = null;
+            }
+            if (typeof useCapture === 'undefined'){
+                useCapture = false;
+            }
+            
+            // If there are multiple, space-delimited event types, then cycle 
+            // through each one
+            return this.processList(type, function(type){
+                this.each(function(el){
+                    var node = this.length === 1 ? this : Pablo(el),
+                        eventsCache = node.data(eventsNamespace),
+                        cache, cachedType;
+
+                    if (!eventsCache){
+                        return;
+                    }
+
+                    // Remove all event listeners
+                    if (!type){
+                        for (cachedType in eventsCache){
+                            if (eventsCache.hasOwnProperty(cachedType)){
+                                node.off(cachedType);
+                            }
+                        }
+                        return;
+                    }
+
+                    cache = eventsCache[type];
+                    if (!cache || !cache.length){
+                        return;
+                    }
+
+                    // Remove DOM listeners and delete from cache. This uses a `some`
+                    // loop rather than `forEach` to allow breaking. And it uses
+                    // `some` rather than a `for` loop as the cache is a sparse array.
+                    cache.some(function(eventData, i){
+                        if (
+                            // If a listener has been passed, is this it?
+                            (listener  === eventData.listener &&
+                            useCapture === eventData.useCapture &&
+                            selectors  === eventData.selectors) ||
+
+                            // Or if no listener was passed...
+                            (!listener && (
+                                !selectors || selectors === eventData.selectors
+                            )
+                        )){
+                            // Remove DOM listener
+                            if ('removeEventListener' in el){
+                                el.removeEventListener(type, eventData.wrapper, eventData.useCapture);
+                            }
+
+                            // If looking for a specific listener, remove from cache
+                            // and break the loop. NOTE: if the listener was set 
+                            // multiple times, it will need removal multiple times.
+                            if (listener){
+                                delete cache[i];
+                                return true;
+                            }
+                        }
+                    });
+
+                    // Delete the cache container for this event type, if empty
+                    if (!listener || !Object.keys(eventsCache[type]).length){
+                        delete eventsCache[type];
+                    }
+                    // Delete the events container for this element, if empty
+                    if (!Object.keys(eventsCache).length){
+                        node.removeData(eventsNamespace); 
+                    }
+                });
+            });
+        },
 
         // Trigger listener once per collection
-        one: function(type, listener, useCapture, context){
+        one: function(type, selectors, listener, useCapture, context){
             var collection = this;
+
+            // `selectors` argument not given
+            if (typeof selectors === 'function'){
+                context = useCapture;
+                useCapture = listener;
+                listener = selectors;
+                selectors = null;
+            }
 
             function removeListener(){
                 // Remove listener and additional listener
-                collection.off(type, listener,       useCapture, context)
-                          .off(type, removeListener, useCapture, context);
+                collection.off(type, selectors, listener,       useCapture, context)
+                          .off(type, selectors, removeListener, useCapture, context);
             }
 
             // Add the original listener, and an additional listener that removes
-            // the first, and itself. The reason a wrapper listener is not used
+            // the first, and itself. The reason a single wrapper is not used
             // instead of two separate listeners is to allow manual removal of
             // the original listener (with `.off()`) before it ever triggers.
-            return this.on(type, listener,       useCapture, context)
-                       .on(type, removeListener, useCapture, context);
+            return this.on(type, selectors, listener,       useCapture, context)
+                       .on(type, selectors, removeListener, useCapture, context);
         },
 
         // Trigger listener once per element in the collection
@@ -964,8 +1143,137 @@
                 var node = Pablo(el);
                 node.one.apply(node, args);
             });
+        },
+
+        // TODO: optional `context` as second argument?
+        trigger: function(type /*, arbitrary args to pass to listener*/){
+            var args = arguments.length > 1 ?
+                Pablo.toArray(arguments).slice(1) : null;
+
+            return this.each(function(el){
+                var node = this.length === 1 ? this : Pablo(el),
+                    eventsCache = node.data(eventsNamespace);
+
+                if (eventsCache){
+                    // If there are multiple, space-delimited event types, then cycle 
+                    // through each one
+                    this.processList(type, function(type){
+                        var cache = eventsCache[type];
+                        if (cache){
+                            cache.forEach(function(eventData){
+                                eventData.wrapper.apply(node, args);
+                            }, node);
+                        }
+                    });
+                }
+            });
         }
     });
+
+
+    /////
+
+    // DATA
+
+    (function(){
+        function removeData(el, key){
+            var id = el[cacheExpando],
+                data;
+
+            // Delete all keys
+            if (!key){
+                delete cache[id];
+            }
+
+            else {
+                // Delete a specific key
+                data = cache[id];
+                if (data){
+                    // Delete the key
+                    if (Object.keys(data).length > 1){
+                        delete cache[id][key];
+                    }
+                    // The data container is empty, so delete it
+                    else {
+                        delete cache[id];
+                    }
+                }
+            }
+        }
+
+        extend(pabloCollectionApi, {
+            data: function(key, value){
+                var id, data;
+
+                if (typeof key === 'string'){
+                    // Get value
+                    if (typeof value === 'undefined'){
+                        if (this.length){
+                            // Use the id of the first element in the collection
+                            id = this[0][cacheExpando];
+
+                            // Return the cached value, by key
+                            if (id && id in cache){
+                                return cache[id][key];
+                            }
+                        }
+                        return;
+                    }
+
+                    // Prepare object to set
+                    data = {};
+                    data[key] = value;
+                }
+
+                // First argument is an object of key-value pairs
+                else {
+                    data = key;
+                }
+
+                // Set value
+                // Allow binding and triggering events on empty collections by create a 
+                // container object to store state.
+                if (!this.length){
+                    arrayProto.push.call(this, {});
+                }
+                
+                return this.each(function(el){
+                    var id = el[cacheExpando],
+                        key;
+
+                    if (!id){
+                        id = el[cacheExpando] = cacheNextId ++;
+                        cache[id] = {};
+                    }
+
+                    if (!cache[id]){
+                        cache[id] = {};
+                    }
+
+                    for (key in data){
+                        if (data.hasOwnProperty(key)){
+                            cache[id][key] = data[key];
+                        }
+                    }
+                });
+            },
+
+            removeData: function(keys){
+                return this.each(function(el){
+                    // Remove single or multiple, space-delimited keys
+                    if (keys){
+                        this.processList(keys, function(key){
+                            removeData(el, key);
+                        });
+                    }
+                    // Remove everything
+                    else {
+                        removeData(el);
+                    }
+                });
+            }
+        });
+    }());
 
 
     /////
@@ -1178,6 +1486,9 @@
         cssPrefix: cssPrefix,
             // e.g. Pablo('svg').style().content('#foo{' + Pablo.cssPrefix('transform', 'rotate(45deg)') + '}');
             // e.g. myElement.css({'transition-property': Pablo.cssPrefix('transform')});
+
+        // data
+        cache: cache,
 
         // TODO: support `collection.append('myTemplate')`
         template: function(name, callback){

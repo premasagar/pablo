@@ -218,8 +218,6 @@ describe('Pablo', function () {
           var pCollection = Pablo.rect().append(Pablo.circle()).append(Pablo.circle());
           Pablo(pCollection[0].childNodes).before(Pablo.ellipse({foo:'bar'}));
 
-          notDone();
-
           expect(pCollection[0].childNodes.length).to.eql(4);
           expect(pCollection[0].childNodes[0] instanceof SVGEllipseElement).to.eql(true);
           expect(pCollection[0].childNodes[2] instanceof SVGEllipseElement).to.eql(true);
@@ -292,8 +290,6 @@ describe('Pablo', function () {
           var pCollection = Pablo.rect().append(Pablo.circle()).append(Pablo.circle());
           Pablo.ellipse({foo:'bar'}).insertAfter(pCollection[0].childNodes);
 
-          notDone();
-
           expect(pCollection[0].childNodes.length).to.eql(4);
           expect(pCollection[0].childNodes[1] instanceof SVGEllipseElement).to.eql(true);
           expect(pCollection[0].childNodes[3] instanceof SVGEllipseElement).to.eql(true);
@@ -305,13 +301,44 @@ describe('Pablo', function () {
           var pCollection = Pablo.rect().append(Pablo.circle()).append(Pablo.circle());
           Pablo('ellipse', {foo:'bar'}).insertAfter(pCollection[0].childNodes);
 
-          notDone();
-
           expect(pCollection[0].childNodes.length).to.eql(4);
           expect(pCollection[0].childNodes[1] instanceof SVGEllipseElement).to.eql(true);
           expect(pCollection[0].childNodes[3] instanceof SVGEllipseElement).to.eql(true);
           expect(pCollection[0].childNodes[1].getAttribute('foo')).to.eql('bar');
           expect(pCollection[0].childNodes[3].getAttribute('foo')).to.eql('bar');
+        });
+      });
+
+      describe('.empty()', function () {
+        it('.empty()', function () {
+          var saved   = document.querySelectorAll('#test-subjects li'),
+              subject = Pablo('#test-subjects'),
+              cLength;
+
+          subject.empty();
+          cLength = subject[0].childNodes.length;
+
+          document.getElementById('test-subjects').appendChild(saved[0]);
+          document.getElementById('test-subjects').appendChild(saved[1]);
+          document.getElementById('test-subjects').appendChild(saved[2]);
+
+          expect(cLength).to.eql(0);
+        });
+      });
+
+      describe('.remove()', function () {
+        it('.remove()', function () {
+          var saved   = document.querySelectorAll('#test-subjects')[0],
+              subject = Pablo('#test-subjects'),
+              length;
+
+          subject.remove();
+
+          length = document.querySelectorAll('#test-subjects').length;
+
+          document.body.appendChild(saved, document.getElementById('mocha'));
+
+          expect(length).to.eql(0);
         });
       });
     });
@@ -691,39 +718,6 @@ describe('Pablo', function () {
           expect(subject[0].innerText).to.eql('foo');
         });
       });
-
-      describe('.empty()', function () {
-        it('.empty()', function () {
-          var saved   = document.querySelectorAll('#test-subjects li'),
-              subject = Pablo('#test-subjects'),
-              cLength;
-
-          subject.empty();
-          cLength = subject[0].childNodes.length;
-
-          document.getElementById('test-subjects').appendChild(saved[0]);
-          document.getElementById('test-subjects').appendChild(saved[1]);
-          document.getElementById('test-subjects').appendChild(saved[2]);
-
-          expect(cLength).to.eql(0);
-        });
-      });
-
-      describe('.remove()', function () {
-        it('.remove()', function () {
-          var saved   = document.querySelectorAll('#test-subjects')[0],
-              subject = Pablo('#test-subjects'),
-              length;
-
-          subject.remove();
-        
-          length = document.querySelectorAll('#test-subjects').length;
-
-          document.body.appendChild(saved, document.getElementById('mocha'));
-
-          expect(length).to.eql(0);
-        });
-      });
     });
 
     describe('Collection manipulation', function () {
@@ -746,8 +740,8 @@ describe('Pablo', function () {
         });
       });
 
-      describe('.push()', function () {
-        it('.push(elements) should mutate the Pablo Collection and return itself', function () {
+      describe('.push() alias .add()', function () {
+        it('.push(elements)/.add(elements) should mutate the Pablo Collection and return itself', function () {
           var pCollection = Pablo('#test-subjects li'),
               returned    = pCollection.push([Pablo.rect(), Pablo.circle()]);
 
@@ -759,37 +753,7 @@ describe('Pablo', function () {
           expect(pCollection[3] instanceof SVGRectElement).to.eql(true);
           expect(pCollection[4] instanceof SVGCircleElement).to.eql(true);
         });
-        it('.push(elements...) as argument list should mutate the Pablo Collection and return itself', function () {
-          var pCollection = Pablo('#test-subjects li'),
-              returned    = pCollection.push(Pablo.rect(), Pablo.circle());
-
-          expect(returned).to.eql(pCollection);
-          expect(pCollection.length).to.eql(5);
-          expect(pCollection[0].id).to.eql('test-subject-a');
-          expect(pCollection[1].id).to.eql('test-subject-b');
-          expect(pCollection[2].id).to.eql('test-subject-c');
-          expect(pCollection[3] instanceof SVGRectElement).to.eql(true);
-          expect(pCollection[4] instanceof SVGCircleElement).to.eql(true);
-        });
-      });
-
-      describe('.add()', function () {
-        it('.add(elements) should mutate the Pablo Collection and return itself', function () {
-          // alias for push
-          var pCollection = Pablo('#test-subjects li'),
-              returned    = pCollection.push([Pablo.rect(), Pablo.circle()]);
-
-          expect(returned).to.eql(pCollection);
-          expect(pCollection.length).to.eql(5);
-          expect(pCollection[0].id).to.eql('test-subject-a');
-          expect(pCollection[1].id).to.eql('test-subject-b');
-          expect(pCollection[2].id).to.eql('test-subject-c');
-          expect(pCollection[3] instanceof SVGRectElement).to.eql(true);
-          expect(pCollection[4] instanceof SVGCircleElement).to.eql(true);
-        });
-
-        it('.add(elements...) as argument list should mutate the Pablo Collection and return itself', function () {
-          // alias for push
+        it('.push(elements...)/.add(elements...) as argument list should mutate the Pablo Collection and return itself', function () {
           var pCollection = Pablo('#test-subjects li'),
               returned    = pCollection.push(Pablo.rect(), Pablo.circle());
 
@@ -1085,30 +1049,57 @@ describe('Pablo', function () {
           expect(pCollection[2].firstChild.getAttribute('foo')).to.eql('bar');
         });
       });
+
+      describe('.some() alias .is()', function () {
+        it('.some()/.is()', function () {
+          notDone();
+        });
+      });
+
+      describe('.processList()', function () {
+        it('processList(list, callback)', function () {
+          var items = [];
+
+          Pablo().processList('foo bar', function (item) {
+            items.push(item);
+          });
+
+          expect(items[0]).to.eql('foo');
+          expect(items[1]).to.eql('bar');
+        });
+      });
     });
   });
 
   describe('Data', function () {
-    describe('data()', function () {
-      it('data(key)', function () {
+    describe('.data()', function () {
+      it('.data(key)', function () {
         var subject = Pablo.rect();
         subject.data('foo', 'bar');
         expect(subject.data('foo')).to.eql('bar');
       });
 
-      it('data(key, [value])', function () {
+      it('.data(key, [value])', function () {
         var subject = Pablo.rect();
         subject.data('foo', 'bar');
         expect(subject.data('foo')).to.eql('bar');
       });
 
-      it('data(option)', function () {
-        notDone();
+      it('.data(option)', function () {
+        var subject = Pablo.rect();
+
+        subject.data({
+          foo: 'bar',
+          fiz: 123
+        });
+
+        expect(subject.data('foo')).to.eql('bar');
+        expect(subject.data('fiz')).to.eql(123);
       });
     });
 
-    describe('removeData()', function () {
-      it('removeData()', function () {
+    describe('.removeData()', function () {
+      it('.removeData()', function () {
         var subject = Pablo.rect();
         subject.data('foo', 'bar');
         subject.data('fiz', 'buz');
@@ -1122,7 +1113,7 @@ describe('Pablo', function () {
         expect(subject.data('fiz')).to.eql(undefined);
       });
 
-      it('removeData([keys])', function () {
+      it('.removeData([keys])', function () {
         var subject = Pablo.rect();
         subject.data('foo', 'bar');
         subject.data('fiz', 'buz');
@@ -1136,13 +1127,23 @@ describe('Pablo', function () {
         expect(subject.data('fiz')).to.eql('buz');
       });
 
-      it('removeData([keys]) multiple keys', function () {
-        notDone();
+      it('.removeData([keys]) multiple keys', function () {
+        var subject = Pablo.rect();
+
+        subject.data('foo', 'bar');
+        subject.data('fiz', 'buz');
+        subject.data('zip', 'zap');
+
+        subject.removeData('foo fiz');
+
+        expect(subject.data('foo')).to.eql(undefined);
+        expect(subject.data('fiz')).to.eql(undefined);
+        expect(subject.data('zip')).to.eql('zap');
       });
     });
 
-    describe('detach()', function () {
-      it('detach()', function () {
+    describe('.detach()', function () {
+      it('.detach()', function () {
         var subject = Pablo.rect().append([Pablo.ellipse(), Pablo.line()]);
 
         subject.data('foo', 'bar');
@@ -1161,40 +1162,61 @@ describe('Pablo', function () {
       });
     });
 
-    describe('remove()', function () {
-      it('.remove() should remove data on the removed element and its children ', function () {        
-        var subject = Pablo.rect().append([Pablo.ellipse(), Pablo.line()]);
+    describe('.remove()', function () {
+      it('.remove() should remove data on the removed element and its descendants ', function () {        
+        var subject = Pablo.rect().append([Pablo.ellipse(), Pablo.ellipse()]);
+
+        subject.children().eq(0).append(Pablo.circle());
+        subject.children().eq(1).append(Pablo.circle());
 
         subject.data('foo', 'bar');
         subject.children().eq(0).data('foo', 'bar');
         subject.children().eq(1).data('foo', 'bar');
+        subject.children().eq(0).firstChild().data('foo','bar');
+        subject.children().eq(1).firstChild().data('foo','bar');
 
         expect(subject.data('foo')).to.eql('bar');
         expect(subject.children().eq(0).data('foo')).to.eql('bar');
         expect(subject.children().eq(1).data('foo')).to.eql('bar');
+        expect(subject.children().eq(0).firstChild().data('foo')).to.eql('bar');
+        expect(subject.children().eq(1).firstChild().data('foo')).to.eql('bar');
 
         subject.remove();
 
         expect(subject.data('foo')).to.eql(undefined);
         expect(subject.children().eq(0).data('foo')).to.eql(undefined);
         expect(subject.children().eq(1).data('foo')).to.eql(undefined);
+        expect(subject.children().eq(0).firstChild().data('foo')).to.eql(undefined);
+        expect(subject.children().eq(1).firstChild().data('foo')).to.eql(undefined);
       });
     });
 
-    describe('empty()', function () {
-      it('.empty()', function () {
-        var saved   = document.querySelectorAll('#test-subjects li'),
-            subject = Pablo('#test-subjects'),
-            cLength;
+    describe('.empty()', function () {
+      it('.empty() should remove data on the element\'s descendants', function () {
+        var subject = Pablo.rect().append([Pablo.ellipse(), Pablo.line()]);
+
+        subject.children().eq(0).append(Pablo.circle());
+        subject.children().eq(1).append(Pablo.circle());
+
+        subject.data('foo', 'bar');
+        subject.children().eq(0).data('foo', 'bar');
+        subject.children().eq(1).data('foo', 'bar');
+        subject.children().eq(0).firstChild().data('foo','bar');
+        subject.children().eq(1).firstChild().data('foo','bar');
+
+        expect(subject.data('foo')).to.eql('bar');
+        expect(subject.children().eq(0).data('foo')).to.eql('bar');
+        expect(subject.children().eq(1).data('foo')).to.eql('bar');
+        expect(subject.children().eq(0).firstChild().data('foo')).to.eql('bar');
+        expect(subject.children().eq(1).firstChild().data('foo')).to.eql('bar');
 
         subject.empty();
-        cLength = subject[0].childNodes.length;
 
-        document.getElementById('test-subjects').appendChild(saved[0]);
-        document.getElementById('test-subjects').appendChild(saved[1]);
-        document.getElementById('test-subjects').appendChild(saved[2]);
-
-        expect(cLength).to.eql(0);
+        expect(subject.data('foo')).to.eql('bar');
+        expect(subject.children().eq(0).data('foo')).to.eql(undefined);
+        expect(subject.children().eq(1).data('foo')).to.eql(undefined);
+        expect(subject.children().eq(0).firstChild().data('foo')).to.eql(undefined);
+        expect(subject.children().eq(1).firstChild().data('foo')).to.eql(undefined);
       });
     });
   });
