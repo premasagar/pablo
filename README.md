@@ -3,7 +3,7 @@
 **For full documentation and interactive examples, see [pablojs.com][pablo-site].**
 
 
-**[Pablo][pablo-site]** is a high-performance JavaScript wrapper library for SVG ([scalable vector graphics][svg]). It's a bit like [Raphaël][raphael] + [jQuery][jquery] + [Underscore][_]. In just 3KB, with no dependencies.
+**[Pablo][pablo-site]** is a high-performance JavaScript library for creating and manipulating SVG ([scalable vector graphics][svg]). Its API is inspired by [jQuery][jquery], [Underscore][_] and [Raphaël][raphael]. It targets modern desktop and mobile browsers, and is less than 5KB, with no dependencies.
 
 _Some example uses:_ interactive drawings, data visualisation, games, responsive graphics and rich visual interfaces.
 
@@ -11,10 +11,12 @@ Pablo is low-level, lightweight and expressive. It exposes a simple interface th
 
 Pablo can create anything that SVG can. It simplifies the task of generating, modifying and interacting with the graphics, and connecting it to the other parts of a JavaScript program.
 
+[See the API Reference][api] for Pablo's extensive API.
+
 - By [Premasagar Rose][prem] ([Dharmafly][df])
 - Repo: [github.com/dharmafly/pablo][repo]
 - Open source: [MIT license][mit]
-- 3KB [minified & gzipped][pablo-min]
+- <5KB [minified & gzipped][pablo-min]
 
 
 ## Getting started
@@ -69,9 +71,6 @@ Start drawing:
             / * Apply new attributes to the <circle> element */
             circle.attr({cx:cx, fill:color});
         });
-
-
-BTW, these runnable code snippets are editable (except on mobiles). Just edit the code and run again.
 
 
 **See the [API Reference][api] for full details.**
