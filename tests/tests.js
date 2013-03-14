@@ -1399,82 +1399,82 @@ describe('Pablo', function () {
       var d = Pablo(document);
 
       it('.append(elements)', function () {
-        d.append(Pablo.circle());
+        d.append(document.createElement('span'));
         d = Pablo(document);
       });
 
       it('.append(elementName, attributes)', function () {
-        d.append('circle', {foo: 'bar'});
+        d.append('span', {});
         d = Pablo(document);
       });
 
       it('.appendTo(element)', function () {
-        d.appendTo(Pablo.circle());
+        d.appendTo(document.createElement('a'));
         d = Pablo(document);
       });
 
       it('.appendTo(elementName, attributes)', function () {
-        d.appendTo('circle', {foo: 'bar'});
+        d.appendTo('span', {});
         d = Pablo(document);
       });
 
       it('.prepend(element)', function () {
-        d.prepend(Pablo.circle());
+        d.prepend(document.createElement('a'));
         d = Pablo(document);
       });
 
       it('.prepend(elementName, attributes)', function () {
-        d.prepend('circle', {foo: 'bar'});
+        d.prepend('span', {});
         d = Pablo(document);
       });
 
       it('.prependTo(element)', function () {
-        d.prependTo(Pablo.circle());
+        d.prependTo(document.createElement('a'));
         d = Pablo(document);
       });
 
       it('.prependTo(elementName, attributes)', function () {
-        d.prependTo('circle', {foo: 'bar'});
+        d.prependTo('span', {});
         d = Pablo(document);
       });
 
       it('.before(element)', function () {
-        d.before(Pablo.circle());
+        d.before(document.createElement('a'));
         d = Pablo(document);
       });
 
       it('.before(element)', function () {
-        d.before('circle', {foo: 'bar'});
+        d.before('span', {});
         d = Pablo(document);
       });
 
       it('.after(element)', function () {
-        d.after(Pablo.circle());
+        d.after(document.createElement('a'));
         d = Pablo(document);
       });
 
       it('.after(element)', function () {
-        d.after('circle', {foo: 'bar'});
+        d.after('span', {});
         d = Pablo(document);
       });
 
       it('.insertBefore(element)', function () {
-        d.insertBefore(Pablo.circle());
+        d.insertBefore(document.createElement('a'));
         d = Pablo(document);
       });
 
       it('.insertBefore(element)', function () {
-        d.insertBefore('circle', {foo: 'bar'});
+        d.insertBefore('span', {});
         d = Pablo(document);
       });
 
       it('.insertAfter(element)', function () {
-        d.insertAfter(Pablo.circle());
+        d.insertAfter(document.createElement('a'));
         d = Pablo(document);
       });
 
       it('.insertAfter(element)', function () {
-        d.insertAfter('circle', {foo: 'bar'});
+        d.insertAfter('span', {});
         d = Pablo(document);
       });
 
@@ -1639,32 +1639,32 @@ describe('Pablo', function () {
       });
 
       it('.push(elements)/.add(elements)', function () {
-        d.push(Pablo.circle());
+        d.push(document.createElement('a'));
         d = Pablo(document);
       });
 
       it('.push(elements...)/.add(elements...)', function () {
-        d.push(Pablo.circle(), Pablo.circle());
+        d.push(document.createElement('a'), document.createElement('a'));
         d = Pablo(document);
       });
 
       it('.concat(elements)', function () {
-        d.concat(Pablo.circle());
+        d.concat(document.createElement('a'));
         d = Pablo(document);
       });
 
       it('.concat(elements...)', function () {
-        d.concat(Pablo.circle(), Pablo.circle());
+        d.concat(document.createElement('a'), document.createElement('a'));
         d = Pablo(document);
       });
 
       it('.unshift(elements)', function () {
-        d.unshift(Pablo.circle());
+        d.unshift(document.createElement('a'), document.createElement('a'));
         d = Pablo(document);
       });
 
       it('.unshift(elements...)', function () {
-        d.unshift(Pablo.circle(), Pablo.circle());
+        d.unshift(document.createElement('a'), document.createElement('a'));
         d = Pablo(document);
       });
 
