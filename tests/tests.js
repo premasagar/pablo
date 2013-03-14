@@ -378,41 +378,45 @@ describe('Pablo', function () {
       });
 
       describe('.parent()', function () {
-        it('.parent()', function () {
+        it('.parent() should return the parent element as a PabloCollection', function () {
           var child = document.getElementById('test-subject-a');
           expect(Pablo(child).parent()[0].id).to.eql('test-subjects');
+          expect(Pablo(child).parent() instanceof Pablo.Collection).to.eql(true);
         });
       });
 
       describe('.siblings()', function () {
-        it('.siblings()', function () {
+        it('.siblings() should return the sibling elements as PabloCollections', function () {
           var aSibling = document.getElementById('test-subject-a'),
               siblings = Pablo(aSibling).siblings();
 
           expect(siblings.length).to.eql(2);
+          expect(siblings instanceof Pablo.Collection).to.eql(true);
           expect(siblings[0].id).to.eql('test-subject-b');
           expect(siblings[1].id).to.eql('test-subject-c');
         });
       });
 
       describe('.prev()', function () {
-        it('.prev()', function () {
+        it('.prev() should return the element\'s previous sibling as a PabloCollection', function () {
           var b = Pablo('#test-subject-b');
 
           expect(b.prev()[0].id).to.eql('test-subject-a');
+          expect(b.prev() instanceof Pablo.Collection).to.eql(true);
         });
       });
 
       describe('.next()', function () {
-        it('.next()', function () {
+        it('.next() should return the element\'s next sibling as a PabloCollection', function () {
           var b = Pablo('#test-subject-b');
 
           expect(b.next()[0].id).to.eql('test-subject-c');
+          expect(b.next() instanceof Pablo.Collection).to.eql(true);
         });
       });
 
       describe('.find()', function () {
-        it('.find(selectors)', function () {
+        it('.find(selectors) should return a PabloCollection representative of the matched argument', function () {
           var pCollection = Pablo('#test-subjects').find('li');
 
           expect(pCollection instanceof Pablo.Collection).to.eql(true);
@@ -424,7 +428,7 @@ describe('Pablo', function () {
       });
 
       describe('.get()', function () {
-        it('.get(index)', function () {
+        it('.get(index) should return the SVGElement or HTMLElement of the specified index', function () {
           var pCollection = Pablo('#test-subjects').children(),
               chosenOne   = pCollection.get(1);
 
@@ -434,7 +438,7 @@ describe('Pablo', function () {
       });
 
       describe('.eq()', function () {
-        it('.eq(index)', function () {
+        it('.eq(index) should a PabloCollection of the specified index', function () {
           var pCollection = Pablo('#test-subjects').children(),
               chosenOne   = pCollection.eq(1);
 
@@ -444,18 +448,20 @@ describe('Pablo', function () {
       });
 
       describe('.first()', function () {
-        it('.first()', function () {
+        it('.first() returns the first element in a PabloCollection as a PabloCollection', function () {
           var first = Pablo('#test-subjects').children().first();
 
           expect(first[0].id).to.eql('test-subject-a');
+          expect(first instanceof Pablo.Collection).to.eql(true)
         });
       });
 
       describe('.last()', function () {
-        it('.last()', function () {
-          var first = Pablo('#test-subjects').children().last();
+        it('.last() returns the last element in a PabloCollection as a PabloCollection', function () {
+          var last = Pablo('#test-subjects').children().last();
 
-          expect(first[0].id).to.eql('test-subject-c');
+          expect(last[0].id).to.eql('test-subject-c');
+          expect(last instanceof Pablo.Collection).to.eql(true)
         });
       });
     });
@@ -1424,7 +1430,12 @@ describe('Pablo', function () {
       });
 
       it('.on(type, listener, [useCapture])', function (done) {
-        notDone();
+        var pCollection = Pablo.rect().append(Pablo.circle()),
+            order       = [];
+
+        pCollection.on('click', function () {
+          order
+        }, true);
       });
 
       it('.on(type, listener, [useCapture]) multiple events assignments in one method call', function (done) {
