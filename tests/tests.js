@@ -1133,28 +1133,28 @@ describe('Pablo', function () {
       });
 
       describe('.some() alias .is()', function () {
-        it('.some(PabloCollection)/.is(PabloCollection)', function () {
+        it('.some(PabloCollection)/.is(PabloCollection) should return true if the matching PabloCollection is found in the PabloCollection', function () {
           var subject  = Pablo([Pablo.rect(), Pablo.ellipse()]),
               expected = subject.some(Pablo.ellipse());
           
           expect(expected).to.eql(true);
         });
 
-        it('.some(SVGElement)/.is(SVGElement)', function () {
+        it('.some(SVGElement)/.is(SVGElement) should return true if the matching SVGElement is found in the PabloCollection', function () {
           var subject  = Pablo([Pablo.rect(), Pablo.ellipse()]),
               expected = subject.some(Pablo.ellipse()[0]);
           
           expect(expected).to.eql(true);
         });
 
-        it('.some(selector)/.is(selector)', function () {
+        it('.some(selector)/.is(selector) should return true if the matching selector is found in the PabloCollection', function () {
           var subject  = Pablo([Pablo.rect(), Pablo.ellipse()]),
               expected = subject.some('rect');
           
           expect(expected).to.eql(true);
         });
 
-        it('.some(selector)/.is(selector) selector as #id', function () {
+        it('.some(selector)/.is(selector) should return true if the matching id selector is found in the PabloCollection ', function () {
           var subject  = Pablo([Pablo.rect(), Pablo.ellipse({id: 'foo'})]),
               expected = subject.some('#foo');
           
@@ -1163,7 +1163,7 @@ describe('Pablo', function () {
       });
 
       describe('.processList()', function () {
-        it('processList(list, callback)', function () {
+        it('processList(list, callback) should return an array of strings given a string of space delimited words', function () {
           var items = [];
 
           Pablo().processList('foo bar', function (item) {
@@ -1361,7 +1361,7 @@ describe('Pablo', function () {
     });
 
     describe('.trigger()', function () {
-      it('.trigger(eventNames)', function (done) {
+      it('.trigger(eventNames) should trigger the event matching the passed event name of the PabloCollection', function (done) {
         var subject = Pablo.rect();
 
         subject.on('click', function () {
@@ -1371,7 +1371,7 @@ describe('Pablo', function () {
         subject.trigger('click');
       });
 
-      it('.trigger(eventNames) with multiple event names', function (done) {
+      it('.trigger(eventNames) should trigger multiple events matching the passed event names delimited by a space', function (done) {
         var subject = Pablo.rect(),
             counter = 0;
 
@@ -1392,7 +1392,7 @@ describe('Pablo', function () {
         subject.trigger('click focus');
       });
 
-      it('.trigger(eventNames) works with an empty collection', function (done) {
+      it('.trigger(eventNames) like above but should work with an empty PabloCollection', function (done) {
         var subject = Pablo();
 
         subject.on('foo', function () {
@@ -1404,7 +1404,7 @@ describe('Pablo', function () {
     });
 
     describe('.on()', function () {
-      it('.on(type, listener)', function (done) {
+      it('.on(type, listener) should assign an event to the PabloCollection', function (done) {
         var subject = Pablo.rect();
 
         subject.on('click', function () {
@@ -1414,7 +1414,7 @@ describe('Pablo', function () {
         subject.trigger('click');
       });
 
-      it('.on(type, listener) multiple events assignments in one method call', function (done) {
+      it('.on(type, listener) should assign multiple event names to one handler to the PabloCollection', function (done) {
         var subject   = Pablo.rect(),
             completed = 0;
 
@@ -1442,7 +1442,7 @@ describe('Pablo', function () {
         notDone();
       });
 
-      it('.on(type, listener) works with an empty collection', function (done) {        var subject = Pablo();
+      it('.on(type, listener) should assign an event with an empty PabloCollection', function (done) {        var subject = Pablo();
         var subject = Pablo();
 
         subject.on('foo', function () {
@@ -1454,7 +1454,7 @@ describe('Pablo', function () {
     });
 
     describe('.off()', function () {
-      it('.off(type, listener)', function (done) {
+      it('.off(type, listener) should remove an event on a PabloCollection', function (done) {
         var subject = Pablo.rect();
 
         subject.on('click', failure);
@@ -1476,7 +1476,7 @@ describe('Pablo', function () {
         notDone();
       });
 
-      it('.off(type, listener) works with an empty collection', function (done) {
+      it('.off(type, listener) should remove an event on a empty PabloCollection', function (done) {
         var subject = Pablo();
 
         subject.on('click', failure);
@@ -1496,7 +1496,7 @@ describe('Pablo', function () {
     });
 
     describe('.one()', function () {
-      it('.one(type, listener)', function (done) {
+      it('.one(type, listener) should add an event on a PabloCollection and it should be removed when triggered', function (done) {
         var subject = Pablo([Pablo.rect(), Pablo.ellipse()]),
             counter = 0;
 
@@ -1522,7 +1522,7 @@ describe('Pablo', function () {
         notDone();
       });
 
-      it('.one(type, listener) works with an empty collection', function (done) {
+      it('.one(type, listener) should add an event on an empty PabloCollection and it should be removed when triggered', function (done) {
         var subject = Pablo(),
             counter = 0;
 
