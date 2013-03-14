@@ -989,6 +989,82 @@ describe('Pablo', function () {
           expect(pCollection[2].id).to.eql('test-subject-c');
         });
       });
+
+      describe('.pluck()', function () {
+        it('.pluck(property)', function () {
+          var pCollection = Pablo([
+                              Pablo.rect({foo: '123'}),
+                              Pablo.ellipse({foo: '456'})
+                            ]),
+              arr = pCollection.pluck('foo');
+
+          expect(arr[0]).to.eql('123');
+          expect(arr[1]).to.eql('456');
+        });
+
+        it('.pluck(property, [attr])', function () {
+          var pCollection = Pablo([
+                              Pablo.rect({foo: '123'}),
+                              Pablo.ellipse({foo: '456'})
+                            ]),
+              arr = pCollection.pluck('foo','attr');
+
+          expect(arr[0]).to.eql('123');
+          expect(arr[1]).to.eql('456');
+        });
+
+        it('.pluck(property, [prop])', function () {
+          var pCollection = Pablo([Pablo.rect(), Pablo.ellipse()]),
+              arr;
+          
+          pCollection[0].foo = '123';
+          pCollection[1].foo = '456';
+
+          arr = pCollection.pluck('foo', 'prop');
+
+          expect(arr[0]).to.eql('123');
+          expect(arr[1]).to.eql('456');
+        });
+
+        it('.pluck(property, [data])', function () {
+          var pCollection = Pablo([Pablo.rect(), Pablo.ellipse()]),
+              arr;
+
+          pCollection.eq(0).data('foo', '123');
+          pCollection.eq(1).data('foo', '456');
+
+          arr = pCollection.pluck('foo', 'data');
+
+          expect(arr[0]).to.eql('123');
+          expect(arr[1]).to.eql('456');
+        });
+
+        it('.pluck(property, [css])', function () {
+          var pCollection = Pablo([
+                              Pablo('span', {style: 'display: block'}),
+                              Pablo('span', {style: 'display: inline'})
+                            ]),
+              arr;
+
+          arr = pCollection.pluck('display', 'css');
+
+          expect(arr[0]).to.eql('block');
+          expect(arr[1]).to.eql('inline');
+        });
+
+        it('.pluck(property, [cssPrefix])', function () {
+          var pCollection = Pablo([Pablo.rect(), Pablo.ellipse()]),
+              arr;
+
+          pCollection.eq(0).cssPrefix('transition', 'opacity 0.1s');
+          pCollection.eq(1).cssPrefix('transition', 'opacity 1s');
+          
+          arr = pCollection.pluck('transition', 'cssPrefix');
+
+          expect(arr[0]).to.eql('opacity 0.1s');
+          expect(arr[1]).to.eql('opacity 1s');
+        });
+      });
     });
 
     describe('Misc', function () {
