@@ -2,9 +2,13 @@
 (function(Pablo, Array){
     'use strict';
 
+    // Set additional requirement for support
+    Pablo.isSupported = Pablo.isSupported && 'keys' in Object;
+
     if (!Pablo.isSupported){
         return;
     }
+
     // CACHE
 
     var cache = Pablo.cache = {},
@@ -44,6 +48,16 @@
                 }
             }
         }
+    }
+
+    // NOTE: a more brittle alternative, perhaps with better performance, would 
+    // be to increment a size counter upon creating a new cache container, and 
+    // decrement on deletion. The success of deletion would have to be 
+    // determined before decrementing the counter. If `Pablo.cache` was 
+    // manipulated by external code, the counter would become incorrect, which 
+    // could potentially result in a memory leak. Probably not worth it.
+    function numKeys(){
+        return Object.keys(cache).length;
     }
 
     /////
@@ -118,18 +132,28 @@
     Pablo.fn.detach = Pablo.fn.remove;
 
     Pablo.fn.remove = function(){
-        // Remove data from each descendent of elements in the collection
-        this.find('*').removeData();
+        // If the cache has any contents
+        if (numKeys()){
+            // Remove data for each element in the collection
+            this.removeData()
+                // Remove data for each descendent of each element
+                .find('*').removeData();
+        }
 
-        // Remove data from elements in the collection, and detach
-        return this.removeData().detach();
+        // Remove from the DOM
+        return this.detach();
     };
 
     Pablo.fn.empty = function(){
-        // Remove data from each descendent of elements in the collection
-        this.find('*').removeData();
+        // If the cache has any contents
+        if (numKeys()){
+            // Remove data for each descendent of elements in the collection
+            this.find('*').removeData();
+        }
 
         // Remove elements, text and other nodes
+        // This uses native DOM methods, rather than `detach()`, to ensure that
+        // non-element nodes are also removed.
         return this.each(function(el){
             while (el.firstChild){
                 el.removeChild(el.firstChild);
