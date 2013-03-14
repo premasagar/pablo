@@ -736,9 +736,26 @@
 
         // Return an array of values from an attribute for each element 
         // in the collection
-        pluck: function(attr){
+        pluck: function(property, type){
+            type || (type = 'attr');
+
             return toArray(this).map(function(el){
-                return Pablo(el).attr(attr);
+                switch (type){
+                    case 'attr':
+                    return Pablo(el).attr(property);
+
+                    case 'prop':
+                    return el[property];
+
+                    case 'data':
+                    return Pablo(el).data(property);
+
+                    case 'css':
+                    return Pablo(el).css(property);
+
+                    case 'cssPrefix':
+                    return Pablo(el).cssPrefix(property);
+                }
             });
         },
 
