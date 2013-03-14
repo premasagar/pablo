@@ -1,0 +1,26 @@
+{
+  "name": "pablo",
+  "version": "0.0.0",
+  "description": "**For full documentation and interactive examples, see [pablojs.com][pablo-site].**",
+  "main": "pablo.js",
+  "directories": {
+    "test": "tests",
+    "example": "examples",
+    "doc": "docs"
+  },
+  "dependencies": {
+    "grunt": "~0.4.1"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/dharmafly/pablo.git"
+  },
+  "author": "Dharmafly",
+  "license": "BSD"
+}
