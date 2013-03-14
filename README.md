@@ -16,7 +16,7 @@ Pablo can create anything that SVG can. It simplifies the task of generating, mo
 - By [Premasagar Rose][prem] ([Dharmafly][df])
 - Repo: [github.com/dharmafly/pablo][repo]
 - Open source: [MIT license][mit]
-- <5KB [minified & gzipped][pablo-min]
+- &lt;5KB [minified & gzipped][pablo-min]
 
 
 ## Getting started
