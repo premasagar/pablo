@@ -10,7 +10,7 @@
 */
 /*jshint newcap:false */
 
-(function(root, document, Array, Element, SVGElement, NodeList, HTMLDocument){
+(function(root, Object, Array, Element, SVGElement, NodeList, HTMLDocument, document){
     'use strict';
     
     var /* SETTINGS */
@@ -44,14 +44,19 @@
     
     // Incompatible browser
     if (!(
-        testElement && head && arrayProto &&
-        Element && SVGElement && NodeList && HTMLDocument &&
+        testElement && Element && SVGElement && NodeList && HTMLDocument && 
+        head && arrayProto &&
         'createSVGRect' in testElement &&
         'querySelectorAll' in document &&
-        'isArray' in Array &&
-        'forEach' in arrayProto &&
+        'previousElementSibling' in head &&
         'children' in head &&
-        'previousElementSibling' in head
+        'keys'     in Object &&
+        'isArray'  in Array &&
+        'forEach'  in arrayProto &&
+        'map'      in arrayProto &&
+        'some'     in arrayProto &&
+        'every'    in arrayProto &&
+        'filter'   in arrayProto
     )){
         // Return a simplified version of the Pablo API
         return {
@@ -737,7 +742,9 @@
         // Return an array of values from an attribute for each element 
         // in the collection
         pluck: function(property, type){
-            type || (type = 'attr');
+            if (!type){
+                type = 'attr';
+            }
 
             return toArray(this).map(function(el){
                 switch (type){
@@ -1222,4 +1229,13 @@
     // Set as a global variable
     root.Pablo = Pablo;
 
-}(this, this.document, this.Array, this.Element, this.SVGElement, this.NodeList, this.HTMLDocument));
+}(
+    this,
+    this.Object,
+    this.Array,
+    this.Element,
+    this.SVGElement,
+    this.NodeList,
+    this.HTMLDocument,
+    this.document
+));
