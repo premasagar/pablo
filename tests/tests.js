@@ -1051,8 +1051,32 @@ describe('Pablo', function () {
       });
 
       describe('.some() alias .is()', function () {
-        it('.some()/.is()', function () {
-          notDone();
+        it('.some(PabloCollection)/.is(PabloCollection)', function () {
+          var subject  = Pablo([Pablo.rect(), Pablo.ellipse()]),
+              expected = subject.some(Pablo.ellipse());
+          
+          expect(expected).to.eql(true);
+        });
+
+        it('.some(SVGElement)/.is(SVGElement)', function () {
+          var subject  = Pablo([Pablo.rect(), Pablo.ellipse()]),
+              expected = subject.some(Pablo.ellipse()[0]);
+          
+          expect(expected).to.eql(true);
+        });
+
+        it('.some(selector)/.is(selector)', function () {
+          var subject  = Pablo([Pablo.rect(), Pablo.ellipse()]),
+              expected = subject.some('rect');
+          
+          expect(expected).to.eql(true);
+        });
+
+        it('.some(selector)/.is(selector) selector as #id', function () {
+          var subject  = Pablo([Pablo.rect(), Pablo.ellipse({id: 'foo'})]),
+              expected = subject.some('#foo');
+          
+          expect(expected).to.eql(true);
         });
       });
 
