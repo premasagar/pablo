@@ -1074,17 +1074,53 @@ describe('Pablo', function () {
     });
 
     describe('Misc', function () {
-      describe('.clone() should return a shallow copy of the PabloCollection', function () {
-        it('.clone()', function () {
+      describe('.clone()', function () {
+        it('.clone() should return a shallow copy (excludes children) of the PabloCollection', function () {
           var original = Pablo.rect({foo: 'bar'}),
-              clone    = original.clone();
+              clone;
+
+          original.append(Pablo.rect());
+
+          clone = original.clone();
 
           expect(clone instanceof Pablo.Collection).to.eql(true);
           expect(clone[0] instanceof SVGRectElement).to.eql(true);
           expect(clone[0].getAttribute('foo')).to.eql('bar');
+          expect(clone[0].childNodes.length).to.eql(0);
         });
 
-        it('.clone([isDeep]) should return a deep copy (includes children, events and data) of the PabloCollection', function () {
+        it('.clone() should return a shallow copy (excludes data) of the PabloCollection', function () {
+          var original = Pablo.rect({foo: 'bar'}),
+              clone;
+
+          original.data('foo', 'bar');
+
+          clone = original.clone();
+
+          expect(clone instanceof Pablo.Collection).to.eql(true);
+          expect(clone[0] instanceof SVGRectElement).to.eql(true);
+          expect(clone[0].getAttribute('foo')).to.eql('bar');
+          expect(clone.data('foo')).to.eql(undefined);
+        });
+
+        it('.clone() should return a shallow copy (excludes events) of the PabloCollection', function (done) {
+          var original = Pablo.rect({foo: 'bar'}),
+              clone;
+
+          original.on('foo', function () {
+            done(new Error('This event should not have been cloned'));
+          });
+
+          clone = original.clone();
+
+          clone.trigger('foo');
+
+          setTimeout(function () {
+            done();
+          }, 1600);
+        });
+
+        it('.clone([isDeep]) should return a deep copy (includes children) of the PabloCollection', function () {
           var pCollection = Pablo.rect(),
               clone;
 
@@ -1092,6 +1128,30 @@ describe('Pablo', function () {
 
           clone = pCollection.clone(true);
           expect(clone).to.eql(pCollection);
+        });
+
+        it('.clone([isDeep]) should return a deep copy (includes data) of the PabloCollection', function () {
+          var pCollection = Pablo.rect(),
+              clone;
+
+          pCollection.data('foo', 'bar');
+
+          clone = pCollection.clone(true);
+
+          expect(clone.data('foo')).to.eql('bar');
+        });
+
+        it('.clone([isDeep]) should return a deep copy (includes events) of the PabloCollection', function (done) {
+          var pCollection = Pablo.rect(),
+              clone;
+
+          pCollection.on('foo', function () {
+            done();
+          });
+
+          clone = pCollection.clone(true);
+
+          clone.trigger('foo');
         });
       });
 
