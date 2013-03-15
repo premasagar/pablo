@@ -1429,19 +1429,6 @@ describe('Pablo', function () {
         subject.trigger('focus');
       });
 
-      it('.on(type, listener, [useCapture])', function (done) {
-        var pCollection = Pablo.rect().append(Pablo.circle()),
-            order       = [];
-
-        pCollection.on('click', function () {
-          order
-        }, true);
-      });
-
-      it('.on(type, listener, [useCapture]) multiple events assignments in one method call', function (done) {
-        notDone();
-      });
-
       it('.on(type, listener) should assign an event with an empty PabloCollection', function (done) {        var subject = Pablo();
         var subject = Pablo();
 
@@ -1470,10 +1457,6 @@ describe('Pablo', function () {
         setTimeout(function () {
           done();
         }, 1600);
-      });
-
-      it('.off(type, listener, [useCapture])', function (done) {
-        notDone();
       });
 
       it('.off(type, listener) should remove an event on a empty PabloCollection', function (done) {
@@ -1516,10 +1499,6 @@ describe('Pablo', function () {
             done(new Error('The event persisted'));
           }
         }, 1600)
-      });
-
-      it('.one(type, listener, [useCapture])', function (done) {
-        notDone();
       });
 
       it('.one(type, listener) should add an event on an empty PabloCollection and it should be removed when triggered', function (done) {
@@ -1566,10 +1545,6 @@ describe('Pablo', function () {
           }
         })
       });
-
-      it('.oneEach(type, listener, [useCapture]', function (done) {
-        notDone();
-      });
     });
   });
 
@@ -1596,7 +1571,7 @@ describe('Pablo', function () {
   });
 
   describe('Catching errors for Pablo(document)', function () {
-    describe('Pablo(document)', function () {
+    describe('for the following methods of Pablo(document), errors should be caught by Pablo internally', function () {
       var d = Pablo(document);
 
       it('.append(elements)', function () {
