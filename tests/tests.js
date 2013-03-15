@@ -1147,7 +1147,7 @@ describe('Pablo', function () {
           expect(expected).to.eql(true);
         });
 
-        it('.some(selector)/.is(selector) should return true if the matching selector is found in the PabloCollection', function () {
+        it('.some(selector)/.is(selector) should return true if the matching tag selector is found in the PabloCollection', function () {
           var subject  = Pablo([Pablo.rect(), Pablo.ellipse()]),
               expected = subject.some('rect');
           
@@ -1192,19 +1192,19 @@ describe('Pablo', function () {
     });
 
     describe('.data()', function () {
-      it('.data(key)', function () {
+      it('.data(key) should return the set value matching the given key', function () {
         var subject = Pablo.rect();
         subject.data('foo', 'bar');
         expect(subject.data('foo')).to.eql('bar');
       });
 
-      it('.data(key, [value])', function () {
+      it('.data(key, [value]) should set the given value to the given key', function () {
         var subject = Pablo.rect();
         subject.data('foo', 'bar');
         expect(subject.data('foo')).to.eql('bar');
       });
 
-      it('.data(option)', function () {
+      it('.data(option) should set a number of key/value pairs representative of the passed mapping', function () {
         var subject = Pablo.rect();
 
         subject.data({
@@ -1218,7 +1218,7 @@ describe('Pablo', function () {
     });
 
     describe('.removeData()', function () {
-      it('.removeData()', function () {
+      it('.removeData() should remove all the key and value associated with the PabloCollection', function () {
         var subject = Pablo.rect();
         subject.data('foo', 'bar');
         subject.data('fiz', 'buz');
@@ -1232,7 +1232,7 @@ describe('Pablo', function () {
         expect(subject.data('fiz')).to.eql(undefined);
       });
 
-      it('.removeData([keys])', function () {
+      it('.removeData([keys]) should remove the key and value associated with the PabloCollection', function () {
         var subject = Pablo.rect();
         subject.data('foo', 'bar');
         subject.data('fiz', 'buz');
@@ -1246,7 +1246,7 @@ describe('Pablo', function () {
         expect(subject.data('fiz')).to.eql('buz');
       });
 
-      it('.removeData([keys]) multiple keys', function () {
+      it('.removeData([keys]) multiple keys should remove the keys and values associated with the PabloCollection', function () {
         var subject = Pablo.rect();
 
         subject.data('foo', 'bar');
@@ -1262,7 +1262,7 @@ describe('Pablo', function () {
     });
 
     describe('.detach()', function () {
-      it('.detach()', function () {
+      it('.detach() should detach the PabloCollection\'s element from its parent but retain its set data', function () {
         var subject = Pablo.rect().append([Pablo.ellipse(), Pablo.line()]);
 
         subject.data('foo', 'bar');
