@@ -1321,6 +1321,35 @@ describe('Pablo', function () {
       });
     });
 
+    describe('Pablo.cache', function () {
+      var subject = Pablo.rect(),
+          lastKey;
+      it('when a PabloCollection has data set on it for the first time a unique id should be set for it in the cache', function () {
+        var lastEntry;
+
+        subject.data('foo', 'bar');
+
+        lastKey   = Object.keys(Pablo.cache)[Object.keys(Pablo.cache).length-1];
+        lastEntry = Pablo.cache[lastKey];
+
+        expect(lastEntry['foo']).to.eql('bar');
+      });
+
+      it('when one of a PabloCollection\'s data key/value pair is removed it should remove it from the cache', function () {
+        subject.data('fiz', 'buz');
+        subject.removeData('foo');
+
+        expect(Pablo.cache[lastKey]).to.eql({
+          'fiz': 'buz'
+        });
+      });
+
+      it('when all of PabloCollection\'s data key/value pair are removed it should remove the data from the cache and the unique id for that PabloCollection', function () {
+        subject.removeData();
+        expect(Pablo.cache[lastKey]).to.eql(undefined);
+      });
+    });
+
     describe('.detach()', function () {
       it('.detach() should detach the PabloCollection\'s element from its parent but retain its set data', function () {
         var subject = Pablo.rect().append([Pablo.ellipse(), Pablo.line()]);
