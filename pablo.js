@@ -769,8 +769,17 @@
         // Return an array of values from an attribute for each element 
         // in the collection
         pluck: function(property, type){
+            var undef;
+
             if (!type){
                 type = 'attr';
+            }
+
+            // Pass through `null` as undefined to each method
+            // e.g. `collection.pluck(null, 'data');` will return an array of
+            // data objects, one for each element in the collection.
+            if (property === null){
+                property = undef;
             }
 
             return toArray(this).map(function(el){
