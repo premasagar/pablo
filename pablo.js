@@ -684,7 +684,7 @@
                 
                 // Clone the collection
                 while (repeats --){
-                    duplicates.push(this.clone(true)[0]);
+                    duplicates.push(this.clone(true));
                 }
 
                 // Insert in the DOM after the collection
