@@ -1234,8 +1234,11 @@
                 }
 
                 // Set value
-                // Allow binding and triggering events on empty collections by create a 
-                // container object to store state.
+                // If there are no elements in the collection, so the collection
+                // is empty, then store a plain object to carry the collection's
+                // state. Used, for example, to allow an empty collection to 
+                // have events bound and triggered to it.
+                //      `var e = Pablo().on('foo', fn); e.trigger('foo');`
                 if (!this.length){
                     arrayProto.push.call(this, {});
                 }
@@ -1246,18 +1249,13 @@
 
                     if (!id){
                         id = el[cacheExpando] = cacheNextId ++;
-                        cache[id] = {};
                     }
 
                     if (!cache[id]){
                         cache[id] = {};
                     }
 
-                    for (key in data){
-                        if (data.hasOwnProperty(key)){
-                            cache[id][key] = data[key];
-                        }
-                    }
+                    extend(cache[id], data);
                 });
             },
 
@@ -1491,6 +1489,7 @@
             // e.g. myElement.css({'transition-property': Pablo.cssPrefix('transform')});
 
         // data
+        // TODO: should `Pablo.create` be removed, to keep cache private?
         cache: cache,
 
         // TODO: support `collection.append('myTemplate')`
