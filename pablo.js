@@ -51,6 +51,7 @@
         'querySelectorAll' in document &&
         'previousElementSibling' in head &&
         'children' in head &&
+        'create'   in Object &&
         'keys'     in Object &&
         'isArray'  in Array &&
         'forEach'  in arrayProto &&
@@ -667,8 +668,37 @@
         
         clone: function(deep){
             deep = (deep || false);
+
             return this.map(function(el){
-                return el.cloneNode(deep);
+                var cloned = el.cloneNode(deep),
+                    data, events, clonedEvents, type;
+
+                if (deep){
+                    data = Pablo.create(el).data();
+
+                    if (data){
+                        // Copy events object
+                        events = data[eventsNamespace];
+                        if (events){
+                            // Duplicate data object and events object on it, to
+                            // de-reference the cloned element's stored events
+                            data = Object.create(data);
+                            clonedEvents = data[eventsNamespace] = Object.create(events);
+                            // For each event type, e.g. `mousedown`, copy the array
+                            // of event listeners
+                            for (type in events){
+                                if (events.hasOwnProperty(type)){
+                                    // Create new array
+                                    clonedEvents[type] = events[type].slice();
+                                }
+                            }
+                        }
+                        // Set data on the cloned element
+                        Pablo(cloned).data(data);
+                    }
+                }
+
+                return cloned;
             });
         },
         
@@ -810,7 +840,7 @@
 
             return this.each(function(el, i){
                 // TODO: replace `node = Pablo(el)` with 
-                // `node = this.length === 1 ? this : Pablo(el)` everywhere that
+                // `node = this.length === 1 ? this : Pablo.create(el)` everywhere that
                 // is appropriate, to avoid unnecessary Pablo collection creation
                 var node = Pablo(el),
                     transformAttr = node.attr('transform'),
