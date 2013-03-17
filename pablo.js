@@ -1208,32 +1208,31 @@
             data: function(key, value){
                 var id, data;
 
-                if (typeof key === 'string'){
-                    // Get value
+                // First argument is an object of key-value pairs
+                if (typeof key === 'object'){
+                    data = key;
+                }
+
+                // Get value - e.g. collection.data('foo') or collection.data()
+                else {
                     if (typeof value === 'undefined'){
                         if (this.length){
                             // Use the id of the first element in the collection
                             id = this[0][cacheExpando];
 
-                            // Return the cached value, by key
-                            if (id && id in cache){
-                                return cache[id][key];
+                            if (id in cache){
+                                return typeof key === 'undefined' ?
+                                    cache[id] : cache[id][key];
                             }
                         }
                         return;
                     }
 
-                    // Prepare object to set
+                    // Set value via (key, value); prepare data object
                     data = {};
                     data[key] = value;
                 }
 
-                // First argument is an object of key-value pairs
-                else {
-                    data = key;
-                }
-
-                // Set value
                 // If there are no elements in the collection, so the collection
                 // is empty, then store a plain object to carry the collection's
                 // state. Used, for example, to allow an empty collection to 
@@ -1243,9 +1242,9 @@
                     arrayProto.push.call(this, {});
                 }
                 
+                // Set data for each element
                 return this.each(function(el){
-                    var id = el[cacheExpando],
-                        key;
+                    var id = el[cacheExpando];
 
                     if (!id){
                         id = el[cacheExpando] = cacheNextId ++;
