@@ -20,7 +20,7 @@
         xlinkns = 'http://www.w3.org/1999/xlink',
         vendorPrefixes = ['', '-moz-', '-webkit-', '-khtml-', '-o-', '-ms-'],
         cacheExpando = 'pablo-data',
-        eventsNamespace = '__events',
+        eventsNamespace = '__events__',
 
         head, testElement, arrayProto, supportsClassList, hyphensToCamelCase, 
         cssClassApi, pabloCollectionApi, classlistMethod, cache, cacheNextId;
