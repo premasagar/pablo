@@ -250,9 +250,7 @@
             // If no `ancestor` given, then find the element's root ancestor. If 
             // the element is currently in the DOM, this will be the `document`.
             if (!context){
-                ancestor = node
-                    .relations('parentNode', null, null, isElementOrDocument)
-                    .last();
+                ancestor = node.traverse('parentNode', isElementOrDocument).last();
             }
 
             // Use ancestor to find element via a selector query
@@ -523,9 +521,8 @@
 
         // TRAVERSAL
 
-        // See below for traversal shortcuts using `relations()` e.g. `parents()`
-
-        relations: function(prop, selectors, ancestor, doWhile){
+        // See below for traversal shortcuts that use `traverse()` e.g. `parents()`
+        traverse: function(prop, doWhile, selectors, context){
             var collection = Pablo(),
                 isFn = typeof doWhile === 'function';
 
@@ -536,7 +533,7 @@
                     el = doWhile ? el[prop] : false;
                 }
             });
-            return selectors ? collection.select(selectors, ancestor) : collection;
+            return selectors ? collection.select(selectors, context) : collection;
         },
 
         siblings: function(selectors){
@@ -1324,26 +1321,26 @@
 
     function walk(prop, doWhile){
         return function(selectors, ancestor){
-            return this.relations(prop, selectors, ancestor, doWhile);
+            return this.traverse(prop, doWhile, selectors, ancestor);
         };
     }
 
     extend(pabloCollectionApi, {
         // Traversal methods
-        children:     walk('childNodes',             null),
-        firstChild:   walk('firstChild',             null),
-        lastChild:    walk('lastChild',              null),
-        prev:         walk('previousElementSibling', null),
+        children:     walk('childNodes'),
+        firstChild:   walk('firstChild'),
+        lastChild:    walk('lastChild'),
+        prev:         walk('previousElementSibling'),
         prevSiblings: walk('previousElementSibling', true),
-        next:         walk('nextElementSibling',     null),
-        nextSiblings: walk('nextElementSibling',     true),
-        viewport:     walk('viewportElement',        null),
-        viewports:    walk('viewportElement',        true),
-        owner:        walk('ownerSVGElement',        null),
-        owners:       walk('ownerSVGElement',        true),
-        parent:       walk('parentNode',             null),
-        parents:      walk('parentNode',             isElement),
-        parentsSvg:   walk('parentNode',             isSVGElement),
+        next:         walk('nextElementSibling'),
+        nextSiblings: walk('nextElementSibling', true),
+        viewport:     walk('viewportElement'),
+        viewports:    walk('viewportElement', true),
+        owner:        walk('ownerSVGElement'),
+        owners:       walk('ownerSVGElement', true),
+        parent:       walk('parentNode'),
+        parents:      walk('parentNode', isElement),
+        parentsSvg:   walk('parentNode', isSVGElement),
 
         // Alias methods
         elements: pabloCollectionApi.toArray,
