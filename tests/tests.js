@@ -1421,6 +1421,26 @@ describe('Pablo', function () {
         });
       });
 
+      describe('.indexOf', function () {
+        it('.indexOf(element) should return the index position in the PabloCollection of the matching node', function () {
+          var pCollection = Pablo([Pablo.circle(), Pablo.a(), Pablo.g()]);
+
+          expect(pCollection.indexOf(pCollection[2])).to.eql(2);
+        });
+
+        it('.indexOf(element) should return the index position in the PabloCollection of the matching PabloCollection', function () {
+          var pCollection = Pablo([Pablo.circle(), Pablo.a(), Pablo.g()]);
+
+          expect(pCollection.indexOf(pCollection.eq(2))).to.eql(2);
+        });
+
+        it('.indexOf(element) should return the index position of -1 in the PabloCollection of the matching node if it is not found', function () {
+          var pCollection = Pablo([Pablo.circle(), Pablo.a(), Pablo.g()]);
+
+          expect(pCollection.indexOf(Pablo.ellipse())).to.eql(-1);
+        });
+      });
+
       describe('.isArrayLike()', function () {
         it('.isArrayLike(obj) should return true if an array is passed', function () {
           expect(Pablo.isArrayLike([])).to.eql(true);
