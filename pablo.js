@@ -49,17 +49,17 @@
         Element && SVGElement && NodeList && HTMLDocument && 
         'createSVGRect' in testElement &&
         'attributes' in testElement &&
-        'querySelectorAll' in document &&
-        'previousElementSibling' in head &&
-        'children' in head &&
-        'create'   in Object &&
-        'keys'     in Object &&
-        'isArray'  in Array &&
-        'forEach'  in arrayProto &&
-        'map'      in arrayProto &&
-        'some'     in arrayProto &&
-        'every'    in arrayProto &&
-        'filter'   in arrayProto
+        'querySelectorAll' in testElement &&
+        'previousElementSibling' in testElement &&
+        'childNodes' in testElement &&
+        'create'     in Object &&
+        'keys'       in Object &&
+        'isArray'    in Array &&
+        'forEach'    in arrayProto &&
+        'map'        in arrayProto &&
+        'some'       in arrayProto &&
+        'every'      in arrayProto &&
+        'filter'     in arrayProto
     )){
         // Incompatible browser: return a simplified version of the Pablo API
         return {
@@ -1319,9 +1319,12 @@
         insertAfter:  insertElements(after, false),
 
         // Traversal methods
+        // NOTE: ideally, we'd use the 'children' collection, instead of 'childNodes'
+        // which has support in HTML but not yet wide support in SVG elements
+        // See https://hacks.mozilla.org/2009/06/dom-traversal/
         children:     walk('childNodes'),
-        firstChild:   walk('firstChild'),
-        lastChild:    walk('lastChild'),
+        firstChild:   walk('firstElementChild'),
+        lastChild:    walk('lastElementChild'),
         prev:         walk('previousElementSibling'),
         prevSiblings: walk('previousElementSibling', true),
         next:         walk('nextElementSibling'),
