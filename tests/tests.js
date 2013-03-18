@@ -1193,6 +1193,48 @@ describe('Pablo', function () {
       });
 
       describe('.some() alias .is()', function () {
+        it('.some(function)/.is(function) should return true or false based on the testing function\'s evaluation', function () {
+          var subject    = Pablo([Pablo.rect(), Pablo.rect()]),
+              expectTrue,
+              expectFalse;
+
+          expectTrue = subject.some(function (item, i) {
+            expect(item instanceof SVGRectElement).to.eql(true);
+            expect(i).to.be.a('number');
+            return true;
+          });
+
+          expectFalse = subject.some(function (item, i) {
+            return false;
+          });
+
+          expect(expectTrue).to.eql(true);
+          expect(expectFalse).to.eql(false);
+        });
+
+        it('.some(function, context)/.is(function, context) should return true or false based on the testing function\'s evaluation', function () {
+          var subject    = Pablo([Pablo.rect(), Pablo.rect()]),
+              expectTrue,
+              expectFalse,
+              context    = {foo: 'bar'};
+
+          expectTrue = subject.some(function (item, i) {
+            expect(item instanceof SVGRectElement).to.eql(true);
+            expect(i).to.be.a('number');
+            expect(this.foo).to.eql('bar');
+            return true;
+          }, context);
+
+          expectFalse = subject.some(function (item, i) {
+            expect(this.foo).to.eql('bar');
+            return false;
+          }, context);
+
+          expect(expectTrue).to.eql(true);
+          expect(expectFalse).to.eql(false);
+
+        });
+
         it('.some(PabloCollection)/.is(PabloCollection) should return true if the matching PabloCollection is found in the PabloCollection', function () {
           var subject  = Pablo([Pablo.rect(), Pablo.ellipse()]),
               expected = subject.some(Pablo.ellipse());
