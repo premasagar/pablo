@@ -20,7 +20,7 @@
         xlinkns = 'http://www.w3.org/1999/xlink',
         vendorPrefixes = ['', '-moz-', '-webkit-', '-khtml-', '-o-', '-ms-'],
         cacheExpando = 'pablo-data',
-        eventsNamespace = '__events',
+        eventsNamespace = '__events__',
 
         head, testElement, arrayProto, supportsClassList, hyphensToCamelCase, 
         cssClassApi, pabloCollectionApi, classlistMethod, cache, cacheNextId;
@@ -48,9 +48,11 @@
         testElement && head && arrayProto && 
         Element && SVGElement && NodeList && HTMLDocument && 
         'createSVGRect' in testElement &&
+        'attributes' in testElement &&
         'querySelectorAll' in document &&
         'previousElementSibling' in head &&
         'children' in head &&
+        'create'   in Object &&
         'keys'     in Object &&
         'isArray'  in Array &&
         'forEach'  in arrayProto &&
@@ -133,6 +135,7 @@
         return obj instanceof HTMLDocument;
     }
 
+    // Check if obj is an element from this or another document
     function hasSvgNamespace(obj){
         return obj && obj.namespaceURI && obj.namespaceURI === svgns;
     }
@@ -151,12 +154,12 @@
             hasSvgNamespace(obj);
     }
     
-    // Return node (with attributes) if a Pablo collection, otherwise create one
+    // Return node (with attributes) if a Pablo collection, otherwise create one.
     function toPablo(node, attr){
         if (Pablo.isPablo(node)){
             return attr ? node.attr(attr) : node;
         }
-        return Pablo.create(node, attr);
+        return Pablo(node, attr);
     }
 
     // Return CSS styles with browser vendor prefixes
@@ -224,15 +227,16 @@
     */
 
     // `behaviour` can be 'some', 'every' or 'filter'
-    function matchSelectors(collection, selectors, ancestor, behaviour){
-        var i, len, node, ancestors, matches, matchesCache, 
+    function matchSelectors(collection, selectors, context, behaviour){
+        var i, len, node, ancestor, ancestors, matches, matchesCache, 
             ancestorsLength, isMatch, filtered;
 
         // The optional `ancestor` node is used to perform the selection on.
-        if (ancestor){
-            if (!Pablo.isPablo(ancestor)){
-                ancestor = toPablo(ancestor);
+        if (context){
+            if (!Pablo.isPablo(context)){
+                context = toPablo(context);
             }
+            ancestor = context;
         }
 
         // Filter to as subset of the collection
@@ -245,10 +249,8 @@
 
             // If no `ancestor` given, then find the element's root ancestor. If 
             // the element is currently in the DOM, this will be the `document`.
-            if (!ancestor) {
-                ancestor = node
-                    .relations('parentNode', null, null, isElementOrDocument)
-                    .last();
+            if (!context){
+                ancestor = node.traverse('parentNode', isElementOrDocument).last();
             }
 
             // Use ancestor to find element via a selector query
@@ -393,8 +395,8 @@
                     toBeAdded = true;
                 }
 
-                // Is an existing element
-                // TODO: document where hasSvgNamespace() is required, e.g. on iOS Safari
+                // Is an existing element or document
+                // hasSvgNamespace Check if obj is an element from this or another document
                 else if (isElement(node) || isHTMLDocument(node) || hasSvgNamespace(node)){
                     // If element is already in collection then skip
                     if (this.indexOf(node) >= 0){
@@ -519,9 +521,8 @@
 
         // TRAVERSAL
 
-        // See below for traversal shortcuts using `relations()` e.g. `parents()`
-
-        relations: function(prop, selectors, ancestor, doWhile){
+        // See below for traversal shortcuts that use `traverse()` e.g. `parents()`
+        traverse: function(prop, doWhile, selectors, context){
             var collection = Pablo(),
                 isFn = typeof doWhile === 'function';
 
@@ -529,11 +530,10 @@
                 el = el[prop];
                 while (el && (isFn ? doWhile(el) : true)){
                     collection.push(el);
-                    el = doWhile ?
-                        el[prop] : null;
+                    el = doWhile ? el[prop] : false;
                 }
             });
-            return selectors ? collection.select(selectors, ancestor) : collection;
+            return selectors ? collection.select(selectors, context) : collection;
         },
 
         siblings: function(selectors){
@@ -597,78 +597,39 @@
             });
         },
         
-        // NOTE: the following append-related functions all require attr to exist, even as a blank object, if a new element is to be created. Otherwise, if the first argument is a string, then a selection operation will be performed.
-        // TODO: If appending pre-existing elements, then append to just first element in the collection?
-        append: function(node, attr){
-            this.each(function(el){
-                toPablo(node, attr).each(function(child){
-                    el.appendChild(child);
-                });
-            });
-            return this;
-        },
-        
-        appendTo: function(node, attr){
-            toPablo(node, attr).append(this);
-            return this;
-        },
-        
-        child: function(node, attr){
-            return toPablo(node, attr).appendTo(this);
-        },
-        
-        before: function(node, attr){
-            return this.each(function(el){
-                var parentNode = el.parentNode;
-                if (parentNode){
-                    toPablo(node, attr).each(function(toInsert){
-                        parentNode.insertBefore(toInsert, el);
-                    });
-                }
-            });
-        },
-        
-        after: function(node, attr){
-            return this.each(function(el){
-                var parentNode = el.parentNode;
-                if (parentNode){
-                    toPablo(node, attr).each(function(toInsert){
-                        parentNode.insertBefore(toInsert, el.nextSibling);
-                    });
-                }
-            });
-        },
-
-        // Insert every element in the set of matched elements after the target.
-        insertAfter: function(node, attr){
-            toPablo(node, attr).after(this);
-            return this;
-        },
-        
-        // Insert every element in the set of matched elements before the target.
-        insertBefore: function(node, attr){
-            toPablo(node, attr).before(this);
-            return this;
-        },
-
-        prepend: function(node, attr){
-            return this.each(function(el){
-                var first = el.firstChild;
-                toPablo(node, attr).each(function(child){
-                    el.insertBefore(child, first);
-                });
-            });
-        },
-        
-        prependTo: function(node, attr){
-            toPablo(node, attr).prepend(this);
-            return this;
-        },
-        
         clone: function(deep){
             deep = (deep || false);
+
             return this.map(function(el){
-                return el.cloneNode(deep);
+                var cloned = el.cloneNode(deep),
+                    data, events, clonedEvents, type;
+
+                if (deep){
+                    data = Pablo.create(el).data();
+
+                    if (data){
+                        // Copy events object
+                        events = data[eventsNamespace];
+                        if (events){
+                            // Duplicate data object and events object on it, to
+                            // de-reference the cloned element's stored events
+                            data = Object.create(data);
+                            clonedEvents = data[eventsNamespace] = Object.create(events);
+                            // For each event type, e.g. `mousedown`, copy the array
+                            // of event listeners
+                            for (type in events){
+                                if (events.hasOwnProperty(type)){
+                                    // Create new array
+                                    clonedEvents[type] = events[type].slice();
+                                }
+                            }
+                        }
+                        // Set data on the cloned element
+                        Pablo(cloned).data(data);
+                    }
+                }
+
+                return cloned;
             });
         },
         
@@ -684,7 +645,7 @@
                 
                 // Clone the collection
                 while (repeats --){
-                    duplicates.push(this.clone(true)[0]);
+                    duplicates.push(this.clone(true));
                 }
 
                 // Insert in the DOM after the collection
@@ -769,8 +730,17 @@
         // Return an array of values from an attribute for each element 
         // in the collection
         pluck: function(property, type){
+            var undef;
+
             if (!type){
                 type = 'attr';
+            }
+
+            // Pass through `null` as undefined to each method
+            // e.g. `collection.pluck(null, 'data');` will return an array of
+            // data objects, one for each element in the collection.
+            if (property === null){
+                property = undef;
             }
 
             return toArray(this).map(function(el){
@@ -801,7 +771,7 @@
 
             return this.each(function(el, i){
                 // TODO: replace `node = Pablo(el)` with 
-                // `node = this.length === 1 ? this : Pablo(el)` everywhere that
+                // `node = this.length === 1 ? this : Pablo.create(el)` everywhere that
                 // is appropriate, to avoid unnecessary Pablo collection creation
                 var node = Pablo(el),
                     transformAttr = node.attr('transform'),
@@ -1208,56 +1178,53 @@
             data: function(key, value){
                 var id, data;
 
-                if (typeof key === 'string'){
-                    // Get value
+                // First argument is an object of key-value pairs
+                if (typeof key === 'object'){
+                    data = key;
+                }
+
+                // Get value - e.g. collection.data('foo') or collection.data()
+                else {
                     if (typeof value === 'undefined'){
                         if (this.length){
                             // Use the id of the first element in the collection
                             id = this[0][cacheExpando];
 
-                            // Return the cached value, by key
-                            if (id && id in cache){
-                                return cache[id][key];
+                            if (id in cache){
+                                return typeof key === 'undefined' ?
+                                    cache[id] : cache[id][key];
                             }
                         }
                         return;
                     }
 
-                    // Prepare object to set
+                    // Set value via (key, value); prepare data object
                     data = {};
                     data[key] = value;
                 }
 
-                // First argument is an object of key-value pairs
-                else {
-                    data = key;
-                }
-
-                // Set value
-                // Allow binding and triggering events on empty collections by create a 
-                // container object to store state.
+                // If there are no elements in the collection, so the collection
+                // is empty, then store a plain object to carry the collection's
+                // state. Used, for example, to allow an empty collection to 
+                // have events bound and triggered to it.
+                //      `var e = Pablo().on('foo', fn); e.trigger('foo');`
                 if (!this.length){
                     arrayProto.push.call(this, {});
                 }
                 
+                // Set data for each element
                 return this.each(function(el){
-                    var id = el[cacheExpando],
-                        key;
+                    var id = el[cacheExpando];
 
                     if (!id){
                         id = el[cacheExpando] = cacheNextId ++;
-                        cache[id] = {};
                     }
 
                     if (!cache[id]){
                         cache[id] = {};
                     }
 
-                    for (key in data){
-                        if (data.hasOwnProperty(key)){
-                            cache[id][key] = data[key];
-                        }
-                    }
+                    extend(cache[id], data);
                 });
             },
 
@@ -1283,29 +1250,89 @@
 
 
     // API SHORTCUTS
+        
+    // iterator e.g. `function(el, insertEl){el.appendChild(insertEl);}`
+    function insertElements(iterator, insertIntoThis, returnThis){
+        return function(node, attr){
+            var insertInto, toInsert;
+
+            if (this.length){
+                toInsert = toPablo(node, attr);
+
+                if (insertIntoThis === false){
+                    insertInto = toInsert;
+                    toInsert = this;
+                }
+                else {
+                    insertInto = this;
+                }
+
+                insertInto.each(function(el, i){
+                    if (i){
+                        toInsert = toInsert.clone(true);
+                    }
+                    toInsert.each(function(insertEl){
+                        iterator.call(insertInto, el, insertEl);
+                    });
+                });
+            }
+            return returnThis === false ? toInsert : this;
+        }
+    }
+
+    function append(el, insertEl){
+        el.appendChild(insertEl);
+    }
+
+    function prepend(el, insertEl){
+        el.insertBefore(insertEl, el.firstChild);
+    }
+
+    function before(el, toInsert){
+        if (el.parentNode){
+            el.parentNode.insertBefore(toInsert, el);
+        }
+    }
+
+    function after(el, toInsert){
+        if (el.parentNode){
+            el.parentNode.insertBefore(toInsert, el.nextSibling);
+        }
+    }
 
     function walk(prop, doWhile){
         return function(selectors, ancestor){
-            return this.relations(prop, selectors, ancestor, doWhile);
+            return this.traverse(prop, doWhile, selectors, ancestor);
         };
     }
 
     extend(pabloCollectionApi, {
+        // Manipulation methods
+        child:        insertElements(append, true, false),
+        append:       insertElements(append),
+        appendTo:     insertElements(append, false),
+        prepend:      insertElements(prepend),
+        prependTo:    insertElements(prepend, false),
+        before:       insertElements(before),
+        insertBefore: insertElements(before, false),
+        after:        insertElements(after),
+        insertAfter:  insertElements(after, false),
+
         // Traversal methods
-        children:     walk('childNodes',             null),
-        firstChild:   walk('firstChild',             null),
-        lastChild:    walk('lastChild',              null),
-        prev:         walk('previousElementSibling', null),
+        children:     walk('childNodes'),
+        firstChild:   walk('firstChild'),
+        lastChild:    walk('lastChild'),
+        prev:         walk('previousElementSibling'),
         prevSiblings: walk('previousElementSibling', true),
-        next:         walk('nextElementSibling',     null),
-        nextSiblings: walk('nextElementSibling',     true),
-        viewport:     walk('viewportElement',        null),
-        viewports:    walk('viewportElement',        true),
-        owner:        walk('ownerSVGElement',        null),
-        owners:       walk('ownerSVGElement',        true),
-        parent:       walk('parentNode',             null),
-        parents:      walk('parentNode',             isElement),
-        parentsSvg:   walk('parentNode',             isSVGElement),
+        next:         walk('nextElementSibling'),
+        nextSiblings: walk('nextElementSibling', true),
+        viewport:     walk('viewportElement'),
+        viewports:    walk('viewportElement', true),
+        owner:        walk('ownerSVGElement'),
+        owners:       walk('ownerSVGElement', true),
+        parent:       walk('parentNode'),
+        parents:      walk('parentNode', isElement),
+        parentsSvg:   walk('parentNode', isSVGElement),
 
         // Alias methods
         elements: pabloCollectionApi.toArray,
@@ -1491,6 +1518,7 @@
             // e.g. myElement.css({'transition-property': Pablo.cssPrefix('transform')});
 
         // data
+        // TODO: should `Pablo.create` be removed, to keep cache private?
         cache: cache,
 
         // TODO: support `collection.append('myTemplate')`
