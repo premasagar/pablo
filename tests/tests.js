@@ -19,6 +19,13 @@ describe('Pablo', function () {
 
   describe('Collections', function () {
 
+    describe('Pablo.Collection', function () {
+      it('.Collection', function () {
+        expect(Pablo.Collection.prototype).to.eql(Pablo.fn);
+        expect(Pablo.g() instanceof Pablo.Collection).to.eql(true);
+      });
+    });
+
     describe('Pablo(input)', function () {
 
       it('should return an empty pablo collection when invoked without argument', function () {
