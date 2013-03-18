@@ -48,6 +48,7 @@
         testElement && head && arrayProto && 
         Element && SVGElement && NodeList && HTMLDocument && 
         'createSVGRect' in testElement &&
+        'attributes' in testElement &&
         'querySelectorAll' in document &&
         'previousElementSibling' in head &&
         'children' in head &&
@@ -134,6 +135,7 @@
         return obj instanceof HTMLDocument;
     }
 
+    // Check if obj is an element from this or another document
     function hasSvgNamespace(obj){
         return obj && obj.namespaceURI && obj.namespaceURI === svgns;
     }
@@ -152,12 +154,12 @@
             hasSvgNamespace(obj);
     }
     
-    // Return node (with attributes) if a Pablo collection, otherwise create one
+    // Return node (with attributes) if a Pablo collection, otherwise create one.
     function toPablo(node, attr){
         if (Pablo.isPablo(node)){
             return attr ? node.attr(attr) : node;
         }
-        return Pablo.create(node, attr);
+        return Pablo(node, attr);
     }
 
     // Return CSS styles with browser vendor prefixes
