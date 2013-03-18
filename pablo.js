@@ -597,74 +597,6 @@
             });
         },
         
-        // NOTE: the following append-related functions all require attr to exist, even as a blank object, if a new element is to be created. Otherwise, if the first argument is a string, then a selection operation will be performed.
-        // TODO: If appending pre-existing elements, then append to just first element in the collection?
-        append: function(node, attr){
-            this.each(function(el){
-                toPablo(node, attr).each(function(child){
-                    el.appendChild(child);
-                });
-            });
-            return this;
-        },
-        
-        appendTo: function(node, attr){
-            toPablo(node, attr).append(this);
-            return this;
-        },
-        
-        child: function(node, attr){
-            return toPablo(node, attr).appendTo(this);
-        },
-        
-        before: function(node, attr){
-            return this.each(function(el){
-                var parentNode = el.parentNode;
-                if (parentNode){
-                    toPablo(node, attr).each(function(toInsert){
-                        parentNode.insertBefore(toInsert, el);
-                    });
-                }
-            });
-        },
-        
-        after: function(node, attr){
-            return this.each(function(el){
-                var parentNode = el.parentNode;
-                if (parentNode){
-                    toPablo(node, attr).each(function(toInsert){
-                        parentNode.insertBefore(toInsert, el.nextSibling);
-                    });
-                }
-            });
-        },
-
-        // Insert every element in the set of matched elements after the target.
-        insertAfter: function(node, attr){
-            toPablo(node, attr).after(this);
-            return this;
-        },
-        
-        // Insert every element in the set of matched elements before the target.
-        insertBefore: function(node, attr){
-            toPablo(node, attr).before(this);
-            return this;
-        },
-
-        prepend: function(node, attr){
-            return this.each(function(el){
-                var first = el.firstChild;
-                toPablo(node, attr).each(function(child){
-                    el.insertBefore(child, first);
-                });
-            });
-        },
-        
-        prependTo: function(node, attr){
-            toPablo(node, attr).prepend(this);
-            return this;
-        },
-        
         clone: function(deep){
             deep = (deep || false);
 
@@ -1318,6 +1250,55 @@
 
 
     // API SHORTCUTS
+        
+    // iterator e.g. `function(el, insertEl){el.appendChild(insertEl);}`
+    function insertElements(iterator, insertIntoThis, returnThis){
+        return function(node, attr){
+            var insertInto, toInsert;
+
+            if (this.length){
+                toInsert = toPablo(node, attr);
+
+                if (insertIntoThis === false){
+                    insertInto = toInsert;
+                    toInsert = this;
+                }
+                else {
+                    insertInto = this;
+                }
+
+                insertInto.each(function(el, i){
+                    if (i){
+                        toInsert = toInsert.clone(true);
+                    }
+                    toInsert.each(function(insertEl){
+                        iterator.call(insertInto, el, insertEl);
+                    });
+                });
+            }
+            return returnThis === false ? toInsert : this;
+        }
+    }
+
+    function append(el, insertEl){
+        el.appendChild(insertEl);
+    }
+
+    function prepend(el, insertEl){
+        el.insertBefore(insertEl, el.firstChild);
+    }
+
+    function before(el, toInsert){
+        if (el.parentNode){
+            el.parentNode.insertBefore(toInsert, el);
+        }
+    }
+
+    function after(el, toInsert){
+        if (el.parentNode){
+            el.parentNode.insertBefore(toInsert, el.nextSibling);
+        }
+    }
 
     function walk(prop, doWhile){
         return function(selectors, ancestor){
@@ -1326,6 +1307,17 @@
     }
 
     extend(pabloCollectionApi, {
+        // Manipulation methods
+        child:        insertElements(append, true, false),
+        append:       insertElements(append),
+        appendTo:     insertElements(append, false),
+        prepend:      insertElements(prepend),
+        prependTo:    insertElements(prepend, false),
+        before:       insertElements(before),
+        insertBefore: insertElements(before, false),
+        after:        insertElements(after),
+        insertAfter:  insertElements(after, false),
+
         // Traversal methods
         children:     walk('childNodes'),
         firstChild:   walk('firstChild'),
