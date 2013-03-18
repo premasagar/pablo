@@ -1466,6 +1466,32 @@ describe('Pablo', function () {
           expect(Pablo.isNodeList({})).to.eql(false);
         });
       });
+
+      describe('.isHTMLDocument()', function () {
+        it('.isHTMLDocument(obj) should return true if the HTML document object is passed', function () {
+          expect(Pablo.isHTMLDocument(document)).to.eql(true);
+        });
+
+        it('.isHTMLDocument(obj) should return false if a NodeList is passed', function () {
+          expect(Pablo.isHTMLDocument(Pablo('#test-subjects')[0].childNodes)).to.eql(false);
+        });
+
+        it('.isHTMLDocument(obj) should return false if a SVGElement is passed', function () {
+          expect(Pablo.isHTMLDocument(Pablo.circle()[0])).to.eql(false);
+        });
+
+        it('.isHTMLDocument(obj) should return false if a HTMLElement is passed', function () {
+          expect(Pablo.isHTMLDocument(document.createElement('a'))).to.eql(false);
+        });
+
+        it('.isHTMLDocument(obj) should return false if a jQueryCollection is passed', function () {
+          expect(Pablo.isHTMLDocument(jQuery('body'))).to.eql(false);
+        });
+
+        it('.isHTMLDocument(obj) should return false if a generic object is passed', function () {
+          expect(Pablo.isHTMLDocument({})).to.eql(false);
+        });
+      });
     });
   });
 
