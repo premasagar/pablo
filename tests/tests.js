@@ -1422,6 +1422,28 @@ describe('Pablo', function () {
           expect(Pablo.isElement({})).to.eql(false);
         });
       });
+
+      describe('.isSVGElement()', function () {
+        it('.isSVGElement(obj) should return true if a SVGElement is passed', function () {
+          expect(Pablo.isSVGElement(Pablo.circle()[0])).to.eql(true);
+        });
+
+        it('.isSVGElement(obj) should return false if a HTMLElement is passed', function () {
+          expect(Pablo.isSVGElement(document.createElement('a'))).to.eql(false);
+        });
+
+        it('.isSVGElement(obj) should return false if a NodeList is passed', function () {
+          expect(Pablo.isSVGElement(Pablo('#test-subjects')[0].childNodes)).to.eql(false);
+        });
+
+        it('.isSVGElement(obj) should return false if a jQueryCollection is passed', function () {
+          expect(Pablo.isSVGElement(jQuery('body'))).to.eql(false);
+        });
+
+        it('.isSVGElement(obj) should return false if a generic object is passed', function () {
+          expect(Pablo.isSVGElement({})).to.eql(false);
+        });
+      });
     });
   });
 
