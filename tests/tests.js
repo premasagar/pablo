@@ -1117,7 +1117,7 @@ describe('Pablo', function () {
 
           setTimeout(function () {
             done();
-          }, 1600);
+          }, 4);
         });
 
         it('.clone([isDeep]) should return a deep copy (includes children) of the PabloCollection', function () {
@@ -1545,7 +1545,7 @@ describe('Pablo', function () {
 
         setTimeout(function () {
           done();
-        }, 1600);
+        }, 4);
       });
 
       it('.off(type, listener) should remove an event on a empty PabloCollection', function (done) {
@@ -1563,7 +1563,7 @@ describe('Pablo', function () {
 
         setTimeout(function () {
           done();
-        }, 1600);
+        }, 4);
       });
     });
 
@@ -1587,7 +1587,7 @@ describe('Pablo', function () {
           } else {
             done(new Error('The event persisted'));
           }
-        }, 1600)
+        }, 4)
       });
 
       it('.one(type, listener) should add an event on an empty PabloCollection and it should be removed when triggered', function (done) {
@@ -1608,7 +1608,7 @@ describe('Pablo', function () {
           } else {
             done(new Error('The event persisted'));
           }
-        }, 1600)
+        }, 4)
       });
     });
 
@@ -1632,7 +1632,7 @@ describe('Pablo', function () {
           } else {
             done(new Error());
           }
-        })
+        }, 4)
       });
     });
   });
