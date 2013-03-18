@@ -1082,6 +1082,37 @@ describe('Pablo', function () {
           expect(arr[1]).to.eql('opacity 1s');
         });
       });
+
+      describe('.select()', function () {
+        it('.select(function) should return a new collection for each element for which the callback function returns true', function () {
+          var pCollection = Pablo([Pablo.rect(), Pablo.a(), Pablo.circle]);
+          notDone();
+        });
+      });
+
+      describe('.every()', function () {
+        it('.every(function) should return true if all values in the PabloCollection pass the test function', function () {
+          var pCollection = Pablo([Pablo.a({foo:'bar'}),
+                                   Pablo.a({foo:'bar'}),
+                                   Pablo.a({foo:'bar'})]),
+              outcome1, outcome2;
+
+          function test (item, i) {
+            if (item.getAttribute('foo') === 'bar') {
+              return true;
+            } else {
+              return false;
+            }
+          }
+
+          outcome1 = pCollection.every(test);
+          pCollection[1].setAttribute('foo', 'wrong');
+          outcome2 = pCollection.every(test);
+          
+          expect(outcome1).to.eql(true);
+          expect(outcome2).to.eql(false);
+        });
+      });
     });
 
     describe('Misc', function () {
