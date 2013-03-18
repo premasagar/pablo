@@ -227,15 +227,16 @@
     */
 
     // `behaviour` can be 'some', 'every' or 'filter'
-    function matchSelectors(collection, selectors, ancestor, behaviour){
-        var i, len, node, ancestors, matches, matchesCache, 
+    function matchSelectors(collection, selectors, context, behaviour){
+        var i, len, node, ancestor, ancestors, matches, matchesCache, 
             ancestorsLength, isMatch, filtered;
 
         // The optional `ancestor` node is used to perform the selection on.
-        if (ancestor){
-            if (!Pablo.isPablo(ancestor)){
-                ancestor = toPablo(ancestor);
+        if (context){
+            if (!Pablo.isPablo(context)){
+                context = toPablo(context);
             }
+            ancestor = context;
         }
 
         // Filter to as subset of the collection
@@ -248,7 +249,7 @@
 
             // If no `ancestor` given, then find the element's root ancestor. If 
             // the element is currently in the DOM, this will be the `document`.
-            if (!ancestor) {
+            if (!context){
                 ancestor = node
                     .relations('parentNode', null, null, isElementOrDocument)
                     .last();
