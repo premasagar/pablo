@@ -385,6 +385,19 @@ describe('Pablo', function () {
         });
       });
 
+      describe('.parents()', function () {
+        it('.parents() should return all ancestors of the PabloCollection as a PabloCollection ordered by closest to oldest', function () {
+          var child     = Pablo('#test-subject-a'),
+              ancestors = child.parents(),
+              expected  = Pablo('html').add(Pablo('body')).add(Pablo('#test-subjects'));
+
+          expected.reverse();
+
+          expect(ancestors).to.eql(expected);
+          expect(ancestors instanceof Pablo.Collection).to.eql(true);
+        });
+      });
+
       describe('.siblings()', function () {
         it('.siblings() should return the sibling elements as PabloCollections', function () {
           var aSibling = document.getElementById('test-subject-a'),
