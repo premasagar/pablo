@@ -919,8 +919,8 @@ describe('Pablo', function () {
     });
     
     describe('Collection iteration', function () {
-      describe('.each()', function () {
-        it('.each(callback) should iterate over every element in the collection passing to a callback the element and an iterator', function () {
+      describe('.each()/.forEach()', function () {
+        it('.each(callback)/.forEach(callback) should iterate over every element in the collection passing to a callback the element and an iterator', function () {
           var pCollection      = Pablo([Pablo.rect(), Pablo.circle(), Pablo.a()]),
               iterationIndices = [],
               pabloItems       = [];
@@ -937,7 +937,7 @@ describe('Pablo', function () {
           expect(iterationIndices[1]).to.eql(1);
           expect(iterationIndices[2]).to.eql(2);
         });
-        it('.each(callback, context) like above but the this property refers to the passed context', function () {
+        it('.each(callback, context)/.forEach(callback, context) like above but the this property refers to the passed context', function () {
           var pCollection      = Pablo([Pablo.rect(), Pablo.circle(), Pablo.a()]),
               iterationIndices = [],
               pabloItems       = [],
