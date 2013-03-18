@@ -464,6 +464,24 @@ describe('Pablo', function () {
           expect(last instanceof Pablo.Collection).to.eql(true)
         });
       });
+
+      describe('.firstChild()', function () {
+        it('firstChild() should return a PabloCollection', function () {
+          var pCollection = Pablo.rect().append([Pablo.a(), Pablo.g(), Pablo.rect()]),
+              child;
+
+          expect(pCollection.firstChild()[0] instanceof SVGAElement).to.eql(true);
+        });
+      });
+
+      describe('.lastChild()', function () {
+        it('lastChild() should return a PabloCollection', function () {
+          var pCollection = Pablo.rect().append([Pablo.a(), Pablo.g(), Pablo.rect()]),
+              child;
+
+          expect(pCollection.lastChild()[0] instanceof SVGRectElement).to.eql(true);
+        });
+      });
     });
 
     describe('Node Properties', function () {
