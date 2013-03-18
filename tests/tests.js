@@ -874,6 +874,17 @@ describe('Pablo', function () {
           expect(newCopy[1].id).to.eql('test-subject-b');
         });
       });
+
+      describe('.reverse()', function () {
+        it('.reverse() should mutate the PabloCollection by reversing its element order', function () {
+          var subject  = Pablo([Pablo.rect(), Pablo.ellipse(), Pablo.a()]),
+              expected = Pablo([Pablo.a(), Pablo.ellipse(), Pablo.rect()]);
+
+          subject.reverse();
+
+          expect(subject).to.eql(expected);
+        });
+      });
     });
     
     describe('Collection iteration', function () {
