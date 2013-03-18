@@ -397,8 +397,8 @@
                     toBeAdded = true;
                 }
 
-                // Is an existing element
-                // TODO: document where hasSvgNamespace() is required, e.g. on iOS Safari
+                // Is an existing element or document
+                // hasSvgNamespace Check if obj is an element from this or another document
                 else if (isElement(node) || isHTMLDocument(node) || hasSvgNamespace(node)){
                     // If element is already in collection then skip
                     if (this.indexOf(node) >= 0){
@@ -533,8 +533,7 @@
                 el = el[prop];
                 while (el && (isFn ? doWhile(el) : true)){
                     collection.push(el);
-                    el = doWhile ?
-                        el[prop] : null;
+                    el = doWhile ? el[prop] : false;
                 }
             });
             return selectors ? collection.select(selectors, ancestor) : collection;
