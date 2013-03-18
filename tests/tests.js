@@ -1444,6 +1444,28 @@ describe('Pablo', function () {
           expect(Pablo.isSVGElement({})).to.eql(false);
         });
       });
+
+      describe('.isNodeList()', function () {
+        it('.isNodeList(obj) should return true if a NodeList is passed', function () {
+          expect(Pablo.isNodeList(Pablo('#test-subjects')[0].childNodes)).to.eql(true);
+        });
+
+        it('.isNodeList(obj) should return false if a SVGElement is passed', function () {
+          expect(Pablo.isNodeList(Pablo.circle()[0])).to.eql(false);
+        });
+
+        it('.isNodeList(obj) should return false if a HTMLElement is passed', function () {
+          expect(Pablo.isNodeList(document.createElement('a'))).to.eql(false);
+        });
+
+        it('.isNodeList(obj) should return false if a jQueryCollection is passed', function () {
+          expect(Pablo.isNodeList(jQuery('body'))).to.eql(false);
+        });
+
+        it('.isNodeList(obj) should return false if a generic object is passed', function () {
+          expect(Pablo.isNodeList({})).to.eql(false);
+        });
+      });
     });
   });
 
