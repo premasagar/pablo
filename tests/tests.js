@@ -1084,9 +1084,24 @@ describe('Pablo', function () {
       });
 
       describe('.select()', function () {
-        it('.select(function) should return a new collection for each element for which the callback function returns true', function () {
-          var pCollection = Pablo([Pablo.rect(), Pablo.a(), Pablo.circle]);
-          notDone();
+        it('.select(function) should return a new collection containing each element for which the callback function returns true', function () {
+          var pCollection = Pablo([Pablo.rect(), Pablo.a(), Pablo.circle()]),
+              expected1   = Pablo([Pablo.rect(), Pablo.a(), Pablo.circle()]),
+              expected2   = Pablo(Pablo.a()),
+              outcome1, outcome2;
+
+          outcome1 = pCollection.select(function (item, i) {
+            return true;
+          });
+
+          outcome2 = pCollection.select(function (item, i) {
+            if (item instanceof SVGAElement) {
+              return true;
+            }
+          });
+
+          expect(outcome1).to.eql(expected1);
+          expect(outcome2).to.eql(expected2);
         });
       });
 
