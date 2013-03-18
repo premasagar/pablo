@@ -410,6 +410,41 @@ describe('Pablo', function () {
         });
       });
 
+      describe('.nextSiblings()', function () {
+        it('.nextSiblings() should return the next sibling elements of the PabloCollections as PabloCollections', function () {
+          var pCollection = Pablo.rect().append([Pablo.a(),
+                                                 Pablo.g(),
+                                                 Pablo.ellipse(),
+                                                 Pablo.circle()
+                                                ]),
+              siblings    = pCollection.children().eq(1).nextSiblings();
+
+          expect(siblings.length).to.eql(2);
+          expect(siblings instanceof Pablo.Collection).to.eql(true);
+          expect(siblings[0] instanceof SVGEllipseElement).to.eql(true);
+          expect(siblings[1] instanceof SVGCircleElement).to.eql(true);
+        });
+      });
+
+      describe('.prevSiblings()', function () {
+        it('.prevSiblings() should return the previous sibling elements of the PabloCollection as PabloCollections', function () {
+          var pCollection = Pablo.rect().append([Pablo.a(),
+                                                 Pablo.g(),
+                                                 Pablo.ellipse(),
+                                                 Pablo.circle()
+                                                ]),
+              siblings    = pCollection.children().eq(3).prevSiblings();
+
+          siblings.reverse();
+
+          expect(siblings.length).to.eql(3);
+          expect(siblings instanceof Pablo.Collection).to.eql(true);
+          expect(siblings[0] instanceof SVGAElement).to.eql(true);
+          expect(siblings[1] instanceof SVGGElement).to.eql(true);
+          expect(siblings[2] instanceof SVGEllipseElement).to.eql(true);
+        });
+      });
+
       describe('.prev()', function () {
         it('.prev() should return the element\'s previous sibling as a PabloCollection', function () {
           var b = Pablo('#test-subject-b');
