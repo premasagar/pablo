@@ -1232,13 +1232,19 @@ describe('Pablo', function () {
 
           expect(expectTrue).to.eql(true);
           expect(expectFalse).to.eql(false);
-
         });
 
         it('.some(PabloCollection)/.is(PabloCollection) should return true if the matching PabloCollection is found in the PabloCollection', function () {
           var subject  = Pablo([Pablo.rect(), Pablo.ellipse()]),
               expected = subject.some(Pablo.ellipse());
           
+          expect(expected).to.eql(true);
+        });
+
+        it('.some(HTMLElement)/.is(HTMLElement) should return true if the matching HTMLElement is found in the PabloCollection', function () {
+          var subject  = Pablo([document.createElement('span'), document.createElement('a')]),
+              expected = subject.some(document.createElement('a'));
+
           expect(expected).to.eql(true);
         });
 
@@ -1261,6 +1267,14 @@ describe('Pablo', function () {
               expected = subject.some('#foo');
           
           expect(expected).to.eql(true);
+        });
+
+        it('.some(selector)/.is(selector) should return true if the matching selector is found in the complex PabloCollection ', function () {
+          var subject = Pablo(document.createElement('span'));
+
+          subject.append(document.createElement('a'));
+          
+          expect(subject.some('span a')).to.eql(true);
         });
       });
 
