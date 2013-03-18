@@ -1520,7 +1520,7 @@ describe('Pablo', function () {
       });
       
       describe('.hyphensToCamelCase()', function () {
-        it('.hyphensToCamelCase() should return a camel cased string of the passed hyphenated string', function () {
+        it('.hyphensToCamelCase() should return a camel cased string based of the passed hyphenated string', function () {
           var cc = Pablo.hyphensToCamelCase('water-the-plants');
           expect(cc).to.eql('waterThePlants');
         });
