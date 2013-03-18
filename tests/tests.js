@@ -1518,6 +1518,13 @@ describe('Pablo', function () {
           expect(Pablo.isPablo({})).to.eql(false);
         });
       });
+      
+      describe('.hyphensToCamelCase()', function () {
+        it('.hyphensToCamelCase() should return a camel cased string of the passed hyphenated string', function () {
+          var cc = Pablo.hyphensToCamelCase('water-the-plants');
+          expect(cc).to.eql('waterThePlants');
+        });
+      });
     });
   });
 
