@@ -1492,6 +1492,32 @@ describe('Pablo', function () {
           expect(Pablo.isHTMLDocument({})).to.eql(false);
         });
       });
+
+      describe('.isPablo()', function () {
+        it('.isPablo(obj) should return true if a PabloCollection passed', function () {
+          expect(Pablo.isPablo(Pablo())).to.eql(true);
+        });
+
+        it('.isPablo(obj) should return false if a NodeList is passed', function () {
+          expect(Pablo.isPablo(Pablo('#test-subjects')[0].childNodes)).to.eql(false);
+        });
+
+        it('.isPablo(obj) should return false if a SVGElement is passed', function () {
+          expect(Pablo.isPablo(Pablo.circle()[0])).to.eql(false);
+        });
+
+        it('.isPablo(obj) should return false if a HTMLElement is passed', function () {
+          expect(Pablo.isPablo(document.createElement('a'))).to.eql(false);
+        });
+
+        it('.isPablo(obj) should return false if a jQueryCollection is passed', function () {
+          expect(Pablo.isPablo(jQuery('body'))).to.eql(false);
+        });
+
+        it('.isPablo(obj) should return false if a generic object is passed', function () {
+          expect(Pablo.isPablo({})).to.eql(false);
+        });
+      });
     });
   });
 
