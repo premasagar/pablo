@@ -1293,21 +1293,21 @@ describe('Pablo', function () {
 
         it('.some(PabloCollection)/.is(PabloCollection) should return true if the matching PabloCollection is found in the PabloCollection', function () {
           var subject  = Pablo([Pablo.rect(), Pablo.ellipse()]),
-              expected = subject.some(Pablo.ellipse());
-          
+              expected = subject.some(subject.eq(1));
+
           expect(expected).to.eql(true);
         });
 
         it('.some(HTMLElement)/.is(HTMLElement) should return true if the matching HTMLElement is found in the PabloCollection', function () {
           var subject  = Pablo([document.createElement('span'), document.createElement('a')]),
-              expected = subject.some(document.createElement('a'));
+              expected = subject.some(subject[1]);
 
           expect(expected).to.eql(true);
         });
 
         it('.some(SVGElement)/.is(SVGElement) should return true if the matching SVGElement is found in the PabloCollection', function () {
           var subject  = Pablo([Pablo.rect(), Pablo.ellipse()]),
-              expected = subject.some(Pablo.ellipse()[0]);
+              expected = subject.some(subject[1]);
           
           expect(expected).to.eql(true);
         });
@@ -1326,12 +1326,12 @@ describe('Pablo', function () {
           expect(expected).to.eql(true);
         });
 
-        it('.some(selector)/.is(selector) should return true if the matching selector is found in the complex PabloCollection ', function () {
+        it('.some(selector)/.is(selector) should return true if the matching selector is found in the PabloCollection ', function () {
           var subject = Pablo(document.createElement('span'));
 
           subject.append(document.createElement('a'));
           
-          expect(subject.some('span a')).to.eql(true);
+          expect(subject.some('a')).to.eql(true);
         });
       });
 
