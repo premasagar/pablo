@@ -1378,6 +1378,28 @@ describe('Pablo', function () {
           expect(items[1]).to.eql('bar');
         });
       });
+
+      describe('.isArrayLike()', function () {
+        it('.isArrayLike(obj) should return true if an array is passed', function () {
+          expect(Pablo.isArrayLike([])).to.eql(true);
+        });
+
+        it('.isArrayLike(obj) should return true if a PabloCollection is passed', function () {
+          expect(Pablo.isArrayLike(Pablo('body'))).to.eql(true);
+        });
+
+        it('.isArrayLike(obj) should return true if a NodeList is passed', function () {
+          expect(Pablo.isArrayLike(Pablo('#test-subjects')[0].childNodes)).to.eql(true);
+        });
+
+        it('.isArrayLike(obj) should return true if a jQueryCollection is passed', function () {
+          expect(Pablo.isArrayLike(jQuery('body'))).to.eql(true);
+        });
+
+        it('.isArrayLike(obj) should return false if a generic object is passed', function () {
+          expect(Pablo.isArrayLike({})).to.eql(false);
+        });
+      });
     });
   });
 
