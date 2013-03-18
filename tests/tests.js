@@ -1326,10 +1326,10 @@ describe('Pablo', function () {
           expect(expected).to.eql(true);
         });
 
-        it('.some(selector)/.is(selector) should return true if the matching selector is found in the complex PabloCollection ', function () {
-          var subject = Pablo(document.createElement('span'));
-
-          subject.append(document.createElement('a'));
+        it('.some(selector)/.is(selector) should return true if the matching selector is found in the nested PabloCollection ', function () {
+          var span = document.createElement('span'),
+              anchor = span.appendChild(document.createElement('a')),
+              subject = Pablo(['rect', anchor, 'g']);
           
           expect(subject.some('span a')).to.eql(true);
         });
