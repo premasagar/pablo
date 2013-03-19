@@ -1204,6 +1204,22 @@ describe('Pablo', function () {
     });
 
     describe('Misc', function () {
+      describe('.create()', function () {
+        it('.create(node) should return a new Pablo collection containing one element based on the passed argument', function () {
+          var pCollection = Pablo.create('span');
+          expect(pCollection instanceof Pablo.Collection).to.eql(true);
+          expect(pCollection[0].tagName.toLowerCase()).to.eql('span');
+        });
+
+        it('.create(node, [attr]) should return a new Pablo collection containing one element with attributes based on the passed arguments', function () {
+          var pCollection = Pablo.create('span', {foo: 'bar'});
+
+          expect(pCollection instanceof Pablo.Collection).to.eql(true);
+          expect(pCollection[0].tagName.toLowerCase()).to.eql('span');
+          expect(pCollection[0].getAttribute('foo')).to.eql('bar');
+        });
+      });
+
       describe('.clone()', function () {
         it('.clone() should return a shallow copy (excludes children) of the PabloCollection', function () {
           var original = Pablo.rect({foo: 'bar'}),
