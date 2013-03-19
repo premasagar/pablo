@@ -405,6 +405,48 @@ describe('Pablo', function () {
         });
       });
 
+      describe('.parentsSvg()', function () {
+        it('.parentsSvg()', function () {
+          notDone();
+        });
+      });
+
+      describe('.root()', function () {
+        it('.root()', function () {
+          notDone();
+        });
+      });
+
+      describe('.root()', function () {
+        it('.root()', function () {
+          notDone();
+        });
+      });
+
+      describe('.viewport()', function () {
+        it('.viewport()', function () {
+          notDone();
+        });
+      });
+
+      describe('.viewports()', function () {
+        it('.viewports()', function () {
+          notDone();
+        });
+      });
+
+      describe('.owner()', function () {
+        it('.owner()', function () {
+          notDone();
+        });
+      });
+
+      describe('.owners()', function () {
+        it('.owners()', function () {
+          notDone();
+        });
+      });
+
       describe('.siblings()', function () {
         it('.siblings() should return the sibling elements as PabloCollections', function () {
           var aSibling = document.getElementById('test-subject-a'),
@@ -467,6 +509,12 @@ describe('Pablo', function () {
 
           expect(b.next()[0].id).to.eql('test-subject-c');
           expect(b.next() instanceof Pablo.Collection).to.eql(true);
+        });
+      });
+
+      describe('.traversal()', function () {
+        it('.traversal()', function () {
+          notDone();
         });
       });
 
@@ -1077,6 +1125,12 @@ describe('Pablo', function () {
           expect(pCollection[0].id).to.eql('test-subject-a');
           expect(pCollection[1].id).to.eql('test-subject-b');
           expect(pCollection[2].id).to.eql('test-subject-c');
+        });
+      });
+
+      describe('.sort()', function () {
+        it('.sort()', function () {
+          notDone();
         });
       });
 
