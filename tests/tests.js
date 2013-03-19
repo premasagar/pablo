@@ -1234,6 +1234,23 @@ describe('Pablo', function () {
         });
       });
 
+      describe('.getAttributes()', function () {
+        it('.getAttributes(element) should return an object map of the passed element\'s attributes', function () {
+          var span     = document.createElement('span'),
+              expected = {
+                foo:'bar',
+                fiz:'buz',
+                zip:'zop'
+              };
+
+            span.setAttribute('foo', 'bar');
+            span.setAttribute('fiz', 'buz');
+            span.setAttribute('zip', 'zop');
+
+          expect(Pablo.getAttributes(span)).to.eql(expected);
+        });
+      });
+
       describe('.clone()', function () {
         it('.clone() should return a shallow copy (excludes children) of the PabloCollection', function () {
           var original = Pablo.rect({foo: 'bar'}),
