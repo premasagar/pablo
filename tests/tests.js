@@ -1243,9 +1243,9 @@ describe('Pablo', function () {
                 zip:'zop'
               };
 
-            span.setAttribute('foo', 'bar');
-            span.setAttribute('fiz', 'buz');
-            span.setAttribute('zip', 'zop');
+          span.setAttribute('foo', 'bar');
+          span.setAttribute('fiz', 'buz');
+          span.setAttribute('zip', 'zop');
 
           expect(Pablo.getAttributes(span)).to.eql(expected);
         });
@@ -1465,6 +1465,24 @@ describe('Pablo', function () {
 
           expect(items[0]).to.eql('foo');
           expect(items[1]).to.eql('bar');
+        });
+      });
+
+      describe('.canBeWrapped()', function () {
+        it('.canBeWrapped(elem) should return true', function () {
+          expect(Pablo.canBeWrapped(document.body)).to.eql(true);
+        });
+
+        it('.canBeWrapped(jQueryCollection) should return true', function () {
+          expect(Pablo.canBeWrapped(jQuery('body'))).to.eql(true);
+        });
+
+        it('.canBeWrapped(pabloCollection) should return true', function () {
+          expect(Pablo.canBeWrapped(Pablo('body'))).to.eql(true);
+        });
+
+        it('.canBeWrapped({}) should return false', function () {
+          expect(Pablo.canBeWrapped({})).to.not.eql(true);
         });
       });
 
