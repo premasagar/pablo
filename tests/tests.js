@@ -1220,6 +1220,20 @@ describe('Pablo', function () {
         });
       });
 
+      describe('.make()', function () {
+        it('.make(svgName) should return a native SVG element with the supplied name', function () {
+          var a       = Pablo.make('a'),
+              ellipse = Pablo.make('ellipse'),
+              circle  = Pablo.make('circle'),
+              rect    = Pablo.make('rect');
+
+          expect(a instanceof SVGAElement).to.eql(true);
+          expect(ellipse instanceof SVGEllipseElement).to.eql(true);
+          expect(circle instanceof SVGCircleElement).to.eql(true);
+          expect(rect instanceof SVGRectElement).to.eql(true);
+        });
+      });
+
       describe('.clone()', function () {
         it('.clone() should return a shallow copy (excludes children) of the PabloCollection', function () {
           var original = Pablo.rect({foo: 'bar'}),
