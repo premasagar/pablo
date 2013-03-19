@@ -417,12 +417,6 @@ describe('Pablo', function () {
         });
       });
 
-      describe('.root()', function () {
-        it('.root()', function () {
-          notDone();
-        });
-      });
-
       describe('.viewport()', function () {
         it('.viewport()', function () {
           notDone();
@@ -512,8 +506,8 @@ describe('Pablo', function () {
         });
       });
 
-      describe('.traversal()', function () {
-        it('.traversal()', function () {
+      describe('.traverse()', function () {
+        it('.traverse()', function () {
           notDone();
         });
       });
@@ -768,6 +762,12 @@ describe('Pablo', function () {
 
           expect(appliedWithPrefix1).to.eql(true);
           expect(appliedWithPrefix2).to.eql(true);
+        });
+      });
+
+      describe('.getValue()', function () {
+        it('.getValue()', function () {
+          notDone();
         });
       });
 
@@ -2106,6 +2106,24 @@ describe('Pablo', function () {
           }
         }, 4)
       });
+    });
+  });
+
+  describe('.extend()', function () {
+    it('extend()', function () {
+      notDone();
+    });
+  });
+
+  describe('.cssPrefix()', function () {
+    it('cssPrefix()', function () {
+      notDone();
+    });
+  });
+
+  describe('.template()', function () {
+    it('template()', function () {
+      notDone();
     });
   });
 
