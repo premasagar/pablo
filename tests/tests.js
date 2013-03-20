@@ -2110,8 +2110,90 @@ describe('Pablo', function () {
   });
 
   describe('.extend()', function () {
-    it('extend()', function () {
-      notDone();
+    it('extend(source, target)', function () {
+      var obj  = {
+        foo: 'bar'
+      },
+      obj2     = {
+        fiz: 'buz'
+      },
+      expected = {
+        foo: 'bar',
+        fiz: 'buz'
+      };
+      expect(Pablo.extend(obj, obj2)).to.eql(expected);
+    });
+
+    it('extend(source, target, target)', function () {
+      var obj  = {
+        foo: 'bar'
+      },
+      obj2     = {
+        fiz: 'buz'
+      },
+      obj3     = {
+        yin: 'yan'
+      },
+      expected = {
+        foo: 'bar',
+        fiz: 'buz',
+        yin: 'yan'
+      };
+      expect(Pablo.extend(obj, obj2, obj3)).to.eql(expected);
+    });
+
+    it('extend(source, target, target, deep)', function () {
+      var obj  = {
+        foo: 'bar'
+      },
+      obj2     = {
+        fiz: 'buz',
+        deep: {
+          'zip': 'zap'
+        }
+      },
+      obj3     = {
+        yin: 'yan',
+        deep: {
+          'fip': 'fop'
+        }
+      },
+      expected = {
+        foo: 'bar',
+        fiz: 'buz',
+        yin: 'yan',
+        deep: {
+          'zip': 'zap',
+          'fip': 'fop'
+        }
+      };
+      expect(Pablo.extend(obj, obj2, obj3, true)).to.eql(expected);
+    });
+
+    it('extend(source, target, deep)', function () {
+      var obj = {
+        fiz: 'buz',
+        deep: {
+          'zip': 'zap'
+        }
+      },
+      obj2    = {
+        yin: 'yan',
+        deep: {
+          'fip': 'fop',
+          'com': [true, false, {}, 123, NaN, {'foo': 'bar'}]
+        }
+      },
+      expected = {
+        fiz: 'buz',
+        yin: 'yan',
+        deep: {
+          'zip': 'zap',
+          'fip': 'fop',
+          'com': [true, false, {}, 123, NaN, {'foo': 'bar'}]
+        }
+      };
+      expect(Pablo.extend(obj, obj2, true)).to.eql(expected);
     });
   });
 
@@ -2122,7 +2204,10 @@ describe('Pablo', function () {
   });
 
   describe('.template()', function () {
-    it('template()', function () {
+    it('template(name, function) should set a new svg shape namespace on the pablo object', function () {
+      Pablo.template('star', function (options) {
+
+      });
       notDone();
     });
   });
