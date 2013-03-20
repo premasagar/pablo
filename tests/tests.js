@@ -1129,8 +1129,16 @@ describe('Pablo', function () {
       });
 
       describe('.sort()', function () {
-        it('.sort()', function () {
-          notDone();
+        it('.sort(function) should sort the collection based on the negativity of the returned value callback iteration', function () {
+          var unsorted = Pablo([Pablo.a({'n':2}), Pablo.a({'n':3}), Pablo.a({'n':1})]);
+
+          unsorted.sort(function (a, b) {
+            return parseInt(a.getAttribute('n')) - parseInt(b.getAttribute('n'));
+          });
+
+          expect(unsorted[0].getAttribute('n')).to.eql('1');
+          expect(unsorted[1].getAttribute('n')).to.eql('2');
+          expect(unsorted[2].getAttribute('n')).to.eql('3');
         });
       });
 
