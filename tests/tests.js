@@ -414,12 +414,12 @@ describe('Pablo', function () {
       describe('.root()', function () {
         it('.root() should return the pablo wrapped <svg> root element of the Pablo collection.', function () {
           var pCollection = Pablo('div', {}),
-              deppChild;
+              deepChild;
 
           pCollection.svg().circle().ellipse().g().rect().a(),
-          pCollection.find('a');
+          deepChild = pCollection.find('a');
           
-          expect(deepChild.root()[0] SVSVGElement).to.eql(true);
+          expect(deepChild.root()[0] instanceof SVGSVGElement).to.eql(true);
         });
       });
 
