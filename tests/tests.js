@@ -407,7 +407,18 @@ describe('Pablo', function () {
 
       describe('.parentsSvg()', function () {
         it('.parentsSvg()', function () {
-          notDone();
+          var pCollection = Pablo.svg(),
+              deepChild,
+              svgParents;
+
+          pCollection.circle().append('span', {});
+          pCollection.firstChild().firstChild().append('a', {});
+          deepChild = pCollection.find('a');
+
+          svgParents = deepChild.parentsSvg();
+
+          expect(svgParents[0] instanceof SVGCircleElement).to.eql(true);
+          expect(svgParents[1] instanceof SVGSVGElement).to.eql(true);
         });
       });
 
@@ -416,7 +427,7 @@ describe('Pablo', function () {
           var pCollection = Pablo('div', {}),
               deepChild;
 
-          pCollection.svg().circle().ellipse().g().rect().a(),
+          pCollection.svg().circle().ellipse().g().rect().a();
           deepChild = pCollection.find('a');
           
           expect(deepChild.root()[0] instanceof SVGSVGElement).to.eql(true);
