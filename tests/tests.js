@@ -436,14 +436,27 @@ describe('Pablo', function () {
       });
 
       describe('.owner()', function () {
-        it('.owner()', function () {
-          notDone();
+        it('.owner() should return the closest <svg> ancestor element of the Pablo collection wrapped as a Pablo collection.', function () {
+          var pCollection = Pablo('div', {}),
+              deepChild;
+
+          pCollection.svg().circle().svg({foo: 'bar'}).circle().g().a(),
+          deepChild = pCollection.find('a');
+          
+          expect(deepChild.owner()[0].getAttribute('foo')).to.eql('bar');
         });
       });
 
       describe('.owners()', function () {
-        it('.owners()', function () {
-          notDone();
+        it('.owners() should a pablo collection of the all <svg> ancestor element\'s of the Pablo collection from closest to furthest.', function () {
+          var pCollection = Pablo('div', {}),
+              deepChild;
+
+          pCollection.svg({fiz: 'buz'}).circle().svg({foo: 'bar'}).circle().a(),
+          deepChild = pCollection.find('a');
+          
+          expect(deepChild.owners()[0].getAttribute('foo')).to.eql('bar');
+          expect(deepChild.owners()[1].getAttribute('fiz')).to.eql('buz');
         });
       });
 
