@@ -2236,11 +2236,21 @@ describe('Pablo', function () {
   });
 
   describe('.template()', function () {
-    it('template(name, function) should set a new svg shape namespace on the pablo object', function () {
-      Pablo.template('star', function (options) {
+    it('.template(name, function) should set a new svg shape namespace on the pablo object and return what was returned in the argument function', function () {
+      var square;
 
+      Pablo.template('square', function () {
+        return Pablo.rect({
+          height: '50',
+          width:  '50'
+        });
       });
-      notDone();
+
+      square = Pablo.square();
+
+      expect(square[0] instanceof SVGRectElement).to.eql(true);
+      expect(square[0].getAttribute('height')).to.eql('50');
+      expect(square[0].getAttribute('width')).to.eql('50');
     });
   });
 
