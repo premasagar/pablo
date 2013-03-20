@@ -2235,12 +2235,6 @@ describe('Pablo', function () {
     });
   });
 
-  describe('.cssPrefix()', function () {
-    it('cssPrefix()', function () {
-      notDone();
-    });
-  });
-
   describe('.template()', function () {
     it('template(name, function) should set a new svg shape namespace on the pablo object', function () {
       Pablo.template('star', function (options) {
