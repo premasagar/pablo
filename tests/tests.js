@@ -411,7 +411,7 @@ describe('Pablo', function () {
               deepChild,
               parents;
 
-          collection.circle().ellipse().append('a');
+          collection.circle().ellipse().append('a', {});
           deepChild = collection.find('a');
           parents = deepChild.parentsSvg();
 
