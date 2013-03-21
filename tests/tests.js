@@ -408,12 +408,12 @@ describe('Pablo', function () {
       describe('.parentsSvg()', function () {
         it('.parentsSvg()', function () {
           var collection = Pablo('div', {}),
-              deepChil,
+              deepChild,
               parents;
 
           collection.circle().ellipse().append('a');
           deepChild = collection.find('a');
-          parentsSvg = deepChild.parentsSvg();
+          parents = deepChild.parentsSvg();
 
           expect(parents.length).to.eql(2);
           expect(parents[0] instanceof SVGEllipseElement).to.eql(true);
