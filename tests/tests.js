@@ -59,7 +59,7 @@ describe('Pablo', function () {
 
           for (var i = 0; i < nodeList.length; i++) {
             asArray.push(nodeList[i]);
-          };
+          }
 
         pCollection = Pablo(asArray);
 
@@ -372,7 +372,7 @@ describe('Pablo', function () {
 
         it('should allow the returned children to be filtered by a function', function () {
           var children = Pablo('#test-subjects').children(function (item, i) {
-            if (i != 1) {
+            if (i !== 1) {
               return true;
             }
           });
@@ -559,7 +559,7 @@ describe('Pablo', function () {
               chosenOne   = pCollection.get(1);
 
           expect(chosenOne instanceof Pablo.Collection).to.eql(false);
-          expect(chosenOne.id).to.eql('test-subject-b')
+          expect(chosenOne.id).to.eql('test-subject-b');
         });
       });
 
@@ -569,7 +569,7 @@ describe('Pablo', function () {
               chosenOne   = pCollection.eq(1);
 
           expect(chosenOne instanceof Pablo.Collection).to.eql(true);
-          expect(chosenOne[0].id).to.eql('test-subject-b')
+          expect(chosenOne[0].id).to.eql('test-subject-b');
         });
       });
 
@@ -578,7 +578,7 @@ describe('Pablo', function () {
           var first = Pablo('#test-subjects').children().first();
 
           expect(first[0].id).to.eql('test-subject-a');
-          expect(first instanceof Pablo.Collection).to.eql(true)
+          expect(first instanceof Pablo.Collection).to.eql(true);
         });
       });
 
@@ -587,7 +587,7 @@ describe('Pablo', function () {
           var last = Pablo('#test-subjects').children().last();
 
           expect(last[0].id).to.eql('test-subject-c');
-          expect(last instanceof Pablo.Collection).to.eql(true)
+          expect(last instanceof Pablo.Collection).to.eql(true);
         });
       });
 
@@ -620,7 +620,7 @@ describe('Pablo', function () {
         });
 
         it('.attr(attributeName) should return the value of the specified attribute of the element', function () {
-          expect(Pablo('#test-subjects').attr('id')).to.eql('test-subjects')
+          expect(Pablo('#test-subjects').attr('id')).to.eql('test-subjects');
         });
 
         it('.attr(attributeName, attributeValue) should set the value of the specified attribute of the element', function () {
@@ -1841,7 +1841,7 @@ describe('Pablo', function () {
         lastKey   = Object.keys(Pablo.cache)[Object.keys(Pablo.cache).length-1];
         lastEntry = Pablo.cache[lastKey];
 
-        expect(lastEntry['foo']).to.eql('bar');
+        expect(lastEntry.foo).to.eql('bar');
       });
 
       it('when one of a PabloCollection\'s data key/value pair is removed it should remove it from the cache', function () {
@@ -2027,7 +2027,7 @@ describe('Pablo', function () {
         subject.trigger('focus');
       });
 
-      it('.on(type, listener) should assign an event with an empty PabloCollection', function (done) {        var subject = Pablo();
+      it('.on(type, listener) should assign an event with an empty PabloCollection', function (done) {
         var subject = Pablo();
 
         subject.on('foo', function () {
@@ -2096,7 +2096,7 @@ describe('Pablo', function () {
           } else {
             done(new Error('The event persisted'));
           }
-        }, 4)
+        }, 4);
       });
 
       it('.one(type, listener) should add an event on an empty PabloCollection and it should be removed when triggered', function (done) {
@@ -2117,7 +2117,7 @@ describe('Pablo', function () {
           } else {
             done(new Error('The event persisted'));
           }
-        }, 4)
+        }, 4);
       });
     });
 
@@ -2141,7 +2141,7 @@ describe('Pablo', function () {
           } else {
             done(new Error());
           }
-        }, 4)
+        }, 4);
       });
     });
   });
