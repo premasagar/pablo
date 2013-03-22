@@ -524,8 +524,26 @@ describe('Pablo', function () {
       });
 
       describe('.traverse()', function () {
-        it('.traverse()', function () {
+        it('.traverse(propertyRoute) should return a new PabloCollection. This collection should comprise of every matching element of the passed property of each element in the PabloCollection.', function () {
+          var pCollection = Pablo('#test-subjects'),
+              traversed   = pCollection.traverse('childNodes');
 
+          expect(traversed.length).to.eql(3);
+          expect(traversed[0].id).to.eql('test-subject-a');
+          expect(traversed[1].id).to.eql('test-subject-b');
+          expect(traversed[2].id).to.eql('test-subject-c');
+        });
+
+        it('.traverse(propertyRoute, [function]) should return a new PabloCollection. This collection should comprise of every matching element of the passed property of each element until the function argument returns false.', function () {
+          var pCollection = Pablo('#test-subjects'),
+              traversed   = pCollection.traverse('childNodes', isSubjectC);
+
+          function isSubjectC (node) {
+            return (node.id === 'test-subject-c') ? true : false;
+          }
+
+          expect(traversed.length).to.eql(1);
+          expect(traversed[2].id).to.eql('test-subject-c');
         });
       });
 
