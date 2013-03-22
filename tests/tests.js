@@ -407,7 +407,7 @@ describe('Pablo', function () {
 
       describe('.parentsSvg()', function () {
         it('.parentsSvg()', function () {
-          var collection = Pablo('div', {}),
+          var collection = Pablo(document.createElement('div')),
               deepChild,
               parents;
 
