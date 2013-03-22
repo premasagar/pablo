@@ -433,18 +433,6 @@ describe('Pablo', function () {
         });
       });
 
-      describe('.viewport()', function () {
-        it('.viewport()', function () {
-          notDone();
-        });
-      });
-
-      describe('.viewports()', function () {
-        it('.viewports()', function () {
-          notDone();
-        });
-      });
-
       describe('.owner()', function () {
         it('.owner() should return the closest <svg> ancestor element of the Pablo collection wrapped as a Pablo collection.', function () {
           var pCollection = Pablo('div', {}),
@@ -537,7 +525,7 @@ describe('Pablo', function () {
 
       describe('.traverse()', function () {
         it('.traverse()', function () {
-          notDone();
+
         });
       });
 
