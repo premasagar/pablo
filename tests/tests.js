@@ -2153,7 +2153,7 @@ describe('Pablo', function () {
   });
 
   describe('.extend()', function () {
-    it('extend(source, target)', function () {
+    it('.extend(source, target)', function () {
       var obj  = {
         foo: 'bar'
       },
@@ -2167,7 +2167,7 @@ describe('Pablo', function () {
       expect(Pablo.extend(obj, obj2)).to.eql(expected);
     });
 
-    it('extend(source, target, target)', function () {
+    it('.extend(source, target, target)', function () {
       var obj  = {
         foo: 'bar'
       },
@@ -2185,58 +2185,28 @@ describe('Pablo', function () {
       expect(Pablo.extend(obj, obj2, obj3)).to.eql(expected);
     });
 
-    it('extend(source, target, target, deep)', function () {
-      var obj  = {
-        foo: 'bar'
-      },
-      obj2     = {
-        fiz: 'buz',
-        deep: {
-          'zip': 'zap'
-        }
-      },
-      obj3     = {
-        yin: 'yan',
-        deep: {
-          'fip': 'fop'
-        }
-      },
-      expected = {
-        foo: 'bar',
-        fiz: 'buz',
-        yin: 'yan',
-        deep: {
-          'zip': 'zap',
-          'fip': 'fop'
-        }
-      };
-      expect(Pablo.extend(obj, obj2, obj3, true)).to.eql(expected);
+    it('.extend(source, target, target, withPrototype)', function () {
+      function Foo(){this.earth = 1}
+      Foo.prototype = {wind: 2};
+      function Bar(){this.water = 3}
+      Bar.prototype = {fire: 4};
+
+      expect(Pablo.extend({}, new Foo(), new Bar(), true)).to.eql({
+        earth: 1,
+        wind:  2,
+        water: 3,
+        fire:  4
+      });
     });
 
-    it('extend(source, target, deep)', function () {
-      var obj = {
-        fiz: 'buz',
-        deep: {
-          'zip': 'zap'
-        }
-      },
-      obj2    = {
-        yin: 'yan',
-        deep: {
-          'fip': 'fop',
-          'com': [true, false, {}, 123, NaN, {'foo': 'bar'}]
-        }
-      },
-      expected = {
-        fiz: 'buz',
-        yin: 'yan',
-        deep: {
-          'zip': 'zap',
-          'fip': 'fop',
-          'com': [true, false, {}, 123, NaN, {'foo': 'bar'}]
-        }
-      };
-      expect(Pablo.extend(obj, obj2, true)).to.eql(expected);
+    it('.extend(source, target, withPrototype)', function () {
+      function Foo(){this.earth = 1}
+      Foo.prototype = {wind: 2};
+
+      expect(Pablo.extend({}, new Foo(), true)).to.eql({
+        earth: 1,
+        wind:  2
+      });
     });
   });
 
@@ -2287,6 +2257,5 @@ function notDone () {
 }
 
 function resetTestSubjectStyles () {
-  document.getElementById('test-subjects')
-    .setAttribute('style', 'display:none;');
+  document.getElementById('test-subjects').setAttribute('style', 'display:none;');
 }
