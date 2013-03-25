@@ -18,18 +18,36 @@
         svgVersion = 1.1,
         svgns = 'http://www.w3.org/2000/svg',
         xlinkns = 'http://www.w3.org/1999/xlink',
-        vendorPrefixes = ['', '-moz-', '-webkit-', '-khtml-', '-o-', '-ms-'],
+        vendorPrefixes = ['', 'moz', 'webkit', 'khtml', 'o', 'ms'],
         cacheExpando = 'pablo-data',
         eventsNamespace = '__events__',
 
         head, testElement, arrayProto, supportsClassList, hyphensToCamelCase, 
-        cssClassApi, pabloCollectionApi, classlistMethod, cache, cacheNextId;
+        cssClassApi, pabloCollectionApi, classlistMethod, cssPrefixes, cache, 
+        cacheNextId, matchesProp;
 
     
     function make(elementName){
         return typeof elementName === 'string' &&
             document.createElementNS(svgns, elementName) ||
             null;
+    }
+
+    function prefixedProperty(prop, context){
+        var capitalized = prop.slice(0,1).toUpperCase() + prop.slice(1),
+            found;
+
+        if (!context){
+            context = root;
+        }
+        vendorPrefixes.some(function(prefix){
+            var prefixedProp = prefix ? prefix + capitalized : prop;
+            if (prefixedProp in context){
+                found = prefixedProp;
+                return true;
+            }
+        });
+        return found;
     }
 
 
@@ -42,10 +60,12 @@
         testElement = 'createElementNS' in document && make('svg');
         head = document.head || document.getElementsByTagName('head')[0];
         arrayProto = Array && Array.prototype;
+        matchesProp = prefixedProperty('matches', testElement) ||
+            prefixedProperty('matchesSelector', testElement);
     }
 
     if (!(
-        testElement && head && arrayProto && 
+        testElement && head && arrayProto && matchesProp &&
         Element && SVGElement && NodeList && HTMLDocument && 
         'createSVGRect' in testElement &&
         'attributes' in testElement &&
@@ -69,6 +89,10 @@
     }
 
     supportsClassList = 'classList' in testElement;
+
+    cssPrefixes = vendorPrefixes.map(function(prefix){
+        return prefix ? '-' + prefix + '-' : '';
+    });
 
     
     /////
@@ -167,8 +191,7 @@
     // e.g. cssPrefix('transform', 'rotate(45deg)') will return a string sequence of prefixed CSS properties, each assigned the same value
     // e.g. cssPrefix('transform') will return a string sequence of CSS properties
     function cssPrefix(styles, value){
-        var vendorPrefixes = Pablo.vendorPrefixes,
-            prop, res, rule, setStyle;
+        var prop, res, rule, setStyle;
         
         if (typeof styles === 'object'){
             setStyle = function(prefix){
@@ -178,7 +201,7 @@
             res = {};
             for (prop in styles){
                 if (styles.hasOwnProperty(prop)){
-                    vendorPrefixes.forEach(setStyle);
+                    cssPrefixes.forEach(setStyle);
                 }
             }
         }
@@ -189,13 +212,13 @@
             // e.g. cssPrefix('transform') -> 'transform,-webkit-transform,...'
             // useful for adding prefixed properties when setting active properties in a CSS transition
             if (typeof value === 'undefined'){
-                res = vendorPrefixes.join(prop + ',') + prop;
+                res = cssPrefixes.join(prop + ',') + prop;
             }
 
             // e.g. cssPrefix('transform', 'rotate(45deg)') -> 'transform:rotate(45deg);-webkit-transform:rotate(45deg);...'
             else {
                 rule = prop + ':' + value + ';';
-                res = vendorPrefixes.join(rule) + rule;
+                res = cssPrefixes.join(rule) + rule;
             }
         }
         return res;
@@ -416,9 +439,9 @@
             var collection = Pablo(),
                 isFn = typeof doWhile === 'function';
 
-            this.each(function(el){
+            this.each(function(el, i){
                 el = el[prop];
-                while (el && (isFn ? doWhile.call(this, el) : true)){
+                while (el && (isFn ? doWhile.call(this, el, i) : true)){
                     collection.add(el);
                     el = doWhile ? el[prop] : false;
                 }
@@ -1236,59 +1259,9 @@
 
                 // CSS selector
                 if (typeof comparison === 'string'){
-                    // If we could guarantee all elements were in the DOM, then
-                    // this would suffice:
-                    // comparison = toPablo(context || document).find(comparison);
-
-                    if (context){
-                        comparison = toPablo(context).find(comparison);
-                    }
-
-                    else {
-                        var len = this.length, group;
-                        if (len > 1){
-                            var ancestors = [];
-                            var results = [];
-                        }
-
-                        return this.isMatch(methodName, function(el, i){
-                            var ancestor = el.parentNode,
-                                ancestorIndex, result, cloned;
-
-                            if (ancestor){
-                                while (ancestor.parentNode){
-                                    ancestor = ancestor.parentNode;
-                                }
-                                if (len === 1){
-                                    result = ancestor.querySelectorAll(comparison);
-                                }
-                                else {
-                                    ancestorIndex = ancestors.indexOf(ancestor);
-                                    if (ancestorIndex >= 0){
-                                        result = results[ancestorIndex];
-                                    }
-                                    else {
-                                        result = ancestor.querySelectorAll(comparison);
-                                        if (i < len){
-                                            ancestors.push(ancestor);
-                                            results.push(result);
-                                        }
-                                    }
-                                }
-                                return toArray(result).indexOf(el) >= 0;
-                            }
-
-                            else {
-                                if (!group){
-                                    group = make('g');
-                                }
-                                cloned = group.appendChild(el.cloneNode(false));
-                                result = group.querySelector(comparison);
-                                group.removeChild(cloned);
-                                return result;
-                            }
-                        });
-                    }
+                    return this.isMatch(methodName, function(el){
+                        return el[matchesProp](comparison);
+                    });
                 }
 
                 else {
@@ -1580,8 +1553,9 @@
         canBeWrapped: canBeWrapped,
         hyphensToCamelCase: hyphensToCamelCase,
 
-        // css related
+        // vendor prefixes
         vendorPrefixes: vendorPrefixes,
+        prefixedProperty: prefixedProperty,
         cssPrefix: cssPrefix,
             // e.g. Pablo('svg').style().content('#foo{' + Pablo.cssPrefix('transform', 'rotate(45deg)') + '}');
             // e.g. myElement.css({'transition-property': Pablo.cssPrefix('transform')});
