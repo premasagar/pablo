@@ -92,15 +92,15 @@ Building
 
 ```bash
 $ git clone git@github.com:dharmafly/pablo.git
-$ cd pablo
+$ cd pablo/build
 $ npm install
 $ grunt
 ```
 
-A fresh copy of `pablo.min.js` can be found in the `build` directory.
+A fresh copy of `pablo.min.js` can be found in the `build/dist` directory.
 
 In the future the build process can be used to concatinate multiple Pablo files 
-for customized Pablo distributions.
+for a customized Pablo distribution.
 
 ## Tests
 
