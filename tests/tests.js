@@ -527,28 +527,33 @@ describe('Pablo', function () {
       });
 
       describe('.traverse()', function () {
-        it('.traverse(propertyRoute) should return a new PabloCollection. This collection should comprise of every matching element of the passed property of each element in the PabloCollection.', function () {
-          var pCollection = Pablo('#test-subjects'),
-              traversed   = pCollection.traverse('childNodes');
-
-          expect(traversed.length).to.eql(3);
-          expect(traversed[0].id).to.eql('test-subject-a');
-          expect(traversed[1].id).to.eql('test-subject-b');
-          expect(traversed[2].id).to.eql('test-subject-c');
-        });
-
         it('.traverse(propertyRoute, [function]) should return a new PabloCollection. This collection should comprise of every matching element of the passed property of each element until the function argument returns false.', function () {
-          var pCollection = Pablo('#test-subjects'),
-              traversed   = pCollection.traverse('childNodes', isSubjectC);
+          var pCollection = Pablo.g(),
+              firstChild, traversed;
 
-          function isSubjectC (node) {
-            return (node.id === 'test-subject-c') ? true : false;
-          }
+          Pablo.rect()
+            .duplicate(4)
+            .addClass(function(el, i){
+              return 'child-' + i;
+            })
+            .appendTo(pCollection);
 
-          expect(traversed.length).to.eql(1);
-          expect(traversed[2].id).to.eql('test-subject-c');
+          firstChild = pCollection.children().eq(0);
+          traversed = firstChild.traverse('nextSibling', function(el, i){
+            expect(typeof i).to.eql('number');
+
+            if (Pablo(el).attr('class') !== 'child-3'){
+              return true;
+            }
+          });
+
+          expect(traversed.length).to.eql(2);
+          expect(Pablo(traversed[0]).attr('class')).to.eql('child-1');
+          expect(Pablo(traversed[1]).attr('class')).to.eql('child-2');
         });
       });
+
+      // TODO: test passing `null` to traverse()
 
       describe('.find()', function () {
         it('.find(selectors) should return a PabloCollection representative of the matched argument', function () {
