@@ -238,7 +238,10 @@
     
     function PabloCollection(node, attr){
         if (node){
-            this.push(node);
+            if (typeof node === 'string' && attr){
+                node = make(node);
+            }
+            this.add(node);
             
             // Apply attributes
             if (attr){
@@ -286,81 +289,81 @@
             return this.eq(this.length-1);
         },
 
-        add: function (node/*, node..., prepend*/){
-            var numNodes = arguments.length,
-                prepend, toBeAdded;
+        add: function (/*node, node,..., prepend*/){
+            var nodes = arguments,
+                numNodes = nodes.length,
+                prepend = false,
+                node, toAdd, nodeInArray, i;
 
-            // Either multiple nodes or `prepend` boolean passed
-            if (numNodes > 1){
-                node = toArray(arguments);
+            // `prepend` 
+            if (numNodes > 1 && typeof nodes[numNodes-1] === 'boolean'){
+                prepend = nodes[numNodes-1];
+                numNodes -= 1;
 
-                // `prepend` boolean passed as last argument
-                if (typeof node[numNodes-1] === 'boolean'){
-                    prepend = node[numNodes-1];
-                    numNodes -= 1;
-                    node = numNodes === 1 ?
-                        node[0] : node.slice(0, -1);
+                if (prepend){
+                    nodes = arrayProto.slice.call(nodes, 0, numNodes).reverse();
                 }
             }
 
-            if (numNodes === 1){
-                // Create new element from elementName
-                if (typeof node === 'string'){
-                    node = make(node);
-                    toBeAdded = true;
-                }
+            for (i=0; i<numNodes; i++){
+                node = nodes[i];
 
-                // Is an existing element or document
-                // hasSvgNamespace Check if obj is an element from this or another document
-                else if (isElement(node) || isHTMLDocument(node) || hasSvgNamespace(node)){
-                    // If element is already in collection then skip
-                    if (this.indexOf(node) >= 0){
-                        return this;
+                // An SVG or HTML element, or HTML document
+                if (isElement(node) || isHTMLDocument(node) || hasSvgNamespace(node)){
+                    // Add element, if it is not already in the collection
+                    if (arrayProto.indexOf.call(this, node) === -1){
+                        arrayProto[prepend ? 'unshift' : 'push'].call(this, node);
                     }
-                    toBeAdded = true;
                 }
 
-                // Add element to collection
-                if (toBeAdded){
-                    arrayProto[prepend ? 'unshift' : 'push'].call(this, node);
-                    return this;
-                }
-            }
-            
-            // Convert to an array of nodes
-            if (!Array.isArray(node)){
                 // A Pablo collection
-                if (Pablo.isPablo(node)){
+                else if (Pablo.isPablo(node)){
                     // See extensions/functional.js for example usage of node.collection
-                    node = (node.collection || node).toArray();
+                    // TODO: remove support for functional.js?
+                    node = toArray(node.collection || node);
+                    toAdd = node.collection || node;
+                }
+
+                // A string outside of an array acts as a CSS selector
+                else if (typeof node === 'string'){
+                    toAdd = document.querySelectorAll(node);
                 }
 
                 // A nodeList (e.g. result of a selector query, or childNodes)
                 // or is an object like an array, e.g. a jQuery collection
                 else if (isNodeList(node) || isArrayLike(node)){
-                    node = toArray(node);
+                    toAdd = node;
                 }
 
-                // Whatever it is, it isn't supported
-                else {
-                    return this;
-                }
-            }
+                // `node` is an array or an array-like collection
+                if (toAdd || Array.isArray(node)){
+                    // Convert to an array of nodes
+                    if (toAdd){
+                        node = toArray(toAdd);
+                    }
 
-            // Add each element in the list
-            while (node.length){
-                if (prepend){
-                    this.add(node.pop(), prepend);
-                }
-                else {
-                    this.add(node.shift());
+                    while (node.length){
+                        // Whether prepending or appending, always process arrays and
+                        // array-like collections in forwards order
+                        nodeInArray = prepend ? node.pop() : node.shift();
+
+                        // A string inside an array is converted to an element
+                        if (typeof nodeInArray === 'string'){
+                            nodeInArray = make(nodeInArray);
+                        }
+
+                        // Add to collection
+                        this.add(nodeInArray, prepend);
+                    }
+
+                    toAdd = null;
                 }
             }
             return this;
         },
 
         concat: function(){
-            return this.push.apply(Pablo(this), arguments);
+            return this.add.apply(Pablo(this), arguments);
         },
         
         // Add new node(s) to the collection; accepts arrays or nodeLists
@@ -425,7 +428,7 @@
 
         siblings: function(selectors){
             return this.prevSiblings(selectors)
-                       .push(this.nextSiblings(selectors));
+                       .add(this.nextSiblings(selectors));
         },
 
         // Find each element's SVG root element
@@ -538,7 +541,7 @@
                 // Insert in the DOM after the collection
                 this.after(duplicates)
                     // Add new elements the collection
-                    .push(duplicates);
+                    .add(duplicates);
             }
             return this;
         },
@@ -658,7 +661,7 @@
 
             return this.each(function(el, i){
                 // TODO: replace `node = Pablo(el)` with 
-                // `node = this.length === 1 ? this : Pablo.create(el)` everywhere that
+                // `node = this.length === 1 ? this : Pablo(el)` everywhere that
                 // is appropriate, to avoid unnecessary Pablo collection creation
                 var node = Pablo(el),
                     transformAttr = node.attr('transform'),
@@ -1241,25 +1244,32 @@
     // API SHORTCUTS
         
     // iterator e.g. `function(el, insertEl){el.appendChild(insertEl);}`
-    function insertElements(iterator, insertIntoThis, returnThis){
-        return function(node, attr){
-            var insertInto, toInsert;
+    function insert(iterator, insertIntoThis, returnThis){
+        return function(node, attr, withData, deepData){
+            var insertInto, toInsert, dataChecked, deepData, createdHere;
 
             if (this.length){
-                toInsert = toPablo(node, attr);
-
                 if (insertIntoThis === false){
-                    insertInto = toInsert;
+                    insertInto = toPablo(node, attr);
                     toInsert = this;
                 }
                 else {
                     insertInto = this;
+                    toInsert = toPablo(node, attr);
                 }
 
                 insertInto.each(function(el, i){
+                    // If there are multiple elements being inserted into, e.g.
+                    //     Pablo(['g','a']).append(Pablo.g());
+                    // then clone the elements to be inserted. If the elements
+                    // were created by this function, via `toPablo` then clone shallow
                     if (i){
-                        toInsert = toInsert.clone(true);
+                        createdHere = typeof node === 'string' && attr;
+                        toInsert = createdHere ?
+                            toInsert.clone(false) :
+                            toInsert.clone(true, withData, deepData);
                     }
+
                     toInsert.each(function(insertEl){
                         iterator.call(insertInto, el, insertEl);
                     });
@@ -1290,22 +1300,28 @@
     }
 
     function walk(prop, doWhile){
-        return function(selectors, ancestor){
-            return this.traverse(prop, doWhile, selectors, ancestor);
+        return function(selectors, context){
+            return this.traverse(prop, doWhile, selectors, context);
         };
+    }
+
+    function isMatch(methodName){
+        return function(comparison, context){
+            return this.isMatch(methodName, comparison, context);
+        }
     }
 
     extend(pabloCollectionApi, {
         // Manipulation methods
-        child:        insertElements(append, true, false),
-        append:       insertElements(append),
-        appendTo:     insertElements(append, false),
-        prepend:      insertElements(prepend),
-        prependTo:    insertElements(prepend, false),
-        before:       insertElements(before),
-        insertBefore: insertElements(before, false),
-        after:        insertElements(after),
-        insertAfter:  insertElements(after, false),
+        child:        insert(append, true, false),
+        append:       insert(append),
+        appendTo:     insert(append, false),
+        prepend:      insert(prepend),
+        prependTo:    insert(prepend, false),
+        before:       insert(before),
+        insertBefore: insert(before, false),
+        after:        insert(after),
+        insertAfter:  insert(after, false),
 
         // Traversal methods
         // NOTE: ideally, we'd use the 'children' collection, instead of 'childNodes'
@@ -1325,6 +1341,10 @@
         parent:       walk('parentNode'),
         parents:      walk('parentNode', isElement),
         parentsSvg:   walk('parentNode', isSVGElement),
+        ancestor:     function(){
+            return this.traverse('parentNode', isElementOrDocument).last();
+        },
+
         indexOf: isMatch('indexOf'),
         some: isMatch('some'),
         every: isMatch('every'),
@@ -1460,27 +1480,8 @@
 
     // Pablo main function
     function Pablo(node, attr){
-        // TODO: if `node` is a string and `attr` is an object, but not a plain object, then use it as a context and pass it with `node` to `find()`
-        if (!node || attr || Pablo.canBeWrapped(node)){
-            return Pablo.create(node, attr);
-        }
-        else {
-            return Pablo.find(node);
-        }
-    }
-
-    // Create a Pablo collection
-    Pablo.create = function(node, attr){
         return new PabloCollection(node, attr);
-    };
-    
-    // Select existing nodes
-    Pablo.find = function(selectors, context){
-        if (!context){
-            return Pablo.create(document.querySelectorAll(selectors));
-        }
-        return Pablo(context).find(selectors);
-    };
+    }
     
     // Pablo methods
     extend(Pablo, {
@@ -1518,7 +1519,7 @@
             // e.g. myElement.css({'transition-property': Pablo.cssPrefix('transform')});
 
         // data
-        // TODO: should `Pablo.create` be removed, to keep cache private?
+        // TODO: should `Pablo.cache` & `.data()` be removed, to keep cache private?
         cache: cache,
 
         // TODO: support `collection.append('myTemplate')`
@@ -1547,13 +1548,13 @@
         .forEach(function(nodeName){
             var camelCase = hyphensToCamelCase(nodeName),
                 createElement = function(attr){
-                    return Pablo.create(nodeName, attr);
+                    return Pablo(make(nodeName), attr);
                 };
 
             if (nodeName === 'svg'){
                 createElement = function(attr){
                     attr = extend(attr, {version: svgVersion});
-                    return Pablo.create(nodeName, attr);
+                    return Pablo(make(nodeName), attr);
                 };
             }
             
