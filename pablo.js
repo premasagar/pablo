@@ -226,91 +226,6 @@
     });
     */
 
-    // `behaviour` can be 'some', 'every' or 'filter'
-    function matchSelectors(collection, selectors, context, behaviour){
-        var i, len, node, ancestor, ancestors, matches, matchesCache, 
-            ancestorsLength, isMatch, filtered;
-
-        // The optional `ancestor` node is used to perform the selection on.
-        if (context){
-            if (!Pablo.isPablo(context)){
-                context = toPablo(context);
-            }
-            ancestor = context;
-        }
-
-        // Filter to as subset of the collection
-        if (behaviour === 'filter'){
-            filtered = Pablo();
-        }
-
-        for (i=0, len=collection.length; i<len; i++){
-            node = collection.eq(i);
-
-            // If no `ancestor` given, then find the element's root ancestor. If 
-            // the element is currently in the DOM, this will be the `document`.
-            if (!context){
-                ancestor = node.traverse('parentNode', isElementOrDocument).last();
-            }
-
-            // Use ancestor to find element via a selector query
-            if (ancestor.length){
-                // Have we previously cached the result of the query?
-                // E.g. when many elements in the same collection are being
-                // queried against the `document` node
-                matches = ancestors && matchesCache[ancestors.indexOf(ancestor)];
-
-                if (!matches){
-                    matches = ancestor.find(selectors);
-
-                    // If more than one element in the collection, then
-                    // we temporarily cache the result of the query (the cache
-                    // expires when the function completes
-                    if (len > 1){
-                        // Create the cache containers
-                        if (!matchesCache){
-                            ancestors = [];
-                            matchesCache = [];
-                        }
-                        // Cache the result
-                        ancestorsLength = ancestors.push(ancestor);
-                        matchesCache[ancestorsLength-1] = matches;
-                    }
-                }
-            }
-
-            // Element has no parent
-            // If it is an element (e.g. not `document`), then clone it and 
-            // append to a temporary element
-            else if (isElement(node[0])){
-                node = node.clone();
-                ancestor = Pablo.g().append(node);
-                matches = ancestor.find(selectors);
-            }
-
-            // Is node contained within the list of matches?
-            isMatch = matches && matches.indexOf(node) >= 0;
-            if (isMatch){
-                // At least one element matched
-                if (behaviour === 'some'){
-                    return true;
-                }
-                // Add this element to the filtered subset
-                if (behaviour === 'filter'){
-                    filtered.push(node);
-                }
-            }
-            // Not every element matched
-            else if (behaviour === 'every'){
-                return false;
-            }
-        }
-
-        // If filtering, return the collection; otherwise a boolean.
-        return behaviour === 'filter' ? filtered :
-              (behaviour === 'every'  ? true : false);
-    }
-
     // Data cache
     cache = {};
     cacheNextId = 1;
@@ -477,13 +392,6 @@
             arrayProto.sort.call(this, fn);
             return this;
         },
-
-        indexOf: function(node){
-            if (Pablo.isPablo(node)){
-                node = node[0];
-            }
-            return arrayProto.indexOf.call(this, node);
-        },
         
         each: function(fn, context){
             arrayProto.forEach.call(this, fn, context || this);
@@ -492,27 +400,6 @@
         
         map: function(fn, context){
             return Pablo(arrayProto.map.call(this, fn, context || this));
-        },
-
-        some: function(fnOrSelector, context){
-            return typeof fnOrSelector === 'string' ?
-                matchSelectors(this, fnOrSelector, context, 'some') :
-                arrayProto.some.call(this, fnOrSelector, context || this);
-        },
-
-        every: function(fnOrSelector, context){
-            return typeof fnOrSelector === 'string' ?
-                matchSelectors(this, fnOrSelector, context, 'every') :
-                arrayProto.every.call(this, fnOrSelector, context || this);
-        },
-
-        // Note: this method is analogous to Array.filter but is called `select`
-        // here (as in Underscore.js) because Pablo's filter() method is used to
-        // create a `<filter>` SVG element
-        select: function(fnOrSelector, context){
-            return typeof fnOrSelector === 'string' ?
-                matchSelectors(this, fnOrSelector, context, 'filter') :
-                Pablo(arrayProto.filter.call(this, fnOrSelector, context || this));
         },
 
 
@@ -1241,6 +1128,108 @@
                         removeData(el);
                     }
                 });
+            isMatch: function(methodName, comparison, context){
+                var index, filtered, someInComparison;
+
+                // function
+                if (typeof comparison === 'function'){
+                    if (!context){
+                        context = this;
+                    }
+
+                    switch (methodName){
+                        case 'indexOf':
+                        index = -1;
+                        arrayProto.some.call(this, function(el, i){
+                            if (comparison.call(context, el, i, this)){
+                                index = i;
+                                return true;
+                            }
+                        }, context);
+                        return index;
+
+                        case 'select':
+                        filtered = Pablo();
+                        arrayProto.filter.call(this, function(el, i){
+                            if (comparison.call(context, el, i, this)){
+                                filtered.add(el);
+                            }
+                        }, context);
+                        return filtered;
+
+                        // 'some' & 'every'
+                        default:
+                        return arrayProto[methodName].call(this, comparison, context);
+                    }
+                }
+
+                // CSS selector
+                if (typeof comparison === 'string'){
+                    // If we could guarantee all elements were in the DOM, then
+                    // this would suffice:
+                    // comparison = toPablo(context || document).find(comparison);
+
+                    if (context){
+                        comparison = toPablo(context).find(comparison);
+                    }
+
+                    else {
+                        var len = this.length, group;
+                        if (len > 1){
+                            var ancestors = [];
+                            var results = [];
+                        }
+
+                        return this.isMatch(methodName, function(el, i){
+                            var ancestor = el.parentNode,
+                                ancestorIndex, result, cloned;
+
+                            if (ancestor){
+                                while (ancestor.parentNode){
+                                    ancestor = ancestor.parentNode;
+                                }
+                                if (len === 1){
+                                    result = ancestor.querySelectorAll(comparison);
+                                }
+                                else {
+                                    ancestorIndex = ancestors.indexOf(ancestor);
+                                    if (ancestorIndex >= 0){
+                                        result = results[ancestorIndex];
+                                    }
+                                    else {
+                                        result = ancestor.querySelectorAll(comparison);
+                                        if (i < len){
+                                            ancestors.push(ancestor);
+                                            results.push(result);
+                                        }
+                                    }
+                                }
+                                return toArray(result).indexOf(el) >= 0;
+                            }
+
+                            else {
+                                if (!group){
+                                    group = make('g');
+                                }
+                                cloned = group.appendChild(el.cloneNode(false));
+                                result = group.querySelector(comparison);
+                                group.removeChild(cloned);
+                                return result;
+                            }
+                        });
+                    }
+                }
+
+                else {
+                    comparison = toPablo(comparison);
+                }
+
+                // `every`, `some` & `indexOf`
+                return this.isMatch(methodName, function(el, i){
+                    return comparison.some(function(compareEl){
+                        return el === compareEl;
+                    });
+                });
             }
         });
     }());
@@ -1336,13 +1325,21 @@
         parent:       walk('parentNode'),
         parents:      walk('parentNode', isElement),
         parentsSvg:   walk('parentNode', isSVGElement),
+        indexOf: isMatch('indexOf'),
+        some: isMatch('some'),
+        every: isMatch('every'),
+        select: isMatch('select'),
+        // Note: `select()` is analogous to Array.filter but is called `select`
+        // here (as in Underscore.js) because Pablo's filter() method is used to
+        // create a `<filter>` SVG element.
 
         // Alias methods
         elements: pabloCollectionApi.toArray,
         push:     pabloCollectionApi.add,
-        forEach:  pabloCollectionApi.each,
-        is:       pabloCollectionApi.some
+        forEach:  pabloCollectionApi.each
     });
+
+    pabloCollectionApi.is = pabloCollectionApi.some;
 
 
     /////
