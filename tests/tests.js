@@ -371,11 +371,14 @@ describe('Pablo', function () {
         });
 
         it('should allow the returned children to be filtered by a function', function () {
-          var children = Pablo('#test-subjects').children(function (item, i) {
-            if (i !== 1) {
-              return true;
-            }
-          });
+          var collection = Pablo('#test-subjects'),
+              children = collection.children(function (item, i, thisp) {
+                expect(Pablo.isPablo(thisp)).to.eql(true);
+                expect(thisp.length).to.eql(3);
+                if (i !== 1) {
+                  return true;
+                }
+              });
 
           expect(children.length).to.eql(2);
           expect(children instanceof Pablo.Collection).to.eql(true);
@@ -1125,6 +1128,13 @@ describe('Pablo', function () {
         });
       });
 
+      /*
+        NOTE:
+        Pablo.find(selector, context) has been deprecated.
+        Instead, use Pablo(selector) or Pablo(context).find(selector)
+        In future, there may this form: Pablo(selector, context)
+        so these tests are left here for reuse at that time.
+
       describe('.find()', function () {
         it('.find(selectors) should return a PabloCollection representative of the matching selector matching the PabloCollection', function () {
           var pCollection = Pablo.find('#test-subjects li');
@@ -1162,6 +1172,7 @@ describe('Pablo', function () {
           expect(pCollection[2].id).to.eql('test-subject-c');
         });
       });
+      */
 
       describe('.sort()', function () {
         it('.sort(function) should sort the collection based on the negativity of the returned value callback iteration', function () {
@@ -1301,22 +1312,6 @@ describe('Pablo', function () {
     });
 
     describe('Misc', function () {
-      describe('.create()', function () {
-        it('.create(node) should return a new Pablo collection containing one element based on the passed argument', function () {
-          var pCollection = Pablo.create('span');
-          expect(pCollection instanceof Pablo.Collection).to.eql(true);
-          expect(pCollection[0].tagName.toLowerCase()).to.eql('span');
-        });
-
-        it('.create(node, [attr]) should return a new Pablo collection containing one element with attributes based on the passed arguments', function () {
-          var pCollection = Pablo.create('span', {foo: 'bar'});
-
-          expect(pCollection instanceof Pablo.Collection).to.eql(true);
-          expect(pCollection[0].tagName.toLowerCase()).to.eql('span');
-          expect(pCollection[0].getAttribute('foo')).to.eql('bar');
-        });
-      });
-
       describe('.make()', function () {
         it('.make(svgName) should return a native SVG element with the supplied name', function () {
           var a       = Pablo.make('a'),
@@ -1349,7 +1344,35 @@ describe('Pablo', function () {
       });
 
       describe('.clone()', function () {
-        it('.clone() should return a shallow copy (excludes children) of the PabloCollection', function () {
+        it('.clone(false) should return a shallow DOM copy (excludes children) of the PabloCollection', function () {
+          var original = Pablo.rect({foo: 'bar'}),
+              clone;
+
+          original.append(Pablo.rect());
+
+          clone = original.clone(false);
+
+          expect(clone instanceof Pablo.Collection).to.eql(true);
+          expect(clone[0] instanceof SVGRectElement).to.eql(true);
+          expect(clone[0].getAttribute('foo')).to.eql('bar');
+          expect(clone[0].childNodes.length).to.eql(0);
+        });
+
+        it('.clone(true) should return a deep DOM copy of the PabloCollection', function () {
+          var original = Pablo.rect({foo: 'bar'}),
+              clone;
+
+          original.append(Pablo.rect());
+
+          clone = original.clone(true);
+
+          expect(clone instanceof Pablo.Collection).to.eql(true);
+          expect(clone[0] instanceof SVGRectElement).to.eql(true);
+          expect(clone[0].getAttribute('foo')).to.eql('bar');
+          expect(clone[0].childNodes.length).to.eql(1);
+        });
+
+        it('.clone() should return a deep DOM copy of the PabloCollection (like `true`)', function () {
           var original = Pablo.rect({foo: 'bar'}),
               clone;
 
@@ -1360,21 +1383,23 @@ describe('Pablo', function () {
           expect(clone instanceof Pablo.Collection).to.eql(true);
           expect(clone[0] instanceof SVGRectElement).to.eql(true);
           expect(clone[0].getAttribute('foo')).to.eql('bar');
-          expect(clone[0].childNodes.length).to.eql(0);
+          expect(clone[0].childNodes.length).to.eql(1);
         });
 
-        it('.clone() should return a shallow copy (excludes data) of the PabloCollection', function () {
+        it('.clone(), .clone(false) and .clone(true) excludes data of the PabloCollection', function () {
           var original = Pablo.rect({foo: 'bar'}),
               clone;
 
           original.data('foo', 'bar');
 
-          clone = original.clone();
+          [undefined, true, false].forEach(function(deepDom){
+            clone = original.clone(deepDom);
 
-          expect(clone instanceof Pablo.Collection).to.eql(true);
-          expect(clone[0] instanceof SVGRectElement).to.eql(true);
-          expect(clone[0].getAttribute('foo')).to.eql('bar');
-          expect(clone.data('foo')).to.eql(undefined);
+            expect(clone instanceof Pablo.Collection).to.eql(true);
+            expect(clone[0] instanceof SVGRectElement).to.eql(true);
+            expect(clone[0].getAttribute('foo')).to.eql('bar');
+            expect(clone.data('foo')).to.eql(undefined);
+          });
         });
 
         it('.clone() should return a shallow copy (excludes events) of the PabloCollection', function (done) {
@@ -1394,38 +1419,32 @@ describe('Pablo', function () {
           }, 4);
         });
 
-        it('.clone([isDeep]) should return a deep copy (includes children) of the PabloCollection', function () {
-          var pCollection = Pablo.rect(),
+        it('.clone(deepDom, true) should return data of the PabloCollection', function () {
+          var original = Pablo.rect(),
               clone;
 
-          pCollection.ellipse().ellipse().ellipse({foo:'bar'});
+          original.data('foo', 'bar');
 
-          clone = pCollection.clone(true);
-          expect(clone).to.eql(pCollection);
+          [undefined, true, false].forEach(function(deepDom){
+            clone = original.clone(deepDom, true);
+            expect(clone.data('foo')).to.eql('bar');
+          });
         });
 
-        it('.clone([isDeep]) should return a deep copy (includes data) of the PabloCollection', function () {
-          var pCollection = Pablo.rect(),
-              clone;
+        it('.clone(deepDom, true) should return a deep copy (includes events) of the PabloCollection', function (done) {
+          var original = Pablo.rect(),
+              clone, count = 0;
 
-          pCollection.data('foo', 'bar');
-
-          clone = pCollection.clone(true);
-
-          expect(clone.data('foo')).to.eql('bar');
-        });
-
-        it('.clone([isDeep]) should return a deep copy (includes events) of the PabloCollection', function (done) {
-          var pCollection = Pablo.rect(),
-              clone;
-
-          pCollection.on('foo', function () {
-            done();
+          original.on('foo', function () {
+            count ++;
           });
 
-          clone = pCollection.clone(true);
+          original
+            .clone(false, true).trigger('foo')
+            .clone(true, true).trigger('foo');
 
-          clone.trigger('foo');
+          expect(count).to.eql(2);
+          done();
         });
       });
 
@@ -1543,12 +1562,14 @@ describe('Pablo', function () {
           expect(expected).to.eql(true);
         });
 
-        it('.some(selector)/.is(selector) should return true if the matching selector is found in the nested PabloCollection ', function () {
+        it('.some(selector)/.is(selector) should return true if the matching selector is found in the detached nested PabloCollection ', function () {
           var span = document.createElement('span'),
               anchor = span.appendChild(document.createElement('a')),
               subject = Pablo(['rect', anchor, 'g']);
           
-          expect(subject.some('a')).to.eql(true);
+          expect(subject.some('rect')).to.eql(true);
+          expect(subject.some('span a')).to.eql(true);
+          expect(subject.some('g')).to.eql(true);
         });
       });
 
