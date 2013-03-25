@@ -418,8 +418,8 @@
 
             this.each(function(el){
                 el = el[prop];
-                while (el && (isFn ? doWhile(el) : true)){
-                    collection.push(el);
+                while (el && (isFn ? doWhile.call(this, el) : true)){
+                    collection.add(el);
                     el = doWhile ? el[prop] : false;
                 }
             });
@@ -460,10 +460,8 @@
         remove: function(){
             // If the cache has any contents
             if (Object.keys(cache).length){
-                // Remove data for each element in the collection
-                this.removeData()
-                    // Remove data for each descendent of each element
-                    .find('*').removeData();
+                // Remove data for all elements and their descendents
+                this.removeData().find('*').removeData();
             }
 
             // Remove from the DOM
@@ -487,55 +485,75 @@
             });
         },
         
-        clone: function(deep){
-            deep = (deep || false);
+        /* Arguments:
+        `deepDom`: clones descendent DOM elements and DOM event listeners (default true)
+        `withData` clones data associated with the element
+        `deepData` clones data associated with descendents of the element (defaults to same as `withData`)
+        */
+        clone: function(deepDom, withData, deepData){
+            if (typeof deepDom !== 'boolean'){
+                deepDom = true;
+            }
+            if (typeof withData !== 'boolean'){
+                withData = false;
+            }
+            if (typeof deepData !== 'boolean'){
+                deepData = withData;
+            }
 
             return this.map(function(el){
-                var cloned = el.cloneNode(deep),
-                    data, events, clonedEvents, type;
+                var cloned = el.cloneNode(deepDom),
+                    data, node, clonedNode, dataset;
 
-                if (deep){
-                    data = Pablo.create(el).data();
+                // Clone data associated with the element
+                if (withData){
+                    node = Pablo(el);
+                    data = node.cloneData();
 
                     if (data){
-                        // Copy events object
-                        events = data[eventsNamespace];
-                        if (events){
-                            // Duplicate data object and events object on it, to
-                            // de-reference the cloned element's stored events
-                            data = Object.create(data);
-                            clonedEvents = data[eventsNamespace] = Object.create(events);
-                            // For each event type, e.g. `mousedown`, copy the array
-                            // of event listeners
-                            for (type in events){
-                                if (events.hasOwnProperty(type)){
-                                    // Create new array
-                                    clonedEvents[type] = events[type].slice();
-                                }
-                            }
-                        }
                         // Set data on the cloned element
-                        Pablo(cloned).data(data);
+                        clonedNode = Pablo(cloned).data(data);
                     }
                 }
 
+                // Clone descendents' data
+                if (deepDom && deepData){
+                    if (!clonedNode){
+                        clonedNode = Pablo(cloned);
+                    }
+                    dataset = node.pluckData();
+                    clonedNode.find('*').data(dataset);
+                }
                 return cloned;
             });
         },
         
-        duplicate: function(repeats){
+        // `deep` is whether to duplicate child nodes
+        // `deepData` is whether to duplicate data on self and children
+        // TODO: should there be a way of duplicating without adding to the DOM
+        //     i.e. to remove the call to `after()` or to return a new collection
+        duplicate: function(repeats, withData, deepData){
             var duplicates;
 
             if (repeats !== 0){
-                duplicates = Pablo();
-
                 if (typeof repeats !== 'number' || repeats < 0){
                     repeats = 1;
                 }
+
+                // For performance, before cloning data, ensure that the elements 
+                // or their descendents have data associated with them
+                if (withData){
+                    withData = this.hasData();
+                }
+                if (deepData){
+                    deepData = this.find('*').hasData();
+                }
+
+                duplicates = Pablo();
                 
                 // Clone the collection
                 while (repeats --){
-                    duplicates.push(this.clone(true));
+                    duplicates.add(this.clone(true, withData, deepData));
                 }
 
                 // Insert in the DOM after the collection
@@ -651,6 +669,10 @@
                     return Pablo(el).cssPrefix(property);
                 }
             });
+        },
+
+        pluckData: function(){
+            return this.pluck(null, 'data');
         },
 
         transform: function(functionName, value/* , additional values*/){
@@ -1059,6 +1081,10 @@
                     // The data container is empty, so delete it
                     else {
                         delete cache[id];
+                        // Delete the element's data reference
+                        // This removal is used by hasData to quickly determine
+                        // if the element has associated data
+                        delete el[cacheExpando];
                     }
                 }
             }
@@ -1070,7 +1096,7 @@
 
                 // First argument is an object of key-value pairs
                 if (typeof key === 'object'){
-                    data = key;
+                    data = this.getValue(key);
                 }
 
                 // Get value - e.g. collection.data('foo') or collection.data()
@@ -1080,7 +1106,7 @@
                             // Use the id of the first element in the collection
                             id = this[0][cacheExpando];
 
-                            if (id in cache){
+                            if (id && id in cache){
                                 return typeof key === 'undefined' ?
                                     cache[id] : cache[id][key];
                             }
@@ -1131,8 +1157,50 @@
                         removeData(el);
                     }
                 });
+            },
+
+            hasData: function(deepData, includeSelf){
+                return Object.keys(cache).length > 0 &&
+                    this.some(function(el){
+                        var onThis, onChildren;
+
+                        if (includeSelf !== false){
+                            onThis = !!el[cacheExpando];
+                        }
+                        if (deepData && !onThis){
+                            onChildren = Pablo(el).find('*').hasData();
+                        }
+                        return onThis || onChildren;
+                    });
+            },
+
+            cloneData: function(){
+                var data = this.data(),
+                    events, clonedEvents, type;
+
+                if (data){
+                    // Copy events object
+                    events = data[eventsNamespace];
+                    if (events){
+                        // Duplicate data object and events object on it, to
+                        // de-reference the cloned element's stored events
+                        data = Object.create(data);
+                        clonedEvents = data[eventsNamespace] = Object.create(events);
+                        // For each event type, e.g. `mousedown`, copy the array
+                        // of event listeners
+                        for (type in events){
+                            if (events.hasOwnProperty(type)){
+                                // Create new array
+                                clonedEvents[type] = events[type].slice();
+                            }
+                        }
+                    }
+                }
+                return data;
+            },
+
             isMatch: function(methodName, comparison, context){
-                var index, filtered, someInComparison;
+                var index, filtered;
 
                 // function
                 if (typeof comparison === 'function'){
@@ -1228,7 +1296,7 @@
                 }
 
                 // `every`, `some` & `indexOf`
-                return this.isMatch(methodName, function(el, i){
+                return this.isMatch(methodName, function(el){
                     return comparison.some(function(compareEl){
                         return el === compareEl;
                     });
@@ -1246,7 +1314,7 @@
     // iterator e.g. `function(el, insertEl){el.appendChild(insertEl);}`
     function insert(iterator, insertIntoThis, returnThis){
         return function(node, attr, withData, deepData){
-            var insertInto, toInsert, dataChecked, deepData, createdHere;
+            var insertInto, toInsert, createdHere;
 
             if (this.length){
                 if (insertIntoThis === false){
@@ -1276,7 +1344,7 @@
                 });
             }
             return returnThis === false ? toInsert : this;
-        }
+        };
     }
 
     function append(el, insertEl){
@@ -1308,7 +1376,7 @@
     function isMatch(methodName){
         return function(comparison, context){
             return this.isMatch(methodName, comparison, context);
-        }
+        };
     }
 
     extend(pabloCollectionApi, {
