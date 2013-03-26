@@ -172,7 +172,8 @@
     }
     
     function canBeWrapped(obj){
-        return Pablo.isPablo(obj) ||
+        return typeof obj === 'string' ||
+            Pablo.isPablo(obj) ||
             isElement(obj) ||
             isNodeList(obj) ||
             isHTMLDocument(obj) ||
@@ -263,7 +264,13 @@
     function PabloCollection(node, attr){
         if (node){
             if (typeof node === 'string' && attr){
-                node = make(node);
+                if (canBeWrapped(attr)){
+                    this.add(Pablo(attr).find(node));
+                    return;
+                }
+                else {
+                    node = make(node);
+                }
             }
             this.add(node);
             
@@ -1315,7 +1322,7 @@
                     // then clone the elements to be inserted. If the elements
                     // were created by this function, via `toPablo` then clone shallow
                     if (i){
-                        createdHere = typeof node === 'string' && attr;
+                        createdHere = typeof node === 'string' && !canBeWrapped(attr);
                         toInsert = createdHere ?
                             toInsert.clone(false) :
                             toInsert.clone(true, withData, deepData);
