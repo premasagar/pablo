@@ -868,12 +868,15 @@
             }
 
             // Prepare data to cache about the event
-            eventData = {
-                selectors:  selectors,
-                listener:   listener,
-                wrapper:    wrapper || listener,
-                useCapture: useCapture
-            };
+            // With `selectors`, a new eventData object is needed for each element
+            if (!selectors){
+                eventData = {
+                    selectors:  selectors,
+                    listener:   listener,
+                    wrapper:    wrapper || listener,
+                    useCapture: useCapture
+                };
+            }
 
             isSingle = this.length === 1;
 
@@ -900,18 +903,27 @@
                     if (selectors){
                         // Overwrite the wrapper to make it check that the event
                         // originated on an element matching the selectors
-                        wrapper = function(event){
+                        wrapper = function(event){debugger;
                             // Call listener if manually triggered with `trigger()`
                             // or the event target matches the selector
                             if (!event ||
                                 !event.target ||
-                                Pablo(event.target).some(selectors, node)
+                                Pablo(event.target).some(selectors, context)
+                                // TODO: should `context` be passed to `some()`
+                                // to be used for selectors functions or is that
+                                // mixing up concerns?
                             ){
                                 listener.apply(context || el, arguments);
                             }
                         };
+
                         // Overwrite the wrapper in the data to be cached
-                        eventData.wrapper = wrapper;
+                        eventData = {
+                            selectors:  selectors,
+                            listener:   listener,
+                            wrapper:    wrapper,
+                            useCapture: useCapture
+                        };
                     }
 
                     // Add to cache
@@ -1048,7 +1060,7 @@
         // TODO: optional `context` as second argument?
         trigger: function(type /*, arbitrary args to pass to listener*/){
             var args = arguments.length > 1 ?
-                    Pablo.toArray(arguments).slice(1) : null,
+                    toArray(arguments) : [],
                 isSingle = this.length === 1;
 
             return this.each(function(el){
@@ -1061,8 +1073,11 @@
                     this.processList(type, function(type){
                         var cache = eventsCache[type];
                         if (cache){
+                            args[0] = {target:el};
+                            // TODO: if an empty collection, then don't pass proxy
+                            // object {'data-pablo':n}
                             cache.forEach(function(eventData){
-                                eventData.wrapper.apply(node, args);
+                                eventData.wrapper.apply(el, args);
                             }, node);
                         }
                     });
