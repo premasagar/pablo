@@ -70,7 +70,7 @@ describe('Pablo', function () {
         expect(subject[2].id).to.eql('test-subject-c');
       });
 
-      it('should return a pablo collection containing a list when passed a Array like collection (e.g. jQuery)', function () {
+      it('should return a pablo collection containing a list when passed an Array-like collection (e.g. jQuery)', function () {
         var jQueryCollection = jQuery('#test-subjects'),
             subject      = Pablo(jQueryCollection);
 
@@ -79,9 +79,8 @@ describe('Pablo', function () {
         expect(subject[0].id).to.eql('test-subjects');
       });
 
-      it('should return a pablo collection containing a list when passed a Pablo collection', function () {
-        var subject  = Pablo(document.getElementById('test-subjects').children),
-            subject2 = Pablo(subject); 
+      it('should return a pablo collection containing a list when passed a DOM list', function () {
+        var subject  = Pablo(document.getElementById('test-subjects').children); 
 
         expect(subject instanceof Pablo.Collection);
         expect(subject.length).to.eql(3);
@@ -90,7 +89,18 @@ describe('Pablo', function () {
         expect(subject[2].id).to.eql('test-subject-c');
       });
 
-      it('should return a pablo collection containing a DOM element when passed the appropriate CSS Selector', function () {
+      it('should return a pablo collection containing a list when passed a Pablo collection', function () {
+        var subject  = Pablo(document.getElementById('test-subjects').children),
+            subject2 = Pablo(subject); 
+
+        expect(subject2 instanceof Pablo.Collection);
+        expect(subject2.length).to.eql(3);
+        expect(subject2[0].id).to.eql('test-subject-a');
+        expect(subject2[1].id).to.eql('test-subject-b');
+        expect(subject2[2].id).to.eql('test-subject-c');
+      });
+
+      it('should return a pablo collection containing a DOM element when passed a CSS Selector', function () {
         var subject  = Pablo('#test-subjects');
 
         expect(subject instanceof Pablo.Collection);
