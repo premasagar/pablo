@@ -434,9 +434,39 @@ describe('Pablo', function () {
         });
       });
 
+      describe('.ancestor()', function () {
+        it('.ancestor() should return the pablo wrapped document for an element in the DOM', function () {
+            var subject = Pablo('#test-subjects'),
+                result = subject.ancestor();
+
+            expect(result.length).to.eql(1);
+            expect(result[0] === document).to.eql(true);
+        });
+      });
+
+      describe('.ancestor()', function () {
+        it('.ancestor() for a detached element should return highest parent', function () {
+            var ancestor = Pablo.g(),
+                subject  = ancestor.circle(),
+                result = subject.ancestor();
+
+            expect(result.length).to.eql(1);
+            expect(result[0] === ancestor[0]).to.eql(true);
+        });
+      });
+
+      describe('.ancestor()', function () {
+        it('.ancestor() for an single, detached element should return an empty collection', function () {
+            var subject = Pablo.g(),
+                result = subject.ancestor();
+
+            expect(result.length).to.eql(0);
+        });
+      });
+
       describe('.root()', function () {
-        it('.root() should return the pablo wrapped <svg> root element of the Pablo collection.', function () {
-          var subject = Pablo('div', {}),
+        it('.root() should return the pablo wrapped <svg> root element of each elements in the Pablo collection.', function () {
+          var subject = Pablo(document.createElement('div')),
               deepChild;
 
           subject.svg().circle().ellipse().g().rect().a();
@@ -448,7 +478,7 @@ describe('Pablo', function () {
 
       describe('.owner()', function () {
         it('.owner() should return the closest <svg> ancestor element of the Pablo collection wrapped as a Pablo collection.', function () {
-          var subject = Pablo('div', {}),
+          var subject = Pablo(document.createElement('div')),
               deepChild;
 
           subject.svg().circle().svg({foo: 'bar'}).circle().g().a(),
@@ -460,7 +490,7 @@ describe('Pablo', function () {
 
       describe('.owners()', function () {
         it('.owners() should a pablo collection of the all <svg> ancestor element\'s of the Pablo collection from closest to furthest.', function () {
-          var subject = Pablo('div', {}),
+          var subject = Pablo(document.createElement('div')),
               deepChild;
 
           subject.svg({fiz: 'buz'}).circle().svg({foo: 'bar'}).circle().a(),
@@ -486,11 +516,11 @@ describe('Pablo', function () {
       describe('.nextSiblings()', function () {
         it('.nextSiblings() should return the next sibling elements of the PabloCollections as PabloCollections', function () {
           var subject = Pablo.rect().append([Pablo.a(),
-                                                 Pablo.g(),
-                                                 Pablo.ellipse(),
-                                                 Pablo.circle()
-                                                ]),
-              siblings    = subject.children().eq(1).nextSiblings();
+              Pablo.g(),
+              Pablo.ellipse(),
+              Pablo.circle()
+            ]),
+            siblings = subject.children().eq(1).nextSiblings();
 
           expect(siblings.length).to.eql(2);
           expect(siblings instanceof Pablo.Collection).to.eql(true);
@@ -502,11 +532,11 @@ describe('Pablo', function () {
       describe('.prevSiblings()', function () {
         it('.prevSiblings() should return the previous sibling elements of the PabloCollection as PabloCollections', function () {
           var subject = Pablo.rect().append([Pablo.a(),
-                                                 Pablo.g(),
-                                                 Pablo.ellipse(),
-                                                 Pablo.circle()
-                                                ]),
-              siblings    = subject.children().eq(3).prevSiblings();
+            Pablo.g(),
+            Pablo.ellipse(),
+            Pablo.circle()
+          ]),
+          siblings = subject.children().eq(3).prevSiblings();
 
           siblings.reverse();
 
