@@ -33,7 +33,7 @@
             null;
     }
 
-    function prefixedProperty(prop, context){
+    function getPrefixedProperty(prop, context){
         var capitalized = prop.slice(0,1).toUpperCase() + prop.slice(1),
             found;
 
@@ -60,8 +60,8 @@
         testElement = 'createElementNS' in document && make('svg');
         head = document.head || document.getElementsByTagName('head')[0];
         arrayProto = Array && Array.prototype;
-        matchesProp = prefixedProperty('matches', testElement) ||
-            prefixedProperty('matchesSelector', testElement);
+        matchesProp = getPrefixedProperty('matches', testElement) ||
+            getPrefixedProperty('matchesSelector', testElement);
     }
 
     if (!(
@@ -194,13 +194,12 @@
         var prop, res, rule, setStyle;
         
         if (typeof styles === 'object'){
-            setStyle = function(prefix){
-                res[prefix + prop] = styles[prop];
-            };
-
             res = {};
-            for (prop in styles){
-                if (styles.hasOwnProperty(prop)){
+            setStyle = function(prefix){
+                res[prefix + styleProperty] = styles[styleProperty];
+            };
+            for (var styleProperty in styles){
+                if (styles.hasOwnProperty(styleProperty)){
                     cssPrefixes.forEach(setStyle);
                 }
             }
@@ -235,9 +234,9 @@
         };
     }());
     
-    /*
     // e.g. 'fontColor' -> 'font-color'
     // NOTE: does not check for blank spaces, i.e. for multiple words 'font Color'
+    // for that, use `capitalLetters = /\s*[A-Z]/g` and `letter.trim().toLowerCase()`
     var camelCaseToHyphens = (function(){
         var capitalLetters = /[A-Z]/g;
 
@@ -246,8 +245,7 @@
                 return '-' + letter.toLowerCase();
             });
         };
-    });
-    */
+    }());
 
     // Data cache
     cache = {};
@@ -811,8 +809,8 @@
                     // e.g. `transform,-moz-transform,-webkit-transform`
                     cssPrefix(styles).split(',')
                         // Find the first defined value and return
-                        .some(function(vendorPrefixedProperty){
-                            value = this.css(vendorPrefixedProperty);
+                        .some(function(prefixedStyleProperty){
+                            value = this.css(prefixedStyleProperty);
                             return value;
                         }, this);
                     return value;
@@ -1222,7 +1220,7 @@
                 return data;
             },
 
-            isMatch: function(methodName, comparison, context){
+            matches: function(methodName, comparison, context){
                 var index, filtered;
 
                 // function
@@ -1259,7 +1257,7 @@
 
                 // CSS selector
                 if (typeof comparison === 'string'){
-                    return this.isMatch(methodName, function(el){
+                    return this.matches(methodName, function(el){
                         return el[matchesProp](comparison);
                     });
                 }
@@ -1269,7 +1267,7 @@
                 }
 
                 // `every`, `some` & `indexOf`
-                return this.isMatch(methodName, function(el){
+                return this.matches(methodName, function(el){
                     return comparison.some(function(compareEl){
                         return el === compareEl;
                     });
@@ -1285,6 +1283,8 @@
     // API SHORTCUTS
         
     // iterator e.g. `function(el, insertEl){el.appendChild(insertEl);}`
+    // `insertIntoThis` is boolean flag (default true) - if true, will insert 
+    // subject elements into the collection
     function insert(iterator, insertIntoThis, returnThis){
         return function(node, attr, withData, deepData){
             var insertInto, toInsert, createdHere;
@@ -1340,15 +1340,15 @@
         }
     }
 
-    function walk(prop, doWhile){
+    function traverse(prop, doWhile){
         return function(selectors, context){
             return this.traverse(prop, doWhile, selectors, context);
         };
     }
 
-    function isMatch(methodName){
+    function matches(methodName){
         return function(comparison, context){
-            return this.isMatch(methodName, comparison, context);
+            return this.matches(methodName, comparison, context);
         };
     }
 
@@ -1368,28 +1368,29 @@
         // NOTE: ideally, we'd use the 'children' collection, instead of 'childNodes'
         // which has support in HTML but not yet wide support in SVG elements
         // See https://hacks.mozilla.org/2009/06/dom-traversal/
-        children:     walk('childNodes'),
-        firstChild:   walk('firstElementChild'),
-        lastChild:    walk('lastElementChild'),
-        prev:         walk('previousElementSibling'),
-        prevSiblings: walk('previousElementSibling', true),
-        next:         walk('nextElementSibling'),
-        nextSiblings: walk('nextElementSibling', true),
-        viewport:     walk('viewportElement'),
-        viewports:    walk('viewportElement', true),
-        owner:        walk('ownerSVGElement'),
-        owners:       walk('ownerSVGElement', true),
-        parent:       walk('parentNode'),
-        parents:      walk('parentNode', isElement),
-        parentsSvg:   walk('parentNode', isSVGElement),
+        // Bug report in WebKit: https://bugs.webkit.org/show_bug.cgi?id=112698
+        children:     traverse('childNodes'),
+        firstChild:   traverse('firstElementChild'),
+        lastChild:    traverse('lastElementChild'),
+        prev:         traverse('previousElementSibling'),
+        prevSiblings: traverse('previousElementSibling', true),
+        next:         traverse('nextElementSibling'),
+        nextSiblings: traverse('nextElementSibling', true),
+        viewport:     traverse('viewportElement'),
+        viewports:    traverse('viewportElement', true),
+        owner:        traverse('ownerSVGElement'),
+        owners:       traverse('ownerSVGElement', true),
+        parent:       traverse('parentNode'),
+        parents:      traverse('parentNode', isElement),
+        parentsSvg:   traverse('parentNode', isSVGElement),
         ancestor:     function(){
             return this.traverse('parentNode', isElementOrDocument).last();
         },
 
-        indexOf: isMatch('indexOf'),
-        some: isMatch('some'),
-        every: isMatch('every'),
-        select: isMatch('select'),
+        indexOf: matches('indexOf'),
+        some: matches('some'),
+        every: matches('every'),
+        select: matches('select'),
         // Note: `select()` is analogous to Array.filter but is called `select`
         // here (as in Underscore.js) because Pablo's filter() method is used to
         // create a `<filter>` SVG element.
@@ -1528,6 +1529,7 @@
     extend(Pablo, {
         v: pabloVersion,
         isSupported: true,
+        supportsClassList: supportsClassList,
         ns: {
             svg: svgns,
             xlink: xlinkns
@@ -1538,6 +1540,9 @@
 
         // methods
         make: make,
+        isArray: function(obj){
+            return Array.isArray(obj);
+        },
         isArrayLike: isArrayLike,
         isElement: isElement,
         isSVGElement: isSVGElement,
@@ -1552,10 +1557,12 @@
         getAttributes: getAttributes,
         canBeWrapped: canBeWrapped,
         hyphensToCamelCase: hyphensToCamelCase,
+        camelCaseToHyphens: camelCaseToHyphens,
 
         // vendor prefixes
         vendorPrefixes: vendorPrefixes,
-        prefixedProperty: prefixedProperty,
+        cssPrefixes: cssPrefixes,
+        getPrefixedProperty: getPrefixedProperty,
         cssPrefix: cssPrefix,
             // e.g. Pablo('svg').style().content('#foo{' + Pablo.cssPrefix('transform', 'rotate(45deg)') + '}');
             // e.g. myElement.css({'transition-property': Pablo.cssPrefix('transform')});
