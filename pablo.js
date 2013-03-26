@@ -838,9 +838,7 @@
             var isSingle, wrapper, eventData;
 
             // `selectors` argument not given
-            // TODO: `selectors` should be allowed to be a function
-            // but can't just check if listener is not a function
-            if (typeof selectors === 'function'){
+            if (typeof listener !== 'function' && typeof selectors === 'function'){
                 context = useCapture;
                 useCapture = listener;
                 listener = selectors;
@@ -907,7 +905,7 @@
                             // or the event target matches the selector
                             if (!event ||
                                 !event.target ||
-                                Pablo(event.target).is(selectors, node)
+                                Pablo(event.target).some(selectors, node)
                             ){
                                 listener.apply(context || el, arguments);
                             }
