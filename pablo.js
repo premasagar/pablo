@@ -19,12 +19,13 @@
         svgns = 'http://www.w3.org/2000/svg',
         xlinkns = 'http://www.w3.org/1999/xlink',
         vendorPrefixes = ['', 'moz', 'webkit', 'khtml', 'o', 'ms'],
+        svgElements = 'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop style svg switch symbol text textPath title tref tspan use view vkern',
         cacheExpando = 'pablo-data',
         eventsNamespace = '__events__',
 
         head, testElement, arrayProto, supportsClassList, hyphensToCamelCase, 
-        cssClassApi, pabloCollectionApi, classlistMethod, cssPrefixes, cache, 
-        cacheNextId, matchesProp;
+        camelCaseToHyphens, cssClassApi, pabloCollectionApi, classlistMethod, 
+        cssPrefixes, cache, cacheNextId, matchesProp;
 
     
     function make(elementName){
@@ -93,6 +94,8 @@
     cssPrefixes = vendorPrefixes.map(function(prefix){
         return prefix ? '-' + prefix + '-' : '';
     });
+
+    svgElements = 'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop style svg switch symbol text textPath title tref tspan use view vkern';
 
     
     /////
@@ -237,7 +240,7 @@
     // e.g. 'fontColor' -> 'font-color'
     // NOTE: does not check for blank spaces, i.e. for multiple words 'font Color'
     // for that, use `capitalLetters = /\s*[A-Z]/g` and `letter.trim().toLowerCase()`
-    var camelCaseToHyphens = (function(){
+    camelCaseToHyphens = (function(){
         var capitalLetters = /[A-Z]/g;
 
         return function (str){
@@ -433,7 +436,7 @@
         // TRAVERSAL
 
         // See below for traversal shortcuts that use `traverse()` e.g. `parents()`
-        traverse: function(prop, doWhile, selectors, context){
+        traverse: function(prop, doWhile, selectors){
             var collection = Pablo(),
                 isFn = typeof doWhile === 'function';
 
@@ -444,23 +447,7 @@
                     el = doWhile ? el[prop] : false;
                 }
             });
-            return selectors ? collection.select(selectors, context) : collection;
-        },
-
-        siblings: function(selectors){
-            return this.prevSiblings(selectors)
-                       .add(this.nextSiblings(selectors));
-        },
-
-        // Find each element's SVG root element
-        root: function(selectors){
-            return this.owners(selectors).last();
-        },
-        
-        find: function(selectors){
-            return this.map(function(el){
-                return el.querySelectorAll(selectors);
-            });
+            return selectors ? collection.select(selectors) : collection;
         },
 
 
@@ -1341,8 +1328,8 @@
     }
 
     function traverse(prop, doWhile){
-        return function(selectors, context){
-            return this.traverse(prop, doWhile, selectors, context);
+        return function(selectors){
+            return this.traverse(prop, doWhile, selectors);
         };
     }
 
@@ -1353,7 +1340,17 @@
     }
 
     extend(pabloCollectionApi, {
-        // Manipulation methods
+        // ARRAY-LIKE QUERY
+        indexOf: matches('indexOf'),
+        some: matches('some'),
+        every: matches('every'),
+        select: matches('select'),
+        // Note: `select()` is analogous to Array.filter but is called `select`
+        // here (as in Underscore.js) because Pablo's filter() method is used to
+        // create a `<filter>` SVG element.
+
+
+        // INSERTION
         child:        insert(append, true, false),
         append:       insert(append),
         appendTo:     insert(append, false),
@@ -1364,7 +1361,8 @@
         after:        insert(after),
         insertAfter:  insert(after, false),
 
-        // Traversal methods
+
+        // TRAVERSAL
         // NOTE: ideally, we'd use the 'children' collection, instead of 'childNodes'
         // which has support in HTML but not yet wide support in SVG elements
         // See https://hacks.mozilla.org/2009/06/dom-traversal/
@@ -1386,22 +1384,29 @@
         ancestor:     function(){
             return this.traverse('parentNode', isElementOrDocument).last();
         },
-
-        indexOf: matches('indexOf'),
-        some: matches('some'),
-        every: matches('every'),
-        select: matches('select'),
-        // Note: `select()` is analogous to Array.filter but is called `select`
-        // here (as in Underscore.js) because Pablo's filter() method is used to
-        // create a `<filter>` SVG element.
-
-        // Alias methods
-        elements: pabloCollectionApi.toArray,
-        push:     pabloCollectionApi.add,
-        forEach:  pabloCollectionApi.each
+        // Find each element's SVG root element
+        root: function(selectors){
+            return this.owners(selectors).last();
+        },
+        siblings: function(selectors){
+            return this.prevSiblings(selectors)
+                       .add(this.nextSiblings(selectors));
+        },
+        find: function(selectors){
+            return this.map(function(el){
+                return el.querySelectorAll(selectors);
+            });
+        }
     });
 
-    pabloCollectionApi.is = pabloCollectionApi.some;
+    // ALIASES
+
+    extend(pabloCollectionApi, {
+        elements: pabloCollectionApi.toArray,
+        push:     pabloCollectionApi.add,
+        forEach:  pabloCollectionApi.each,
+        is: pabloCollectionApi.some
+    });
 
 
     /////
@@ -1593,7 +1598,7 @@
 
     
     // SVG ELEMENT METHODS
-    'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop style svg switch symbol text textPath title tref tspan use view vkern'.split(' ')
+    svgElements.split(' ')
         .forEach(function(nodeName){
             var camelCase = hyphensToCamelCase(nodeName),
                 createElement = function(attr){
