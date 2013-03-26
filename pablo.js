@@ -499,6 +499,8 @@
         `deepData` clones data associated with descendents of the element (defaults to same as `withData`)
         */
         clone: function(deepDom, withData, deepData){
+            var isSingle = this.length === 1;
+
             if (typeof deepDom !== 'boolean'){
                 deepDom = true;
             }
@@ -515,7 +517,8 @@
 
                 // Clone data associated with the element
                 if (withData){
-                    node = Pablo(el);
+                    // Avoid unnecessary Pablo collection creation
+                    node = isSingle ? this : Pablo(el),
                     data = node.cloneData();
 
                     if (data){
@@ -684,16 +687,16 @@
         },
 
         transform: function(functionName, value/* , additional values*/){
+            var isSingle = this.length === 1;
+
             // Additional arguments are space-delimited as part of the value
             if (arguments.length > 2){
                 value = toArray(arguments).slice(1).join(' ');
             }
 
             return this.each(function(el, i){
-                // TODO: replace `node = Pablo(el)` with 
-                // `node = this.length === 1 ? this : Pablo(el)` everywhere that
-                // is appropriate, to avoid unnecessary Pablo collection creation
-                var node = Pablo(el),
+                // Avoid unnecessary Pablo collection creation
+                var node = isSingle ? this : Pablo(el),
                     transformAttr = node.attr('transform'),
                     newTransformAttr, pos, posEnd, transformAttrEnd,
                     functionString = functionName + '(' + this.getValue(value, i) + ')';
@@ -832,7 +835,7 @@
         // EVENTS
 
         on: function(type, selectors, listener, useCapture, context){
-            var wrapper, eventData;
+            var isSingle, wrapper, eventData;
 
             // `selectors` argument not given
             // TODO: `selectors` should be allowed to be a function
@@ -874,12 +877,14 @@
                 useCapture: useCapture
             };
 
+            isSingle = this.length === 1;
+
             // If there are multiple, space-delimited event types, then cycle 
             // through each one
             return this.processList(type, function(type){
                 // Cycle through each element in the collection
                 this.each(function(el){
-                    var node = this.length === 1 ? this : Pablo(el),
+                    var node = isSingle ? this : Pablo(el),
                         eventsCache = node.data(eventsNamespace),
                         cache;
 
@@ -923,6 +928,8 @@
         },
 
         off: function(type, selectors, listener, useCapture){
+            var isSingle = this.length === 1;
+
             // `selectors` argument not given
             if (typeof selectors === 'function'){
                 useCapture = listener;
@@ -937,7 +944,7 @@
             // through each one
             return this.processList(type, function(type){
                 this.each(function(el){
-                    var node = this.length === 1 ? this : Pablo(el),
+                    var node = isSingle ? this : Pablo(el),
                         eventsCache = node.data(eventsNamespace),
                         cache, cachedType;
 
@@ -1030,10 +1037,12 @@
 
         // Trigger listener once per element in the collection
         oneEach: function(){
-            var args = arguments;
+            var args = arguments,
+                isSingle = this.length === 1;
 
             return this.each(function(el){
-                var node = Pablo(el);
+                // Avoid unnecessary Pablo collection creation
+                var node = isSingle ? this : Pablo(el);
                 node.one.apply(node, args);
             });
         },
@@ -1041,10 +1050,11 @@
         // TODO: optional `context` as second argument?
         trigger: function(type /*, arbitrary args to pass to listener*/){
             var args = arguments.length > 1 ?
-                Pablo.toArray(arguments).slice(1) : null;
+                    Pablo.toArray(arguments).slice(1) : null,
+                isSingle = this.length === 1;
 
             return this.each(function(el){
-                var node = this.length === 1 ? this : Pablo(el),
+                var node = isSingle ? this : Pablo(el),
                     eventsCache = node.data(eventsNamespace);
 
                 if (eventsCache){
@@ -1448,8 +1458,10 @@
         cssClassApi = {
             // Return true if _any_ element has className
             hasClass: function(className){
+                var isSingle = this.length === 1;
                 return this.some(function(el, i){
-                    var node = Pablo(el),
+                    // Avoid unnecessary Pablo collection creation
+                    var node = isSingle ? this : Pablo(el),
                         val = this.getValue(className, i),
                         classString = node.attr('class');
 
@@ -1459,8 +1471,10 @@
             },
 
             addClass: function(className){
+                var isSingle = this.length === 1;
                 return this.each(function(el, i){
-                    var node = Pablo(el),
+                    // Avoid unnecessary Pablo collection creation
+                    var node = isSingle ? this : Pablo(el),
                         val = this.getValue(className, i),
                         classString;
 
@@ -1475,8 +1489,10 @@
             },
 
             removeClass: function(className){
+                var isSingle = this.length === 1;
                 return this.each(function(el, i){
-                    var node = Pablo(el),
+                    // Avoid unnecessary Pablo collection creation
+                    var node = isSingle ? this : Pablo(el),
                         val = this.getValue(className, i);
 
                     this.processList(val, function(className){
@@ -1494,8 +1510,10 @@
             },
 
             toggleClass: function(className){
+                var isSingle = this.length === 1;
                 return this.each(function(el, i){
-                    var node = Pablo(el),
+                    // Avoid unnecessary Pablo collection creation
+                    var node = isSingle ? this : Pablo(el),
                         val = this.getValue(className, i);
 
                     this.processList(val, function(className){
