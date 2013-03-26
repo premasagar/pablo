@@ -903,7 +903,7 @@
                     if (selectors){
                         // Overwrite the wrapper to make it check that the event
                         // originated on an element matching the selectors
-                        wrapper = function(event){debugger;
+                        wrapper = function(event){
                             // Call listener if manually triggered with `trigger()`
                             // or the event target matches the selector
                             if (!event ||
