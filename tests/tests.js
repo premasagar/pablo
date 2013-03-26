@@ -810,7 +810,25 @@ describe('Pablo', function () {
 
       describe('.getValue()', function () {
         it('.getValue()', function () {
-          notDone();
+          var collection = Pablo(['g', 'a', 'rect']),
+              val1 = 5,
+              val2 = "foo",
+              val3 = [1,2,3],
+              val4 = function(el, i){
+                return el.nodeName + '-' + i;
+              };
+
+          collection.each(function(el, i){
+            var result1 = this.getValue(val1, i),
+                result2 = this.getValue(val2, i),
+                result3 = this.getValue(val3, i),
+                result4 = this.getValue(val4, i);
+
+            expect(result1).to.eql(val1);
+            expect(result2).to.eql(val2);
+            expect(result3).to.eql(val3[i]);
+            expect(result4).to.eql(el.nodeName + '-' + i);
+          });
         });
       });
 
