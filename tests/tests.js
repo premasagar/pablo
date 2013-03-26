@@ -2029,7 +2029,7 @@ describe('Pablo', function () {
   });
 
   describe('Events', function () {
-    it('a PabloCollection which had an event previously removed should have it function if its reassigned', function (done) {
+    it('.trigger() should trigger an event if the event is removed then added again', function (done) {
       var subject = Pablo.rect(),
           counter = 0;
 
@@ -2089,6 +2089,18 @@ describe('Pablo', function () {
 
         subject.trigger('foo');
       });
+
+      it('.trigger() should pass arguments on to listener', function (done) {
+        var subject = Pablo();
+
+        subject.on('foo', function (a, b) {
+          expect(a).to.eql(1);
+          expect(b).to.eql(2);
+          done();
+        });
+
+        subject.trigger('foo', 1, 2);
+      });
     });
 
     describe('.on()', function () {
@@ -2125,6 +2137,42 @@ describe('Pablo', function () {
         });
 
         subject.trigger('foo');
+      });
+
+      it('.on(type, cssSelectors, listener) should be triggered with the element as its scope', function (done) {
+        var subject = Pablo(['g', 'a', 'text']).append('g');
+
+        subject.on(
+            'foo',
+            'g',
+            //function(el, i){console.log(this, el, i);},
+            function(el){
+              expect(this).to.eql(el);
+              done();
+            }
+        )
+        .each(function(el){
+          Pablo(el).trigger('foo', el);
+        });
+      });
+
+      it('.on(type, selectorFunction, listener) should be triggered with the element as its scope', function (done) {
+        var subject = Pablo(['g', 'a', 'text']).append('g');
+
+        subject.on(
+            'foo',
+            function(el){
+              return el.nodeName.toLowerCase() !== 'text';
+            },
+            //function(el, i){console.log(this, el, i);},
+            function(el){
+              expect(this).to.eql(el);
+              done();
+            }
+        )
+        .each(function(el){
+          Pablo(el).trigger('foo', el);
+        });
       });
     });
 
