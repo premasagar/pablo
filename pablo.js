@@ -911,11 +911,8 @@
                         // Overwrite the wrapper to make it check that the event
                         // originated on an element matching the selectors
                         wrapper = function(event){
-                            // Call listener if manually triggered with `trigger()`
-                            // or the event target matches the selector
-                            if (!event ||
-                                !event.target ||
-                                Pablo(event.target).some(selectors, context)
+                            // Call listener if the target matches the selector
+                            if (event && Pablo(event.target).some(selectors, context)
                                 // TODO: should `context` be passed to `some()`
                                 // to be used for selectors functions or is that
                                 // mixing up concerns?
@@ -1066,8 +1063,7 @@
 
         // TODO: optional `context` as second argument?
         trigger: function(type /*, arbitrary args to pass to listener*/){
-            var args = arguments.length > 1 ?
-                    toArray(arguments) : [],
+            var args = toArray(arguments),
                 isSingle = this.length === 1;
 
             return this.each(function(el){
@@ -1080,9 +1076,7 @@
                     this.processList(type, function(type){
                         var cache = eventsCache[type];
                         if (cache){
-                            args[0] = {target:el};
-                            // TODO: if an empty collection, then don't pass proxy
-                            // object {'data-pablo':n}
+                            args[0] = {type:type, target:el};
                             cache.forEach(function(eventData){
                                 eventData.wrapper.apply(el, args);
                             }, node);
@@ -1123,6 +1117,10 @@
                         // This removal is used by hasData to quickly determine
                         // if the element has associated data
                         delete el[cacheExpando];
+                        // TODO: this may make the counter increment faster, where
+                        // an element is continually having events added and removed.
+                        // It is assumed that JavaScript's integer limit will not
+                        // be reached in the lifetime of a program. Is that OK?
                     }
                 }
             }
