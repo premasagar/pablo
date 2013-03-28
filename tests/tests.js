@@ -2113,6 +2113,47 @@ describe('Pablo', function () {
 
         subject.trigger('foo', 1, 2);
       });
+
+      it('.trigger() should not fire on delegate elements, i.e. when a selector is given', function () {
+        var subject1 = Pablo(),
+            subject2 = Pablo('#test-subjects');
+
+        subject1
+          .on('foo', '.nonexistent', function (event) {
+            new Error('The event should not have fired');
+          })
+          .trigger('foo', 1, 2);
+
+        subject2.on('click', 'li', function (event, a, b) {
+            new Error('The event should not have fired');
+          })
+          .trigger('click', 1, 2);
+      });
+
+      it('.trigger() should provide a custom event object', function () {
+        var subject1 = Pablo(),
+            subject2 = Pablo('#test-subjects'),
+            complete = 0;
+
+        subject1
+          .on('foo', function (event) {
+            // a delegate event should have the flag pablo `true`
+            expect(event && event.pablo).to.eql(true);
+            complete ++;
+          })
+          .trigger('foo', 1, 2);
+
+        subject2.on('click', function (event, a, b) {
+            // a delegate event should have the flag pablo `true`
+            expect(event && event.pablo).to.eql(true);
+            expect(event && typeof event.type).to.eql('string');
+            expect(event && Pablo.isElement(event.target)).to.eql(true);
+            complete ++;
+          })
+          .trigger('click', 1, 2);
+
+        expect(complete).to.eql(2);
+      });
     });
 
     describe('.on()', function () {
