@@ -83,10 +83,11 @@
         'filter'     in arrayProto
     )){
         // Incompatible browser: return a simplified version of the Pablo API
-        return {
+        root.Pablo = {
             v: pabloVersion,
             isSupported: false
         };
+        return;
     }
 
     supportsClassList = 'classList' in testElement;
