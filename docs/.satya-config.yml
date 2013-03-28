@@ -10,7 +10,7 @@ twitter_url: https://twitter.com/dharmafly
 # options: javascript, css, html5
 lang: javascript
 scripts:
-- src: https://raw.github.com/dharmafly/pablo/master/build/pablo.min.js
+- src: https://raw.github.com/dharmafly/pablo/master/build/dist/pablo.min.js
 quote:
 - quote: Painting is just another way of keeping a diary.
 - cite: Pablo Picasso
