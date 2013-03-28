@@ -873,16 +873,8 @@
                     listener.apply(context, arguments);
                 };
             }
-
-            // Prepare data to cache about the event
-            // With `selectors`, a new eventData object is needed for each element
-            if (!selectors){
-                eventData = {
-                    selectors:  selectors,
-                    listener:   listener,
-                    wrapper:    wrapper || listener,
-                    useCapture: useCapture
-                };
+            else {
+                wrapper = listener;
             }
 
             isSingle = this.length === 1;
@@ -891,8 +883,9 @@
             // through each one
             return this.processList(type, function(type){
                 // Cycle through each element in the collection
-                this.each(function(el){
+                this.each(function(el, i){
                     var node = isSingle ? this : Pablo(el),
+
                         eventsCache = node.data(eventsNamespace),
                         cache;
 
@@ -920,12 +913,15 @@
                                 listener.apply(context || el, arguments);
                             }
                         };
+                    }
 
-                        // Overwrite the wrapper in the data to be cached
+                    // Prepare data to cache about the event
+                    // With `selectors`, a new eventData object is needed for each element
+                    if (selectors || !i){
                         eventData = {
                             selectors:  selectors,
                             listener:   listener,
-                            wrapper:    wrapper,
+                            wrapper:    wrapper || listener,
                             useCapture: useCapture
                         };
                     }
