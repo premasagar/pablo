@@ -233,11 +233,60 @@
         });
 
         it('should return a pablo collection containing a DOM element when passed a CSS Selector', function () {
-          var subject  = Pablo('#test-subjects');
+          var subject = Pablo('#test-subjects li');
 
           expect(subject instanceof Pablo.Collection);
-          expect(subject.length).to.eql(1);
-          expect(subject[0].id).to.eql('test-subjects');
+          expect(subject.length).to.eql(3);
+          expect(subject[0].id).to.eql('test-subject-a');
+          expect(subject[1].id).to.eql('test-subject-b');
+          expect(subject[2].id).to.eql('test-subject-c');
+        });
+      });
+
+      describe('Pablo(selectors, context)', function () {
+        it('should find matching elements when context is a Pablo collection', function () {
+          var subject = Pablo('li', Pablo('#test-subjects'));
+
+          expect(subject.length).to.eql(3);
+          expect(subject[0].id).to.eql('test-subject-a');
+          expect(subject[1].id).to.eql('test-subject-b');
+          expect(subject[2].id).to.eql('test-subject-c');
+        });
+
+        it('.should find matching elements when context is a CSS selector', function () {
+          var subject = Pablo('li', '#test-subjects');
+
+          expect(subject.length).to.eql(3);
+          expect(subject[0].id).to.eql('test-subject-a');
+          expect(subject[1].id).to.eql('test-subject-b');
+          expect(subject[2].id).to.eql('test-subject-c');
+        });
+
+        it('should find matching elements when context is a DOM Element', function () {
+          var subject = Pablo('li', Pablo('#test-subjects')[0]);
+
+          expect(subject.length).to.eql(3);
+          expect(subject[0].id).to.eql('test-subject-a');
+          expect(subject[1].id).to.eql('test-subject-b');
+          expect(subject[2].id).to.eql('test-subject-c');
+        });
+
+        it('should find matching elements when context is a Nodelist', function () {
+          var subject = Pablo('.test-subject', document.querySelectorAll('ul'));
+
+          expect(subject.length).to.eql(3);
+          expect(subject[0].id).to.eql('test-subject-a');
+          expect(subject[1].id).to.eql('test-subject-b');
+          expect(subject[2].id).to.eql('test-subject-c');
+        });
+
+        it('should find matching elements when context is a jQuery collection', function () {
+          var subject = Pablo('.test-subject', jQuery('ul'));
+
+          expect(subject.length).to.eql(3);
+          expect(subject[0].id).to.eql('test-subject-a');
+          expect(subject[1].id).to.eql('test-subject-b');
+          expect(subject[2].id).to.eql('test-subject-c');
         });
       });
 
@@ -1322,52 +1371,6 @@
             expect(contextWasCorrect).to.eql(true);
           });
         });
-
-        /*
-          NOTE:
-          Pablo.find(selector, context) has been deprecated.
-          Instead, use Pablo(selector) or Pablo(context).find(selector)
-          In future, there may this form: Pablo(selector, context)
-          so these tests are left here for reuse at that time.
-
-        describe('.find()', function () {
-          it('.find(selectors) should return a PabloCollection representative of the matching selector matching the PabloCollection', function () {
-            var subject = Pablo.find('#test-subjects li');
-
-            expect(subject.length).to.eql(3);
-            expect(subject[0].id).to.eql('test-subject-a');
-            expect(subject[1].id).to.eql('test-subject-b');
-            expect(subject[2].id).to.eql('test-subject-c');
-          });
-
-          it('.find(selectors, searchContext) like above but the with an additional search context as Pablo object', function () {
-            var subject = Pablo.find('li', Pablo('#test-subjects'));
-
-            expect(subject.length).to.eql(3);
-            expect(subject[0].id).to.eql('test-subject-a');
-            expect(subject[1].id).to.eql('test-subject-b');
-            expect(subject[2].id).to.eql('test-subject-c');
-          });
-
-          it('.find(selectors, searchContext) like above but with an additional search context as selector', function () {
-            var subject = Pablo.find('li', '#test-subjects');
-
-            expect(subject.length).to.eql(3);
-            expect(subject[0].id).to.eql('test-subject-a');
-            expect(subject[1].id).to.eql('test-subject-b');
-            expect(subject[2].id).to.eql('test-subject-c');
-          });
-
-          it('.find(selectors, searchContext) like above but with an additional search context as DOM Element', function () {
-            var subject = Pablo.find('li', Pablo('#test-subjects')[0]);
-
-            expect(subject.length).to.eql(3);
-            expect(subject[0].id).to.eql('test-subject-a');
-            expect(subject[1].id).to.eql('test-subject-b');
-            expect(subject[2].id).to.eql('test-subject-c');
-          });
-        });
-        */
 
         describe('.sort()', function () {
           it('.sort(function) should sort the collection based on the negativity of the returned value callback iteration', function () {
