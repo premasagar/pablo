@@ -906,10 +906,20 @@
                         // originated on an element matching the selectors
                         wrapper = function(event){
                             // Call listener if the target matches the selector
-                            if (event && Pablo(event.target).some(selectors, context)
+                            if (
+                                event &&
+                                // `event.pablo` is set in trigger() for manual
+                                // event triggering. Delegate events do not currently
+                                // support manual triggering - e.g. 
+                                // delegate = Pablo('g.foo');
+                                // targets = delegate.find('circle.bar');
+                                // parent.on('click', targets, listener);
+                                // targets.trigger('click');
+                                !event.pablo &&
                                 // TODO: should `context` be passed to `some()`
                                 // to be used for selectors functions or is that
                                 // mixing up concerns?
+                                Pablo(event.target).some(selectors, context)
                             ){
                                 listener.apply(context || el, arguments);
                             }
@@ -1073,7 +1083,12 @@
                     this.processList(type, function(type){
                         var cache = eventsCache[type];
                         if (cache){
-                            args[0] = {type:type, target:el};
+                            args[0] = {
+                                // `pablo` flag is used by `on()` wrapper
+                                pablo: true,
+                                type: type,
+                                target: el
+                            };
                             cache.forEach(function(eventData){
                                 eventData.wrapper.apply(el, args);
                             }, node);
