@@ -72,7 +72,7 @@
         'attributes' in testElement &&
         'querySelectorAll' in testElement &&
         'previousElementSibling' in testElement &&
-        'childNodes' in testElement &&
+        'childNodes' in testElement && // see note on svgElement.children, below
         'create'     in Object &&
         'keys'       in Object &&
         'isArray'    in Array &&
@@ -1387,8 +1387,9 @@
 
 
         // TRAVERSAL
-        // NOTE: ideally, we'd use the 'children' collection, instead of 'childNodes'
-        // which has support in HTML but not yet wide support in SVG elements
+        // NOTE on svgElement.children: ideally, we'd use the 'children'
+        // collection, instead of 'childNodes'. Even if a browser implements 
+        // 'children' on HTML elements, it isn't always implemented on SVG elements
         // See https://hacks.mozilla.org/2009/06/dom-traversal/
         // Bug report in WebKit: https://bugs.webkit.org/show_bug.cgi?id=112698
         children:     traverse('childNodes'),
@@ -1422,6 +1423,7 @@
             });
         }
     });
+
 
     // ALIASES
 
