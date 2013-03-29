@@ -774,7 +774,7 @@
                 // Get style
                 if (typeof value === 'undefined'){
                     el = this[0];
-                    return el && el.style.getPropertyValue(styles);
+                    return el && 'style' in el && el.style.getPropertyValue(styles);
                     // or document.defaultView.getComputedStyle(el, null).getPropertyValue(styles);
                 }
 
