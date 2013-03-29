@@ -49,19 +49,19 @@
       });
 
       it('window.Element', function(){
-        expect(window.Element).to.be.a('function');
+        expect('Element' in window).to.eql(true);
       });
 
       it('window.SVGElement', function(){
-        expect(window.SVGElement).to.be.a('function');
+        expect('SVGElement' in window).to.eql(true);
       });
 
       it('window.NodeList', function(){
-        expect(window.NodeList).to.be.a('function');
+        expect('NodeList' in window).to.eql(true);
       });
 
       it('window.HTMLDocument', function(){
-        expect(window.HTMLDocument).to.be.a('function');
+        expect('HTMLDocument' in window).to.eql(true);
       });
 
       it('svg.createSVGRect', function(){
@@ -997,7 +997,7 @@
           it('.cssPrefix(prop) should return the value of the css property of the element', function () {
             var subject = Pablo('#test-subjects');
             subject.cssPrefix('transition', 'opacity 0.5s');
-            expect(subject.cssPrefix('transition')).to.eql('opacity 0.5s');
+            expect(subject.cssPrefix('transition').indexOf('opacity 0.5s')).to.eql(0);
           });
 
           it('.cssPrefix(styles) should set and prefix the css properties with a browser namespace in relation to the style map', function () {
@@ -1111,20 +1111,20 @@
         });
 
         describe('.content()', function () {
-          it('.content() should gets the innerText property of the element', function () {
+          it('.content() should gets the textContent property of the element', function () {
             var subject = Pablo(document.createElement('a'));
 
-            subject[0].innerText = 'foo';
+            subject[0].textContent = 'foo';
 
             expect(subject.content()).to.eql('foo');
           });
 
-          it('.content(text) should sets the innerText property of the element', function () {
+          it('.content(text) should sets the textContent property of the element', function () {
             var subject = Pablo(document.createElement('a'));
 
             subject.content('foo');
 
-            expect(subject[0].innerText).to.eql('foo');
+            expect(subject[0].textContent).to.eql('foo');
           });
         });
       });
@@ -1280,12 +1280,21 @@
 
         describe('.reverse()', function () {
           it('.reverse() should mutate the PabloCollection by reversing its element order', function () {
-            var subject  = Pablo([Pablo.rect(), Pablo.ellipse(), Pablo.a()]),
-                expected = Pablo([Pablo.a(), Pablo.ellipse(), Pablo.rect()]);
+            var a = Pablo.a(),
+                rect = Pablo.rect(),
+                ellipse = Pablo.ellipse(),
+                subject  = Pablo([a, rect, ellipse]),
+                expected;
 
-            subject.reverse();
+            expect(subject[0].nodeName).to.eql('a');
+            expect(subject[1].nodeName).to.eql('rect');
+            expect(subject[2].nodeName).to.eql('ellipse');
+            expected = subject.reverse();
 
             expect(subject).to.eql(expected);
+            expect(subject[0].nodeName).to.eql('ellipse');
+            expect(subject[1].nodeName).to.eql('rect');
+            expect(subject[2].nodeName).to.eql('a');
           });
         });
       });
@@ -1437,9 +1446,9 @@
 
           it('.pluck(property, [css]) like above but with the type being a css rule', function () {
             var subject = Pablo([
-                                Pablo('span', {style: 'display: block'}),
-                                Pablo('span', {style: 'display: inline'})
-                              ]),
+                  Pablo.g().css({display: 'block'}),
+                  Pablo.g().css({display: 'inline'})
+                ]),
                 arr;
 
             arr = subject.pluck('display', 'css');
@@ -1457,30 +1466,38 @@
             
             arr = subject.pluck('transition', 'cssPrefix');
 
-            expect(arr[0]).to.eql('opacity 0.1s');
-            expect(arr[1]).to.eql('opacity 1s');
+            // Note, in Firefox, style properties may be changed from the that supplied
+            // to the css(key, val) setter
+            expect(arr[0].indexOf('opacity 0.1s')).to.eql(0);
+            expect(arr[1].indexOf('opacity 1s')).to.eql(0);
           });
         });
 
         describe('.select()', function () {
           it('.select(function) should return a new collection containing each element for which the callback function returns true', function () {
-            var subject = Pablo([Pablo.rect(), Pablo.a(), Pablo.circle()]),
-                expected1   = Pablo([Pablo.rect(), Pablo.a(), Pablo.circle()]),
-                expected2   = Pablo(Pablo.a()),
-                outcome1, outcome2;
+            var a = Pablo.a(),
+                rect = Pablo.rect(),
+                ellipse = Pablo.ellipse(),
+                reference  = Pablo([a, rect, ellipse]),
+                expected, subject1, subject2;
 
-            outcome1 = subject.select(function (item, i) {
+            subject1 = reference.select(function (el, i) {
               return true;
             });
 
-            outcome2 = subject.select(function (item, i) {
-              if (item instanceof SVGAElement) {
+            expect(subject1.length).to.eql(3);
+            expect(subject1[0]).to.eql(a[0]);
+            expect(subject1[1]).to.eql(rect[0]);
+            expect(subject1[2]).to.eql(ellipse[0]);
+
+            subject2 = reference.select(function (el, i) {
+              if (el instanceof SVGAElement) {
                 return true;
               }
             });
 
-            expect(outcome1).to.eql(expected1);
-            expect(outcome2).to.eql(expected2);
+            expect(subject2.length).to.eql(1);
+            expect(subject2[0]).to.eql(a[0]);
           });
         });
 
