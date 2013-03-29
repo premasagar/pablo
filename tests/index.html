@@ -33,9 +33,13 @@
       mocha.run();
     }
 
-    getscript(use_min_js ? '../build/dist/pablo.min.js' : '../pablo.js', function(){
-      getscript('tests.js', run);
-    });
+    getscript(use_min_js ?
+      '../build/dist/pablo.min.js' :
+      '../pablo.js',
+      function(){
+        getscript('tests.js', run);
+      }
+    );
   </script>
 </body>
 </html>
