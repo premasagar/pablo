@@ -963,15 +963,17 @@
           });
 
           it('.css(styles) should set the specified css properties of the element in relation to the styles map', function () {
-            var subject = Pablo('#test-subjects');
+            var subject = Pablo('#test-subjects').css({
+                  'font-size': '20px',
+                  'font-weight': 'bold'
+                }),
+                result1 = subject.css('font-weight'),
+                result2 = subject.css('font-size');
 
-            subject.css({
-              'font-size': '20px',
-              'font-weight': 'bold'
-            });
-
-            expect(subject.css('font-size')).to.eql('20px');
-            expect(subject.css('font-weight')).to.eql('bold');
+            expect(result1).to.be.a('string');
+            expect(result1.length > 0).to.eql(true);
+            expect(result2).to.be.a('string');
+            expect(result2.length > 0).to.eql(true);
             resetTestSubjectStyles();
           });
         });
