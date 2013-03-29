@@ -77,6 +77,20 @@ circle.duplicate(20)
 
 **See the [API Reference][api] for full details.**
 
+
+## Extra
+
+It's early days, so your feedback is welcome. For bug reports and requests, please use the GitHub ['Issues' page][issues] or contact [@premasagar][prem-twitter].
+
+[Pull requests][pull-requests] are welcome. To update the pages on [pablojs.com][pablo-site], the [Markdown][markdown-syntax] files in the [/docs folder][docs-folder] should be changed.
+
+
+## Tests
+
+The test suite can be run locally by viewing `tests/index.html` in the browser.  
+Run the tests via the web at [pablojs.com/tests/][tests]
+
+
 ## Build process
 
 The build process handles code linting and minification. [Grunt](http://gruntjs.com) is Pablo's build tool so [node](http://nodejs.org/) is required.
@@ -97,20 +111,10 @@ $ npm install
 $ grunt
 ```
 
-A fresh copy of `pablo.min.js` can be found in the `build/dist` directory.
+A copy of `pablo.min.js` can be found in the `build/dist` directory.
 
-In the future the build process can be used to concatinate multiple Pablo files 
-for a customized Pablo distribution.
-
-## Tests
-
-The (currently incomplete) [test suite][tests] is available to run in the browser at `tests/index.html`.
-
-## Extra
-
-It's early days, so your feedback is welcome. For bug reports and requests, please use the GitHub ['Issues' page][issues] or contact [@premasagar][prem-twitter].
-
-[Pull requests][pull-requests] are welcome. To update the pages on [pablojs.com][pablo-site], the [Markdown][markdown-syntax] files in the [/docs folder][docs-folder] should be changed.
+In the future the build process may be used to concatinate modular Pablo 
+functionality for a custom build.
 
 
 [prem]: http://premasagar.com
@@ -121,7 +125,7 @@ It's early days, so your feedback is welcome. For bug reports and requests, plea
 [pablo-site]: http://pablojs.com
 [repo]: https://github.com/dharmafly/pablo
 [issues]: https://github.com/dharmafly/pablo/issues
-[tests]: https://github.com/dharmafly/pablo/tree/master/tests
+[tests]: http://pablojs.com/tests/
 [changelog]: http://pablojs.com/details/#changelog
 [pablo-min]: https://github.com/downloads/dharmafly/pablo/pablo.min.js
 [raphael]: http://raphaeljs.com
