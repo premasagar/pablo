@@ -160,14 +160,23 @@
 
       describe('Pablo(input)', function () {
 
-        it('should return an empty pablo collection when invoked without argument', function () {
+        it('should return an empty pablo collection when passed unwrappable contents', function () {
           var subject = Pablo();
 
           expect(subject instanceof Pablo.Collection).to.eql(true);
           expect(subject.length).to.eql(0);
+
+          expect(Pablo([]).length).to.eql(0);
+          expect(Pablo({}).length).to.eql(0);
+          expect(Pablo(3).length).to.eql(0);
+          expect(Pablo('').length).to.eql(0);
+          expect(Pablo(null).length).to.eql(0);
+          expect(Pablo(undefined).length).to.eql(0);
+          expect(Pablo(document.createTextNode('foo')).length).to.eql(0);
+          expect(Pablo(document.createComment('bar')).length).to.eql(0);
         });
 
-        it('should return a pablo collection containing a DOM element when invoked with that dom element', function () {
+        it('should return a pablo collection containing a DOM element when passed that dom element', function () {
           var targetElement = document.getElementById('test-subjects'),
               subject   = Pablo(targetElement);
 
@@ -176,15 +185,7 @@
           expect(subject[0].id).to.eql('test-subjects');
         });
 
-        it('should return a pablo collection containing a list when passed a HTMLCollection or NodeList (and excludes text node)', function () {
-          var nodeList    = document.getElementById('test-subjects').childNodes,
-              subject = Pablo(nodeList);
-
-          expect(subject instanceof Pablo.Collection).to.eql(true);
-          expect(subject.length).to.eql(3);
-        });
-
-        it('should return a pablo collection containing a list when passed an Array of elements', function () {
+        it('should return a pablo collection containing elements when passed an Array of elements', function () {
           var nodeList = document.getElementById('test-subjects').childNodes,
               asArray  = [],
               subject;
@@ -202,7 +203,7 @@
           expect(subject[2].id).to.eql('test-subject-c');
         });
 
-        it('should return a pablo collection containing a list when passed an Array-like collection (e.g. jQuery)', function () {
+        it('should return a pablo collection containing elements when passed an Array-like collection (e.g. jQuery)', function () {
           var jQueryCollection = jQuery('#test-subjects'),
               subject      = Pablo(jQueryCollection);
 
@@ -211,18 +212,19 @@
           expect(subject[0].id).to.eql('test-subjects');
         });
 
-        it('should return a pablo collection containing a list when passed a DOM list', function () {
-          var subject  = Pablo(document.getElementById('test-subjects').children); 
+        it('should return a pablo collection containing elements when passed a NodeList (excludes textnodes)', function () {
+          var nodeList    = document.getElementById('test-subjects').childNodes,
+              subject = Pablo(nodeList);
 
-          expect(subject instanceof Pablo.Collection);
+          expect(subject instanceof Pablo.Collection).to.eql(true);
           expect(subject.length).to.eql(3);
           expect(subject[0].id).to.eql('test-subject-a');
           expect(subject[1].id).to.eql('test-subject-b');
           expect(subject[2].id).to.eql('test-subject-c');
         });
 
-        it('should return a pablo collection containing a list when passed a Pablo collection', function () {
-          var subject  = Pablo(document.getElementById('test-subjects').children),
+        it('should return a pablo collection containing elements when passed a Pablo collection', function () {
+          var subject  = Pablo(document.getElementById('test-subjects').childNodes),
               subject2 = Pablo(subject); 
 
           expect(subject2 instanceof Pablo.Collection);
@@ -232,7 +234,7 @@
           expect(subject2[2].id).to.eql('test-subject-c');
         });
 
-        it('should return a pablo collection containing a DOM element when passed a CSS Selector', function () {
+        it('should return a pablo collection containing elements when passed a CSS Selector', function () {
           var subject = Pablo('#test-subjects li');
 
           expect(subject instanceof Pablo.Collection);
@@ -240,6 +242,26 @@
           expect(subject[0].id).to.eql('test-subject-a');
           expect(subject[1].id).to.eql('test-subject-b');
           expect(subject[2].id).to.eql('test-subject-c');
+        });
+
+        it.skip('should return a pablo collection containing elements when passed a document fragment', function () {
+          var fragment = document.createDocumentFragment(),
+              colors = ['blue', 'red', 'green'],
+              subject;
+
+          colors.forEach(function(color) {
+            var li = document.createElement('li');
+            li.textContent = color;
+            fragment.appendChild(li);
+          });
+
+          subject = Pablo(fragment);
+
+          expect(subject instanceof Pablo.Collection);
+          expect(subject.length).to.eql(3);
+          expect(subject[0].textContent).to.eql(colors[0]);
+          expect(subject[0].textContent).to.eql(colors[1]);
+          expect(subject[0].textContent).to.eql(colors[2]);
         });
       });
 
