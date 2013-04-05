@@ -677,6 +677,24 @@
             
             expect(deepChild.root()[0] instanceof SVGSVGElement).to.eql(true);
           });
+
+          it('.root() should return the pablo wrapped top most <svg> root element of each element in the Pablo collection (multiple elements).', function () {
+              var htmlContainer = Pablo(document.createElement('div')),
+                  rootA         = Pablo.svg({id: 'A'}),
+                  rootB         = Pablo.svg({id: 'B'}),
+                  collection;
+
+              rootB.append(Pablo.circle());
+              rootA.append(Pablo.circle());
+
+              htmlContainer.append([rootA, rootB]);
+
+              collection = htmlContainer.find('circle');
+              debugger
+              expect(collection.root().length).to.eql(2);
+              expect(collection.root()[0].getAttribute('id')).to.eql('A');
+              expect(collection.root()[1].getAttribute('id')).to.eql('B');
+          });
         });
 
         describe('.owner()', function () {
