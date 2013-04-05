@@ -684,13 +684,12 @@
                   rootB         = Pablo.svg({id: 'B'}),
                   collection;
 
-              rootB.append(Pablo.circle());
-              rootA.append(Pablo.circle());
+              rootA.svg().circle();
+              rootB.svg().circle();
 
               htmlContainer.append([rootA, rootB]);
 
               collection = htmlContainer.find('circle');
-              debugger
               expect(collection.root().length).to.eql(2);
               expect(collection.root()[0].getAttribute('id')).to.eql('A');
               expect(collection.root()[1].getAttribute('id')).to.eql('B');

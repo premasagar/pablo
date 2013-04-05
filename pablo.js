@@ -1427,7 +1427,11 @@
         },
         // Find each element's SVG root element
         root: function(selectors){
-            return this.owners(selectors).last();
+            return this.map(function(el){
+                var node = this.length === 1 ?
+                    this : Pablo(el);
+                return node.owners(selectors).last();
+            });
         },
         siblings: function(selectors){
             return this.prevSiblings(selectors)
