@@ -646,7 +646,7 @@
         });
 
         describe('.root()', function () {
-          it('.root() should return the pablo wrapped <svg> root element of each elements in the Pablo collection.', function () {
+          it('.root() should return the pablo wrapped top most <svg> root element of each element in the Pablo collection.', function () {
             var subject = Pablo(document.createElement('div')),
                 deepChild;
 
