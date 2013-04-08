@@ -1604,10 +1604,12 @@
 
         describe('.every()', function () {
           it('.every(function) should return true if all values in the PabloCollection pass the test function', function () {
-            var subject = Pablo([Pablo.a({foo:'bar'}),
-                                     Pablo.a({foo:'bar'}),
-                                     Pablo.a({foo:'bar'})]),
-                outcome1, outcome2;
+            var subject = Pablo([
+                            Pablo.a({foo:'bar'}),
+                            Pablo.a({foo:'bar'}),
+                            Pablo.a({foo:'bar'})
+                          ]),
+                          outcome1, outcome2;
 
             function test (item, i) {
               if (item.getAttribute('foo') === 'bar') {
@@ -1623,6 +1625,19 @@
             
             expect(outcome1).to.eql(true);
             expect(outcome2).to.eql(false);
+          });
+
+          it('.every(selector) should return true if all values in the PabloCollection pass the test selector)', function () {
+            var subject = Pablo.circle();
+
+            subject.add(Pablo.circle());
+            subject.add(Pablo.circle());
+
+            expect(subject.every('circle')).to.eql(true);
+
+            subject.add(Pablo.rect());
+            
+            expect(subject.every('circle')).to.eql(false);
           });
         });
       });
