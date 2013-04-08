@@ -350,7 +350,7 @@
 
             collection = Pablo('#test-subject-a');
 
-            collection.add(collection.eq(0))
+            collection.add(collection.eq(0));
             expect(collection.length).to.eql(1);
             expect(collection.attr('id')).to.eql('test-subject-a');
           });
@@ -370,7 +370,7 @@
 
             collection = Pablo('#test-subject-a');
 
-            collection.concat(collection.eq(0))
+            collection.concat(collection.eq(0));
             expect(collection.length).to.eql(1);
             expect(collection.attr('id')).to.eql('test-subject-a');
           });
@@ -685,7 +685,11 @@
           });
 
           it('.parents([selector])', function () {
-            notDone();
+            var child    = Pablo('#test-subject-a'),
+                filtered = child.parents('body');
+
+            expect(filtered.length).to.eql(1);
+            expect(filtered[0] instanceof HTMLBodyElement).to.eql(true);
           });
         });
 
@@ -705,7 +709,17 @@
           });
 
           it('.parentsSvg([selector])', function () {
-            notDone();
+            var collection = Pablo(document.createElement('div')),
+                deepChild,
+                parents;
+
+            collection.circle().circle().append('a', {});
+            deepChild = collection.find('a');
+            parents = deepChild.parentsSvg('circle');
+
+            expect(parents.length).to.eql(2);
+            expect(parents[0] instanceof SVGCircleElement).to.eql(true);
+            expect(parents[1] instanceof SVGCircleElement).to.eql(true);
           });
         });
 
