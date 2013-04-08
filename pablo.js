@@ -1451,7 +1451,8 @@
         elements: pabloCollectionApi.toArray,
         push:     pabloCollectionApi.add,
         forEach:  pabloCollectionApi.each,
-        is: pabloCollectionApi.some
+        is: pabloCollectionApi.some,
+        lastIndexOf: pabloCollectionApi.indexOf
     });
 
 
