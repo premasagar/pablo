@@ -420,7 +420,7 @@
           });
         });
 
-        describe('.appendTo(element)', function () {
+        describe('.appendTo(element, [attributes])', function () {
           it('should return a Pablo collection', function () {
             expect(Pablo.circle().appendTo(Pablo.rect()) instanceof Pablo.Collection).to.eql(true);
           });
