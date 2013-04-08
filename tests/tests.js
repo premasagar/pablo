@@ -332,6 +332,12 @@
           expect(subject[2].getAttribute('stroke')).to.eql('black');
         });
       });
+
+      describe('Pablo Collection uniqueness', function () {
+        it('a PabloCollection should never contain duplicate items', function () {
+          notDone();
+        });
+      });
     });
 
     describe('Pablo collection methods', function () {
@@ -1860,20 +1866,20 @@
           });
         });
 
-        describe('.indexOf', function () {
-          it('.indexOf(element) should return the index position in the PabloCollection of the matching node', function () {
+        describe('.indexOf/.lastIndexOf', function () {
+          it('.indexOf(element)/.lastIndexOf(element) should return the index position in the PabloCollection of the matching node', function () {
             var subject = Pablo([Pablo.circle(), Pablo.a(), Pablo.g()]);
 
             expect(subject.indexOf(subject[2])).to.eql(2);
           });
 
-          it('.indexOf(element) should return the index position in the PabloCollection of the matching PabloCollection', function () {
+          it('.indexOf(element)/.lastIndexOf(element) should return the index position in the PabloCollection of the matching PabloCollection', function () {
             var subject = Pablo([Pablo.circle(), Pablo.a(), Pablo.g()]);
 
             expect(subject.indexOf(subject.eq(2))).to.eql(2);
           });
 
-          it('.indexOf(element) should return the index position of -1 in the PabloCollection of the matching node if it is not found', function () {
+          it('.indexOf(element)/.lastIndexOf(element) should return the index position of -1 if no matching node is not found in the PabloCollection', function () {
             var subject = Pablo([Pablo.circle(), Pablo.a(), Pablo.g()]);
 
             expect(subject.indexOf(Pablo.ellipse())).to.eql(-1);
