@@ -334,8 +334,62 @@
       });
 
       describe('Pablo Collection uniqueness', function () {
-        it('a PabloCollection should never contain duplicate items', function () {
-          notDone();
+        describe('a PabloCollection should never contain duplicate items', function () {
+          it('with .push()/.add()', function () {
+            var collection = Pablo('#test-subject-a');
+
+            collection.add(Pablo('#test-subjects-a'));
+            expect(collection.length).to.eql(1);
+            expect(collection.attr('id')).to.eql('test-subject-a');
+
+            collection = Pablo('#test-subject-a');
+
+            collection.add(collection.get(0));
+            expect(collection.length).to.eql(1);
+            expect(collection.attr('id')).to.eql('test-subject-a');
+
+            collection = Pablo('#test-subject-a');
+
+            collection.add(collection.eq(0))
+            expect(collection.length).to.eql(1);
+            expect(collection.attr('id')).to.eql('test-subject-a');
+          });
+
+          it('with .concat()', function () {
+            var collection = Pablo('#test-subject-a');
+
+            collection.concat(Pablo('#test-subjects-a'));
+            expect(collection.length).to.eql(1);
+            expect(collection.attr('id')).to.eql('test-subject-a');
+
+            collection = Pablo('#test-subject-a');
+
+            collection.concat(collection.get(0));
+            expect(collection.length).to.eql(1);
+            expect(collection.attr('id')).to.eql('test-subject-a');
+
+            collection = Pablo('#test-subject-a');
+
+            collection.concat(collection.eq(0))
+            expect(collection.length).to.eql(1);
+            expect(collection.attr('id')).to.eql('test-subject-a');
+          });
+
+          it('a new Pablo Collection with an array of the same element', function () {
+            var subject    = Pablo('#test-subject-a')[0],
+                collection = Pablo([subject, subject, subject]);
+
+            expect(collection.length).to.eql(1);
+            expect(collection.attr('id')).to.eql('test-subject-a');
+          });
+
+          it('a new Pablo Collection with an array of the same element but one is Pablo wrapped', function () {
+            var subject    = Pablo('#test-subject-a'),
+                collection = Pablo([subject[0], subject[0], subject]);
+
+            expect(collection.length).to.eql(1);
+            expect(collection.attr('id')).to.eql('test-subject-a');
+          });
         });
       });
     });
