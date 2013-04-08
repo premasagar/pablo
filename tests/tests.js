@@ -660,15 +660,19 @@
           });
         });
 
-        describe('.parent()', function () {
+        describe('.parent([filterBy])', function () {
           it('.parent() should return the parent element as a PabloCollection', function () {
             var child = document.getElementById('test-subject-a');
             expect(Pablo(child).parent()[0].id).to.eql('test-subjects');
             expect(Pablo(child).parent() instanceof Pablo.Collection).to.eql(true);
           });
+
+          it('.parent([selector])', function () {
+            notDone();
+          });
         });
 
-        describe('.parents()', function () {
+        describe('.parents([filterBy])', function () {
           it('.parents() should return all ancestors of the PabloCollection as a PabloCollection ordered by closest to oldest', function () {
             var child     = Pablo('#test-subject-a'),
                 ancestors = child.parents(),
@@ -679,9 +683,13 @@
             expect(ancestors).to.eql(expected);
             expect(ancestors instanceof Pablo.Collection).to.eql(true);
           });
+
+          it('.parents([selector])', function () {
+            notDone();
+          });
         });
 
-        describe('.parentsSvg()', function () {
+        describe('.parentsSvg([filterBy])', function () {
           it('.parentsSvg()', function () {
             var collection = Pablo(document.createElement('div')),
                 deepChild,
@@ -694,6 +702,10 @@
             expect(parents.length).to.eql(2);
             expect(parents[0] instanceof SVGEllipseElement).to.eql(true);
             expect(parents[1] instanceof SVGCircleElement).to.eql(true);
+          });
+
+          it('.parentsSvg([selector])', function () {
+            notDone();
           });
         });
 
