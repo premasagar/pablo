@@ -668,7 +668,13 @@
           });
 
           it('.parent([selector])', function () {
-            notDone();
+            var childA = document.getElementById('test-subject-a'),
+                childB = document.getElementById('test-subject-b'),
+                childC = document.getElementById('test-subject-c'),
+                parent = Pablo([childA, childB, childC]).parent('ul');
+
+            expect(parent[0].id).to.eql('test-subjects');
+            expect(parent instanceof Pablo.Collection).to.eql(true);
           });
         });
 
@@ -1089,7 +1095,7 @@
 
           it('.css(styles) should set the specified css properties of the element in relation to the styles map', function () {
             var subject = Pablo('#test-subjects').css({
-                  'font-size': '20px',
+                  'font-size':   '20px',
                   'font-weight': 'bold'
                 }),
                 result1 = subject.css('font-weight'),
