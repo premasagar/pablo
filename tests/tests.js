@@ -813,6 +813,33 @@
           });
         });
 
+        describe('.viewport', function () {
+          it('should return the PabloCollection\'s closest viewport element', function () {
+            var collection = Pablo.svg(),
+                foundViewport;
+
+            collection.circle().svg({'expected':'true'}).rect();
+            foundViewport = collection.find('rect').viewport();
+
+            expect(foundViewport.attr('expected')).to.eql('true');
+            expect(foundViewport.length).to.eql(1);
+          });
+
+          it('should return the PabloCollection\'s (multiple) closest viewport element', function () {
+            notDone();
+          });
+        });
+
+        describe('.viewports', function () {
+          it('should return the PabloCollection\'s viewport elements from closest to furthest ancestor', function () {
+            notDone();
+          });
+
+          it('should return the PabloCollection\'s (multiple) viewport elements from closest to furthest ancestor', function () {
+            notDone();
+          });
+        });
+
         describe('.siblings()', function () {
           it('.siblings() should return the sibling elements as PabloCollections', function () {
             var aSibling = document.getElementById('test-subject-a'),
