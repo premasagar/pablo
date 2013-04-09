@@ -847,12 +847,38 @@
         });
 
         describe('.viewports', function () {
-          it('should return the PabloCollection\'s viewport elements from closest to furthest ancestor', function () {
-            notDone();
+          it('should return the PabloCollection\'s viewport elements from the closest to furthest ancestor', function () {
+            var collection = Pablo.svg({'vp':'b'}),
+                foundViewports;
+
+            collection.circle().svg({'vp':'a'}).rect();
+            foundViewports = collection.find('rect').viewports();
+
+            expect(foundViewports.length).to.eql(2);
+            expect(foundViewports.eq(0).attr('vp')).to.eql('a');
+            expect(foundViewports.eq(1).attr('vp')).to.eql('b');
           });
 
-          it('should return the PabloCollection\'s (multiple) viewport elements from closest to furthest ancestor', function () {
-            notDone();
+          it('should return the PabloCollection\'s (multiple) viewport elements from the closest to furthest ancestor', function () {
+            var collection = Pablo.rect(),
+                testCollection,
+                viewports;
+
+            collection.svg({'vp':'b'}).a().svg({'vp':'a'}).circle();
+            collection.svg({'vp':'d'}).a().svg({'vp':'c'}).ellipse();
+          
+            testCollection = Pablo([
+                                collection.find('circle'),
+                                collection.find('ellipse')
+                              ]);
+
+            viewports = testCollection.viewports();
+
+            expect(viewports.length).to.eql(4);
+            expect(viewports.eq(0).attr('vp')).to.eql('a');
+            expect(viewports.eq(1).attr('vp')).to.eql('b');
+            expect(viewports.eq(2).attr('vp')).to.eql('c');
+            expect(viewports.eq(3).attr('vp')).to.eql('d');
           });
         });
 
