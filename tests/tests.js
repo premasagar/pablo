@@ -826,7 +826,23 @@
           });
 
           it('should return the PabloCollection\'s (multiple) closest viewport element', function () {
-            notDone();
+            var collection = Pablo.rect(),
+                testCollection,
+                viewports;
+
+            collection.svg().a().svg({'vp':'a'}).circle();
+            collection.svg().a().svg({'vp':'b'}).ellipse();
+          
+            testCollection = Pablo([
+                                collection.find('circle'),
+                                collection.find('ellipse')
+                              ]);
+
+            viewports = testCollection.viewport();
+
+            expect(viewports.length).to.eql(2);
+            expect(viewports.eq(0).attr('vp')).to.eql('a');
+            expect(viewports.eq(1).attr('vp')).to.eql('b');
           });
         });
 
