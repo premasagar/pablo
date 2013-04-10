@@ -60,10 +60,18 @@ function warn (msg) {
 
 function code (str) {
   console.log(exec.stdout(str));
+  sleep(3000);
 }
 
 function ifFailureWarning () {
   console.log('[grunt] Warning: If anything fails now, you may remain on the ' + 
               'gh-pages branch. Checkout to wherever you where and do ' + 
               '"git stash pop".');
+}
+
+function sleep (milli) {
+  var date = new Date();
+  var curDate = null;
+  do { curDate = new Date(); }
+  while(curDate-date < milli);
 }
