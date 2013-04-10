@@ -6,7 +6,8 @@
   "dependencies": {
     "grunt-contrib-jshint": "~0.2.0",
     "grunt-contrib-uglify": "~0.2.0",
-    "grunt": "~0.4.1"
+    "grunt": "~0.4.1",
+    "execSync": "0.0.3"
   },
   "devDependencies": {},
   "scripts": {

@@ -9,7 +9,7 @@ module.exports = function(grunt) {
       },
       build: {
         src: '../<%= pkg.name %>.js',
-        dest: 'dist/<%= pkg.name %>.min.js'
+        dest: '<%= pkg.name %>.min.js'
       }
     },
     jshint: {
@@ -28,8 +28,12 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   // Load the plugin that provides the "uglify" task.
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  // Load custom project related task:
+  // Moving the tests/ and distribution minified code 
+  // over to the gh-pages branch and committing it 
+  // there.
+  require('./toGhPages.js');
 
-  // Default task(s).
-  grunt.registerTask('default', ['jshint', 'uglify']);
-
+  // Default tasks.
+  grunt.registerTask('default', ['jshint', 'uglify', 'toGhPages']);
 };
