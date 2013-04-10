@@ -743,7 +743,7 @@
           it('.ancestor() for a detached element should return highest parent', function () {
               var ancestor = Pablo.g(),
                   subject  = ancestor.circle(),
-                  result = subject.ancestor();
+                  result   = subject.ancestor();
 
               expect(result.length).to.eql(1);
               expect(result[0] === ancestor[0]).to.eql(true);
