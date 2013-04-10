@@ -35,13 +35,13 @@ grunt.registerTask('toGhPages', description, function () {
   fs.writeFileSync('../downloads/pablo.min.js', minCode, 'utf8');
 
   warn('git commit ../tests/tests.js');
-  exec.code('git commit ../tests/tests.js -am "Add latest tests"');
+  exec.code('git commit ../tests/tests.js -m "Add latest tests"');
 
   warn('git commit ../downloads/pablo.js');
-  exec.code('git commit ../downloads/pablo.js -am "Add latest pablo.js"');
+  exec.code('git commit ../downloads/pablo.js -m "Add latest pablo.js"');
 
   warn('git commit ../downloads/pablo.min.js');
-  exec.code('git commit ../downloads/pablo.min.js -am "Add latest pablo.min.js"');
+  exec.code('git commit ../downloads/pablo.min.js -m "Add latest pablo.min.js"');
 
   warn('git checkout master');
   exec.code('git checkout master');
