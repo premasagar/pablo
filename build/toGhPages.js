@@ -18,10 +18,10 @@ grunt.registerTask('toGhPages', description, function () {
   fs.unlinkSync('pablo.min.js');
 
   warn('git stash');
-  exec.code('git stash');
+  code('git stash');
 
   warn('checkout gh-pages');
-  exec.code('git checkout gh-pages');
+  code('git checkout gh-pages');
 
   ifFailureWarning();
 
@@ -35,19 +35,19 @@ grunt.registerTask('toGhPages', description, function () {
   fs.writeFileSync('../downloads/pablo.min.js', minCode, 'utf8');
 
   warn('git commit ../tests/tests.js');
-  exec.code('git commit ../tests/tests.js -m "Add latest tests"');
+  code('git commit ../tests/tests.js -m "Add latest tests"');
 
   warn('git commit ../downloads/pablo.js');
-  exec.code('git commit ../downloads/pablo.js -m "Add latest pablo.js"');
+  code('git commit ../downloads/pablo.js -m "Add latest pablo.js"');
 
   warn('git commit ../downloads/pablo.min.js');
-  exec.code('git commit ../downloads/pablo.min.js -m "Add latest pablo.min.js"');
+  code('git commit ../downloads/pablo.min.js -m "Add latest pablo.min.js"');
 
   warn('git checkout master');
-  exec.code('git checkout master');
+  code('git checkout master');
 
   warn('git stash pop');
-  exec.code('git stash pop');
+  code('git stash pop');
 
   console.log('If succesful do "git push origin gh-pages"');
 
@@ -56,6 +56,10 @@ grunt.registerTask('toGhPages', description, function () {
 
 function warn (msg) {
   console.log('[grunt] Attempting: ' + msg);
+}
+
+function code (str) {
+  console.log(exec.stdout(str));
 }
 
 function ifFailureWarning () {
