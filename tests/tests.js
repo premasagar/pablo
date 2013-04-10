@@ -732,7 +732,7 @@
         describe('.ancestor()', function () {
           it('.ancestor() should return the pablo wrapped document for an element in the DOM', function () {
               var subject = Pablo('#test-subjects'),
-                  result = subject.ancestor();
+                  result  = subject.ancestor();
 
               expect(result.length).to.eql(1);
               expect(result[0] === document).to.eql(true);
