@@ -29,10 +29,10 @@ grunt.registerTask('toGhPages', description, function () {
   fs.writeFileSync('../tests/tests.js', tests, 'utf8');
 
   warn('Overwriting ../downloads/pablo.js');
-  fs.writeFileSync('../downloads/pablo.js', minCode, 'utf8');
+  fs.writeFileSync('../downloads/pablo.js', fullCode, 'utf8');
 
   warn('Overwriting ../downloads/pablo.min.js');
-  fs.writeFileSync('../downloads/pablo.min.js', fullCode, 'utf8');
+  fs.writeFileSync('../downloads/pablo.min.js', minCode, 'utf8');
 
   warn('git commit ../tests/tests.js');
   exec.code('git commit ../tests/tests.js -am "Add latest tests"');
