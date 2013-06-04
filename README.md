@@ -3,118 +3,23 @@
 **For full documentation and interactive examples, see [pablojs.com][pablo-site].**
 
 
-**[Pablo][pablo-site]** is a high-performance JavaScript library for creating and manipulating SVG ([scalable vector graphics][svg]). Its API is inspired by [jQuery][jquery], [Underscore][_] and [Raphaël][raphael]. It targets modern desktop and mobile browsers, and is less than 5KB, with no dependencies.
+**[Pablo][pablo-site]** is a tool for creating crisp, interactive graphics and animations for the web. It is a lightweight and low-level JavaScript library for building user interfaces, data visualisations, responsive graphics and games.
 
-_Some example uses:_ interactive drawings, data visualisation, games, responsive graphics and rich visual interfaces.
+Pablo is built on top of SVG ([scalable vector graphics][svg]), allowing graphics to be incorporated into websites and scripted from within web apps. It focusses on simplicity and performance, targeting modern browsers for both desktop and mobile.
 
-Pablo is low-level, lightweight and expressive. It exposes a simple interface that gives access to all of SVG's granularity and power, creating and manipulating collections of SVG elements. The library stays fast and lean by targetting the most recent desktop and mobile browsers, while failing gracefully elsewhere.
-
-Pablo can create anything that SVG can. It simplifies the task of generating, modifying and interacting with the graphics, and connecting it to the other parts of a JavaScript program.
-
-[See the API Reference][api] for Pablo's extensive API.
-
-- By [Premasagar Rose][prem] ([Dharmafly][df])
-- Repo: [github.com/dharmafly/pablo][repo]
-- Open source: [MIT license][mit]
-- &lt;5KB [minified & gzipped][pablo-min]
+Its API style is inspired by [jQuery][jquery]. The way it can manipulate collections of SVG elements is similar to [Underscore][_] and the expressive way it creates shapes is inspired by [Raphaël][raphael]. It aims to be lean, weighing in at only 5KB, and has no other JavaScript dependencies.
 
 
-## Getting started
+## Pablo and SVG
 
-For production, download <a href="https://raw.github.com/dharmafly/pablo/master/build/pablo.min.js" target="_blank">the minified script</a> and call it from your HTML:
+Pablo gives access to all of SVG's granularity and power, and can create anything that SVG can. Its methods are named after SVG elements, so a hand-in-hand knowledge of SVG is needed to get the most out of Pablo.
 
-    <script src="pablo.min.js"></script>
+[See Pablo's API Reference][api] for details.
 
-
-Check that the browser supports basic SVG:
-
-```javascript
-if (Pablo.isSupported){
-    /* Pablo code here */
-    alert('Yes!');
-}
-else {
-    /* Alternative content */
-    alert("Noo");
-}
-```
-
-Start drawing:
-
-```javascript
-/* Inside an HTML element, append an <svg> root */
-var paper = Pablo(demoElement).svg({height:220}),
-    /* Create <circle> element, with attributes */
-    circle = paper.circle({
-        cy: '50%',
-        fill: 'rgba(127, 159, 95, 0.2)',
-        stroke: '#777'
-    });
-
-/* Duplicate the element */
-circle.duplicate(20)
-    /* Modify attributes */
-    .attr({
-        /* Attribute functions, called for each element */
-        cx: function(el, i) {return i * 4 + 1 + '%'},
-        r:  function(el, i) {return i + 1 + '%'}
-    })
-    /* Add a listener for mouseover & touchstart events */
-    .on('mouseover touchstart', function(){
-        /* Wrap this element in a Pablo collection */
-        var circle = Pablo(this),
-            /* Create a random position and colour */
-            r = parseInt(circle.attr('r'), 10),
-            xMax = 100 - r * 2,
-            cx = xMax * Math.random() + r + '%',
-            hue = Math.random() * 360,
-            color = 'hsla(' + hue + ', 90%, 50%, 0.2)';
-
-        / * Apply new attributes to the <circle> element */
-        circle.attr({cx:cx, fill:color});
-    });
-```
-
-**See the [API Reference][api] for full details.**
-
-
-## Extra
-
-It's early days, so your feedback is welcome. For bug reports and requests, please use the GitHub ['Issues' page][issues] or contact [@premasagar][prem-twitter].
-
-[Pull requests][pull-requests] are welcome. To update the pages on [pablojs.com][pablo-site], the [Markdown][markdown-syntax] files in the [/docs folder][docs-folder] should be changed.
-
-
-## Tests
-
-The test suite can be run locally by viewing `tests/index.html` in the browser.  
-Run the tests via the web at [pablojs.com/tests/][tests]
-
-
-## Build process
-
-The build process handles code linting and minification. [Grunt](http://gruntjs.com) is Pablo's build tool so [node](http://nodejs.org/) is required.
-
-Installing grunt
-
-```bash
-$ npm uninstall -g grunt # for old grunt users
-$ npm install -g grunt-cli
-```
-
-Building
-
-```bash
-$ git clone git@github.com:dharmafly/pablo.git
-$ cd pablo/build
-$ npm install
-$ grunt
-```
-
-A copy of `pablo.min.js` can be found in the `build/dist` directory.
-
-In the future the build process may be used to concatinate modular Pablo 
-functionality for a custom build.
+* By [Premasagar Rose][prem] ([Dharmafly][df])
+* Website: [pablojs.com][pablo-site]
+* Repo: [github.com/dharmafly/pablo][repo]
+* Open source: [MIT license][mit]
 
 
 [prem]: http://premasagar.com

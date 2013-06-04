@@ -10,10 +10,10 @@ twitter_url: https://twitter.com/dharmafly
 # options: javascript, css, html5
 lang: javascript
 scripts:
-- src: http://pablojs.com/downloads/pablo.min.js
+  - src: /downloads/pablo.min.js
 quote:
-- quote: Painting is just another way of keeping a diary.
-- cite: Pablo Picasso
+  - quote: Painting is just another way of keeping a diary.
+  - cite: Pablo Picasso
 # analytics
 ga_id: UA-34978047-1
 download_links:
@@ -28,13 +28,15 @@ download_links:
   - text: Edge
     subtext: (master)
     href: https://github.com/dharmafly/pablo/zipball/master
-    title: The repo's latest codebase (zip). Potentially unstable.
+    title: Latest codebase (zip); potentially unstable
 sections:
- - path: /index.html
-   name: Overview
- - path: /api/index.html
-   name: API
- - path: /resources/index.html
-   name: Resources
+  - path: /index.html
+    name: Overview
+  - path: /api/index.html
+    name: API
+  - path: /misc/index.html
+    name: Misc
+  - path: /resources/index.html
+    name: Resources
 
 ######## END project site config ########

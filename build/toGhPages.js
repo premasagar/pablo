@@ -11,9 +11,10 @@ var fs          = require('fs'),
 grunt.registerTask('toGhPages', description, function () {
   var finished = this.async();
 
-  tests    = fs.readFileSync('../tests/tests.js').toString();
-  minCode  = fs.readFileSync('pablo.min.js').toString();
   fullCode = fs.readFileSync('../pablo.js').toString();
+  minCode  = fs.readFileSync('pablo.min.js').toString();
+  tests    = fs.readFileSync('../tests/tests.js').toString();
+  testcard = fs.readFileSync('../examples/testcard/testcard.js').toString();
 
   fs.unlinkSync('pablo.min.js');
 
@@ -25,8 +26,6 @@ grunt.registerTask('toGhPages', description, function () {
 
   ifFailureWarning();
 
-  warn('Overwriting ../tests/tests.js');
-  fs.writeFileSync('../tests/tests.js', tests, 'utf8');
 
   warn('Overwriting ../downloads/pablo.js');
   fs.writeFileSync('../downloads/pablo.js', fullCode, 'utf8');
@@ -34,8 +33,12 @@ grunt.registerTask('toGhPages', description, function () {
   warn('Overwriting ../downloads/pablo.min.js');
   fs.writeFileSync('../downloads/pablo.min.js', minCode, 'utf8');
 
-  warn('git commit ../tests/tests.js');
-  code('git commit ../tests/tests.js -m "Add latest tests"');
+  warn('Overwriting ../tests/tests.js');
+  fs.writeFileSync('../tests/tests.js', tests, 'utf8');
+
+  warn('Overwriting ../media/testcard.js');
+  fs.writeFileSync('../media/testcard.js', testcard, 'utf8');
+
 
   warn('git commit ../downloads/pablo.js');
   code('git commit ../downloads/pablo.js -m "Add latest pablo.js"');
@@ -43,13 +46,20 @@ grunt.registerTask('toGhPages', description, function () {
   warn('git commit ../downloads/pablo.min.js');
   code('git commit ../downloads/pablo.min.js -m "Add latest pablo.min.js"');
 
+  warn('git commit ../tests/tests.js');
+  code('git commit ../tests/tests.js -m "Add latest tests"');
+
+  warn('git commit ../media/testcard.js');
+  code('git commit ../media/testcard.js -m "Add latest testcard"');
+
+
   warn('git checkout master');
   code('git checkout master');
 
   warn('git stash pop');
   code('git stash pop');
 
-  console.log('If succesful do "git push origin gh-pages"');
+  console.log('If successful, do "git push origin gh-pages"');
 
   finished();
 });

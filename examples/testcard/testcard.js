@@ -35,8 +35,10 @@
         }
 
         return this.attr({
-            width: width,
-            height: height,
+            //width: width,
+            //height: height,
+            width: '100%',
+            style: 'max-height: 480px',
             viewBox: '0 0 ' + naturalWidth + ' ' + naturalHeight
         });
     }
