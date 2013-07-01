@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <title>Pattern: Pablo</title>
+        <style>
+            html, body, #paper {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <h1><a href="https://github.com/dharmafly/pablo">Pablo</a></h1>
+
+        <!-- RESOURCES
+            * https://developer.mozilla.org/en/SVG/SVG_animation_with_SMIL
+            * http://www.w3.org/Graphics/SVG/WG/wiki/Talk:F2F/Auckland_2011/CSS_Animation
+        -->
+        
+        <!-- HTML container for the SVG root node -->
+        <div id="paper"></div>
+
+        <!-- scripts -->
+        <script src="../../pablo.js"></script>
+        <script>
+        var svg = Pablo('#paper').svg({width:'100%', height:'100%'}),
+            defs = svg.defs(),
+            instances = svg.g()
+                .transform('translate', 50, 50)
+                .use({
+                    width:220,
+                    height:220,
+                    'xlink:href':'#circles'
+                })
+                .duplicate();
+            
+        defs.symbol({id:'circles'})
+            .circle({
+                cx:110,
+                cy:110,
+                fill:'none',
+                'stroke-width':4
+            })
+            .duplicate(9)
+            .attr('r', function(el, i){
+                return i * 8 + 5;
+            });
+
+        instances.animateTransform({
+            attributeName:'transform',
+            type:'rotate',
+            from:'0 110 110',
+            to:'360 110 110',
+            dur:'4s',
+            repeatCount:'indefinite'
+        });
+                         
+        instances.animate().attr({
+            attributeName:'x',
+            dur:'2s',
+            repeatCount:'indefinite',
+            from:[0,55],
+            to:[55,0]
+        });
+
+        instances.animate({
+            attributeName:'stroke',
+            dur:'2s',
+            from:'darkblue',
+            to:'green',
+            begin:'0s;color2.end'
+        }).eq(0).attr('id', 'color1');
+
+        instances.animate({
+            attributeName:'stroke',
+            dur:'2s',
+            from:'green',
+            to:'darkblue',
+            begin:'color1.end'
+        }).eq(0).attr('id', 'color2');
+
+
+
+        ////////////////////////
+
+        /*
+        issue:
+
+        instances.animate().attr({
+            from:[0,55]
+        });
+
+        works but 
+
+        instances.animate({
+            from:[0,55]
+        });
+
+        does not apply different values to the two instance elements
+        */
+
+        </script>
+    </body>
+</html>

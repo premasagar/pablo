@@ -1,0 +1,81 @@
+/* Containers */
+#mindmap svg {
+	/*font-family: sans-serif;*/
+}
+/* Fill the screen with the SVG. To alternatively use JavaScript:
+
+	   Pablo(element).svg({width:'100%', height:'100%'});
+*/
+#mindmap, #mindmap svg {
+	width:100%;
+	height:100%;
+	margin: 0;
+	padding: 0;
+}
+
+
+/* Text about the app */
+#mindmap .instructions {
+	font-size: 30px;
+}
+
+
+/* Node */
+#mindmap .node rect, #mindmap .node text {
+	cursor: pointer;
+}
+
+#mindmap .node text {
+	fill: #000;
+
+	/* Prevent text selection highlighting on dragging. And add browser vendor prefixes,
+	   e.g. `-moz-user-select`. To alternatively use one line of JavaScript to apply 
+	   vendor-prefixed styles to a collection of elements, using Pablo:
+
+	       Pablo(element).cssPrefix('user-select', 'none');
+	*/
+	user-select: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+}
+#mindmap .node rect {
+	fill: none;
+	stroke: none;
+}
+#mindmap .node path {
+	fill: none;
+	stroke: #777;
+	stroke-width: 1.5;
+	stroke-linecap: round;
+}
+
+
+/* Selected node:
+   Style the <rect> element that is a direct child of the node container
+   element - i.e. not <rect> elements belonging to child nodes
+*/
+#mindmap .node.selected > rect {
+	fill: #fff;
+	stroke: #333;
+	stroke-width: 1;
+}
+
+#mindmap .node:first-child.selected > rect {
+	stroke: 'none';
+}
+
+
+
+/* Different styles for the first node of the mindmap */
+#mindmap svg > .node > rect, 
+#mindmap svg > .node.selected > rect {
+	fill: #333;
+}
+#mindmap svg > .node > text {
+	fill: #fff;
+}
+#mindmap svg > .node.selected > text {
+	fill: #fff;
+}
