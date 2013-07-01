@@ -95,44 +95,41 @@
 
 	// Check browser support
 	if (Pablo.isSupported){
-		// Load, on DOM ready
-		Pablo(document).on('DOMContentLoaded', function(){
-            var head = Pablo('head');
+        var head = Pablo('head');
 
-            // Mindmap styles
-            Pablo(document.createElement('link'))
-            	.attr({
-            		rel: 'stylesheet',
-            		href: mindmapStyles
-            	})
-            	.appendTo(head);
+        // Mindmap styles
+        Pablo(document.createElement('link'))
+        	.attr({
+        		rel: 'stylesheet',
+        		href: mindmapStyles
+        	})
+        	.appendTo(head);
 
-            // Mindmap script
-            Pablo(document.createElement('script'))
-            	.attr({
-            		src: mindmapScript
-            	})
-            	.appendTo(head)
-            	.on('load', function(){
-            		MindMap.prototype.restoreFrom = function(nodes){
-				        // Draw each node
-				        nodes.forEach(function(settings){
-				            this.nodes.some(function(cachedNode){
-				                if (cachedNode.id === settings.parentId){
-				                    settings.parent = cachedNode;
-				                    return true;
-				                }
-				            }, this);
+        // Mindmap script
+        Pablo(document.createElement('script'))
+        	.attr({
+        		src: mindmapScript
+        	})
+        	.appendTo(head)
+        	.on('load', function(){
+        		MindMap.prototype.restoreFrom = function(nodes){
+			        // Draw each node
+			        nodes.forEach(function(settings){
+			            this.nodes.some(function(cachedNode){
+			                if (cachedNode.id === settings.parentId){
+			                    settings.parent = cachedNode;
+			                    return true;
+			                }
+			            }, this);
 
-				            this.createNode(settings);
-				        }, this);
-				        return this;
-				    };
+			            this.createNode(settings);
+			        }, this);
+			        return this;
+			    };
 
-					var mm = new MindMap('#mindmap');
-					mm.restoreFrom(pabloMap);
-            	});
-        });
+				var mm = new MindMap('#mindmap');
+				mm.restoreFrom(pabloMap);
+        	});
 
 	    /*
 	    mm.getState = function(){
