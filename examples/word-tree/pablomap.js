@@ -2,94 +2,94 @@
 	'use strict';
 
 	var pabloMap = [
-	  {
-	    "id":1,
-	    "parentId":0,
-	    "title":"Pablo",
-	    "dx":267,
-	    "dy":131
-	  },
-	  {
-	    "id":2,
-	    "parentId":1,
-	    "title":"web graphics",
-	    "dx":98,
-	    "dy":-93
-	  },
-	  {
-	    "id":3,
-	    "parentId":2,
-	    "title":"SVG",
-	    "dx":187,
-	    "dy":12
-	  },
-	  {
-	    "id":4,
-	    "parentId":2,
-	    "title":"Cross-platform",
-	    "dx":170,
-	    "dy":51
-	  },
-	  {
-	    "id":5,
-	    "parentId":2,
-	    "title":"HTML5 integration",
-	    "dx":164,
-	    "dy":88
-	  },
-	  {
-	    "id":6,
-	    "parentId":1,
-	    "title":"tiny",
-	    "dx":130,
-	    "dy":-20
-	  },
-	  {
-	    "id":7,
-	    "parentId":1,
-	    "title":"open source",
-	    "dx":122,
-	    "dy":31
-	  },
-	  {
-	    "id":8,
-	    "parentId":1,
-	    "title":"animation",
-	    "dx":-155,
-	    "dy":137
-	  },
-	  {
-	    "id":9,
-	    "parentId":1,
-	    "title":"games",
-	    "dx":-233,
-	    "dy":-2
-	  },
-	  {
-	    "id":10,
-	    "parentId":1,
-	    "title":"data visualisation",
-	    "dx":-265,
-	    "dy":83
-	  },
-	  {
-	    "id":12,
-	    "parentId":1,
-	    "title":"interactivity",
-	    "dx":-227,
-	    "dy":-124
-	  },
-	  {
-	    "id":14,
-	    "parentId":1,
-	    "title":"interfaces",
-	    "dx":-233,
-	    "dy":-64
-	  }
-	];
+		  {
+		    "id":1,
+		    "parentId":0,
+		    "title":"Pablo",
+		    "dx":11,
+		    "dy":133
+		  },
+		  {
+		    "id":2,
+		    "parentId":1,
+		    "title":"web graphics",
+		    "dx":135,
+		    "dy":16
+		  },
+		  {
+		    "id":3,
+		    "parentId":2,
+		    "title":"SVG",
+		    "dx":191,
+		    "dy":10
+		  },
+		  {
+		    "id":4,
+		    "parentId":2,
+		    "title":"desktop and mobile web",
+		    "dx":155,
+		    "dy":46
+		  },
+		  {
+		    "id":5,
+		    "parentId":2,
+		    "title":"HTML5 integration",
+		    "dx":153,
+		    "dy":85
+		  },
+		  {
+		    "id":6,
+		    "parentId":1,
+		    "title":"tiny",
+		    "dx":137,
+		    "dy":53
+		  },
+		  {
+		    "id":7,
+		    "parentId":1,
+		    "title":"open source",
+		    "dx":117,
+		    "dy":90
+		  },
+		  {
+		    "id":8,
+		    "parentId":1,
+		    "title":"animation",
+		    "dx":123,
+		    "dy":-85
+		  },
+		  {
+		    "id":9,
+		    "parentId":1,
+		    "title":"games",
+		    "dx":294,
+		    "dy":-54
+		  },
+		  {
+		    "id":10,
+		    "parentId":1,
+		    "title":"data visualisation",
+		    "dx":271,
+		    "dy":-19
+		  },
+		  {
+		    "id":12,
+		    "parentId":1,
+		    "title":"interactivity",
+		    "dx":115,
+		    "dy":-117
+		  },
+		  {
+		    "id":14,
+		    "parentId":1,
+		    "title":"interfaces",
+		    "dx":299,
+		    "dy":-83
+		  }
+		];
 
-	var mindmapStyles = 'mindmap.css', // /media/mindmap.css
-		mindmapScript = 'mindmap.js'; // /media/mindmap.min.js
+	var mindmapStyles = '/media/mindmap.css',
+		mindmapScript = '/media/mindmap.min.js';
 
 	/////
 
