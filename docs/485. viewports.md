@@ -5,6 +5,6 @@ heading: viewports(\[filter\])
 
 Returns a collection of the collection svg element’s viewport ancestors from closest to furthest for each element in the collection.
 
-`viewports` uses the [SVGElement's viewportElement](https://developer.mozilla.org/en-US/docs/DOM/SVGElement) property.
+`viewports` uses the [SVGElement's viewportElement](https://developer.mozilla.org/en-US/docs/Web/API/SVGElement) property.
 
 See section [Elements that establish viewports](http://www.w3.org/TR/SVG/coords.html#ElementsThatEstablishViewports) on the w3 SVG spec.

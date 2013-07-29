@@ -2,6 +2,8 @@
 category: api
 ---
 
+These collection methods are used to filter or perform a function on each element in the collection.
+
 #### [each(fn, \[context\])](/api/each/)
 _alias: forEach(fn, \[context\])_
 
@@ -35,5 +37,4 @@ Return `true` if **any** elements in the collection match the filter, which can 
 #### [indexOf(filter)](/api/indexOf/)
 _alias: lastIndexOf(filter)_
 
-Return the collection index of the first element in the collection that matchs the filter, which can be a function, CSS selector or elements. Otherwise `-1`.
-
+Return the collection index of the first element in the collection that matches the filter, which can be a function, CSS selector or elements. Otherwise `-1`.
