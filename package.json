@@ -1,0 +1,23 @@
+{
+  "name": "pablo",
+  "version": "0.3.0",
+  "description": "A tool for creating interactive SVG drawings and animations for the web.",
+  "author": "Premasagar Rose",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dharmafly/pablo.git"
+  },
+  "main": "Gruntfile.js",
+  "dependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-jshint": "~0.2.0",
+    "grunt-contrib-uglify": "~0.2.0",
+    "grunt-contrib-watch": "~0.4.3",
+    "execSync": "0.0.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "grunt test"
+  }
+}
