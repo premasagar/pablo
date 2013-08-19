@@ -14,7 +14,7 @@
     'use strict';
     
     var /* SETTINGS */
-        pabloVersion = '0.3.0',
+        pabloVersion = '0.3.1',
         svgVersion = 1.1,
         svgns = 'http://www.w3.org/2000/svg',
         xlinkns = 'http://www.w3.org/1999/xlink',
@@ -1606,6 +1606,7 @@
         isArrayLike: isArrayLike,
         isElement: isElement,
         isSVGElement: isSVGElement,
+        hasSvgNamespace: hasSvgNamespace,
         isNodeList: isNodeList,
         isHTMLDocument: isHTMLDocument,
         // isPablo is overwritten in functional.js extension
@@ -1645,7 +1646,19 @@
                 });
             };
             return this;
-        }
+        },
+
+        toSvg: (function(){
+            var container = Pablo(document.createElement('div'));
+
+            return function(markup){
+                var prefix = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg">',
+                    suffix = '</svg>';
+
+                container[0].innerHTML = prefix + markup + suffix;
+                return container.firstChild().children().detach();
+            };
+        }())
     });
 
 

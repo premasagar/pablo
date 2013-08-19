@@ -2985,6 +2985,37 @@
       });
     });
 
+    describe('.toSvg()', function () {
+      it('.toSvg(markup) should create SVG elements as document fragments in a collection', function () {
+          var subject = Pablo.toSvg('<g></g>');
+
+          expect(subject.length).to.eql(1);
+          expect(subject.viewport().length).to.eql(0);
+          expect(subject[0].nodeName.toLowerCase()).to.eql('g');
+          expect(Pablo.hasSvgNamespace(subject[0]));
+      });
+      
+      it('.toSvg(markup) should allow nested elements', function () {
+          var subject = Pablo.toSvg('<g><a></a><rect></rect></g>');
+
+          expect(subject.length).to.eql(1);
+          expect(subject.children().length).to.eql(2);
+          expect(subject[0].nodeName.toLowerCase()).to.eql('g');
+          expect(subject.firstChild()[0].nodeName.toLowerCase()).to.eql('a');
+          expect(subject.lastChild()[0].nodeName.toLowerCase()).to.eql('rect');
+      });
+
+      it('.toSvg(markup) should allow multiple sibling elements', function () {
+          var subject = Pablo.toSvg('<g></g><a></a><rect></rect>');
+
+          expect(subject.length).to.eql(3);
+          expect(subject.viewport().length).to.eql(0);
+          expect(subject[0].nodeName.toLowerCase()).to.eql('g');
+          expect(subject[1].nodeName.toLowerCase()).to.eql('a');
+          expect(subject[2].nodeName.toLowerCase()).to.eql('rect');
+      });
+    });
+
     describe('Pablo.ELEMENT_NAME([attributes]) shortcuts', function () {
       it('Pable.svg([attributes]) should return a Pablo collection of that element and with the attribute "version=1.1" on it', function () {
         var subject = Pablo.svg();
