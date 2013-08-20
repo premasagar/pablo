@@ -24,7 +24,7 @@
         eventsNamespace = '__events__',
 
         head, testElement, arrayProto, supportsClassList, hyphensToCamelCase, 
-        camelCaseToHyphens, cssClassApi, pabloCollectionApi, classlistMethod, 
+        camelCaseToHyphens, toSvg, cssClassApi, pabloCollectionApi, classlistMethod, 
         cssPrefixes, cache, cacheNextId, matchesProp;
 
     
@@ -252,6 +252,21 @@
         };
     }());
 
+    toSvg = (function(){
+        var prefix = '<svg version="' + svgVersion + '" xmlns="' + svgns + '">',
+            suffix = '</svg>',
+            container;
+
+        return function(markup){
+            // Create container on first usage
+            if (!container){
+                container = Pablo(document.createElement('div'));
+            }
+            container[0].innerHTML = prefix + markup + suffix;
+            return container.firstChild().children().detach();
+        };
+    }());
+
     // Data cache
     cache = {};
     cacheNextId = 1;
@@ -262,31 +277,36 @@
     
     // PABLO COLLECTIONS
     
-    function PabloCollection(node, attr){
+    function PabloCollection(node, attrOrContext){
+        var hasContext;
+
         if (node){
-            if (typeof node === 'string' && attr){
-                if (canBeWrapped(attr)){
-                    this.add(Pablo(attr).find(node));
-                    return;
-                }
-                else {
-                    node = make(node);
-                }
+            hasContext = attrOrContext && canBeWrapped(attrOrContext);
+
+            if (hasContext){
+                // Find the node within the context, e.g. Pablo('g', 'body')
+                node = Pablo(attrOrContext).find(node);
             }
+            else if (typeof node === 'string' && attrOrContext){
+                // Create a named element, e.g. Pablo('circle', {})
+                node = make(node);
+            }
+
+            // Add the results to the collection
             this.add(node);
-            
+
             // Apply attributes
-            if (attr){
-                this.attr(attr);
+            if (!hasContext && attrOrContext){
+                this.attr(attrOrContext);
             }
         }
     }
     pabloCollectionApi = PabloCollection.prototype = [];
 
     extend(pabloCollectionApi, {
-        collection: null,
         constructor: PabloCollection,
         pablo: pabloVersion,
+        collection: null,
 
 
         /////
@@ -321,78 +341,92 @@
             return this.eq(this.length-1);
         },
 
-        add: function (/*node, node,..., prepend*/){
-            var nodes = arguments,
-                numNodes = nodes.length,
-                prepend = false,
-                node, toAdd, nodeInArray, i;
+        add: (function(){
+            // Detect `<` as the first non-whitespace character
+            var openTag = /^\s*</;
 
-            // `prepend` 
-            if (numNodes > 1 && typeof nodes[numNodes-1] === 'boolean'){
-                prepend = nodes[numNodes-1];
-                numNodes -= 1;
+            return function (/*node, node,..., prepend*/){
+                var nodes = arguments,
+                    numNodes = nodes.length,
+                    prepend = false,
+                    node, toAdd, nodeInArray, i;
 
-                if (prepend){
-                    nodes = arrayProto.slice.call(nodes, 0, numNodes).reverse();
-                }
-            }
+                // `prepend` 
+                if (numNodes > 1 && typeof nodes[numNodes-1] === 'boolean'){
+                    prepend = nodes[numNodes-1];
+                    numNodes -= 1;
 
-            for (i=0; i<numNodes; i++){
-                node = nodes[i];
-
-                // An SVG or HTML element, or HTML document
-                if (isElement(node) || isHTMLDocument(node) || hasSvgNamespace(node)){
-                    // Add element, if it is not already in the collection
-                    if (arrayProto.indexOf.call(this, node) === -1){
-                        arrayProto[prepend ? 'unshift' : 'push'].call(this, node);
+                    if (prepend){
+                        nodes = arrayProto.slice.call(nodes, 0, numNodes).reverse();
                     }
                 }
 
-                // A Pablo collection
-                else if (Pablo.isPablo(node)){
-                    // See extensions/functional.js for example usage of node.collection
-                    // TODO: remove support for functional.js?
-                    node = toArray(node.collection || node);
-                    toAdd = node.collection || node;
-                }
+                for (i=0; i<numNodes; i++){
+                    node = nodes[i];
 
-                // A string outside of an array acts as a CSS selector
-                else if (typeof node === 'string'){
-                    toAdd = document.querySelectorAll(node);
-                }
-
-                // A nodeList (e.g. result of a selector query, or childNodes)
-                // or is an object like an array, e.g. a jQuery collection
-                else if (isNodeList(node) || isArrayLike(node)){
-                    toAdd = node;
-                }
-
-                // `node` is an array or an array-like collection
-                if (toAdd || Array.isArray(node)){
-                    // Convert to an array of nodes
-                    if (toAdd){
-                        node = toArray(toAdd);
+                    // An SVG or HTML element, or HTML document
+                    if (isElement(node) || isHTMLDocument(node) || hasSvgNamespace(node)){
+                        // Add element, if it is not already in the collection
+                        if (arrayProto.indexOf.call(this, node) === -1){
+                            arrayProto[prepend ? 'unshift' : 'push'].call(this, node);
+                        }
                     }
 
-                    while (node.length){
-                        // Whether prepending or appending, always process arrays and
-                        // array-like collections in forwards order
-                        nodeInArray = prepend ? node.pop() : node.shift();
+                    // A Pablo collection
+                    else if (Pablo.isPablo(node)){
+                        // See extensions/functional.js for example usage of node.collection
+                        // TODO: remove support for functional.js?
+                        node = toArray(node.collection || node);
+                        toAdd = node.collection || node;
+                    }
 
-                        // A string inside an array is converted to an element
-                        if (typeof nodeInArray === 'string'){
-                            nodeInArray = make(nodeInArray);
+                    // A string outside of an array - either SVG markup or CSS selector
+                    else if (typeof node === 'string'){
+                        // SVG markup
+                        // If `<` is the first non-whitespace character
+                        if (openTag.test(node)){
+                            toAdd = toSvg(node);
                         }
 
-                        // Add to collection
-                        this.add(nodeInArray, prepend);
+                        // CSS selector
+                        else {
+                            toAdd = document.querySelectorAll(node);
+                        }
                     }
 
-                    toAdd = null;
+                    // A nodeList (e.g. result of a selector query, or childNodes)
+                    // or is an object like an array, e.g. a jQuery collection
+                    else if (isNodeList(node) || isArrayLike(node)){
+                        toAdd = node;
+                    }
+
+                    // `node` is an array or collection
+                    if (toAdd || Array.isArray(node)){
+                        // Convert to an array of nodes
+                        if (toAdd){
+                            node = toArray(toAdd);
+                        }
+
+                        while (node.length){
+                            // Whether prepending or appending, always process arrays and
+                            // array-like collections in forwards order
+                            nodeInArray = prepend ? node.pop() : node.shift();
+
+                            // A string inside an array is converted to an element
+                            if (typeof nodeInArray === 'string'){
+                                nodeInArray = make(nodeInArray);
+                            }
+
+                            // Add to collection
+                            this.add(nodeInArray, prepend);
+                        }
+
+                        toAdd = null;
+                    }
                 }
-            }
-            return this;
-        },
+                return this;
+            };
+        }()),
 
         concat: function(){
             return this.add.apply(Pablo(this), arguments);
@@ -1648,17 +1682,7 @@
             return this;
         },
 
-        toSvg: (function(){
-            var container = Pablo(document.createElement('div'));
-
-            return function(markup){
-                var prefix = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg">',
-                    suffix = '</svg>';
-
-                container[0].innerHTML = prefix + markup + suffix;
-                return container.firstChild().children().detach();
-            };
-        }())
+        toSvg: toSvg
     });
 
 
