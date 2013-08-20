@@ -2213,6 +2213,7 @@
           });
 
           it('.isArrayLike(obj) should return true if a NodeList is passed', function () {
+            var subject = Pablo('#test-subjects')[0].childNodes;
             expect(Pablo.isArrayLike(Pablo('#test-subjects')[0].childNodes)).to.eql(true);
           });
 

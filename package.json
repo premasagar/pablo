@@ -10,13 +10,15 @@
   },
   "main": "Gruntfile.js",
   "dependencies": {
+  },
+  "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-contrib-jshint": "~0.2.0",
     "grunt-contrib-uglify": "~0.2.0",
     "grunt-contrib-watch": "~0.4.3",
-    "execSync": "0.0.3"
+    "grunt-lib-phantomjs": "~0.3.0",
+    "grunt-mocha": "~0.4.1"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "grunt test"
   }

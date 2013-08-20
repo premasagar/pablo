@@ -5,7 +5,7 @@
        Dharmafly <http://dharmafly.com>
 
     Repo: <https://github.com/dharmafly/pablo>
-    MIT license: http://opensource.org/licenses/mit-license.php
+    MIT license
 
 */
 /*jshint newcap:false */

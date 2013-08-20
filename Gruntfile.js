@@ -12,20 +12,28 @@ module.exports = function(grunt) {
       },
       uglify: {
         options: {
-          banner: '/*! <%= pkg.name %> v<%= pkg.version %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
+
+          banner: '/*  <%= pkg.name %> v<%= pkg.version %> (<%= grunt.template.today("yyyy-mm-dd") %>) */\n\n'
         },
         build: {
           src: '<%= pkg.name %>.js',
           dest: 'build/<%= pkg.name %>.min.js',
           options: {
-              sourceMap: 'build/<%= pkg.name %>.map'
+              sourceMap: 'build/<%= pkg.name %>.min.map',
+              sourceMappingURL: '<%= pkg.name %>.min.map',
+              preserveComments: 'some'
           }
         }
+      },
+      mocha: {
+          test: {
+            src: ['tests/index.html']
+          }
       },
       watch: {
           js: {
               files: ['<%= pkg.name %>.js'],
-              tasks: ['jshint', 'uglify'],
+              tasks: ['jshint', 'mocha', 'uglify'],
               options: {
                 spawn: false
               }
@@ -35,8 +43,9 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-mocha');
   grunt.loadNpmTasks('grunt-contrib-watch');
 
-  grunt.registerTask('test', ['jshint']);
+  grunt.registerTask('test', ['jshint', 'mocha']);
   grunt.registerTask('default', ['jshint', 'uglify']);
 };

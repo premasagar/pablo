@@ -2,7 +2,9 @@
   'use strict';
 
   function run(){
-    mocha.run();
+    if (true || navigator.userAgent.indexOf('PhantomJS') < 0) {
+      mocha.run();
+    }
   }
   // if `?minjs` is used as a query parameter in the browser
   // Use query parameters in the test page's URL to direct which version of 
