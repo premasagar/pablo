@@ -3016,6 +3016,55 @@
       });
     });
 
+    describe('Pablo.get()', function () {
+      it('Pablo.get() loads resource', function (done) {
+          Pablo.get('assets/villain.svg', function(markup, xhr){
+            if (
+              typeof markup === 'string' &&
+              typeof xhr.responseXML === 'object' &&
+              xhr instanceof window.XMLHttpRequest
+            ){
+              done();
+            }
+            else {
+              done(new Error('Ajax fail: Are you running on localhost?'));
+            }
+          });
+      });
+    });
+
+    describe('Pablo.load()', function () {
+      it('Pablo.load() loads SVG document', function (done) {
+          Pablo.load('assets/villain.svg', function(collection, xhr){
+            if (collection.length === 1){
+              done();
+            }
+            else {
+              done(new Error('Ajax fail: Are you running on localhost?'));
+            }
+          });
+      });
+    });
+
+    describe('collection.load()', function () {
+      it('collection.load() loads SVG document into node', function (done) {
+          var subject = Pablo.g();
+
+          subject.load('assets/villain.svg', function(collection, xhr){
+            if (
+              collection.length === 1 &&
+              subject.children().length === 1 &&
+              subject.firstChild()[0] === collection[0]
+            ){
+              done();
+            }
+            else {
+              done(new Error('Ajax fail: Are you running on localhost?'));
+            }
+          });
+      });
+    });
+
     describe('Pablo.ELEMENT_NAME([attributes]) shortcuts', function () {
       it('Pable.svg([attributes]) should return a Pablo collection of that element and with the attribute "version=1.1" on it', function () {
         var subject = Pablo.svg();

@@ -10,11 +10,11 @@
 */
 /*jshint newcap:false */
 
-(function(root, Object, Array, Element, SVGElement, NodeList, HTMLDocument, document){
+(function(root, Object, Array, Element, SVGElement, NodeList, HTMLDocument, document, XMLHttpRequest){
     'use strict';
     
     var /* SETTINGS */
-        pabloVersion = '0.3.1',
+        pabloVersion = '0.3.2',
         svgVersion = 1.1,
         svgns = 'http://www.w3.org/2000/svg',
         xlinkns = 'http://www.w3.org/1999/xlink',
@@ -1130,6 +1130,26 @@
                     });
                 }
             });
+        },
+
+
+        // AJAX
+        // Load SVG or HTML via Ajax and replace collection contents with it
+        load: function(url, callback){
+            var collection = this;
+
+            if (this.length){
+                Pablo.load(url, function(newContent, xhr){
+                    if (newContent.length){
+                        collection.empty().append(newContent);
+                    }
+
+                    if (callback){
+                        callback.call(collection, newContent, xhr);
+                    }
+                });
+            }
+            return this;
         }
     });
 
@@ -1682,7 +1702,30 @@
             return this;
         },
 
-        toSvg: toSvg
+        toSvg: toSvg,
+
+        get: function(url, callback){
+            var xhr;
+
+            if (XMLHttpRequest){
+                xhr = new XMLHttpRequest();
+                
+                xhr.onload = function(){
+                    callback(this.responseText, this);
+                };
+                xhr.open('get', url, true);
+                xhr.send();
+            }
+            return this;
+        },
+
+        load: function(url, callback){
+            return this.get(url, function(markup, xhr){
+                // Create Pablo collection from document
+                var collection = Pablo(xhr.responseXML && xhr.responseXML.childNodes);
+                callback(collection, xhr);
+            });
+        }
     });
 
 
@@ -1726,5 +1769,6 @@
     this.SVGElement,
     this.NodeList,
     this.HTMLDocument,
-    this.document
+    this.document,
+    this.XMLHttpRequest
 ));
