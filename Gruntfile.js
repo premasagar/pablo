@@ -30,6 +30,13 @@ module.exports = function(grunt) {
             src: ['tests/index.html']
           }
       },
+      growl: {
+          complete : {
+              title : "Pablo",
+              message : "Build complete",
+              image : __dirname + "/tests/assets/pablo.png"
+          }
+      },
       watch: {
           js: {
               files: ['<%= pkg.name %>.js'],
@@ -46,6 +53,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-mocha');
   grunt.loadNpmTasks('grunt-contrib-watch');
 
+  // Growl notifications also requires `gem install terminal-notifier`
+  grunt.loadNpmTasks('grunt-growl');
+
   grunt.registerTask('test', ['jshint', 'mocha']);
-  grunt.registerTask('default', ['jshint', 'uglify']);
+  grunt.registerTask('default', ['jshint', 'uglify', 'growl:complete']);
 };
