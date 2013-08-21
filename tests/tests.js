@@ -331,6 +331,36 @@
           expect(subject[1].getAttribute('stroke')).to.eql('black');
           expect(subject[2].getAttribute('stroke')).to.eql('black');
         });
+
+
+        it('Pablo(markup) should create SVG elements as document fragments in a collection', function () {
+            var subject = Pablo('<g></g>');
+
+            expect(subject.length).to.eql(1);
+            expect(subject.viewport().length).to.eql(0);
+            expect(subject[0].nodeName.toLowerCase()).to.eql('g');
+            expect(Pablo.hasSvgNamespace(subject[0]));
+        });
+        
+        it('Pablo(markup) should allow nested elements', function () {
+            var subject = Pablo('<g><a></a><rect></rect></g>');
+
+            expect(subject.length).to.eql(1);
+            expect(subject.children().length).to.eql(2);
+            expect(subject[0].nodeName.toLowerCase()).to.eql('g');
+            expect(subject.firstChild()[0].nodeName.toLowerCase()).to.eql('a');
+            expect(subject.lastChild()[0].nodeName.toLowerCase()).to.eql('rect');
+        });
+
+        it('Pablo(markup) should allow multiple sibling elements', function () {
+            var subject = Pablo('<g></g><a></a><rect></rect>');
+
+            expect(subject.length).to.eql(3);
+            expect(subject.viewport().length).to.eql(0);
+            expect(subject[0].nodeName.toLowerCase()).to.eql('g');
+            expect(subject[1].nodeName.toLowerCase()).to.eql('a');
+            expect(subject[2].nodeName.toLowerCase()).to.eql('rect');
+        });
       });
 
       describe('Pablo Collection uniqueness', function () {
@@ -2983,37 +3013,6 @@
         expect(square[0] instanceof SVGRectElement).to.eql(true);
         expect(square[0].getAttribute('height')).to.eql('50');
         expect(square[0].getAttribute('width')).to.eql('50');
-      });
-    });
-
-    describe('.toSvg()', function () {
-      it('.toSvg(markup) should create SVG elements as document fragments in a collection', function () {
-          var subject = Pablo.toSvg('<g></g>');
-
-          expect(subject.length).to.eql(1);
-          expect(subject.viewport().length).to.eql(0);
-          expect(subject[0].nodeName.toLowerCase()).to.eql('g');
-          expect(Pablo.hasSvgNamespace(subject[0]));
-      });
-      
-      it('.toSvg(markup) should allow nested elements', function () {
-          var subject = Pablo.toSvg('<g><a></a><rect></rect></g>');
-
-          expect(subject.length).to.eql(1);
-          expect(subject.children().length).to.eql(2);
-          expect(subject[0].nodeName.toLowerCase()).to.eql('g');
-          expect(subject.firstChild()[0].nodeName.toLowerCase()).to.eql('a');
-          expect(subject.lastChild()[0].nodeName.toLowerCase()).to.eql('rect');
-      });
-
-      it('.toSvg(markup) should allow multiple sibling elements', function () {
-          var subject = Pablo.toSvg('<g></g><a></a><rect></rect>');
-
-          expect(subject.length).to.eql(3);
-          expect(subject.viewport().length).to.eql(0);
-          expect(subject[0].nodeName.toLowerCase()).to.eql('g');
-          expect(subject[1].nodeName.toLowerCase()).to.eql('a');
-          expect(subject[2].nodeName.toLowerCase()).to.eql('rect');
       });
     });
 

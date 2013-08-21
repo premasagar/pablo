@@ -1710,8 +1710,6 @@
             return this;
         },
 
-        toSvg: toSvg,
-
         get: function(url, callback){
             var xhr;
 
