@@ -194,9 +194,14 @@
     }
 
     // Return CSS styles with browser vendor prefixes
-    // e.g. cssPrefix({transform:'rotate(45deg)'}) will return the styles object, with additional properties containing CSS properties prefixed with the browser vendor prefixes - see vendorPrefixes
-    // e.g. cssPrefix('transform', 'rotate(45deg)') will return a string sequence of prefixed CSS properties, each assigned the same value
-    // e.g. cssPrefix('transform') will return a string sequence of CSS properties
+
+    // e.g. cssPrefix({transform:'rotate(45deg)'}) returns an object containing 
+    // the original rule, plus vendor-prefixed versions of it - see vendorPrefixes
+    
+    // e.g. cssPrefix('transform', 'rotate(45deg)') returns a string of prefixed
+    // CSS properties, each assigned the same value
+    
+    // e.g. cssPrefix('transform') returns a string of prefixed CSS properties
     function cssPrefix(styles, value){
         var prop, res, rule, setStyle;
         
@@ -215,13 +220,14 @@
         else if (typeof styles === 'string'){
             prop = styles;
 
-            // e.g. cssPrefix('transform') -> 'transform,-webkit-transform,...'
+            // e.g. cssPrefix('transform') returns 'transform,-webkit-transform,...'
             // useful for adding prefixed properties when setting active properties in a CSS transition
             if (typeof value === 'undefined'){
                 res = cssPrefixes.join(prop + ',') + prop;
             }
 
-            // e.g. cssPrefix('transform', 'rotate(45deg)') -> 'transform:rotate(45deg);-webkit-transform:rotate(45deg);...'
+            // e.g. cssPrefix('transform', 'rotate(45deg)') returns
+            // 'transform:rotate(45deg);-webkit-transform:rotate(45deg);...'
             else {
                 rule = prop + ':' + value + ';';
                 res = cssPrefixes.join(rule) + rule;
@@ -242,8 +248,8 @@
     }());
     
     // e.g. 'fontColor' -> 'font-color'
-    // NOTE: does not check for blank spaces, i.e. for multiple words 'font Color'
-    // for that, use `capitalLetters = /\s*[A-Z]/g` and `letter.trim().toLowerCase()`
+    // NOTE: does not check for blank spaces within multiple words, e.g. 'font Color'.
+    // To achieve that, use `capitalLetters = /\s*[A-Z]/g` and `letter.trim().toLowerCase()`
     camelCaseToHyphens = (function(){
         var capitalLetters = /[A-Z]/g;
 
