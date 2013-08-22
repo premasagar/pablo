@@ -3018,7 +3018,7 @@
 
     describe('Pablo.get()', function () {
       it('Pablo.get() loads resource', function (done) {
-          Pablo.get('assets/villain.svg', function(markup, xhr){
+          Pablo.get('images/villain.svg', function(markup, xhr){
             if (
               typeof markup === 'string' &&
               typeof xhr.responseXML === 'object' &&
@@ -3035,7 +3035,7 @@
 
     describe('Pablo.load()', function () {
       it('Pablo.load() loads SVG document', function (done) {
-          Pablo.load('assets/villain.svg', function(collection, xhr){
+          Pablo.load('images/villain.svg', function(collection, xhr){
             if (collection.length === 1){
               done();
             }
@@ -3050,7 +3050,7 @@
       it('collection.load() loads SVG document into node', function (done) {
           var subject = Pablo.g();
 
-          subject.load('assets/villain.svg', function(collection, xhr){
+          subject.load('images/villain.svg', function(collection, xhr){
             if (
               collection.length === 1 &&
               subject.children().length === 1 &&

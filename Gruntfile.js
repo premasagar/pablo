@@ -34,7 +34,7 @@ module.exports = function(grunt) {
           complete : {
               title : "Pablo",
               message : "Build complete",
-              image : __dirname + "/tests/assets/pablo.png"
+              image : __dirname + "/tests/images/pablo.png"
           }
       },
       watch: {
