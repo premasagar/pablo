@@ -40,7 +40,7 @@ It has a simple plugin system, allowing new functionality to be added.
 
 ## Which browsers are supported
 
-Basic SVG is now supported in all modern browsers, including Internet Explorer 9 and mobile web browsers ([browser support table][browsers]).
+Basic SVG is supported in all modern browsers, including Internet Explorer 9 and mobile web browsers ([browser support table][browsers]).
 
 Except in a couple of instances, Pablo doesn't attempt to workaround the lack of support in older browsers, although does let you know if the browser [is supported][issupported].
 
