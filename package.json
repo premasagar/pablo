@@ -17,8 +17,7 @@
     "grunt-contrib-uglify": "~0.2.0",
     "grunt-contrib-watch": "~0.4.3",
     "grunt-lib-phantomjs": "~0.3.0",
-    "grunt-mocha": "~0.4.1",
-    "grunt-growl": "~0.1.5"
+    "grunt-mocha": "~0.4.1"
   },
   "scripts": {
     "test": "grunt test"
