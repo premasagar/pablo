@@ -9,8 +9,7 @@
     "url": "https://github.com/dharmafly/pablo.git"
   },
   "main": "Gruntfile.js",
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-contrib-jshint": "~0.2.0",
