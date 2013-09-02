@@ -23,7 +23,7 @@
   if (minjs){
     pabloSrc = remote ?
       'http://pablojs.com/downloads/pablo.min.js' :
-      '../build/dist/pablo.min.js';
+      '../build/pablo.min.js';
   }
 
   // Test pablo.js - either remote or local
