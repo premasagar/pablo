@@ -45,6 +45,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-mocha');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-notify');
 
   grunt.registerTask('test', ['jshint', 'mocha']);
   grunt.registerTask('default', ['jshint', 'uglify']);
