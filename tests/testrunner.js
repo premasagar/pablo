@@ -10,25 +10,25 @@
   // Use query parameters in the test page's URL to direct which version of 
   // Pablo is being tested
   var search   = window.location.search,
-      minjs    = window.PABLO_MINJS || /\bminjs\b/.test(search),
-      remote   = window.PABLO_REMOTE || /\bremote\b/.test(search),
-      sync     = window.PABLO_SYNC || /\bsync\b/.test(search),
+      minjs    = window.TESTS_MINJS || /\bminjs\b/.test(search),
+      remote   = window.TESTS_REMOTE || /\bremote\b/.test(search),
+      sync     = window.TESTS_SYNC || /\bsync\b/.test(search),
       testsSrc = 'tests.js',
-      pabloSrc;
+      librarySrc;
 
   // Setup Mocha
   mocha.setup('bdd');
 
   // Test pablo.min.js - either remote or local
   if (minjs){
-    pabloSrc = remote ?
+    librarySrc = remote ?
       'http://pablojs.com/downloads/pablo.min.js' :
       '../build/pablo.min.js';
   }
 
   // Test pablo.js - either remote or local
   else {
-    pabloSrc = remote ?
+    librarySrc = remote ?
       'http://pablojs.com/downloads/pablo.js' :
       '../pablo.js';
   }
@@ -38,7 +38,7 @@
   // Synchronously (not yet functional)
   if (sync){
     document.write(
-      '<script src="' + pabloSrc + '"><\/script>' +
+      '<script src="' + librarySrc + '"><\/script>' +
       '<script src="' + testsSrc + '"><\/script>'
     );
     run();
@@ -46,7 +46,7 @@
 
   // Asynchronously
   else {
-    getscript(pabloSrc, function(){
+    getscript(librarySrc, function(){
       getscript(testsSrc, run);
     });
   }
