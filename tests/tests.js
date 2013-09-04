@@ -5,7 +5,7 @@
       assert = chai.assert;
 
   describe('Pablo test suite', function () {
-    it('should load the the Pablo library into the browser', function () {
+    it('should load the Pablo library into the browser', function () {
       expect(Pablo).to.be.a('function');
     });
 
