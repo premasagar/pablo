@@ -3,11 +3,13 @@
 **For full documentation and interactive examples, see [pablojs.com][pablo-site].**
 
 
-**[Pablo][pablo-site]** is a tool for creating crisp, interactive drawings and animations for the web. It is a small JavaScript library for building user interfaces, data visualisations, responsive graphics and games.
+**[Pablo][pablo-site]** is a small, open-source JavaScript library for [SVG][svg] (the web standard for vector graphics). It can be used for vector-based art, games, visualisations and interfaces.
 
-Pablo creates and manipulates [SVG][svg], the web standard for vector graphics. It focuses on simplicity and performance and gives access to the full range of SVG capabilities in modern desktop and mobile browsers.
+Pablo focuses on simplicity and performance, targeting modern browsers for both desktop and mobile.
 
-Pablo has no JavaScript library dependencies and is extendable via plugins. The core script is around 5KB.
+SVG has the potential to fulfil everything that Flash did for vector graphics on the web. However, SVG is severely behind Flash in terms of its developer tools. Pablo is a tiny offering to the cause.
+
+Pablo is extendable via plugins and has no dependency on other JavaScript libraries. The core script is around 5KB.
 
 * By [Premasagar Rose][prem] ([Dharmafly][df])
 * Website: [pablojs.com][pablo-site]
