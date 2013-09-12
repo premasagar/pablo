@@ -7,7 +7,7 @@
 
 Pablo focuses on simplicity and performance, targeting modern browsers for both desktop and mobile.
 
-SVG has the potential to fulfil everything that Flash did for vector graphics on the web. However, SVG is severely behind Flash in terms of its developer tools. Pablo is a tiny offering to the cause.
+SVG has the potential to fulfil everything that Flash did for vector graphics on the web. However, SVG is severely behind Flash in terms of its developer tools. Pablo is a tiny offering to this cause.
 
 Pablo is extendable via plugins and has no dependency on other JavaScript libraries. The core script is around 5KB.
 
