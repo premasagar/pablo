@@ -870,13 +870,13 @@
             var collection = this;
 
             if (this.length){
-                Pablo.load(url, function(newContent, xhr){
-                    if (newContent.length){
-                        collection.empty().append(newContent);
+                Pablo.load(url, function(xhr){
+                    if (this.length){
+                        collection.empty().append(this);
                     }
 
                     if (callback){
-                        callback.call(collection, newContent, xhr);
+                        callback.call(collection, this, xhr);
                     }
                 });
             }
@@ -1765,11 +1765,16 @@
         },
 
         load: function(url, callback){
-            return this.get(url, function(markup, xhr){
+            // An empty collection to be populated with the loaded content, once loaded, like a promise
+            var collection = Pablo();
+
+            this.get(url, function(markup, xhr){
                 // Create Pablo collection from document
-                var collection = Pablo(xhr.responseXML && xhr.responseXML.childNodes);
-                callback(collection, xhr);
+                collection.add(xhr.responseXML && xhr.responseXML.childNodes);
+                callback.call(collection, xhr);
             });
+
+            return collection;
         }
     });
 
