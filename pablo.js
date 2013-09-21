@@ -866,13 +866,16 @@
 
         // AJAX
         // Load SVG or HTML via Ajax and replace collection contents with it
-        load: function(url, callback){
+        load: function(url, callback, replace){
             var collection = this;
 
             if (this.length){
                 Pablo.load(url, function(xhr){
                     if (this.length){
-                        collection.empty().append(this);
+                        if (replace){
+                            collection.empty();
+                        }
+                        collection.append(this);
                     }
 
                     if (callback){

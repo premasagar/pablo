@@ -3035,8 +3035,8 @@
 
     describe('Pablo.load()', function () {
       it('Pablo.load() loads SVG document', function (done) {
-          Pablo.load('images/villain.svg', function(collection, xhr){
-            if (collection.length === 1){
+          Pablo.load('images/villain.svg', function(xhr){
+            if (this.length === 1){
               done();
             }
             else {
