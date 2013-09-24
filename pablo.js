@@ -24,7 +24,7 @@
         eventsNamespace = '__events__',
 
         head, testElement, arrayProto, supportsClassList, hyphensToCamelCase, 
-        camelCaseToHyphens, toSvg, cssClassApi, pabloCollectionApi, classlistMethod, 
+        camelCaseToHyphens, htmlContainer, toSvg, cssClassApi, pabloCollectionApi, classlistMethod, 
         cssPrefixes, cache, cacheNextId, matchesProp, Events;
 
     
@@ -258,18 +258,30 @@
         };
     }());
 
-    toSvg = (function(){
-        var prefix = '<svg version="' + svgVersion + '" xmlns="' + svgns + '">',
-            suffix = '</svg>',
-            container;
+    function svgMarkup(contents){
+        return  '<svg version="' + svgVersion + 
+                '" xmlns="' + svgns + '">' +
+                   contents +
+                '</svg>';
+    }
 
+    function createHtmlContainer(){
+        htmlContainer = Pablo(document.createElement('div'));
+    }
+
+    toSvg = (function(){
         return function(markup){
+            var collection;
+
             // Create container on first usage
-            if (!container){
-                container = Pablo(document.createElement('div'));
+            if (!htmlContainer){
+                createHtmlContainer();
             }
-            container[0].innerHTML = prefix + markup + suffix;
-            return container.firstChild().children().detach();
+            htmlContainer[0].innerHTML = svgMarkup(markup);
+            collection = htmlContainer.firstChild().children().detach();
+            htmlContainer.empty();
+
+            return collection;
         };
     }());
 
@@ -884,7 +896,23 @@
                 });
             }
             return this;
-        }
+        },
+
+        markup: (function(){
+            return function(){
+                var markup;
+
+                // Create container on first usage
+                if (!htmlContainer){
+                    createHtmlContainer();
+                }
+                htmlContainer.append(this.clone());
+                markup = htmlContainer[0].innerHTML;
+                htmlContainer.empty();
+                
+                return markup;
+            };
+        }())
     });
 
 

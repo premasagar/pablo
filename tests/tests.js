@@ -333,13 +333,13 @@
         });
 
 
-        it('Pablo(markup) should create SVG elements as document fragments in a collection', function () {
+        it('Pablo(markup) should create a collection of SVG elements', function () {
             var subject = Pablo('<g></g>');
 
             expect(subject.length).to.eql(1);
             expect(subject.viewport().length).to.eql(0);
             expect(subject[0].nodeName.toLowerCase()).to.eql('g');
-            expect(Pablo.hasSvgNamespace(subject[0]));
+            expect(Pablo.hasSvgNamespace(subject[0])).to.eql(true);
         });
         
         it('Pablo(markup) should allow nested elements', function () {
@@ -374,7 +374,7 @@
 
             collection = Pablo('#test-subject-a');
 
-            collection.add(collection.get(0));
+            collection.add(collection[0]);
             expect(collection.length).to.eql(1);
             expect(collection.attr('id')).to.eql('test-subject-a');
 
@@ -394,7 +394,7 @@
 
             collection = Pablo('#test-subject-a');
 
-            collection.concat(collection.get(0));
+            collection.concat(collection[0]);
             expect(collection.length).to.eql(1);
             expect(collection.attr('id')).to.eql('test-subject-a');
 
@@ -1105,7 +1105,7 @@
         describe('.get()', function () {
           it('.get(index) should return the SVGElement or HTMLElement of the specified index', function () {
             var subject = Pablo('#test-subjects').children(),
-                chosenOne   = subject.get(1);
+                chosenOne   = subject[1];
 
             expect(chosenOne instanceof Pablo.Collection).to.eql(false);
             expect(chosenOne.id).to.eql('test-subject-b');
@@ -3064,6 +3064,31 @@
           });
       });
     });
+
+    describe('collection.markup()', function () {
+      it('collection.markup() returns a SVG markup string', function () {
+          var subject = Pablo.g(),
+              markup = subject.markup();
+
+          // match <g></g> and <g/>
+          expect(markup).to.match(/^(<g><\/g>|<g\/>)$/);
+      });
+
+      it('collection.markup() is consistent on repeated us', function () {
+          var subject = Pablo.svg({viewBox:'0 0 1 1'}).append([
+                Pablo.g(),
+                Pablo.circle({r:5})
+              ]),
+              markup = subject.markup(),
+              repeat = Pablo(markup).markup();
+
+          expect(repeat).to.eql(markup);
+      });
+    });
+
+
+    /////
+
 
     describe('Pablo.ELEMENT_NAME([attributes]) shortcuts', function () {
       it('Pable.svg([attributes]) should return a Pablo collection of that element and with the attribute "version=1.1" on it', function () {
