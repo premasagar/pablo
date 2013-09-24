@@ -3065,8 +3065,8 @@
       });
     });
 
-    describe('collection.markup()', function () {
-      it('collection.markup() returns a SVG markup string', function () {
+    describe('collection.markup() SVG', function () {
+      it('collection.markup() should return a markup string', function () {
           var subject = Pablo.g(),
               markup = subject.markup();
 
@@ -3074,15 +3074,79 @@
           expect(markup).to.match(/^(<g><\/g>|<g\/>)$/);
       });
 
-      it('collection.markup() is consistent on repeated us', function () {
+      it('collection.markup() should export markup for multiple elements in the collection', function () {
+          var subject = Pablo(['g', 'a']),
+              markup = subject.markup();
+
+          expect(markup).to.match(/^(<g><\/g>|<g\/>)(<a><\/a>|<a\/>)$/);
+      });
+
+      it('collection.markup() should be consistent on repeated use', function () {
           var subject = Pablo.svg({viewBox:'0 0 1 1'}).append([
                 Pablo.g(),
                 Pablo.circle({r:5})
               ]),
               markup = subject.markup(),
-              repeat = Pablo(markup).markup();
+              carboncopy = Pablo(markup);
 
-          expect(repeat).to.eql(markup);
+          expect(carboncopy.length).to.eql(1);
+          expect(carboncopy.children().length).to.eql(2);
+          expect(carboncopy.markup()).to.eql(markup);
+      });
+
+      it('collection.markup() should export markup for multiple elements on repeated use', function () {
+          var subject = Pablo(['g', 'a']),
+              markup = subject.markup(),
+              carboncopy = Pablo(markup);
+
+          expect(carboncopy.length).to.eql(2);
+          expect(carboncopy.markup()).to.eql(markup);
+      });
+    });
+    
+
+    describe('collection.markup() HTML', function () {
+      it('collection.markup() should return a markup string', function () {
+          var subject = Pablo(document.createElement('div')),
+              markup = subject.markup();
+
+          // match <g></g> and <g/>
+          expect(markup).to.match(/^(<div><\/div>|<div\/>)$/);
+      });
+
+      it('collection.markup() should export markup for multiple elements in the collection', function () {
+          var subject = Pablo([
+                document.createElement('div'),
+                document.createElement('a')
+              ]),
+              markup = subject.markup();
+
+          expect(markup).to.match(/^(<div><\/div>|<div\/>)(<a><\/a>|<a\/>)$/);
+      });
+
+      it.skip('collection.markup() should be consistent on repeated use', function () {
+          var subject = Pablo(document.createElement('div')).append([
+                Pablo(document.createElement('a'), {href:'#'}),
+                Pablo(document.createElement('span'))
+              ]),
+              markup = subject.markup(),
+              carboncopy = Pablo(markup);
+
+          expect(carboncopy.length).to.eql(1);
+          expect(carboncopy.children().length).to.eql(2);
+          expect(carboncopy.markup()).to.eql(markup);
+      });
+
+      it.skip('collection.markup() should export markup for multiple elements on repeated use', function () {
+          var subject = Pablo([
+                document.createElement('div'),
+                document.createElement('a')
+              ]),
+              markup = subject.markup(),
+              carboncopy = Pablo(markup);
+
+          expect(carboncopy.length).to.eql(2);
+          expect(carboncopy.markup()).to.eql(markup);
       });
     });
 
