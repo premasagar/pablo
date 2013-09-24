@@ -12,7 +12,6 @@ module.exports = function(grunt) {
       },
       uglify: {
         options: {
-
           banner: '/*  <%= pkg.name %> v<%= pkg.version %> (<%= grunt.template.today("yyyy-mm-dd") %>) */\n\n'
         },
         build: {
@@ -33,7 +32,7 @@ module.exports = function(grunt) {
       watch: {
           js: {
               files: ['<%= pkg.name %>.js'],
-              tasks: ['jshint', 'mocha', 'uglify'],
+              tasks: ['test'],
               options: {
                 spawn: false
               }
@@ -48,5 +47,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-notify');
 
   grunt.registerTask('test', ['jshint', 'mocha']);
-  grunt.registerTask('default', ['jshint', 'uglify']);
+  grunt.registerTask('build', ['test', 'uglify']);
+  grunt.registerTask('default', ['build']);
 };
