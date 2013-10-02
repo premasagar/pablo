@@ -120,6 +120,14 @@
         expect(typeof matchesProp).to.eql('function');
       });
 
+      it('window.XMLSerializer', function(){
+        expect('XMLSerializer' in window).to.eql(true);
+      });
+
+      it('window.DOMParser', function(){
+        expect('DOMParser' in window).to.eql(true);
+      });
+
       describe('Non-essential browser features', function(){
         // Pablo currently provides a polyfill for this
         it.skip('svgElement.classList: ' + (typeof testElement.classList === 'object'), function(){
@@ -3087,20 +3095,52 @@
                 Pablo.circle({r:5})
               ]),
               markup = subject.markup(),
-              carboncopy = Pablo(markup);
+              attributes = subject.attr(),
+              attrNames = Object.keys(attributes).sort(),
+              copy = Pablo(markup),
+              markupCopy = copy.markup(),
+              attributesCopy = copy.attr(),
+              attrNamesCopy = Object.keys(attributes).sort();
 
-          expect(carboncopy.length).to.eql(1);
-          expect(carboncopy.children().length).to.eql(2);
-          expect(carboncopy.markup()).to.eql(markup);
+          expect(copy.length).to.eql(1);
+          expect(copy.children().length).to.eql(2);
+
+          expect(markupCopy).to.be.a('string');
+          expect(markupCopy.length).to.be.at.least(1);
+
+          expect(attrNames.length).to.eql(attrNamesCopy.length);
+          attrNames.forEach(function(attr, i){
+            expect(attr).to.eql(attrNamesCopy[i]);
+          });
+      });
+
+      // Currently passes in Chrome and FF but fails in grunt mocha with PhantomJS
+      it('collection.markup() should have consistent xlink ns on repeated use', function(){
+          var subject = Pablo.svg({viewBox:'0 0 1 1'}).append([
+                Pablo.g(),
+                Pablo.circle({r:5})
+              ]),
+              markup = subject.markup(),
+              copy = Pablo(markup),
+              markupCopy = copy.markup();
+
+          expect(markup.indexOf('xmlns:xlink')).to.not.eql(-1);
+          expect(markupCopy.indexOf('xmlns:xlink')).to.not.eql(-1);
       });
 
       it('collection.markup() should export markup for multiple elements on repeated use', function () {
           var subject = Pablo(['g', 'a']),
               markup = subject.markup(),
-              carboncopy = Pablo(markup);
+              copy = Pablo(markup),
+              markupCopy = copy.markup(),
+              doubleCopy = Pablo(markupCopy);
 
-          expect(carboncopy.length).to.eql(2);
-          expect(carboncopy.markup()).to.eql(markup);
+          expect(copy.length).to.eql(2);
+          expect(doubleCopy.length).to.eql(2);
+          expect(copy[0].nodeName).to.eql('g');
+          expect(copy[1].nodeName).to.eql('a');
+          expect(doubleCopy[0].nodeName).to.eql('g');
+          expect(doubleCopy[1].nodeName).to.eql('a');
       });
     });
     
@@ -3110,7 +3150,7 @@
           var subject = Pablo(document.createElement('div')),
               markup = subject.markup();
 
-          // match <g></g> and <g/>
+          // match <div></div> and <div/>
           expect(markup).to.match(/^(<div><\/div>|<div\/>)$/);
       });
 
@@ -3136,18 +3176,6 @@
           expect(carboncopy.children().length).to.eql(2);
           expect(carboncopy.markup()).to.eql(markup);
       });
-
-      it.skip('collection.markup() should export markup for multiple elements on repeated use', function () {
-          var subject = Pablo([
-                document.createElement('div'),
-                document.createElement('a')
-              ]),
-              markup = subject.markup(),
-              carboncopy = Pablo(markup);
-
-          expect(carboncopy.length).to.eql(2);
-          expect(carboncopy.markup()).to.eql(markup);
-      });
     });
 
 
@@ -3156,6 +3184,14 @@
 
     describe('Pablo.ELEMENT_NAME([attributes]) shortcuts', function () {
       it('Pable.svg([attributes]) should return a Pablo collection of that element and with the attribute "version=1.1" on it', function () {
+        var subject = Pablo.svg();
+
+        expect(subject instanceof Pablo.Collection).to.eql(true);
+        expect(subject[0].tagName.toLowerCase()).to.eql('svg');
+        expect(subject[0].getAttribute('version')).to.eql('1.1');
+      });
+
+      it('Pable.svg([attributes]) should have namespaced attributes from Pablo.ns', function () {
         var subject = Pablo.svg();
 
         expect(subject instanceof Pablo.Collection).to.eql(true);

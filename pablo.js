@@ -24,8 +24,8 @@
         eventsNamespace = '__events__',
 
         head, testElement, arrayProto, supportsClassList, hyphensToCamelCase, 
-        camelCaseToHyphens, htmlContainer, toSvg, cssClassApi, pabloCollectionApi, classlistMethod, 
-        cssPrefixes, cache, cacheNextId, matchesProp, Events;
+        camelCaseToHyphens, toSvg, cache, cacheNextId, matchesProp, Events,
+        cssClassApi, pabloCollectionApi, classlistMethod, cssPrefixes;
 
     
     function make(elementName){
@@ -72,15 +72,17 @@
         'attributes' in testElement &&
         'querySelectorAll' in testElement &&
         'previousElementSibling' in testElement &&
-        'childNodes' in testElement && // see note on svgElement.children, below
-        'create'     in Object &&
-        'keys'       in Object &&
-        'isArray'    in Array &&
-        'forEach'    in arrayProto &&
-        'map'        in arrayProto &&
-        'some'       in arrayProto &&
-        'every'      in arrayProto &&
-        'filter'     in arrayProto
+        'childNodes'    in testElement && // see note on svgElement.children, below
+        'create'        in Object &&
+        'keys'          in Object &&
+        'isArray'       in Array &&
+        'forEach'       in arrayProto &&
+        'map'           in arrayProto &&
+        'some'          in arrayProto &&
+        'every'         in arrayProto &&
+        'filter'        in arrayProto &&
+        'DOMParser'     in root &&
+        'XMLSerializer' in root
     )){
         // Incompatible browser: return a simplified version of the Pablo API
         root.Pablo = {
@@ -127,19 +129,6 @@
     function toArray(obj){
         return arrayProto.slice.call(obj);
     }
-    
-    function getAttributes(el){
-        var ret = {},
-            attr, len, i;
-            
-        if (el){
-            attr = el.attributes;
-            for (i = 0, len = attr.length; i<len; i++){
-                ret[attr[i].name] = attr[i].value;
-            }
-        }
-        return ret;
-    }
 
     function isArrayLike(obj){
         return obj &&
@@ -165,7 +154,7 @@
 
     // Check if obj is an element from this or another document
     function hasSvgNamespace(obj){
-        return obj && obj.namespaceURI && obj.namespaceURI === svgns;
+        return !!(obj && obj.namespaceURI && obj.namespaceURI === svgns);
     }
     
     function isSVGElement(obj){
@@ -189,6 +178,85 @@
             return attr ? node.attr(attr) : node;
         }
         return Pablo(node, attr);
+    }
+    
+    function getAttributes(el){
+        var ret = {},
+            attr, len, i;
+            
+        if (el){
+            attr = el.attributes;
+            for (i = 0, len = attr.length; i<len; i++){
+                ret[attr[i].name] = attr[i].value;
+            }
+        }
+        return ret;
+    }
+
+    function attributeNS(attr){
+        var colonIndex, ns, name, uri;
+
+        // e.g. `xmlns` or `xmlns:xlink`
+        if (attr.indexOf('xmlns') === 0){
+            return false;
+        }
+
+        colonIndex = attr.indexOf(':');
+
+        if (colonIndex === -1){
+            return true;
+        }
+
+        ns = attr.slice(0, colonIndex);
+        uri = Pablo.ns[ns] || null;
+        name = attr.slice(colonIndex + 1);
+
+        return [uri, name];
+    }
+
+    function getAttribute(el, attr){
+        var attrNS = attributeNS(attr);
+
+        switch(attrNS){
+            case false:
+            return el.getAttribute(attr);
+
+            case true:
+            return el.getAttributeNS(null, attr);
+
+            default:
+            return el.getAttributeNS(attrNS[0], attrNS[1]);
+        }
+    }
+
+    function setAttribute(el, attr, value){
+        var attrNS = attributeNS(attr);
+
+        switch(attrNS){
+            case false:
+            return el.setAttribute(attr, value);
+
+            case true:
+            return el.setAttributeNS(null, attr, value);
+
+            default:
+            return el.setAttributeNS(attrNS[0], attrNS[1], value);
+        }
+    }
+
+    function removeAttribute(el, attr){
+        var attrNS = attributeNS(attr);
+
+        switch(attrNS){
+            case false:
+            return el.removeAttribute(attr);
+
+            case true:
+            return el.removeAttributeNS(null, attr);
+
+            default:
+            return el.removeAttributeNS(attrNS[0], attrNS[1]);
+        }
     }
 
     // Return CSS styles with browser vendor prefixes
@@ -258,30 +326,23 @@
         };
     }());
 
-    function svgMarkup(contents){
-        return  '<svg version="' + svgVersion + 
-                '" xmlns="' + svgns + '">' +
-                   contents +
-                '</svg>';
-    }
-
-    function createHtmlContainer(){
-        htmlContainer = Pablo(document.createElement('div'));
-    }
-
     toSvg = (function(){
-        return function(markup){
-            var collection;
+        var parser, prefix, suffix;
 
-            // Create container on first usage
-            if (!htmlContainer){
-                createHtmlContainer();
+        return function toSvg(markup){
+            var svgdoc, target;
+
+            if (!parser){
+                parser = new root.DOMParser();
+                suffix = '</svg>';
+                prefix = Pablo.svg().markup().slice(0,-suffix.length);
             }
-            htmlContainer[0].innerHTML = svgMarkup(markup);
-            collection = htmlContainer.firstChild().children().detach();
-            htmlContainer.empty();
+            markup = prefix + markup + suffix;
 
-            return collection;
+            // not supported in IE9: mime type 'image/svg+xml'
+            svgdoc = parser.parseFromString(markup, 'application/xml');
+            target = Pablo(svgdoc.documentElement.childNodes);
+            return target.detach();
         };
     }());
 
@@ -578,7 +639,7 @@
                 // Clone data associated with the element
                 if (withData){
                     // Avoid unnecessary Pablo collection creation
-                    node = isSingle ? this : Pablo(el),
+                    node = isSingle ? this : Pablo(el);
                     data = node.cloneData();
 
                     if (data){
@@ -635,75 +696,67 @@
             return this;
         },
 
-        getValue: function(val, i){
-            if (Array.isArray(val)){
+        getValue: function(value, i){
+            if (Array.isArray(value)){
                 // If array is shorter than collection, then cycle back to start
                 // of array
-                i = i % val.length;
-                val = val[i];
+                i = i % value.length;
+                value = value[i];
             }
-            else if (typeof val === 'function'){
-                val = val.call(this, this[i], i);
+            else if (typeof value === 'function'){
+                value = value.call(this, this[i], i);
             }
-            return val;
+            return value;
         },
         
         attr: function(attr, value){
-            var el, attributeName, colonIndex, nsPrefix, nsURI;
+            var el, attributes, attrNS;
 
+            // Return an object of all attributes on the first element in
+            // the collection
             if (typeof attr === 'undefined'){
                 return getAttributes(this[0]);
             }
 
+            // Handle a named attribute
             if (typeof attr === 'string'){
-                // Get attribute
+                // Get the attribute from the first element in the collection
                 if (typeof value === 'undefined'){
                     el = this[0];
-
-                    if (!el){
-                        return;
-                    }
-
-                    // Namespaced attributes
-                    colonIndex = attr.indexOf(':');
-
-                    if (colonIndex >= 0){
-                        nsPrefix = attr.slice(0, colonIndex);
-                        nsURI = Pablo.ns[nsPrefix];
-                        attr = attr.slice(colonIndex+1);
-                        return el.getAttributeNS(nsURI || null, attr);
-                    }
-                    return el.getAttribute(attr);
+                    return el && getAttribute(el, attr);
                 }
 
-                // Create attributes object
-                attributeName = attr;
-                attr = {};
-                attr[attributeName] = value;
+                // Set the attribute
+
+                // Return, if no elements
+                if (!this.length){
+                    return this;
+                }
+
+                // Set the attribute, if the collection only has one element
+                if (this.length === 1){
+                    setAttribute(this[0], attr, this.getValue(value, 0));
+                    return this;
+                }
+
+                attributes = {};
+                attributes[attr] = value;
             }
-            
-            // Set multiple attributes
-            this.each(function(el, i){
-                var prop, val;
-                
-                for (prop in attr){
-                    if (attr.hasOwnProperty(prop)){
-                        val = this.getValue(attr[prop], i);
-                    
-                        // Namespaced attributes, e.g. 'xlink:href'
-                        colonIndex = prop.indexOf(':');
-                        if (colonIndex >= 0){
-                            nsPrefix = prop.slice(0, colonIndex);
-                            nsURI = Pablo.ns[nsPrefix];
-                            el.setAttributeNS(nsURI, prop, val);
-                        }
-                        else {
-                            el.setAttributeNS(null, prop, val);
-                        }
+
+            else {
+                attributes = attr;
+            }
+
+            return this.each(function(el, i){
+                var attr, value;
+
+                for (attr in attributes){
+                    if (attributes.hasOwnProperty(attr)){
+                        value = attributes[attr];
+                        setAttribute(el, attr, this.getValue(value, i));
                     }
                 }
-            }, this);
-            return this;
+            });
         },
 
         // Return an array of values from an attribute for each element 
@@ -789,19 +842,16 @@
             }, this);
         },
         
-        removeAttr: function (attr) {
-            var colonIndex = attr.indexOf(':'),
-                nsPrefix, nsURI;
-
-            if (colonIndex >= 0){
-                nsPrefix = attr.slice(0, colonIndex);
-                nsURI = Pablo.ns[nsPrefix];
-                attr = attr.slice(colonIndex+1);
+        removeAttr: function(attr) {
+            if (this.length === 1){
+                removeAttribute(this[0], attr);
             }
-            return this.each(function (el){
-                // TODO: does `removeAttribute` behave differently?
-                el.removeAttributeNS(nsURI || null, attr);
-            });
+            else if (this.length > 1){
+                this.each(function(el){
+                    removeAttribute(el, attr);
+                });
+            }
+            return this;
         },
         
         content: function(text){
@@ -838,12 +888,12 @@
 
             return this.each(function(el, i){
                 var style = el.style,
-                    prop, val;
+                    prop, value;
                 
                 for (prop in styles){
                     if (styles.hasOwnProperty(prop)){
-                        val = this.getValue(styles[prop], i);
-                        style.setProperty(prop, val, '');
+                        value = this.getValue(styles[prop], i);
+                        style.setProperty(prop, value, '');
                     }
                 }
             }, this);
@@ -899,17 +949,19 @@
         },
 
         markup: (function(){
-            return function(){
-                var markup;
+            var serializer;
 
-                // Create container on first usage
-                if (!htmlContainer){
-                    createHtmlContainer();
+            return function(){
+                var markup = '';
+
+                if (!serializer){
+                    serializer = new root.XMLSerializer();
                 }
-                htmlContainer.append(this.clone());
-                markup = htmlContainer[0].innerHTML;
-                htmlContainer.empty();
-                
+
+                this.each(function(el){
+                    markup += serializer.serializeToString(el);
+                });
+
                 return markup;
             };
         }())
@@ -1377,8 +1429,7 @@
             }
 
             return function(type /*, arbitrary args to pass to listener*/){
-                var args = toArray(arguments),
-                    node;
+                var args = toArray(arguments);
 
                 return this.processList(type, function(type){
                     if (typeof this.length === 'undefined' || this.length === 1){
@@ -1598,8 +1649,8 @@
         classlistMethod = function(method){
             return function(className){
                 return this.each(function(el, i){
-                    var val = this.getValue(className, i);
-                    this.processList(val, function(className){
+                    var value = this.getValue(className, i);
+                    this.processList(value, function(className){
                         el.classList[method](className);
                     });
                 }, this);
@@ -1611,8 +1662,8 @@
             // Return true if _any_ element has className
             hasClass: function(className){
                 return this.some(function(el, i){
-                    var val = this.getValue(className, i);
-                    return el.classList.contains(val);
+                    var value = this.getValue(className, i);
+                    return el.classList.contains(value);
                 }, this);
             },
             addClass: classlistMethod('add'),
@@ -1630,11 +1681,11 @@
                 return this.some(function(el, i){
                     // Avoid unnecessary Pablo collection creation
                     var node = isSingle ? this : Pablo(el),
-                        val = this.getValue(className, i),
+                        value = this.getValue(className, i),
                         classString = node.attr('class');
 
                     return classString && (' ' + classString + ' ')
-                        .indexOf(' ' + val + ' ') >= 0;
+                        .indexOf(' ' + value + ' ') >= 0;
                 }, this);
             },
 
@@ -1643,10 +1694,10 @@
                 return this.each(function(el, i){
                     // Avoid unnecessary Pablo collection creation
                     var node = isSingle ? this : Pablo(el),
-                        val = this.getValue(className, i),
+                        value = this.getValue(className, i),
                         classString;
 
-                    this.processList(val, function(className){
+                    this.processList(value, function(className){
                         if (!node.hasClass(className)){
                             classString = node.attr('class');
                             classString = classString ? (classString + ' ') : '';
@@ -1661,9 +1712,9 @@
                 return this.each(function(el, i){
                     // Avoid unnecessary Pablo collection creation
                     var node = isSingle ? this : Pablo(el),
-                        val = this.getValue(className, i);
+                        value = this.getValue(className, i);
 
-                    this.processList(val, function(className){
+                    this.processList(value, function(className){
                         // TODO: avoid excessive RegExp creation
                         var classPattern = new RegExp('(?:^|\\s)' + className + '(\\s|$)'),
                             classString;
@@ -1682,9 +1733,9 @@
                 return this.each(function(el, i){
                     // Avoid unnecessary Pablo collection creation
                     var node = isSingle ? this : Pablo(el),
-                        val = this.getValue(className, i);
+                        value = this.getValue(className, i);
 
-                    this.processList(val, function(className){
+                    this.processList(value, function(className){
                         if (node.hasClass(className)){
                             node.removeClass(className);
                         }
@@ -1747,6 +1798,7 @@
         },
         extend: extend,
         toArray: toArray,
+        getAttribute: getAttribute,
         getAttributes: getAttributes,
         canBeWrapped: canBeWrapped,
         hyphensToCamelCase: hyphensToCamelCase,
@@ -1823,7 +1875,22 @@
 
             if (nodeName === 'svg'){
                 createElement = function(attr){
-                    attr = extend(attr, {version: svgVersion});
+                    // Extend <svg> element with SVG version and xmlns namespace
+                    attr = extend(attr, {
+                        version: svgVersion,
+                        xmlns: svgns
+                    });
+
+                    // Extend attribute with each namespace in the `Pablo.ns` map
+                    Object.keys(Pablo.ns).forEach(function(ns){
+                        // There's no need to add `xmlns:svg`, as this is already
+                        // provided by the plain `xmlns` attribute
+                        if (ns !== 'svg'){
+                            attr['xmlns:' + ns] = Pablo.ns[ns];
+                        }
+                    });
+
+                    // Create the element
                     return Pablo(make(nodeName), attr);
                 };
             }
