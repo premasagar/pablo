@@ -3079,14 +3079,14 @@
               markup = subject.markup();
 
           // match <g></g> and <g/>
-          expect(markup).to.match(/^(<g><\/g>|<g\/>)$/);
+          expect(markup).to.match(/^(<g.*><\/g>|<g.*\/>)$/);
       });
 
       it('collection.markup() should export markup for multiple elements in the collection', function () {
           var subject = Pablo(['g', 'a']),
               markup = subject.markup();
 
-          expect(markup).to.match(/^(<g><\/g>|<g\/>)(<a><\/a>|<a\/>)$/);
+          expect(markup).to.match(/^(<g.*><\/g>|<g.*\/>)(<a.*><\/a>|<a.*\/>)$/);
       });
 
       it('collection.markup() should be consistent on repeated use', function () {
@@ -3142,6 +3142,43 @@
           expect(doubleCopy[0].nodeName).to.eql('g');
           expect(doubleCopy[1].nodeName).to.eql('a');
       });
+
+      it('collection.markup(true) should wrap elements in an <svg> element', function () {
+          var subject = Pablo(['g', 'a']),
+              markup = subject.markup(true),
+              copy = Pablo(markup);
+
+          expect(copy.length).to.eql(1);
+          expect(copy.children().length).to.eql(2);
+          expect(copy[0].nodeName).to.eql('svg');
+          expect(copy.children()[0].nodeName).to.eql('g');
+          expect(copy.children()[1].nodeName).to.eql('a');
+      });
+
+      it('collection.markup(true) should not create a new <svg> element when the collection is a single <svg> element', function () {
+          var subject = Pablo.svg().append(['g', 'a']),
+              markup = subject.markup(true),
+              copy = Pablo(markup);
+
+          expect(copy.length).to.eql(1);
+          expect(copy.children().length).to.eql(2);
+          expect(copy[0].nodeName).to.eql('svg');
+          expect(copy.children()[0].nodeName).to.eql('g');
+          expect(copy.children()[1].nodeName).to.eql('a');
+      });
+
+      it('collection.markup(true) should create a new <svg> element when the collection has multiple <svg> elements', function () {
+          var subject = Pablo.svg().append(['g', 'a']).duplicate(),
+              markup = subject.markup(true),
+              copy = Pablo(markup);
+
+          expect(copy.length).to.eql(1);
+          expect(copy.children().length).to.eql(2);
+          expect(copy.children().children().length).to.eql(4);
+          expect(copy[0].nodeName).to.eql('svg');
+          expect(copy.children()[0].nodeName).to.eql('svg');
+          expect(copy.children()[1].nodeName).to.eql('svg');
+      });
     });
     
 
@@ -3151,7 +3188,7 @@
               markup = subject.markup();
 
           // match <div></div> and <div/>
-          expect(markup).to.match(/^(<div><\/div>|<div\/>)$/);
+          expect(markup).to.match(/^(<div.*><\/div>|<div.*\/>)$/);
       });
 
       it('collection.markup() should export markup for multiple elements in the collection', function () {
@@ -3161,7 +3198,7 @@
               ]),
               markup = subject.markup();
 
-          expect(markup).to.match(/^(<div><\/div>|<div\/>)(<a><\/a>|<a\/>)$/);
+          expect(markup).to.match(/^(<div.*><\/div>|<div.*\/>)(<a.*><\/a>|<a.*\/>)$/);
       });
 
       it.skip('collection.markup() should be consistent on repeated use', function () {
