@@ -335,7 +335,8 @@
             if (!parser){
                 parser = new root.DOMParser();
                 suffix = '</svg>';
-                prefix = Pablo.svg().markup().slice(0,-suffix.length);
+                // Add a <g> to a <svg> to ensure the <svg> is not self-closing
+                prefix = Pablo.svg().append(Pablo.g()).markup().replace(/<g.*/, '');
             }
             markup = prefix + markup + suffix;
 
@@ -951,17 +952,28 @@
         markup: (function(){
             var serializer;
 
-            return function(){
-                var markup = '';
+            return function(asCompleteFile){
+                var collection = this,
+                    markup;
 
                 if (!serializer){
                     serializer = new root.XMLSerializer();
                 }
 
-                this.each(function(el){
+                if (asCompleteFile && (
+                    !this.length || this.length > 1 || this[0].nodeName !== 'svg'
+                )){
+                    collection = Pablo.svg().append(this.clone());
+                }
+
+                if (collection.length === 1){
+                    return serializer.serializeToString(collection[0]);
+                }
+
+                markup = '';
+                collection.each(function(el){
                     markup += serializer.serializeToString(el);
                 });
-
                 return markup;
             };
         }())
