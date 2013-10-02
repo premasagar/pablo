@@ -12,6 +12,7 @@ module.exports = function(grunt) {
       },
       uglify: {
         options: {
+          report: 'gzip', // Report minified size
           banner: '/*  <%= pkg.name %> v<%= pkg.version %> (<%= grunt.template.today("yyyy-mm-dd") %>) */\n\n'
         },
         build: {
