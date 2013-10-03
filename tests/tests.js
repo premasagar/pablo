@@ -143,6 +143,24 @@
           expect(testElement.children).to.be.an('object');
         });
       });
+
+      describe('Support for download() method', function(){
+        it.skip('window.Blob: ' + ('Blob' in window), function(){
+          expect('Blob' in window).to.eql(true);
+        });
+
+        it.skip('window.URL: ' + ('URL' in window), function(){
+          expect('URL' in window).to.eql(true);
+        });
+
+        it.skip('document.createEvent: ' + ('createEvent' in document), function(){
+          expect('createEvent' in document).to.eql(true);
+        });
+
+        it.skip('download attribute on HTML <a>: ' + ('download' in document.createElement('a')), function(){
+          expect('download' in document.createElement('a')).to.eql(true);
+        });
+      });
   });
 
 
