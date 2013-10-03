@@ -617,7 +617,7 @@
         
         /* Arguments:
         `deepDom`: clones descendent DOM elements and DOM event listeners (default true)
-        `withData` clones data associated with the element
+        `withData` clones data associated with the element (default false)
         `deepData` clones data associated with descendents of the element (defaults to same as `withData`)
         */
         clone: function(deepDom, withData, deepData){
@@ -711,7 +711,7 @@
         },
         
         attr: function(attr, value){
-            var el, attributes, attrNS;
+            var el, attributes;
 
             // Return an object of all attributes on the first element in
             // the collection
@@ -949,6 +949,68 @@
             return this;
         },
 
+        isSingleSvg: function(){
+            return this.length === 1 && this[0].nodeName === 'svg';
+        },
+
+        toSingleSvg: function(cloneIfNotSingleSvg, alwaysClone){
+            // If this is already a single <svg> element
+            if (this.isSingleSvg()){
+                // Clone if necessary, otherwise leave untouched
+                return alwaysClone ? this.clone() : this;
+            }
+            // Append to a new <svg> element; clone if necessary
+            return Pablo.svg().append(cloneIfNotSingleSvg ? this.clone() : this);
+        },
+
+        resizeToContent: function(){
+            return this.each(function(el){
+                var svg, bbox;
+
+                if (el.nodeName === 'svg' && !this.ownerSVGElement){
+                    svg = Pablo(el);
+                }
+                else {
+                    svg = Pablo(el).root();
+                }
+
+                bbox = svg.bbox();
+                svg.attr({
+                    width:  bbox.x + bbox.width,
+                    height: bbox.y + bbox.height
+                });
+            });
+        },
+
+        // Get bounding box of all elements in collection
+        bbox: function(){
+            var isSingleSvg = this.isSingleSvg(),
+                anyInDocument = this.isInDocument(true),
+                container, bbox;
+
+            if (isSingleSvg && anyInDocument){
+                return this[0].getBBox();
+            }
+
+            // If any element in the collection is in the document, then clone
+            container = this.toSingleSvg(anyInDocument)
+                            .appendTo(document.body);
+
+            // Get the bounding box of the container
+            bbox = container[0].getBBox();
+
+            // Remove the container
+            container.detach();
+
+            // If the elements in the collection were not cloned, then remove
+            // them from the container
+            if (!anyInDocument){
+                this.detach();
+            }
+
+            return bbox;
+        },
+
         markup: (function(){
             var serializer;
 
@@ -960,10 +1022,8 @@
                     serializer = new root.XMLSerializer();
                 }
 
-                if (asCompleteFile && (
-                    !this.length || this.length > 1 || this[0].nodeName !== 'svg'
-                )){
-                    collection = Pablo.svg().append(this.clone());
+                if (asCompleteFile){
+                    collection = this.toSingleSvg(true).resizeToContent();
                 }
 
                 if (collection.length === 1){
@@ -976,7 +1036,96 @@
                 });
                 return markup;
             };
-        }())
+        }()),
+
+        toDataURL: (function(){
+            if ('btoa' in root){
+                return function(){
+                    var markup = this.markup(true);
+                    return 'data:image/svg+xml;base64,' + window.btoa(markup);
+
+                    //var blob = new window.Blob([markup], {type:'image/svg+xml'});
+                    //return window.URL.createObjectURL(blob);
+                };
+            }
+            return function(){
+                return '';
+            };
+        }()),
+
+        toCanvas: function(canvas){
+            var img = this.toImage(),
+                doCanvasResize = !canvas,
+                ctx;
+
+            if (!canvas){
+                canvas = document.createElement('canvas');
+            }
+            canvas = toPablo(canvas);
+            ctx = canvas[0].getContext('2d');
+
+            img.one('load', function(){
+                var width  = this.width,
+                    height = this.height;
+
+                if (doCanvasResize){
+                    canvas[0].width  = width;
+                    canvas[0].height = height;
+                }
+                ctx.drawImage(this, 0, 0, width, height);
+                canvas.trigger('img:load');
+            });
+            return canvas;
+        },
+
+        // type: 'svg' (default), 'png' or 'jpeg'
+        toImage: function(type){
+            var el = document.createElement('img'),
+                img = Pablo(el);
+
+            if (!type || type === 'svg'){
+                img.one('load', function(){
+                    el.setAttribute('width',  el.width);
+                    el.setAttribute('height', el.height);
+                });
+                el.src = this.toDataURL();
+            }
+            else {
+                this.toCanvas().one('img:load', function(){
+                    try {
+                        el.src = this.toDataURL('image/' + type);
+                        el.setAttribute('width',  this.width);
+                        el.setAttribute('height', this.height);
+                    }
+                    catch(e){}
+                });
+            }
+            return img;
+        },
+
+        // See http://hackworthy.blogspot.pt/2012/05/savedownload-data-generated-in.html
+        download: function(filename){
+            var markup, blob, url, event, link;
+
+            if ('Blob' in root && 'URL' in root && 'createEvent' in document){
+                link = document.createElement('a');
+
+                if ('download' in link){
+                    markup = this.markup(this);
+                    blob = new root.Blob([markup], {type:'image/svg+xml'});
+                    url = root.URL.createObjectURL(blob);
+                    event = document.createEvent('MouseEvents');
+
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', filename || 'pablo.svg');
+
+                    event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+                    link.dispatchEvent(event);
+                    return this;
+                }
+            }
+            return false;
+        }
     });
 
 
@@ -1605,6 +1754,7 @@
                 return Pablo();
             }
         },
+
         owners: function(selectors){
             // Use try/catch as Firefox 23 throws error on attempting to access the 
             // `ownerSVGElement` of an element out of the DOM
@@ -1616,9 +1766,11 @@
                 return Pablo();
             }
         },
+
         ancestor: function(){
             return this.traverse('parentNode', isElementOrDocument).last();
         },
+
         // Find each element's SVG root element
         root: function(selectors){
             return this.map(function(el){
@@ -1627,15 +1779,30 @@
                 return node.owners(selectors).last();
             });
         },
+
         siblings: function(selectors){
             return this.prevSiblings(selectors)
                        .add(this.nextSiblings(selectors));
         },
+
         find: function(selectors){
             return this.map(function(el){
                 return el.querySelectorAll(selectors);
             });
-        }
+        },
+
+        isInDocument: (function(){
+            function isInDocument(el){
+                return Pablo(el).parents(document.body).length;
+            }
+
+            return function(any){
+                if (this.length === 1){
+                    return !!this.parents(document.body).length;
+                }
+                return any ? this.some(isInDocument) : this.every(isInDocument);
+            };
+        }())
     });
 
 
