@@ -1080,12 +1080,15 @@
                     height = this.height;
 
                 if (doCanvasResize){
-                    canvas[0].width  = width;
-                    canvas[0].height = height;
+                    canvas.attr({
+                        width:  width,
+                        height: height
+                    });
                 }
                 ctx.drawImage(this, 0, 0, width, height);
                 canvas.trigger('img:load');
             });
+
             return canvas;
         },
 
@@ -1119,31 +1122,38 @@
         },
 
         // See http://hackworthy.blogspot.pt/2012/05/savedownload-data-generated-in.html
-        download: function(filename){
-            var markup, blob, url, event, link;
+        download: (function(){
+            if ('Blob' in root &&
+                'URL' in root &&
+                'createEvent' in document &&
+                'download' in document.createElement('a')
+            ){
+                return function(filename){
+                    var link = document.createElement('a');
+                        markup = this.markup(this);
+                        blob = new root.Blob([markup], {type:'image/svg+xml'});
+                        url = root.URL.createObjectURL(blob);
+                        event = document.createEvent('MouseEvents');
 
-            if ('Blob' in root && 'URL' in root && 'createEvent' in document){
-                link = document.createElement('a');
+                    event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
 
-                if ('download' in link){
-                    markup = this.markup(this);
-                    blob = new root.Blob([markup], {type:'image/svg+xml'});
-                    url = root.URL.createObjectURL(blob);
-                    event = document.createEvent('MouseEvents');
-
-                    link.attr({
+                    Pablo(link).attr({
                         href: url,
                         download: filename || 'pablo.svg'
                     });
 
-                    event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
                     link.dispatchEvent(event);
-                    
+
                     return this;
-                }
+                };
             }
-            return false;
-        }
+
+            else {
+                return function(){
+                    return false;
+                };
+            }
+        }())
     });
 
 
