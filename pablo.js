@@ -1071,9 +1071,14 @@
             canvas = toPablo(canvas);
             ctx = canvas[0].getContext('2d');
 
-            // HACK for Safari
-            img[0].style.visibility = 'hidden';
-            img.appendTo('body');
+            // HACK for Safari 6.0.5
+            img.css({
+                    visibility: 'hidden',
+                    position: 'absolute',
+                    top: '-99999px'
+                })
+                .appendTo('body');
+            // end HACK for Safari 6.0.5
 
             img.one('load', function(){
                 var width  = this.width,
@@ -1086,6 +1091,11 @@
                     });
                 }
                 ctx.drawImage(this, 0, 0, width, height);
+
+                // HACK for Safari 6.0.5
+                img.detach();
+                // end HACK for Safari 6.0.5
+                
                 canvas.trigger('img:load');
             });
 
