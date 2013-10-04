@@ -1056,7 +1056,7 @@
                 };
             }
             return function(){
-                return '';
+                return 'about:blank';
             };
         }()),
 
