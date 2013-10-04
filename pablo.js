@@ -983,8 +983,11 @@
 
                 bbox = svg.bbox();
                 svg.attr({
-                    width:  bbox.x + bbox.width,
-                    height: bbox.y + bbox.height
+                    //width:  bbox.x + bbox.width,
+                    //height: bbox.y + bbox.height,
+                    width:   bbox.width,
+                    height:  bbox.height,
+                    viewBox: bbox.x + ' ' + bbox.y + ' ' + bbox.width + ' ' + bbox.height
                 });
             });
         },
@@ -1030,7 +1033,9 @@
                 }
 
                 if (asCompleteFile){
-                    collection = this.toSingleSvg(true).resizeToContent();
+                    // collection = this.toSingleSvg(true);
+                    // TODO: or should resizeToContent() be manual, if desired?
+                    collection = this.toSingleSvg(true, true).resizeToContent();
                 }
 
                 if (collection.length === 1){
