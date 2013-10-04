@@ -1144,10 +1144,10 @@
                 'download' in document.createElement('a')
             ){
                 return function(filename){
-                    var link = document.createElement('a');
-                        markup = this.markup(this);
-                        blob = new root.Blob([markup], {type:'image/svg+xml'});
-                        url = root.URL.createObjectURL(blob);
+                    var link = document.createElement('a'),
+                        markup = this.markup(this),
+                        blob = new root.Blob([markup], {type:'image/svg+xml'}),
+                        url = root.URL.createObjectURL(blob),
                         event = document.createEvent('MouseEvents');
 
                     event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
