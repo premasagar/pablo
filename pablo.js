@@ -543,7 +543,14 @@
         },
         
         each: function(fn, context){
-            arrayProto.forEach.call(this, fn, context || this);
+            if (this.length){
+                if (this.length === 1){
+                    fn.call(context || this, this[0], 0);
+                }
+                else {
+                    arrayProto.forEach.call(this, fn, context || this);
+                }
+            }
             return this;
         },
         
@@ -1063,6 +1070,10 @@
             }
             canvas = toPablo(canvas);
             ctx = canvas[0].getContext('2d');
+
+            // HACK for Safari
+            img[0].style.visibility = 'hidden';
+            img.appendTo('body');
 
             img.one('load', function(){
                 var width  = this.width,
