@@ -154,7 +154,7 @@
 
     // Check if obj is an element from this or another document
     function hasSvgNamespace(obj){
-        return !!(obj && obj.namespaceURI && obj.namespaceURI === svgns);
+        return !!(obj && obj.namespaceURI === svgns);
     }
     
     function isSVGElement(obj){
@@ -193,11 +193,11 @@
         return ret;
     }
 
-    function attributeNS(attr){
+    function attributeNS(el, attr){
         var colonIndex, ns, name, uri;
 
         // e.g. `xmlns` or `xmlns:xlink`
-        if (attr.indexOf('xmlns') === 0){
+        if (!hasSvgNamespace(el) || attr.indexOf('xmlns') === 0){
             return false;
         }
 
@@ -215,7 +215,7 @@
     }
 
     function getAttribute(el, attr){
-        var attrNS = attributeNS(attr);
+        var attrNS = attributeNS(el, attr);
 
         switch(attrNS){
             case false:
@@ -230,7 +230,7 @@
     }
 
     function setAttribute(el, attr, value){
-        var attrNS = attributeNS(attr);
+        var attrNS = attributeNS(el, attr);
 
         switch(attrNS){
             case false:
@@ -245,7 +245,7 @@
     }
 
     function removeAttribute(el, attr){
-        var attrNS = attributeNS(attr);
+        var attrNS = attributeNS(el, attr);
 
         switch(attrNS){
             case false:
@@ -1096,17 +1096,21 @@
 
             if (!type || type === 'svg'){
                 img.one('load', function(){
-                    el.setAttribute('width',  el.width);
-                    el.setAttribute('height', el.height);
+                    img.attr({
+                        width:  el.width,
+                        height: el.height
+                    });
                 });
                 el.src = this.toDataURL();
             }
             else {
                 this.toCanvas().one('img:load', function(){
                     try {
-                        el.src = this.toDataURL('image/' + type);
-                        el.setAttribute('width',  this.width);
-                        el.setAttribute('height', this.height);
+                        img.attr({
+                            src: this.toDataURL('image/' + type),
+                            width:  this.width,
+                            height: this.height
+                        });
                     }
                     catch(e){}
                 });
@@ -1127,11 +1131,14 @@
                     url = root.URL.createObjectURL(blob);
                     event = document.createEvent('MouseEvents');
 
-                    link.setAttribute('href', url);
-                    link.setAttribute('download', filename || 'pablo.svg');
+                    link.attr({
+                        href: url,
+                        download: filename || 'pablo.svg'
+                    });
 
                     event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
                     link.dispatchEvent(event);
+                    
                     return this;
                 }
             }
