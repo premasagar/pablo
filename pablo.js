@@ -981,7 +981,7 @@
             return Pablo.svg().append(this);
         },
 
-        crop: function(bboxOrCollection){
+        crop: function(to){
             return this.each(function(el){
                 var node, bbox;
 
@@ -989,17 +989,17 @@
                 if (el.nodeName === 'svg'){
                     node = Pablo(el);
 
-                    // optional `bboxOrCollection` passed
-                    if (bboxOrCollection){
+                    // optional `to` passed
+                    if (to){
                         // e.g. crop(circles)
-                        if (isPablo(bboxOrCollection)){
+                        if (isPablo(to)){
                             // get bbox of the collection
-                            bbox = bboxOrCollection.bbox();
+                            bbox = to.bbox();
                         }
                         // e.g. crop({x:-10,y:50,width:100, height:100})
                         else {
                             // a bbox object
-                            bbox = bboxOrCollection;
+                            bbox = to;
                         }
                     }
 
@@ -1146,26 +1146,30 @@
         },
 
         // See http://hackworthy.blogspot.pt/2012/05/savedownload-data-generated-in.html
+        // Polyfills:
+        // https://github.com/eligrey/Blob.js
+        // https://github.com/eligrey/FileSaver.js
+        // https://github.com/eligrey/canvas-toBlob.js
+        // http://www.nihilogic.dk/labs/canvas2image/
         download: function(filename){
-            var link = document.createElement('a'),
+            var link = Pablo(document.createElement('a')),
                 markup = this.markup(this),
+                url = this.toDataURL(),
+                // An alternative approach to using toDataURL is to create a Blob
                 //blob = new window.Blob([markup], {type:'image/svg+xml'}),
                 //url = window.URL.createObjectURL(blob),
-                url = this.toDataURL(),
-                event = document.createEvent('MouseEvents');
+                event;
 
-            Pablo(link).attr({
-                href: url,
-                download: filename || 'pablo.svg'
-            });
+            link.attr('href', url);
 
             if (support.download){
+                link.attr('download', filename || 'pablo.svg');
+                event = document.createEvent('MouseEvents');
                 event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
-                link.dispatchEvent(event);
-                return this;
+                link[0].dispatchEvent(event);
             }
 
-            return Pablo(link);
+            return link;
         }
     });
 
