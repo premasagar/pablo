@@ -19,7 +19,7 @@
         svgns = 'http://www.w3.org/2000/svg',
         xlinkns = 'http://www.w3.org/1999/xlink',
         vendorPrefixes = ['', 'moz', 'webkit', 'khtml', 'o', 'ms'],
-        svgElements = 'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop style svg switch symbol text textPath title tref tspan use view vkern',
+        svgElementNames = 'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop style svg switch symbol text textPath title tref tspan use view vkern',
         cacheExpando = 'pablo-data',
         eventsNamespace = '__events__',
 
@@ -2023,14 +2023,17 @@
         isPablo: isPablo,
         extend: extend,
         toArray: toArray,
-        getAttribute: getAttribute,
         getAttributes: getAttributes,
+        getAttribute: getAttribute,
+        setAttribute: setAttribute,
+        removeAttribute: removeAttribute,
         canBeWrapped: canBeWrapped,
         hyphensToCamelCase: hyphensToCamelCase,
         camelCaseToHyphens: camelCaseToHyphens,
 
         // vendor prefixes
         vendorPrefixes: vendorPrefixes,
+        svgElementNames: svgElementNames,
         cssPrefixes: cssPrefixes,
         getPrefixedProperty: getPrefixedProperty,
         cssPrefix: cssPrefix,
@@ -2091,7 +2094,7 @@
 
     
     // SVG ELEMENT METHODS
-    svgElements.split(' ')
+    svgElementNames.split(' ')
         .forEach(function(nodeName){
             var camelCase = hyphensToCamelCase(nodeName),
                 createElement = function(attr){
