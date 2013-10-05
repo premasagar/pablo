@@ -3116,7 +3116,7 @@
     });
 
     describe('collection.load()', function () {
-      it('collection.load() loads SVG document into node', function (done) {
+      it('.load() loads SVG document into node', function (done) {
           var subject = Pablo.g();
 
           subject.load('images/villain.svg', function(collection, xhr){
@@ -3134,8 +3134,8 @@
       });
     });
 
-    describe('collection.markup() SVG', function () {
-      it('collection.markup() should return a markup string', function () {
+    describe('.markup() SVG', function () {
+      it('.markup() should return a markup string', function () {
           var subject = Pablo.g(),
               markup = subject.markup();
 
@@ -3143,14 +3143,14 @@
           expect(markup).to.match(/^(<g.*><\/g>|<g.*\/>)$/);
       });
 
-      it('collection.markup() should export markup for multiple elements in the collection', function () {
+      it('.markup() should export markup for multiple elements in the collection', function () {
           var subject = Pablo(['g', 'a']),
               markup = subject.markup();
 
           expect(markup).to.match(/^(<g.*><\/g>|<g.*\/>)(<a.*><\/a>|<a.*\/>)$/);
       });
 
-      it('collection.markup() should be consistent on repeated use', function () {
+      it('.markup() should be consistent on repeated use', function () {
           var subject = Pablo.svg({viewBox:'0 0 1 1'}).append([
                 Pablo.g(),
                 Pablo.circle({r:5})
@@ -3176,7 +3176,7 @@
       });
 
       // Currently passes in Chrome and FF but fails in grunt mocha with PhantomJS
-      it('collection.markup() should have consistent xlink ns on repeated use', function(){
+      it('.markup() should have consistent xlink ns on repeated use', function(){
           var subject = Pablo.svg({viewBox:'0 0 1 1'}).append([
                 Pablo.g(),
                 Pablo.circle({r:5})
@@ -3189,7 +3189,7 @@
           expect(markupCopy.indexOf('xmlns:xlink')).to.not.eql(-1);
       });
 
-      it('collection.markup() should export markup for multiple elements on repeated use', function () {
+      it('.markup() should export markup for multiple elements on repeated use', function () {
           var subject = Pablo(['g', 'a']),
               markup = subject.markup(),
               copy = Pablo(markup),
@@ -3204,7 +3204,7 @@
           expect(doubleCopy[1].nodeName).to.eql('a');
       });
 
-      it('collection.markup(true) should wrap elements in an <svg> element', function () {
+      it('.markup(true) should wrap elements in an <svg> element', function () {
           var subject = Pablo(['g', 'a']),
               markup = subject.markup(true),
               copy = Pablo(markup);
@@ -3216,7 +3216,7 @@
           expect(copy.children()[1].nodeName).to.eql('a');
       });
 
-      it('collection.markup(true) should not create a new <svg> element when the collection is a single <svg> element', function () {
+      it('.markup(true) should not create a new <svg> element when the collection is a single <svg> element', function () {
           var subject = Pablo.svg().append(['g', 'a']),
               markup = subject.markup(true),
               copy = Pablo(markup);
@@ -3228,7 +3228,7 @@
           expect(copy.children()[1].nodeName).to.eql('a');
       });
 
-      it('collection.markup(true) should create a new <svg> element when the collection has multiple <svg> elements', function () {
+      it('.markup(true) should create a new <svg> element when the collection has multiple <svg> elements', function () {
           var subject = Pablo.svg().append(['g', 'a']).duplicate(),
               markup = subject.markup(true),
               copy = Pablo(markup);
@@ -3243,8 +3243,8 @@
     });
     
 
-    describe('collection.markup() HTML', function () {
-      it('collection.markup() should return a markup string', function () {
+    describe('.markup() HTML', function () {
+      it('.markup() should return a markup string', function () {
           var subject = Pablo(document.createElement('div')),
               markup = subject.markup();
 
@@ -3252,7 +3252,7 @@
           expect(markup).to.match(/^(<div.*><\/div>|<div.*\/>)$/);
       });
 
-      it('collection.markup() should export markup for multiple elements in the collection', function () {
+      it('.markup() should export markup for multiple elements in the collection', function () {
           var subject = Pablo([
                 document.createElement('div'),
                 document.createElement('a')
@@ -3262,7 +3262,7 @@
           expect(markup).to.match(/^(<div.*><\/div>|<div.*\/>)(<a.*><\/a>|<a.*\/>)$/);
       });
 
-      it.skip('collection.markup() should be consistent on repeated use', function () {
+      it.skip('.markup() should be consistent on repeated use', function () {
           var subject = Pablo(document.createElement('div')).append([
                 Pablo(document.createElement('a'), {href:'#'}),
                 Pablo(document.createElement('span'))
@@ -3273,6 +3273,63 @@
           expect(carboncopy.length).to.eql(1);
           expect(carboncopy.children().length).to.eql(2);
           expect(carboncopy.markup()).to.eql(markup);
+      });
+    });
+
+
+    describe('.bbox', function(){
+      var svg = Pablo.svg({width: 500, height:190});
+      var circle = svg.circle({cx:100, cy:100, r:10});
+      var rect = svg.rect({x:200, y:100, width:50, height:90});
+      var circlebbox = circle.bbox();
+
+      it('.bbox() should objection containing x, y, width and height', function () {
+        expect('x' in circlebbox).to.eql(true);
+        expect('y' in circlebbox).to.eql(true);
+        expect('width' in circlebbox).to.eql(true);
+        expect('height' in circlebbox).to.eql(true);
+      });
+
+      it('.bbox() should give dimensions and position of the single element in the collection', function () {
+        expect(circlebbox.width).to.eql(20);
+        expect(svg.bbox().width).to.eql(160);
+        expect(rect.bbox().height).to.eql(90);
+      });
+
+      it('.bbox() should give dimensions and position of the multiple elements in the collection', function () {
+        expect(Pablo([circle, rect]).bbox().y).to.eql(90);
+      });
+    });
+
+
+    describe('.crop', function(){
+      var svg = Pablo.svg({width: 500, height:190});
+      var circle = svg.circle({cx:100, cy:100, r:10});
+      var rect = svg.rect({x:200, y:100, width:50, height:90});
+
+      it('.crop() should resize the svg element to its contents', function () {
+        expect(svg[0].width.baseVal.value).to.eql(500);
+        expect(svg[0].height.baseVal.value).to.eql(190);
+
+        svg = svg.crop();
+        expect(svg[0].width.baseVal.value).to.eql(160);
+        expect(svg[0].height.baseVal.value).to.eql(100);
+      });
+
+      it('.crop(collection) should resize the svg element to the single element in the collection', function () {
+        svg = svg.crop(rect);
+        expect(svg[0].width.baseVal.value).to.eql(50);
+        expect(svg[0].height.baseVal.value).to.eql(90);
+
+        svg = svg.crop(circle);
+        expect(svg[0].width.baseVal.value).to.eql(20);
+        expect(svg[0].height.baseVal.value).to.eql(20);
+      });
+
+      it('.crop(collection) should resize the svg element to the multiple elements in the collection', function () {
+        svg = svg.crop(Pablo([circle, rect]));
+        expect(svg[0].width.baseVal.value).to.eql(160);
+        expect(svg[0].height.baseVal.value).to.eql(100);
       });
     });
 

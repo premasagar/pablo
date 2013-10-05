@@ -960,64 +960,61 @@
             return this.length === 1 && this[0].nodeName === 'svg';
         },
 
-        toSingleSvg: function(cloneIfNotSingleSvg, alwaysClone){
+        toSingleSvg: function(){
             // If this is already a single <svg> element
             if (this.isSingleSvg()){
-                // Clone if necessary, otherwise leave untouched
-                return alwaysClone ? this.clone() : this;
+                return this;
             }
-            // Append to a new <svg> element; clone if necessary
-            return Pablo.svg().append(cloneIfNotSingleSvg ? this.clone() : this);
+            // Append to a new <svg> element
+            return Pablo.svg().append(this);
         },
 
-        resizeToContent: function(){
+        crop: function(bboxOrCollection){
             return this.each(function(el){
-                var svg, bbox;
+                var node, bbox;
 
-                if (el.nodeName === 'svg' && !this.ownerSVGElement){
-                    svg = Pablo(el);
-                }
-                else {
-                    svg = Pablo(el).root();
-                }
+                // This is an <svg> element
+                if (el.nodeName === 'svg'){
+                    node = Pablo(el);
 
-                bbox = svg.bbox();
-                svg.attr({
-                    //width:  bbox.x + bbox.width,
-                    //height: bbox.y + bbox.height,
-                    width:   bbox.width,
-                    height:  bbox.height,
-                    viewBox: bbox.x + ' ' + bbox.y + ' ' + bbox.width + ' ' + bbox.height
-                });
+                    // optional `bboxOrCollection` passed
+                    if (bboxOrCollection){
+                        // e.g. crop(circles)
+                        if (Pablo.isPablo(bboxOrCollection)){
+                            // get bbox of the collection
+                            bbox = bboxOrCollection.bbox();
+                        }
+                        // e.g. crop({x:-10,y:50,width:100, height:100})
+                        else {
+                            // a bbox object
+                            bbox = bboxOrCollection;
+                        }
+                    }
+
+                    // e.g. crop()
+                    else {
+                        // get bbox of the <svg> element
+                        bbox = node.bbox();
+                    }
+
+                    // Apply dimension attributes to the <svg> element
+                    node.attr({
+                        width:   bbox.width,
+                        height:  bbox.height,
+                        viewBox: bbox.x + ' ' + bbox.y + ' ' + bbox.width + ' ' + bbox.height
+                    });
+                }
             });
         },
 
         // Get bounding box of all elements in collection
         bbox: function(){
-            var isSingleSvg = this.isSingleSvg(),
-                anyInDocument = this.isInDocument(true),
-                container, bbox;
+            var svg = this.clone()
+                            .toSingleSvg()
+                            .appendTo(document.body),
+                bbox = svg[0].getBBox();
 
-            if (isSingleSvg && anyInDocument){
-                return this[0].getBBox();
-            }
-
-            // If any element in the collection is in the document, then clone
-            container = this.toSingleSvg(anyInDocument)
-                            .appendTo(document.body);
-
-            // Get the bounding box of the container
-            bbox = container[0].getBBox();
-
-            // Remove the container
-            container.detach();
-
-            // If the elements in the collection were not cloned, then remove
-            // them from the container
-            if (!anyInDocument){
-                this.detach();
-            }
-
+            svg.detach();
             return bbox;
         },
 
@@ -1033,9 +1030,7 @@
                 }
 
                 if (asCompleteFile){
-                    // collection = this.toSingleSvg(true);
-                    // TODO: or should resizeToContent() be manual, if desired?
-                    collection = this.toSingleSvg(true, true).resizeToContent();
+                    collection = this.clone().toSingleSvg();
                 }
 
                 if (collection.length === 1){
@@ -1137,38 +1132,27 @@
         },
 
         // See http://hackworthy.blogspot.pt/2012/05/savedownload-data-generated-in.html
-        download: (function(){
-            if ('Blob' in root &&
-                'URL' in root &&
-                'createEvent' in document &&
-                'download' in document.createElement('a')
-            ){
-                return function(filename){
-                    var link = document.createElement('a'),
-                        markup = this.markup(this),
-                        blob = new root.Blob([markup], {type:'image/svg+xml'}),
-                        url = root.URL.createObjectURL(blob),
-                        event = document.createEvent('MouseEvents');
+        download: function(filename){
+            var link = document.createElement('a'),
+                markup = this.markup(this),
+                //blob = new root.Blob([markup], {type:'image/svg+xml'}),
+                //url = root.URL.createObjectURL(blob),
+                url = this.toDataURL(),
+                event = document.createEvent('MouseEvents');
 
-                    event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+            Pablo(link).attr({
+                href: url,
+                download: filename || 'pablo.svg'
+            });
 
-                    Pablo(link).attr({
-                        href: url,
-                        download: filename || 'pablo.svg'
-                    });
-
-                    link.dispatchEvent(event);
-
-                    return this;
-                };
+            if ('download' in link){
+                event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+                link.dispatchEvent(event);
+                return this;
             }
 
-            else {
-                return function(){
-                    return false;
-                };
-            }
-        }())
+            return Pablo(link);
+        }
     });
 
 
@@ -1832,20 +1816,38 @@
             return this.map(function(el){
                 return el.querySelectorAll(selectors);
             });
-        },
+        }
+    });
 
-        isInDocument: (function(){
-            function isInDocument(el){
-                return Pablo(el).parents(document.body).length;
+
+    /////
+
+
+    // CHECK CONDITION
+
+    function checkCondition(fn, passCollection){
+        return function(any){
+            if (this.length === 1){
+                return fn(passCollection ? this : this[0]);
             }
+            else {
+                return any ? this.some(fn) : this.every(fn);
+            }
+        };
+    }
 
-            return function(any){
-                if (this.length === 1){
-                    return !!this.parents(document.body).length;
-                }
-                return any ? this.some(isInDocument) : this.every(isInDocument);
-            };
-        }())
+    extend(pabloCollectionApi, {
+        isInDocument: checkCondition(function(node){
+            return toPablo(node).parents(document.body).length === 1;
+        }, true),
+
+        isRoot: checkCondition(function isRoot(el){
+            return el.nodeName === 'svg' && !el.ownerSVGElement;
+        }),
+
+        hasSvgNamespace: checkCondition(function(el){
+            return hasSvgNamespace(el);
+        })
     });
 
 
