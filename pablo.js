@@ -10,7 +10,7 @@
 */
 /*jshint newcap:false */
 
-(function(root, Object, Array, Element, SVGElement, NodeList, HTMLDocument, document, XMLHttpRequest){
+(function(window, Object, Array, Element, SVGElement, NodeList, HTMLDocument, document, XMLHttpRequest){
     'use strict';
     
     var /* SETTINGS */
@@ -39,7 +39,7 @@
             found;
 
         if (!context){
-            context = root;
+            context = window;
         }
         vendorPrefixes.some(function(prefix){
             var prefixedProp = prefix ? prefix + capitalized : prop;
@@ -81,11 +81,11 @@
         'some'          in arrayProto &&
         'every'         in arrayProto &&
         'filter'        in arrayProto &&
-        'DOMParser'     in root &&
-        'XMLSerializer' in root
+        'DOMParser'     in window &&
+        'XMLSerializer' in window
     )){
         // Incompatible browser: return a simplified version of the Pablo API
-        root.Pablo = {
+        window.Pablo = {
             v: pabloVersion,
             isSupported: false
         };
@@ -130,6 +130,10 @@
         return arrayProto.slice.call(obj);
     }
 
+    function isArray(obj){
+        return Array.isArray(obj);
+    }
+
     function isArrayLike(obj){
         return obj &&
             (typeof obj === 'object' || typeof obj === 'function') &&
@@ -163,7 +167,7 @@
     
     function canBeWrapped(obj){
         return typeof obj === 'string' ||
-            Pablo.isPablo(obj) ||
+            isPablo(obj) ||
             isElement(obj) ||
             isNodeList(obj) ||
             isHTMLDocument(obj) ||
@@ -174,7 +178,7 @@
     
     // Return node (with attributes) if a Pablo collection, otherwise create one.
     function toPablo(node, attr){
-        if (Pablo.isPablo(node)){
+        if (isPablo(node)){
             return attr ? node.attr(attr) : node;
         }
         return Pablo(node, attr);
@@ -196,7 +200,7 @@
     function attributeNS(el, attr){
         var colonIndex, ns, name, uri;
 
-        // e.g. `xmlns` or `xmlns:xlink`
+        // e.g. an HTML element, or setting `xmlns` or `xmlns:xlink` on SVG elements
         if (!hasSvgNamespace(el) || attr.indexOf('xmlns') === 0){
             return false;
         }
@@ -333,7 +337,7 @@
             var svgdoc, target;
 
             if (!parser){
-                parser = new root.DOMParser();
+                parser = new window.DOMParser();
                 suffix = '</svg>';
                 // Add a <g> to a <svg> to ensure the <svg> is not self-closing
                 prefix = Pablo.svg().append(Pablo.g()).markup().replace(/<g.*/, '');
@@ -453,7 +457,7 @@
                     }
 
                     // A Pablo collection
-                    else if (Pablo.isPablo(node)){
+                    else if (isPablo(node)){
                         // See extensions/functional.js for example usage of node.collection
                         // TODO: remove support for functional.js?
                         node = toArray(node.collection || node);
@@ -956,13 +960,9 @@
             return this;
         },
 
-        isSingleSvg: function(){
-            return this.length === 1 && this[0].nodeName === 'svg';
-        },
-
         toSingleSvg: function(){
             // If this is already a single <svg> element
-            if (this.isSingleSvg()){
+            if (this.length === 1 && this[0].nodeName === 'svg'){
                 return this;
             }
             // Append to a new <svg> element
@@ -980,7 +980,7 @@
                     // optional `bboxOrCollection` passed
                     if (bboxOrCollection){
                         // e.g. crop(circles)
-                        if (Pablo.isPablo(bboxOrCollection)){
+                        if (isPablo(bboxOrCollection)){
                             // get bbox of the collection
                             bbox = bboxOrCollection.bbox();
                         }
@@ -1026,7 +1026,7 @@
                     markup;
 
                 if (!serializer){
-                    serializer = new root.XMLSerializer();
+                    serializer = new window.XMLSerializer();
                 }
 
                 if (asCompleteFile){
@@ -1046,7 +1046,7 @@
         }()),
 
         toDataURL: (function(){
-            if ('btoa' in root){
+            if ('btoa' in window){
                 return function(){
                     var markup = this.markup(true);
                     return 'data:image/svg+xml;base64,' + window.btoa(markup);
@@ -1135,8 +1135,8 @@
         download: function(filename){
             var link = document.createElement('a'),
                 markup = this.markup(this),
-                //blob = new root.Blob([markup], {type:'image/svg+xml'}),
-                //url = root.URL.createObjectURL(blob),
+                //blob = new window.Blob([markup], {type:'image/svg+xml'}),
+                //url = window.URL.createObjectURL(blob),
                 url = this.toDataURL(),
                 event = document.createEvent('MouseEvents');
 
@@ -1990,6 +1990,11 @@
     function Pablo(node, attr){
         return new PabloCollection(node, attr);
     }
+
+    // Check if the object is a Pablo collection
+    function isPablo(obj){
+        return obj instanceof Pablo.Collection;
+    }
     
     // Pablo methods
     extend(Pablo, {
@@ -2007,9 +2012,7 @@
 
         // methods
         make: make,
-        isArray: function(obj){
-            return Array.isArray(obj);
-        },
+        isArray: isArray,
         isArrayLike: isArrayLike,
         isElement: isElement,
         isSVGElement: isSVGElement,
@@ -2017,9 +2020,7 @@
         isNodeList: isNodeList,
         isHTMLDocument: isHTMLDocument,
         // isPablo is overwritten in functional.js extension
-        isPablo: function(obj){
-            return obj instanceof Pablo.Collection;
-        },
+        isPablo: isPablo,
         extend: extend,
         toArray: toArray,
         getAttribute: getAttribute,
@@ -2131,7 +2132,7 @@
     /////
     
     // Set as a global variable
-    root.Pablo = Pablo;
+    window.Pablo = Pablo;
 
 }(
     this,
