@@ -103,7 +103,7 @@
         basic: true,
         classList: 'classList' in testElement,
         dataURL:   'btoa' in window,
-        download: 'download' in document.createElement('a')
+        download:  'btoa' in window && 'download' in document.createElement('a')
     };
 
     cssPrefixes = vendorPrefixes.map(function(prefix){
