@@ -144,7 +144,11 @@
         });
       });
 
-      describe('Support for download() method', function(){
+      describe('Support for download() and image()', function(){
+        it.skip('window.btoa: ' + ('btoa' in window), function(){
+          expect('btoa' in window).to.eql(true);
+        });
+
         it.skip('window.Blob: ' + ('Blob' in window), function(){
           expect('Blob' in window).to.eql(true);
         });
@@ -1657,8 +1661,8 @@
       
       describe('Collection iteration', function () {
         describe('.each()/.forEach()', function () {
-          it('.each(callback)/.forEach(callback) should iterate over every element in the collection passing to a callback the element and an iterator', function () {
-            var subject      = Pablo([Pablo.rect(), Pablo.circle(), Pablo.a()]),
+          it('should iterate over a collection with only one element', function () {
+            var subject = Pablo.rect(),
                 iterationIndices = [],
                 pabloItems       = [];
 
@@ -1667,6 +1671,22 @@
               pabloItems.push(item);
             });
 
+            expect(pabloItems.length).to.eql(1);
+            expect(pabloItems[0] instanceof SVGRectElement).to.eql(true);
+            expect(iterationIndices[0]).to.eql(0);
+          });
+
+          it('should iterate over a collection of multiple elements, passing each element to the callback', function () {
+            var subject = Pablo([Pablo.rect(), Pablo.circle(), Pablo.a()]),
+                iterationIndices = [],
+                pabloItems       = [];
+
+            subject.each(function (item, i) {
+              iterationIndices.push(i);
+              pabloItems.push(item);
+            });
+
+            expect(pabloItems.length).to.eql(3);
             expect(pabloItems[0] instanceof SVGRectElement).to.eql(true);
             expect(pabloItems[1] instanceof SVGCircleElement).to.eql(true);
             expect(pabloItems[2] instanceof SVGAElement).to.eql(true);
@@ -1674,7 +1694,37 @@
             expect(iterationIndices[1]).to.eql(1);
             expect(iterationIndices[2]).to.eql(2);
           });
-          it('.each(callback, context)/.forEach(callback, context) like above but the this property refers to the passed context', function () {
+
+          
+          it('should not call callback if collection contains no elements', function () {
+            var subject = Pablo(),
+                iterationIndices = [],
+                callbackCalled = false;
+
+            subject.each(function (item, i) {
+              iterationIndices.push(i);
+              callbackCalled = true;
+            });
+
+            expect(iterationIndices.length).to.eql(0);
+            expect(callbackCalled).to.eql(false);
+          });
+
+          it('should set the `this` context of the callback to the original if the collection contains one element', function () {
+            var collection = Pablo.rect();
+            collection.each(function () {
+              expect(this).to.eql(collection);
+            });
+          });
+
+          it('should set the `this` context of the callback to the original if the collection contains multiple elements', function () {
+            var collection = Pablo.rect();
+            collection.each(function () {
+              expect(this).to.eql(collection);
+            });
+          });
+
+          it('.each(callback, context)/.forEach(callback, context) should apply `this` within the callback to the passed context', function () {
             var subject      = Pablo([Pablo.rect(), Pablo.circle(), Pablo.a()]),
                 iterationIndices = [],
                 pabloItems       = [],
@@ -1696,13 +1746,6 @@
             expect(iterationIndices[1]).to.eql(1);
             expect(iterationIndices[2]).to.eql(2);
             expect(contextWasCorrect).to.eql(true);
-          });
-
-          it('should have the "this" context of the callback be the subject collection', function () {
-            var collection = Pablo.rect();
-            collection.each(function () {
-              expect(this).to.eql(collection);
-            });
           });
         });
 
