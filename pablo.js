@@ -23,7 +23,7 @@
         cacheExpando = 'pablo-data',
         eventsNamespace = '__events__',
 
-        head, testElement, arrayProto, supportsClassList, hyphensToCamelCase, 
+        head, testElement, arrayProto, support, hyphensToCamelCase, 
         camelCaseToHyphens, toSvg, cache, cacheNextId, matchesProp, Events,
         cssClassApi, pabloCollectionApi, classlistMethod, cssPrefixes;
 
@@ -55,7 +55,7 @@
     /////
 
 
-    // TEST BROWSER COMPATIBILITY
+    // TEST ENVIRONMENT CAPABILITY
 
     if (document){
         testElement = 'createElementNS' in document && make('svg');
@@ -84,15 +84,27 @@
         'DOMParser'     in window &&
         'XMLSerializer' in window
     )){
-        // Incompatible browser: return a simplified version of the Pablo API
+        // Incompatible environment
+        // Set `Pablo` to be a simple reference object
         window.Pablo = {
             v: pabloVersion,
             isSupported: false
         };
+
+        // Exit the script
         return;
     }
 
-    supportsClassList = 'classList' in testElement;
+
+    /////
+
+
+    support = {
+        basic: true,
+        classList: 'classList' in testElement,
+        dataURL:   'btoa' in window,
+        download: 'download' in document.createElement('a')
+    };
 
     cssPrefixes = vendorPrefixes.map(function(prefix){
         return prefix ? '-' + prefix + '-' : '';
@@ -1046,15 +1058,17 @@
         }()),
 
         toDataURL: (function(){
-            if ('btoa' in window){
+            if (support.dataURL){
                 return function(){
                     var markup = this.markup(true);
                     return 'data:image/svg+xml;base64,' + window.btoa(markup);
 
+                    // Alternative approach:
                     //var blob = new window.Blob([markup], {type:'image/svg+xml'});
                     //return window.URL.createObjectURL(blob);
                 };
             }
+            // Can't generate dataURL (use a polyfill to enable the toDataURL method in an unsupported browser)
             return function(){
                 return 'about:blank';
             };
@@ -1145,7 +1159,7 @@
                 download: filename || 'pablo.svg'
             });
 
-            if ('download' in link){
+            if (support.download){
                 event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
                 link.dispatchEvent(event);
                 return this;
@@ -1869,7 +1883,7 @@
 
     // Supports space-delimited multiple classNames, as well as attribute values
     // and function values
-    if (supportsClassList){
+    if (support.classList){
         classlistMethod = function(method){
             return function(className){
                 return this.each(function(el, i){
@@ -2000,7 +2014,7 @@
     extend(Pablo, {
         v: pabloVersion,
         isSupported: true,
-        supportsClassList: supportsClassList,
+        support: support,
         ns: {
             svg: svgns,
             xlink: xlinkns
