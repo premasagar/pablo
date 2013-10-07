@@ -1126,7 +1126,16 @@
         toDataURL: (function(){
             if (support.dataURL){
                 return function(){
-                    var markup = this.markup(true);
+                    var collection, markup;
+
+                    if (this.length === 1 && this[0].nodeName === 'svg'){
+                        collection = this;
+                    }
+                    else {
+                        collection = this.clone().toSingleSvg().crop();
+                    }
+                    markup = collection.markup();
+
                     return 'data:image/svg+xml;base64,' + window.btoa(markup);
 
                     // Alternative approach:
@@ -1193,6 +1202,7 @@
                         height: el.height
                     });
                 });
+                // Set the image src, using the collection's toDataUrl() method
                 el.src = this.toDataURL();
             }
 
@@ -1201,12 +1211,15 @@
                 this.toCanvas().one('img:load', function(){
                     try {
                         img.attr({
+                            // Access canvas element's native toDataURL() method
                             src: this.toDataURL('image/' + type),
                             width:  this.width,
                             height: this.height
                         });
                     }
-                    catch(e){}
+                    catch(e){
+                        img.trigger('pablo:error');
+                    }
                 });
             }
             return img;
