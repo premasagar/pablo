@@ -98,13 +98,20 @@
 
     /////
 
+    support = (function(){
+        var createCanvas = 'getContext' in document.createElement('canvas'),
+            dataURL = 'btoa' in window,
+            imageSvg = dataURL;
 
-    support = {
-        basic: true,
-        classList: 'classList' in testElement,
-        dataURL:   'btoa' in window,
-        download:  'btoa' in window && 'download' in document.createElement('a')
-    };
+        return {
+            basic: true,
+            classList: 'classList' in testElement,
+            dataURL: dataURL,
+            imageSvg: imageSvg,
+            canvas: imageSvg && createCanvas,
+            download: dataURL && 'createEvent' in document && 'download' in document.createElement('a')
+        };
+    }());
 
     cssPrefixes = vendorPrefixes.map(function(prefix){
         return prefix ? '-' + prefix + '-' : '';
@@ -1128,9 +1135,7 @@
                 };
             }
             // Can't generate dataURL (use a polyfill to enable the toDataURL method in an unsupported browser)
-            return function(){
-                return 'about:blank';
-            };
+            return function(){};
         }()),
 
         toCanvas: function(canvas){
@@ -1180,6 +1185,7 @@
             var el = document.createElement('img'),
                 img = Pablo(el);
 
+            // SVG image
             if (!type || type === 'svg'){
                 img.one('load', function(){
                     img.attr({
@@ -1189,6 +1195,8 @@
                 });
                 el.src = this.toDataURL();
             }
+
+            // PNG, JPEG or other format supported by the browser
             else {
                 this.toCanvas().one('img:load', function(){
                     try {

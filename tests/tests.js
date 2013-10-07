@@ -18,24 +18,29 @@
     });
   });
 
-  describe('Browser support breakdown', function(){
-      var document = window.document,
-          Array = window.Array,
-          Object = window.Object,
-          testElement = document && 
-            'createElementNS' in document &&
-            document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
-          matchesProp = testElement.matches || 
-            testElement.mozMatches ||
-            testElement.webkitMatches ||
-            testElement.oMatches ||
-            testElement.msMatches || 
-            testElement.matchesSelector || 
-            testElement.mozMatchesSelector ||
-            testElement.webkitMatchesSelector ||
-            testElement.oMatchesSelector ||
-            testElement.msMatchesSelector;
+  describe('Browser support', function(){
+    function test(desc, condition){
+      return (condition ? '✓' : '✖') + ' ' + desc;
+    }
 
+    var document = window.document,
+        Array = window.Array,
+        Object = window.Object,
+        testElement = document && 
+          'createElementNS' in document &&
+          document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
+        matchesProp = testElement.matches || 
+          testElement.mozMatches ||
+          testElement.webkitMatches ||
+          testElement.oMatches ||
+          testElement.msMatches || 
+          testElement.matchesSelector || 
+          testElement.mozMatchesSelector ||
+          testElement.webkitMatchesSelector ||
+          testElement.oMatchesSelector ||
+          testElement.msMatchesSelector;
+
+    describe('Essential native APIs', function(){
       it('document', function(){
         expect(document).to.be.an('object');
       });
@@ -127,46 +132,43 @@
       it('window.DOMParser', function(){
         expect('DOMParser' in window).to.eql(true);
       });
+    });
 
-      describe('Non-essential browser features', function(){
-        // Pablo currently provides a polyfill for this
-        it.skip('svgElement.classList: ' + (typeof testElement.classList === 'object'), function(){
-          expect(testElement.classList).to.be.an('object');
-        });
+    describe('Non-essential browser features', function(){
+      // Pablo currently provides a polyfill for this
+      it.skip(test('svgElement.classList', typeof testElement.classList === 'object'));
 
-        // NOTE on svgElement.children: ideally, we'd use the 'children'
-        // collection, instead of 'childNodes'. Even if a browser implements 
-        // 'children' on HTML elements, it isn't always implemented on SVG elements
-        // See https://hacks.mozilla.org/2009/06/dom-traversal/
-        // Bug report in WebKit: https://bugs.webkit.org/show_bug.cgi?id=112698
-        it.skip('svgElement.children: ' + (typeof testElement.children === 'object'), function(){
-          expect(testElement.children).to.be.an('object');
-        });
+      // NOTE on svgElement.children: ideally, we'd use the 'children'
+      // collection, instead of 'childNodes'. Even if a browser implements 
+      // 'children' on HTML elements, it isn't always implemented on SVG elements
+      // See https://hacks.mozilla.org/2009/06/dom-traversal/
+      // Bug report in WebKit: https://bugs.webkit.org/show_bug.cgi?id=112698
+      it.skip(test('svgElement.children', typeof testElement.children === 'object'));
+    });
 
-        it.skip('window.btoa: ' + ('btoa' in window), function(){
-          expect('btoa' in window).to.eql(true);
-        });
+    describe('Support for dataURL() and toImage("svg")', function(){
+      it.skip(test('window.btoa', 'btoa' in window));
+    });
 
-        it.skip('window.Blob: ' + ('Blob' in window), function(){
-          expect('Blob' in window).to.eql(true);
-        });
+    describe('Support for toImage("png") and toImage("jpeg")', function(){
+      it.skip('TODO');
+    });
 
-        it.skip('window.URL: ' + ('URL' in window), function(){
-          expect('URL' in window).to.eql(true);
-        });
+    describe('Support for toCanvas() method', function(){
+      it.skip(test('can create <canvas>', 'getContext' in document.createElement('canvas')));
+      it.skip(test('can call toImage("svg")', 'btoa' in window));
+    });
 
-        it.skip('document.createEvent: ' + ('createEvent' in document), function(){
-          expect('createEvent' in document).to.eql(true);
-        });
+    describe('Support for download() method', function(){
+      it.skip(test('document.createEvent', 'createEvent' in document));
+      it.skip(test('HTML <a> elements have "download" attribute', 'download' in document.createElement('a')));
+      it.skip(test('can call dataURL()', 'btoa' in window));
+    });
 
-        it.skip('download attribute on HTML <a>: ' + ('download' in document.createElement('a')), function(){
-          expect('download' in document.createElement('a')).to.eql(true);
-        });
-      });
-
-      describe('Support for download() method', function(){
-          
-      });
+    describe('Alternative native APIs for download() support', function(){
+      it.skip(test('window.Blob', 'Blob' in window));
+      it.skip(test('window.URL', 'URL' in window));
+    });
   });
 
 
