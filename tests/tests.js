@@ -142,9 +142,7 @@
         it.skip('svgElement.children: ' + (typeof testElement.children === 'object'), function(){
           expect(testElement.children).to.be.an('object');
         });
-      });
 
-      describe('Support for download() and image()', function(){
         it.skip('window.btoa: ' + ('btoa' in window), function(){
           expect('btoa' in window).to.eql(true);
         });
@@ -164,6 +162,10 @@
         it.skip('download attribute on HTML <a>: ' + ('download' in document.createElement('a')), function(){
           expect('download' in document.createElement('a')).to.eql(true);
         });
+      });
+
+      describe('Support for download() method', function(){
+          
       });
   });
 
@@ -3290,14 +3292,27 @@
         expect('height' in circlebbox).to.eql(true);
       });
 
-      it('.bbox() should give dimensions and position of the single element in the collection', function () {
+      it('.bbox() should give dimensions and position of a single element in the collection', function () {
+        expect(circlebbox.x).to.eql(90);
+        expect(circlebbox.y).to.eql(90);
         expect(circlebbox.width).to.eql(20);
-        expect(svg.bbox().width).to.eql(160);
-        expect(rect.bbox().height).to.eql(90);
+        expect(circlebbox.height).to.eql(20);
       });
 
       it('.bbox() should give dimensions and position of the multiple elements in the collection', function () {
-        expect(Pablo([circle, rect]).bbox().y).to.eql(90);
+        var bbox = Pablo([circle, rect]).bbox();
+        expect(bbox.x).to.eql(90);
+        expect(bbox.y).to.eql(90);
+        expect(bbox.width).to.eql(250);
+        expect(bbox.height).to.eql(190);
+      });
+
+      it('.bbox() of <svg> element should give dimensions and position of the its children', function () {
+        var bbox = svg.bbox();
+        expect(bbox.x).to.eql(90);
+        expect(bbox.y).to.eql(90);
+        expect(bbox.width).to.eql(160);
+        expect(bbox.height).to.eql(100);
       });
     });
 
@@ -3311,25 +3326,36 @@
         expect(svg[0].width.baseVal.value).to.eql(500);
         expect(svg[0].height.baseVal.value).to.eql(190);
 
-        svg = svg.crop();
+        svg.crop();
         expect(svg[0].width.baseVal.value).to.eql(160);
         expect(svg[0].height.baseVal.value).to.eql(100);
+        expect(svg.attr('viewBox')).to.eql('90 90 160 100');
       });
 
-      it('.crop(collection) should resize the svg element to the single element in the collection', function () {
-        svg = svg.crop(rect);
+      it('.crop(collection) should resize the svg element to a single element in the collection', function () {
+        svg.crop(rect);
         expect(svg[0].width.baseVal.value).to.eql(50);
         expect(svg[0].height.baseVal.value).to.eql(90);
+        expect(svg.attr('viewBox')).to.eql('200 100 50 90');
 
-        svg = svg.crop(circle);
+        svg.crop(circle);
         expect(svg[0].width.baseVal.value).to.eql(20);
         expect(svg[0].height.baseVal.value).to.eql(20);
+        expect(svg.attr('viewBox')).to.eql('90 90 20 20');
       });
 
       it('.crop(collection) should resize the svg element to the multiple elements in the collection', function () {
-        svg = svg.crop(Pablo([circle, rect]));
+        svg.crop(Pablo([circle, rect]));
         expect(svg[0].width.baseVal.value).to.eql(160);
         expect(svg[0].height.baseVal.value).to.eql(100);
+        expect(svg.attr('viewBox')).to.eql('90 90 160 100');
+      });
+
+      it('.crop() should resize the svg element to a specified bbox', function () {
+        svg.crop({x:10, y:20, width:30, height:40});
+        expect(svg[0].width.baseVal.value).to.eql(30);
+        expect(svg[0].height.baseVal.value).to.eql(40);
+        expect(svg.attr('viewBox')).to.eql('10 20 30 40');
       });
     });
 
