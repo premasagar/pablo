@@ -1,0 +1,22 @@
+{
+  "name": "pablo",
+  "main": "pablo.js",
+  "version": "0.3.2",
+  "homepage": "http://pablojs.com",
+  "authors": [
+    "Premasagar Rose <http://premasagar.com>"
+  ],
+  "description": "A tool for creating interactive SVG drawings and animations for the web",
+  "keywords": [
+    "svg"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "Gruntfile.js"
+  ]
+}
