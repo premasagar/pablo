@@ -182,7 +182,6 @@
           window.setTimeout(function(){
             jQuery('.test.pending > h2').each(function(){
               var pendingDesc = this.textContent;
-              console.log(pendingDesc, this.textContent);
               if (pendingDesc === desc){
                 this.textContent = test(desc, pass);
                 return false;
