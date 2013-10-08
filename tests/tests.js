@@ -146,12 +146,42 @@
       it.skip(test('svgElement.children', typeof testElement.children === 'object'));
     });
 
-    describe('Support for dataURL() and toImage("svg")', function(){
+    describe('Support for dataUrl() and toImage("svg")', function(){
       it.skip(test('window.btoa', 'btoa' in window));
     });
 
     describe('Support for toImage("png") and toImage("jpeg")', function(){
-      it.skip('TODO');
+      function testImageCreation(imageType, done){
+        //ctx.fillStyle = "rgb(200,0,0)";  
+        //ctx.fillRect(10, 10, 55, 50);
+        var canvas1 = document.createElement('canvas'),
+            ctx1 = canvas1.getContext('2d'),
+            testRect = Pablo.rect({width:1, height:1, fill:'red'}),
+            testSvg = Pablo.svg().append(testRect).crop();
+
+        canvas1.width = canvas1.height = 1;
+        ctx1.fillStyle = 'red';
+        ctx1.fillRect(0,0,1,1);
+
+    // Pablo('body').empty().append(image);
+    // TODO: if image var not created first, on jpeg, this fails
+
+        testRect.toImage(imageType)
+          .on('load', function(){
+              done();
+          })
+          .on('pablo:error', function(){
+            done(new Error('Image failed to load'));
+          });
+      }
+
+      it('image("png")', function(done){
+        testImageCreation('png', done);
+      });
+
+      it('image("jpeg")', function(done){
+        testImageCreation('jpeg', done);
+      });
     });
 
     describe('Support for toCanvas() method', function(){
@@ -162,7 +192,7 @@
     describe('Support for download() method', function(){
       it.skip(test('document.createEvent', 'createEvent' in document));
       it.skip(test('HTML <a> elements have "download" attribute', 'download' in document.createElement('a')));
-      it.skip(test('can call dataURL()', 'btoa' in window));
+      it.skip(test('can call dataUrl()', 'btoa' in window));
     });
 
     describe('Alternative native APIs for download() support', function(){
