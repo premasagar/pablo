@@ -1298,7 +1298,7 @@
 
                 // First argument is an object of key-value pairs
                 if (typeof key === 'object'){
-                    data = this.getValue(key);
+                    data = key;
                 }
 
                 // Get value - e.g. collection.data('foo') or collection.data()
