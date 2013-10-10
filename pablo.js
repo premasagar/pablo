@@ -621,7 +621,8 @@
             // If the cache has any contents
             if (Object.keys(cache).length){
                 // Remove data for all elements and their descendents
-                this.removeData().find('*').removeData();
+                this.off().removeData();
+                this.find('*').off().removeData();
             }
 
             // Remove from the DOM
@@ -632,7 +633,7 @@
             // If the cache has any contents
             if (Object.keys(cache).length){
                 // Remove data for each descendent of elements in the collection
-                this.find('*').removeData();
+                this.find('*').off().removeData();
             }
 
             // Remove elements, text and other nodes
