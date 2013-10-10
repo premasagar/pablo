@@ -390,8 +390,10 @@
                 // Find the node within the context, e.g. Pablo('g', 'body')
                 node = Pablo(attrOrContext).find(node);
             }
-            else if (typeof node === 'string' && attrOrContext){
-                // Create a named element, e.g. Pablo('circle', {})
+            
+            // Create a named element, e.g. Pablo('circle', {})
+            // Check that this isn't Pablo('<circle/>', {})
+            else if (typeof node === 'string' && node.indexOf('<') === -1 && attrOrContext){
                 node = make(node);
             }
 
