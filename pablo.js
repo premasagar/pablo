@@ -1183,7 +1183,7 @@
                 img.detach();
                 // end HACK for Safari 6.0.5
                 
-                canvas.trigger('img:load');
+                canvas.trigger('load:image');
             });
 
             return canvas;
@@ -1208,7 +1208,7 @@
 
             // PNG, JPEG or other format supported by the browser
             else {
-                this.toCanvas().one('img:load', function(){
+                this.toCanvas().one('load:image', function(){
                     try {
                         img.attr({
                             // Access canvas element's native toDataURL() method
@@ -1218,7 +1218,7 @@
                         });
                     }
                     catch(e){
-                        img.trigger('pablo:error');
+                        img.trigger('error');
                     }
                 });
             }
