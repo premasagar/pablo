@@ -390,7 +390,7 @@
                 // Find the node within the context, e.g. Pablo('g', 'body')
                 node = Pablo(attrOrContext).find(node);
             }
-            
+
             // Create a named element, e.g. Pablo('circle', {})
             // Check that this isn't Pablo('<circle/>', {})
             else if (typeof node === 'string' && node.indexOf('<') === -1 && attrOrContext){
@@ -1253,7 +1253,225 @@
             }
 
             return link;
-        }
+        },
+
+        // ANIMATION
+        stagger: (function(){
+            function Options(options){
+                extend(this, options);
+            }
+            extend(Options.prototype, {
+                t: 1000,
+                defer: false,
+                repeat: 1, // TODO: also rename duplicate() arg to `repeat`?
+                autostart: true,
+                autodestroy: true,
+                order: 'asc',
+                bounce: false
+            });
+
+            function Controller(collection, iterator, options){
+                this.collection = collection;
+                this.iterator = iterator;
+                this.event = Pablo();
+                this.options = new Options(options);
+                this.resetAnimation();
+
+                if (this.options.autostart){
+                    this.start();
+                }
+            }
+
+            extend(Controller.prototype, {
+                active: false,
+
+                resetLoop: function(){
+                    var order = this.options.order;
+
+                    if (order === 'asc'){
+                        this.i = 0;
+                    }
+                    else if (order === 'desc'){
+                        this.i = this.collection.length-1;
+                    }
+                    this.trigger('reset:loop');
+                    return this;
+                },
+
+                resetAnimation: function(){
+                    this.remaining = this.options.repeat;
+                    this.resetLoop();
+                    this.trigger('reset:animation');
+                    return this;
+                },
+
+                setTimeout: function(t){
+                    var ctrl = this;
+
+                    if (typeof t !== 'number'){
+                        t = this.collection.getValue(this.options.t, this.i);
+                    }
+
+                    this.ref = window.setTimeout(function(){
+                        ctrl.next();
+                    }, t);
+
+                    return this;
+                },
+
+                next: function(){
+                    var order, isComplete;
+
+                    this.step();
+
+                    order = this.options.order;
+                    if (order === 'asc'){
+                        this.i ++;
+                        isComplete = this.i === this.collection.length;
+                    }
+                    else if (order === 'desc'){
+                        this.i --;
+                        isComplete = this.i < 0;
+                    }
+
+                    if (isComplete){
+                        this.end();
+                        this.remaining --;
+
+                        if (this.remaining){
+                            this.begin(true);
+                        }
+                        else {
+                            if (this.options.autodestroy){
+                                this.destroy();
+                            }
+                            else {
+                                this.complete();
+                            }
+                        }
+                    }
+                    else {
+                        this.setTimeout();
+                    }
+                    return this;
+                },
+
+                step: function(){
+                    var collection = this.collection,
+                        i = this.i,
+                        el = collection[i];
+
+                    this.iterator.call(collection, el, i);
+                    this.trigger('step', collection, el, i);
+                    return this;
+                },
+
+                // Start (or unpause) the animation
+                start: function(){
+                    var ctrl;
+
+                    if (!this.active && this.collection.length){
+                        ctrl = this;
+                        this.active = true;
+
+                        this.ref = window.setTimeout(function(){
+                            // Make 'start' asynchronous, to allow binding to 
+                            // 'start' event and chaining of methods before start
+                            ctrl.trigger('start');
+                            ctrl.begin(ctrl.options.defer);
+                        }, 4);
+                    }
+                    return this;
+                },
+
+                // Stop (or pause) the animation
+                stop: function(){
+                    if (this.active){
+                        this.active = false;
+                        window.clearTimeout(this.ref);
+                        this.trigger('stop');
+                    }
+                    return this;
+                },
+
+                // Begin the loop
+                begin: function(defer){
+                    this.trigger('begin');
+                    if (defer){
+                        // TODO: should 'begin' event fire just before step, after the timeout?
+                        this.setTimeout();
+                    }
+                    else {
+                        this.next();
+                    }
+                    return this;
+                },
+
+                end: function(){
+                    this.trigger('end');
+
+                    if (this.options.bounce){
+                        if (this.options.order === 'asc'){
+                            this.options.order = 'desc';
+                        }
+                        else if (this.options.order === 'desc'){
+                            this.options.order = 'asc';
+                        }
+                    }
+                    this.resetLoop();
+                    return this;
+                },
+
+                // Complete the loop
+                complete: function(){
+                    if (this.active){
+                        this.trigger('complete');
+                        this.stop();
+                        this.resetAnimation();
+                    }
+                    return this;
+                },
+
+                destroy: function(){
+                    var prop,
+                        options = this.options;
+
+                    this.trigger('destroy');
+                    this.stop();
+                    this.off();
+
+                    for (prop in options){
+                        if (options.hasOwnProperty(prop)){
+                            delete options[prop];
+                        }
+                    }
+                    for (prop in this){
+                        if (this.hasOwnProperty(prop)){
+                            delete this[prop];
+                        }
+                    }
+                    return this;
+                }
+            });
+
+            // TEMP: will not be needed when a plain object can be 
+            // extended with Pablo.Event
+            ['on', 'one', 'oneEach', 'off', 'trigger'].forEach(function(method){
+                Controller.prototype[method] = function(){
+                    this.event[method].apply(this.event, arguments);
+                    return this;
+                };
+            });
+
+            return extend(
+                function(iterator, options){
+                    return new Controller(this, iterator, options);
+                },
+                {
+                    fn: Controller.prototype
+                }
+            );
+        }())
     });
 
 
@@ -1462,7 +1680,7 @@
 
     
     // EVENTS
-    // TODO: refactor on, etc to allow non-Pablo collections
+    // TODO: refactor on(), etc to allow non-Pablo collections
     Events = {
         on: function(type, selectors, listener, useCapture, context){
             var isSingle, wrapper, eventData;
@@ -1950,6 +2168,9 @@
             return hasSvgNamespace(el);
         })
     });
+
+
+    /////
 
 
     // ALIASES
