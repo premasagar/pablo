@@ -1013,8 +1013,7 @@
                     y2 = 0;
 
                     this.each(function(el){
-                        var bbox = el.getBBox(),
-                            width, height;
+                        var bbox = el.getBBox();
 
                         if (bbox.x < x1){
                             x1 = bbox.x;
@@ -1236,7 +1235,6 @@
         // http://www.nihilogic.dk/labs/canvas2image/
         download: function(filename){
             var link = Pablo(document.createElement('a')),
-                markup = this.markup(this),
                 url = this.dataUrl(),
                 // An alternative approach to using dataUrl is to create a Blob
                 //blob = new window.Blob([markup], {type:'image/svg+xml'}),
