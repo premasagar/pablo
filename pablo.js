@@ -22,9 +22,10 @@
         svgElementNames = 'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop style svg switch symbol text textPath title tref tspan use view vkern',
         cacheExpando = 'pablo-data',
         eventsNamespace = '__events__',
+        svgDataUrlPrefix = 'data:image/svg+xml;base64,',
 
         head, testElement, arrayProto, support, hyphensToCamelCase, 
-        camelCaseToHyphens, toSvg, cache, cacheNextId, matchesProp, Events,
+        camelCaseToHyphens, markupToSvgElement, cache, cacheNextId, matchesProp, Events,
         cssClassApi, pabloCollectionApi, classlistMethod, cssPrefixes;
 
     
@@ -101,16 +102,40 @@
     support = (function(){
         var createCanvas = 'getContext' in document.createElement('canvas'),
             dataUrl = 'btoa' in window,
-            imageSvg = dataUrl;
+            svgImage = dataUrl,
+            canvas = svgImage && createCanvas,
+            imageTypes = ['png', 'jpeg'],
+            support = {
+                basic: true,
+                classList: 'classList' in testElement,
+                dataUrl: dataUrl,
+                svgImage: svgImage,
+                canvas: canvas,
+                download: dataUrl && 'createEvent' in document && 'download' in document.createElement('a')
+            };
 
-        return {
-            basic: true,
-            classList: 'classList' in testElement,
-            dataUrl: dataUrl,
-            imageSvg: imageSvg,
-            canvas: imageSvg && createCanvas,
-            download: dataUrl && 'createEvent' in document && 'download' in document.createElement('a')
-        };
+        function callbackTrue(callback){
+            callback(true);
+        }
+        function callbackFalse(callback){
+            callback(false);
+        }
+
+        imageTypes.forEach(function(type){
+            if (!canvas){
+                support[type] = callbackFalse;
+            }
+            else {
+                support[type] = function(callback){
+                    Pablo.line({x2:1}).dataUrl(type, function(dataUrl){
+                        support[type] = dataUrl ? callbackTrue : callbackFalse;
+                        callback(!!dataUrl);
+                    });
+                };
+            }
+        });
+
+        return support;
     }());
 
     cssPrefixes = vendorPrefixes.map(function(prefix){
@@ -219,17 +244,20 @@
     function attributeNS(el, attr){
         var colonIndex, ns, name, uri;
 
-        // e.g. an HTML element, or setting `xmlns` or `xmlns:xlink` on SVG elements
+        // An HTML element, or SVG attributes `xmlns` or `xmlns:xlink`
         if (!hasSvgNamespace(el) || attr.indexOf('xmlns') === 0){
             return false;
         }
 
+        // Find a colon separating the namespace prefix from the attribute name
         colonIndex = attr.indexOf(':');
 
+        // A non-prefixed, namespaced attribute, e.g. `fill`
         if (colonIndex === -1){
             return true;
         }
 
+        // A prefixed, namespaced attribute, e.g. `xlink:href`
         ns = attr.slice(0, colonIndex);
         uri = Pablo.ns[ns] || null;
         name = attr.slice(colonIndex + 1);
@@ -349,10 +377,10 @@
         };
     }());
 
-    toSvg = (function(){
+    markupToSvgElement = (function(){
         var parser, prefix, suffix;
 
-        return function toSvg(markup){
+        return function markupToSvgElement(markup){
             var svgdoc, target;
 
             if (!parser){
@@ -369,6 +397,10 @@
             return target.detach();
         };
     }());
+
+    function dataUrlToSvgMarkup(dataUrl){
+        return window.atob(dataUrl.slice(svgDataUrlPrefix.length));
+    }
 
     // Data cache
     cache = {};
@@ -393,7 +425,7 @@
 
             // Create a named element, e.g. Pablo('circle', {})
             // Check that this isn't Pablo('<circle/>', {})
-            else if (typeof node === 'string' && node.indexOf('<') === -1 && attrOrContext){
+            else if (typeof node === 'string' && attrOrContext && node.indexOf('<') === -1){
                 node = make(node);
             }
 
@@ -485,12 +517,18 @@
                         toAdd = node.collection || node;
                     }
 
-                    // A string outside of an array - either SVG markup or CSS selector
+                    // A string outside of an array - either CSS selector, //
+                    // SVG markup or dataUrl
                     else if (typeof node === 'string'){
+                        // data URL
+                        if (node.indexOf(svgDataUrlPrefix) === 0){
+                            toAdd = markupToSvgElement(dataUrlToSvgMarkup(node));
+                        }
+
                         // SVG markup
                         // If `<` is the first non-whitespace character
-                        if (openTag.test(node)){
-                            toAdd = toSvg(node);
+                        else if (openTag.test(node)){
+                            toAdd = markupToSvgElement(node);
                         }
 
                         // CSS selector
@@ -982,13 +1020,19 @@
             return this;
         },
 
-        toSingleSvg: function(){
+        withViewport: function(){
+            var svg;
+
             // If this is already a single <svg> element
             if (this.length === 1 && this[0].nodeName === 'svg'){
-                return this;
+                svg = this;
             }
-            // Append to a new <svg> element
-            return Pablo.svg().append(this);
+            else {
+                // Append to a new <svg> element
+                svg = Pablo.svg().append(this).crop();
+            }
+
+            return svg;
         },
 
         // Get bounding box of all elements in collection
@@ -1007,9 +1051,9 @@
                 }
 
                 else {
-                    x1 = Infinity,
-                    y1 = Infinity,
-                    x2 = 0,
+                    x1 = Infinity;
+                    y1 = Infinity;
+                    x2 = 0;
                     y2 = 0;
 
                     this.each(function(el){
@@ -1110,7 +1154,7 @@
                 }
 
                 if (asCompleteFile){
-                    collection = this.clone().toSingleSvg();
+                    collection = this.clone().withViewport();
                 }
 
                 if (collection.length === 1){
@@ -1124,134 +1168,6 @@
                 return markup;
             };
         }()),
-
-        dataUrl: (function(){
-            if (support.dataUrl){
-                return function(){
-                    var collection, markup;
-
-                    if (this.length === 1 && this[0].nodeName === 'svg'){
-                        collection = this;
-                    }
-                    else {
-                        collection = this.clone().toSingleSvg().crop();
-                    }
-                    markup = collection.markup();
-
-                    return 'data:image/svg+xml;base64,' + window.btoa(markup);
-
-                    // Alternative approach:
-                    //var blob = new window.Blob([markup], {type:'image/svg+xml'});
-                    //return window.URL.createObjectURL(blob);
-                };
-            }
-            // Can't generate dataUrl (use a polyfill to enable the dataUrl method in an unsupported browser)
-            return function(){};
-        }()),
-
-        toCanvas: function(canvas){
-            var img = this.toImage(),
-                doCanvasResize = !canvas,
-                ctx;
-
-            if (!canvas){
-                canvas = document.createElement('canvas');
-            }
-            canvas = toPablo(canvas);
-            ctx = canvas[0].getContext('2d');
-
-            // HACK for Safari 6.0.5
-            img.css({
-                    visibility: 'hidden',
-                    position: 'absolute',
-                    top: '-99999px'
-                })
-                .appendTo('body');
-            // end HACK for Safari 6.0.5
-
-            img.one('load', function(){
-                var width  = this.width,
-                    height = this.height;
-
-                if (doCanvasResize){
-                    canvas.attr({
-                        width:  width,
-                        height: height
-                    });
-                }
-                ctx.drawImage(this, 0, 0, width, height);
-
-                // HACK for Safari 6.0.5
-                img.detach();
-                // end HACK for Safari 6.0.5
-                
-                canvas.trigger('load:image');
-            });
-
-            return canvas;
-        },
-
-        // type: 'svg' (default), 'png' or 'jpeg'
-        toImage: function(type){
-            var el = document.createElement('img'),
-                img = Pablo(el);
-
-            // SVG image
-            if (!type || type === 'svg'){
-                img.one('load', function(){
-                    img.attr({
-                        width:  el.width,
-                        height: el.height
-                    });
-                });
-                // Set the image src, using the collection's dataUrl() method
-                el.src = this.dataUrl();
-            }
-
-            // PNG, JPEG or other format supported by the browser
-            else {
-                this.toCanvas().one('load:image', function(){
-                    try {
-                        img.attr({
-                            // Access canvas element's native toDataURL() method
-                            src: this.toDataURL('image/' + type),
-                            width:  this.width,
-                            height: this.height
-                        });
-                    }
-                    catch(e){
-                        img.trigger('error');
-                    }
-                });
-            }
-            return img;
-        },
-
-        // See http://hackworthy.blogspot.pt/2012/05/savedownload-data-generated-in.html
-        // Polyfills:
-        // https://github.com/eligrey/Blob.js
-        // https://github.com/eligrey/FileSaver.js
-        // https://github.com/eligrey/canvas-toBlob.js
-        // http://www.nihilogic.dk/labs/canvas2image/
-        download: function(filename){
-            var link = Pablo(document.createElement('a')),
-                url = this.dataUrl(),
-                // An alternative approach to using dataUrl is to create a Blob
-                //blob = new window.Blob([markup], {type:'image/svg+xml'}),
-                //url = window.URL.createObjectURL(blob),
-                event;
-
-            link.attr('href', url);
-
-            if (support.download){
-                link.attr('download', filename || 'pablo.svg');
-                event = document.createEvent('MouseEvents');
-                event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
-                link[0].dispatchEvent(event);
-            }
-
-            return link;
-        },
 
         // ANIMATION
         stagger: (function(){
@@ -1471,6 +1387,244 @@
             );
         }())
     });
+
+
+    /////
+
+    // CONVERSION
+
+    (function(){
+        function errorObj(){
+            return {error:true};
+        }
+
+        extend(pabloCollectionApi, {
+            dataUrl: support.dataUrl ?
+                function(type, callback){
+                    var collection = this,
+                        target, markup, dataUrl;
+
+                    if (!type || type === 'svg'){
+                        if (this.length === 1 && this[0].nodeName === 'svg'){
+                            target = this;
+                        }
+                        else {
+                            target = this.clone().withViewport(true);
+                        }
+                        markup = target.markup();
+
+                        dataUrl = svgDataUrlPrefix + window.btoa(markup);
+
+                        if (callback){
+                            callback.call(collection, dataUrl);
+                        }
+
+                        return dataUrl;
+
+                        // Alternative approach:
+                        //var blob = new window.Blob([markup], {type:'image/svg+xml'});
+                        //return window.URL.createObjectURL(blob);
+                    }
+
+                    else {
+                        this.toCanvas(function(canvas){
+                            var dataUrl;
+
+                            if (!('error' in canvas)){
+                                try {
+                                    // Access canvas element's native toDataURL() method
+                                    dataUrl = canvas[0].toDataURL('image/' + type);
+                                }
+                                catch(e){}
+                            }
+
+                            if (callback){
+                                callback.call(collection, dataUrl || null);
+                            }
+                        });
+                    }
+                } :
+
+                // Can't generate dataUrl (use a polyfill to enable the dataUrl method in an unsupported browser)
+                function(type, callback){
+                    if (callback){
+                        callback(this, null);
+                    }
+                    return null;
+                },
+
+            // type: 'svg' (default), 'png' or 'jpeg'
+            // callback (optional): When the image has loaded, the callback will 
+            // be passed a collection containing the image. If the image fails, to load,
+            // the callback is passed `null`
+            toImage: support.svgImage ?
+                function(type, callback){
+                    var collection = this,
+                        el = document.createElement('img'),
+                        img = Pablo(el),
+                        bbox = this.bbox();
+
+                    this.dataUrl(type, function(dataUrl){
+                        if (dataUrl){
+                            // If no dimensions, then give the image zero
+                            // dimensions.
+                            // The bbox() check is made to prevent empty <svg> 
+                            // elements creating an image with the browser's
+                            // default dimenstions for an empty <svg> element
+                            // (seen in Chrome 32 & FF24)
+                            if (!bbox.width && !bbox.height){
+                                // TODO: Currently, the bbox() call is made for 
+                                // all types of elements, not just <svg> elements, as a 
+                                // precaution. If no other elements need this check, then
+                                // only call bbox() when the collection is a <svg> element
+                                img.attr({
+                                    width: 0,
+                                    height: 0
+                                });
+
+                                if (callback){
+                                    callback.call(collection, img);
+                                }
+                            }
+
+                            else {
+                                if (callback){
+                                    img.one('load', function(){
+                                        callback.call(collection, img);
+                                    });
+                                }
+                                el.src = dataUrl;
+                            }
+                        }
+
+                        // Error: couldn't create dataUrl
+                        else if (callback){
+                            callback.call(collection, errorObj());
+                        }
+                    });
+
+                    return img;
+                } :
+
+                function(type, callback){
+                    var error = errorObj();
+
+                    if (callback){
+                        callback.call(this, error);
+                    }
+                    return error;
+                },
+
+            toCanvas: support.canvas ?
+                function(callback, canvas){
+                    var collection = this,
+                        svgImage, doCanvasResize;
+
+                    doCanvasResize = !canvas;
+                    canvas = toPablo(canvas || document.createElement('canvas'));
+
+                    svgImage = this.toImage('svg', function(img){
+                        var width = img[0].width,
+                            height = img[0].height,
+                            ctx;
+
+                        if (doCanvasResize){
+                            canvas.attr({
+                                width:  width,
+                                height: height
+                            });
+                        }
+
+                        if (width && height){
+                            ctx = canvas[0].getContext('2d');
+                            ctx.drawImage(img[0], 0, 0, width, height);
+                        }
+
+                        // HACK for Safari 6.0.5
+                        this.detach();
+                        // end HACK for Safari 6.0.5
+
+                        if (callback){
+                            callback.call(collection, canvas);
+                        }
+                    });
+
+                    if (!svgImage[0].complete){
+                        // HACK for Safari 6.0.5
+                        svgImage.css({
+                                visibility: 'hidden',
+                                position: 'absolute',
+                                top: '-99999px'
+                            })
+                            .appendTo('body');
+                        // end HACK for Safari 6.0.5
+                    }
+
+                    return canvas;
+                } :
+
+                function(canvas, callback){
+                    var error = errorObj();
+
+                    if (callback){
+                        callback.call(this, error);
+                    }
+                    return error;
+                },
+
+            // See http://hackworthy.blogspot.pt/2012/05/savedownload-data-generated-in.html
+            // Polyfills:
+            // https://github.com/eligrey/Blob.js
+            // https://github.com/eligrey/FileSaver.js
+            // https://github.com/eligrey/canvas-toBlob.js
+            // http://www.nihilogic.dk/labs/canvas2image/
+            download: support.download ?
+                function(type, filename, callback){
+                    var collection = this,
+                        link = Pablo(document.createElement('a'));
+
+                    if (!type){
+                        type = 'svg';
+                    }
+                    if (!filename){
+                        filename = 'pablo.' + (type === 'jpeg' ? 'jpg' : type);
+                    }
+
+                    // An alternative approach to using dataUrl is to create a Blob
+                    // blob = new window.Blob([markup], {type:'image/svg+xml'}),
+                    // url = window.URL.createObjectURL(blob),
+                    this.dataUrl(type, function(dataUrl){
+                        var event;
+
+                        if (dataUrl){
+                            link.attr({
+                                href: dataUrl,
+                                download: filename
+                            });
+
+                            event = document.createEvent('MouseEvents');
+                            event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+                            link[0].dispatchEvent(event);
+                        }
+
+                        if (callback){
+                            callback.call(collection, dataUrl ? link : errorObj());
+                        }
+                    });
+
+                    return link;
+                } :
+
+                function(type, filename, callback){
+                    var error = errorObj();
+
+                    if (callback){
+                        callback.call(this, error);
+                    }
+                    return error;
+                }
+        });
+    }());
 
 
     /////
