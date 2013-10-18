@@ -1740,15 +1740,13 @@
                 });
             },
 
-            removeData: function(keys){
+            removeData: function(key){
                 return this.each(function(el){
-                    // Remove single or multiple, space-delimited keys
-                    if (keys){
-                        this.processList(keys, function(key){
-                            removeData(el, key);
-                        });
+                    // Remove a key from the element's data object
+                    if (key){
+                        removeData(el, key);
                     }
-                    // Remove everything
+                    // Remove all data on the element
                     else {
                         removeData(el);
                     }
