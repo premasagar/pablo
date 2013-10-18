@@ -65,8 +65,8 @@
         expect('NodeList' in window).to.equal(true);
       });
 
-      it('window.HTMLDocument', function(){
-        expect('HTMLDocument' in window).to.equal(true);
+      it('window.Document', function(){
+        expect('Document' in window).to.equal(true);
       });
 
       it('svg.createSVGRect', function(){
@@ -147,6 +147,7 @@
     });
 
     describe('Support for dataUrl() and toImage("svg")', function(){
+      it.skip(test('window.atob', 'atob' in window));
       it.skip(test('window.btoa', 'btoa' in window));
     });
 
@@ -182,13 +183,13 @@
 
     describe('Support for toCanvas() method', function(){
       it.skip(test('can create <canvas>', 'getContext' in document.createElement('canvas')));
-      it.skip(test('can call toImage("svg")', 'btoa' in window));
+      it.skip(test('can call toImage("svg")', Pablo.support.svgImage));
     });
 
     describe('Support for download() method', function(){
       it.skip(test('document.createEvent', 'createEvent' in document));
       it.skip(test('HTML <a> elements have "download" attribute', 'download' in document.createElement('a')));
-      it.skip(test('can call dataUrl()', 'btoa' in window));
+      it.skip(test('can call dataUrl()', Pablo.support.dataUrl));
     });
 
     describe('Alternative native APIs for download() URL creation', function(){
@@ -2434,29 +2435,29 @@
           });
         });
 
-        describe('.isHTMLDocument()', function () {
-          it('.isHTMLDocument(obj) should return true if the HTML document object is passed', function () {
-            expect(Pablo.isHTMLDocument(document)).to.equal(true);
+        describe('.isDocument()', function () {
+          it('.isDocument(obj) should return true if the HTML document object is passed', function () {
+            expect(Pablo.isDocument(document)).to.equal(true);
           });
 
-          it('.isHTMLDocument(obj) should return false if a NodeList is passed', function () {
-            expect(Pablo.isHTMLDocument(Pablo('#test-subjects')[0].childNodes)).to.equal(false);
+          it('.isDocument(obj) should return false if a NodeList is passed', function () {
+            expect(Pablo.isDocument(Pablo('#test-subjects')[0].childNodes)).to.equal(false);
           });
 
-          it('.isHTMLDocument(obj) should return false if a SVGElement is passed', function () {
-            expect(Pablo.isHTMLDocument(Pablo.circle()[0])).to.equal(false);
+          it('.isDocument(obj) should return false if a SVGElement is passed', function () {
+            expect(Pablo.isDocument(Pablo.circle()[0])).to.equal(false);
           });
 
-          it('.isHTMLDocument(obj) should return false if a HTMLElement is passed', function () {
-            expect(Pablo.isHTMLDocument(document.createElement('a'))).to.equal(false);
+          it('.isDocument(obj) should return false if a HTMLElement is passed', function () {
+            expect(Pablo.isDocument(document.createElement('a'))).to.equal(false);
           });
 
-          it('.isHTMLDocument(obj) should return false if a jQueryCollection is passed', function () {
-            expect(Pablo.isHTMLDocument(jQuery('body'))).to.equal(false);
+          it('.isDocument(obj) should return false if a jQueryCollection is passed', function () {
+            expect(Pablo.isDocument(jQuery('body'))).to.equal(false);
           });
 
-          it('.isHTMLDocument(obj) should return false if a generic object is passed', function () {
-            expect(Pablo.isHTMLDocument({})).to.equal(false);
+          it('.isDocument(obj) should return false if a generic object is passed', function () {
+            expect(Pablo.isDocument({})).to.equal(false);
           });
         });
 

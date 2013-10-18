@@ -10,7 +10,7 @@
 */
 /*jshint newcap:false */
 
-(function(window, Object, Array, Element, SVGElement, NodeList, HTMLDocument, document, XMLHttpRequest){
+(function(window, Object, Array, Element, SVGElement, NodeList, Document, document, XMLHttpRequest, DOMParser, XMLSerializer, atob, btoa, setTimeout, clearTimeout){
     'use strict';
     
     var /* SETTINGS */
@@ -25,7 +25,8 @@
         svgDataUrlPrefix = 'data:image/svg+xml;base64,',
 
         head, testElement, arrayProto, support, hyphensToCamelCase, 
-        camelCaseToHyphens, markupToSvgElement, cache, cacheNextId, matchesProp, Events,
+        camelCaseToHyphens, markupToSvgElement, dataUrlToSvgMarkup, 
+        cache, cacheNextId, matchesProp, Events,
         cssClassApi, pabloCollectionApi, classlistMethod, cssPrefixes;
 
     
@@ -68,7 +69,7 @@
 
     if (!(
         testElement && head && arrayProto && matchesProp &&
-        Element && SVGElement && NodeList && HTMLDocument && 
+        Element && SVGElement && NodeList && Document && 
         'createSVGRect' in testElement &&
         'attributes' in testElement &&
         'querySelectorAll' in testElement &&
@@ -101,7 +102,7 @@
 
     support = (function(){
         var createCanvas = 'getContext' in document.createElement('canvas'),
-            dataUrl = 'btoa' in window,
+            dataUrl = !!(atob && btoa),
             svgImage = dataUrl,
             canvas = svgImage && createCanvas,
             imageTypes = ['png', 'jpeg'],
@@ -189,15 +190,15 @@
     }
 
     function isElementOrDocument(el){
-        return isElement(el) || isHTMLDocument(el);
+        return isElement(el) || isDocument(el);
     }
     
     function isNodeList(obj){
         return obj instanceof NodeList;
     }
     
-    function isHTMLDocument(obj){
-        return obj instanceof HTMLDocument;
+    function isDocument(obj){
+        return obj instanceof Document;
     }
 
     // Check if obj is an element from this or another document
@@ -214,7 +215,7 @@
             isPablo(obj) ||
             isElement(obj) ||
             isNodeList(obj) ||
-            isHTMLDocument(obj) ||
+            isDocument(obj) ||
             Array.isArray(obj) ||
             isArrayLike(obj) ||
             hasSvgNamespace(obj);
@@ -384,7 +385,7 @@
             var svgdoc, target;
 
             if (!parser){
-                parser = new window.DOMParser();
+                parser = new DOMParser();
                 suffix = '</svg>';
                 // Add a <g> to a <svg> to ensure the <svg> is not self-closing
                 prefix = Pablo.svg().append(Pablo.g()).markup().replace(/<g.*/, '');
@@ -398,9 +399,15 @@
         };
     }());
 
-    function dataUrlToSvgMarkup(dataUrl){
-        return window.atob(dataUrl.slice(svgDataUrlPrefix.length));
-    }
+    dataUrlToSvgMarkup = support.dataUrl ?
+        function(dataUrl){
+            return atob(dataUrl.slice(svgDataUrlPrefix.length));
+        } :
+
+        function(){
+            return '';
+        };
+    
 
     // Data cache
     cache = {};
@@ -463,7 +470,7 @@
         },
         
         eq: function(index){
-            return index >= 0 ?
+            return index !== -1 ?
                 // Return zero-indexed node
                 Pablo(this[index]) :
                 // Return node, counting backwards from end of elements array
@@ -501,8 +508,8 @@
                 for (i=0; i<numNodes; i++){
                     node = nodes[i];
 
-                    // An SVG or HTML element, or HTML document
-                    if (isElement(node) || isHTMLDocument(node) || hasSvgNamespace(node)){
+                    // An SVG or HTML element, or document
+                    if (isElement(node) || isDocument(node) || hasSvgNamespace(node)){
                         // Add element, if it is not already in the collection
                         if (arrayProto.indexOf.call(this, node) === -1){
                             arrayProto[prepend ? 'unshift' : 'push'].call(this, node);
@@ -517,18 +524,19 @@
                         toAdd = node.collection || node;
                     }
 
-                    // A string outside of an array - either CSS selector, //
+                    // A string outside of an array - either CSS selector,
                     // SVG markup or dataUrl
                     else if (typeof node === 'string'){
-                        // data URL
-                        if (node.indexOf(svgDataUrlPrefix) === 0){
-                            toAdd = markupToSvgElement(dataUrlToSvgMarkup(node));
+                        // SVG markup
+                        // Detect `<` as the first non-whitespace character
+                        // Check indexOf() first, for performance
+                        if (node.indexOf('<') !== -1 && openTag.test(node)){
+                            toAdd = markupToSvgElement(node);
                         }
 
-                        // SVG markup
-                        // If `<` is the first non-whitespace character
-                        else if (openTag.test(node)){
-                            toAdd = markupToSvgElement(node);
+                        // Data URL
+                        else if (node.indexOf(svgDataUrlPrefix) === 0){
+                            toAdd = markupToSvgElement(dataUrlToSvgMarkup(node));
                         }
 
                         // CSS selector
@@ -892,7 +900,7 @@
                     pos = (' ' + transformAttr).indexOf(' ' + functionName + '(');
 
                     // Function name already present
-                    if (pos >= 0){
+                    if (pos !== -1){
                         transformAttrEnd = transformAttr.slice(pos);
                         // End position for the function
                         posEnd = transformAttrEnd.indexOf(')');
@@ -1097,6 +1105,10 @@
         },
 
         crop: function(to){
+            if (to && canBeWrapped(to)){
+                to = toPablo(to);
+            }
+
             return this.each(function(el){
                 var node, bbox;
 
@@ -1150,7 +1162,7 @@
                     markup;
 
                 if (!serializer){
-                    serializer = new window.XMLSerializer();
+                    serializer = new XMLSerializer();
                 }
 
                 if (asCompleteFile){
@@ -1226,7 +1238,7 @@
                         t = this.collection.getValue(this.options.t, this.i);
                     }
 
-                    this.ref = window.setTimeout(function(){
+                    this.ref = setTimeout(function(){
                         ctrl.next();
                     }, t);
 
@@ -1288,7 +1300,7 @@
                         ctrl = this;
                         this.active = true;
 
-                        this.ref = window.setTimeout(function(){
+                        this.ref = setTimeout(function(){
                             // Make 'start' asynchronous, to allow binding to 
                             // 'start' event and chaining of methods before start
                             ctrl.trigger('start');
@@ -1302,7 +1314,7 @@
                 stop: function(){
                     if (this.active){
                         this.active = false;
-                        window.clearTimeout(this.ref);
+                        clearTimeout(this.ref);
                         this.trigger('stop');
                     }
                     return this;
@@ -1413,7 +1425,7 @@
                         }
                         markup = target.markup();
 
-                        dataUrl = svgDataUrlPrefix + window.btoa(markup);
+                        dataUrl = svgDataUrlPrefix + btoa(markup);
 
                         if (callback){
                             callback.call(collection, dataUrl);
@@ -2383,7 +2395,7 @@
                         classString = node.attr('class');
 
                     return classString && (' ' + classString + ' ')
-                        .indexOf(' ' + value + ' ') >= 0;
+                        .indexOf(' ' + value + ' ') !== -1;
                 }, this);
             },
 
@@ -2492,7 +2504,7 @@
         isSVGElement: isSVGElement,
         hasSvgNamespace: hasSvgNamespace,
         isNodeList: isNodeList,
-        isHTMLDocument: isHTMLDocument,
+        isDocument: isDocument,
         // isPablo is overwritten in functional.js extension
         isPablo: isPablo,
         extend: extend,
@@ -2618,7 +2630,13 @@
     this.Element,
     this.SVGElement,
     this.NodeList,
-    this.HTMLDocument,
+    this.Document,
     this.document,
-    this.XMLHttpRequest
+    this.XMLHttpRequest,
+    this.DOMParser,
+    this.XMLSerializer,
+    this.atob,
+    this.btoa,
+    this.setTimeout,
+    this.clearTimeout
 ));
