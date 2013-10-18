@@ -1416,6 +1416,11 @@
                     var collection = this,
                         target, markup, dataUrl;
 
+                    if (!callback && typeof type === 'function'){
+                        callback = type;
+                        type = null;
+                    }
+
                     if (!type || type === 'svg'){
                         if (this.length === 1 && this[0].nodeName === 'svg'){
                             target = this;
@@ -1476,6 +1481,11 @@
                         img = Pablo(el),
                         bbox = this.bbox();
 
+                    if (!callback && typeof type === 'function'){
+                        callback = type;
+                        type = null;
+                    }
+
                     this.dataUrl(type, function(dataUrl){
                         if (dataUrl){
                             // If no dimensions, then give the image zero
@@ -1531,6 +1541,11 @@
                 function(callback, canvas){
                     var collection = this,
                         svgImage, doCanvasResize;
+
+                    if (!canvas && typeof callback === 'object'){
+                        canvas = callback;
+                        callback = null;
+                    }
 
                     doCanvasResize = !canvas;
                     canvas = toPablo(canvas || document.createElement('canvas'));

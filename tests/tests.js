@@ -2537,46 +2537,44 @@
       });
 
       describe('.removeData()', function () {
-        it('.removeData() should remove all the key and value associated with the PabloCollection', function () {
-          var subject = Pablo.rect();
-          subject.data('foo', 'bar');
-          subject.data('fiz', 'buz');
-          
-          expect(subject.data('foo')).to.equal('bar');
-          expect(subject.data('fiz')).to.equal('buz');
+        it('.removeData() should remove all data associated with each element in the collection', function () {
+          var subject = Pablo([
+            Pablo.rect(),
+            Pablo.svg()
+          ]);
+
+          subject.data({
+            foo: 'bar',
+            fiz: 123
+          });
+
+          subject.each(function(el){
+            var collection = Pablo(el);
+            expect(collection.data('foo')).to.equal('bar');
+            expect(collection.data('fiz')).to.equal(123);
+          });
 
           subject.removeData();
 
-          expect(subject.data('foo')).to.equal(undefined);
-          expect(subject.data('fiz')).to.equal(undefined);
+          subject.each(function(el){
+            var collection = Pablo(el);
+            expect(collection.data('foo')).to.equal(undefined);
+            expect(collection.data('fiz')).to.equal(undefined);
+          });
         });
 
-        it('.removeData([keys]) should remove the key and value associated with the PabloCollection', function () {
+        it('.removeData(key) should remove the key from the data associated with each element in the collection', function () {
           var subject = Pablo.rect();
-          subject.data('foo', 'bar');
-          subject.data('fiz', 'buz');
           
-          expect(subject.data('foo')).to.equal('bar');
-          expect(subject.data('fiz')).to.equal('buz');
+          subject.data({
+            foo: 'bar',
+            fiz: 123
+          });
 
           subject.removeData('foo');
 
           expect(subject.data('foo')).to.equal(undefined);
-          expect(subject.data('fiz')).to.equal('buz');
-        });
-
-        it('.removeData([keys]) multiple keys should remove the keys and values associated with the PabloCollection', function () {
-          var subject = Pablo.rect();
-
-          subject.data('foo', 'bar');
-          subject.data('fiz', 'buz');
-          subject.data('zip', 'zap');
-
-          subject.removeData('foo fiz');
-
-          expect(subject.data('foo')).to.equal(undefined);
-          expect(subject.data('fiz')).to.equal(undefined);
-          expect(subject.data('zip')).to.equal('zap');
+          expect(subject.data('fiz')).to.equal(123);
         });
       });
 
@@ -3447,6 +3445,16 @@
           testImage(subject1);
           testImage(subject2);
         });
+
+        it('.toImage(callback) calls callback with "svg" as the default image type',
+          function(done){
+            subject1.toImage(function(img){
+              var dataUrl = img.attr('src');
+              expect(dataUrl.indexOf('data:image/svg+xml')).to.equal(0);
+              done();
+            });
+          }
+        );
       }
 
       // No support for toImage('svg')
