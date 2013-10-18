@@ -1503,20 +1503,14 @@
                                     width: 0,
                                     height: 0
                                 });
+                            }
 
-                                if (callback){
+                            if (callback){
+                                img.one('load', function(){
                                     callback.call(collection, img);
-                                }
+                                });
                             }
-
-                            else {
-                                if (callback){
-                                    img.one('load', function(){
-                                        callback.call(collection, img);
-                                    });
-                                }
-                                el.src = dataUrl;
-                            }
+                            el.src = dataUrl;
                         }
 
                         // Error: couldn't create dataUrl
