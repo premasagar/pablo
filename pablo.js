@@ -401,7 +401,9 @@
 
     dataUrlToSvgMarkup = support.dataUrl ?
         function(dataUrl){
-            return atob(dataUrl.slice(svgDataUrlPrefix.length));
+            var data = dataUrl.slice(svgDataUrlPrefix.length);
+            // See https://developer.mozilla.org/en-US/docs/Web/API/window.btoa#Unicode_Strings for use of decodeURIComponent and escape
+            return decodeURIComponent(escape(atob(data)));
         } :
 
         function(){
@@ -1414,7 +1416,7 @@
             dataUrl: support.dataUrl ?
                 function(type, callback){
                     var collection = this,
-                        target, markup, dataUrl;
+                        target, markup, data, dataUrl;
 
                     if (!callback && typeof type === 'function'){
                         callback = type;
@@ -1430,7 +1432,9 @@
                         }
                         markup = target.markup();
 
-                        dataUrl = svgDataUrlPrefix + btoa(markup);
+                        // See https://developer.mozilla.org/en-US/docs/Web/API/window.btoa#Unicode_Strings for use of encodeURIComponent and unescape
+                        data = btoa(unescape(encodeURIComponent(markup)));
+                        dataUrl = svgDataUrlPrefix + data;
 
                         if (callback){
                             callback.call(collection, dataUrl);
