@@ -10,24 +10,16 @@
 */
 /*jshint newcap:false */
 
-(function(window, Object, Array, Element, SVGElement, NodeList, Document, document, XMLHttpRequest, DOMParser, XMLSerializer, atob, btoa, setTimeout, clearTimeout){
+(function(window, Object, Array, Element, SVGElement, NodeList, Document, HTMLDocument, document, navigator, XMLHttpRequest, DOMParser, XMLSerializer, atob, btoa, setTimeout, clearTimeout){
     'use strict';
     
     var /* SETTINGS */
-        pabloVersion = '0.3.6',
+        pabloVersion = '0.3.7',
         svgVersion = 1.1,
         svgns = 'http://www.w3.org/2000/svg',
-        xlinkns = 'http://www.w3.org/1999/xlink',
         vendorPrefixes = ['', 'moz', 'webkit', 'khtml', 'o', 'ms'],
-        svgElementNames = 'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop style svg switch symbol text textPath title tref tspan use view vkern',
-        cacheExpando = 'pablo-data',
-        eventsNamespace = '__events__',
-        svgDataUrlPrefix = 'data:image/svg+xml;base64,',
 
-        head, testElement, arrayProto, support, hyphensToCamelCase, 
-        camelCaseToHyphens, markupToSvgElement, dataUrlToSvgMarkup, 
-        cache, cacheNextId, matchesProp, Events,
-        cssClassApi, pabloCollectionApi, classlistMethod, cssPrefixes;
+        head, testElement, arrayProto, matchesProp, userAgent, camelCase;
 
     
     function make(elementName){
@@ -36,23 +28,65 @@
             null;
     }
 
-    function getPrefixedProperty(prop, context){
-        var capitalized = prop.slice(0,1).toUpperCase() + prop.slice(1),
-            found;
+    // Browser detection - based on jquery-migrate-1.2.1.js & http://stackoverflow.com/questions/17907445/how-to-detect-ie11
+    userAgent = (function(){
+        var ua = navigator.userAgent.toLowerCase(),
+            match = /((webkit))[ \/]([\w.]+)/.exec(ua) ||
+                    /((o)pera)(?:.*version|)[ \/]([\w.]+)/.exec(ua) ||
+                    /((Trident))(?:.*? rv:([\w.]+)|)/.exec(ua) ||
+                    /((ms)ie) ([\w.]+)/i.exec(ua) ||
+                    ua.indexOf("compatible") < 0 &&
+                        /((moz)illa)(?:.*? rv:([\w.]+)|)/.exec(ua),
+            name, prefix, version;
 
-        if (!context){
-            context = window;
-        }
-        vendorPrefixes.some(function(prefix){
-            var prefixedProp = prefix ? prefix + capitalized : prop;
-            if (prefixedProp in context){
-                found = prefixedProp;
-                return true;
+        if (match){
+            name = match[1];
+            prefix = match[2];
+            version = match[3];
+
+            // IE 10+
+            if (name === 'Trident'){
+                name = 'msie';
+                prefix = 'ms';
             }
-        });
-        return found;
-    }
+        }
 
+        return {
+            name: name || '',
+            version: version || '0',
+            prefix: prefix || '',
+            cssPrefix: prefix ? '-' + prefix + '-' : ''
+        };
+    }());
+
+    // e.g. 'font-color' -> 'fontColor'
+    // if `upperFirst === true` -> 'FontColor'
+    camelCase = (function(){
+        var uppercaseAfterHyphens = /^-|(?!^)-([a-z])/g,
+            uppercaseFirstAndHyphens = /(?:^|-)([a-z])/g;
+
+        return function (str, upperFirst){
+            var pattern = upperFirst ?
+                uppercaseFirstAndHyphens : uppercaseAfterHyphens;
+
+            return str.replace(pattern, function(match, letter){
+                return letter && letter.toUpperCase() || '';
+            });
+        };
+    }());
+
+    function findPrefixedProperty(prop, context){
+        var prefixed;
+
+        if (prop in context){
+            return prop;
+        }
+
+        prefixed = userAgent.prefix + camelCase(prop, true);
+        if (prefixed in context){
+            return prefixed;
+        }
+    }
 
     /////
 
@@ -63,8 +97,8 @@
         testElement = 'createElementNS' in document && make('svg');
         head = document.head || document.getElementsByTagName('head')[0];
         arrayProto = Array && Array.prototype;
-        matchesProp = getPrefixedProperty('matches', testElement) ||
-            getPrefixedProperty('matchesSelector', testElement);
+        matchesProp = findPrefixedProperty('matches', testElement) ||
+            findPrefixedProperty('matchesSelector', testElement);
     }
 
     if (!(
@@ -89,16 +123,34 @@
         // Incompatible environment
         // Set `Pablo` to be a simple reference object
         window.Pablo = {
-            v: pabloVersion,
-            isSupported: false
+            version: pabloVersion,
+            isSupported: false,
+            userAgent: userAgent
         };
 
         // Exit the script
         return;
     }
 
+    // Pablo not supported in this environment. Exit.
 
-    /////
+
+    ////////////////////////////////////////////////////
+
+
+(function(){
+    var svgElementNames = 'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop style svg switch symbol text textPath title tref tspan use view vkern',
+        htmlns = 'http://www.w3.org/1999/xhtml',
+        xlinkns = 'http://www.w3.org/1999/xlink',
+        svgMimeType = 'image/svg+xml',
+        svgDataUrlPrefix = 'data:' + svgMimeType + ';base64,',
+        cacheExpando = 'pablo-data',
+        eventsNamespace = '__events__',
+        support, hyphenate,
+        resolveCssProperty, markupToSvgElement, dataUrlToSvgMarkup,
+        cache, cacheNextId, Events,
+        cssClassApi, classlistMethod,
+        pabloCollectionApi;
 
     support = (function(){
         var createCanvas = 'getContext' in document.createElement('canvas'),
@@ -138,10 +190,6 @@
 
         return support;
     }());
-
-    cssPrefixes = vendorPrefixes.map(function(prefix){
-        return prefix ? '-' + prefix + '-' : '';
-    });
 
     
     /////
@@ -198,12 +246,17 @@
     }
     
     function isDocument(obj){
-        return obj instanceof Document;
+        // Check constructors rather than `obj instanceof Document` for Opera 12.16
+        return obj && (obj.constructor === Document || obj.constructor === HTMLDocument);
     }
 
     // Check if obj is an element from this or another document
     function hasSvgNamespace(obj){
         return !!(obj && obj.namespaceURI === svgns);
+    }
+
+    function hasHtmlNamespace(obj){
+        return !!(obj && obj.namespaceURI === htmlns);
     }
     
     function isSVGElement(obj){
@@ -310,71 +363,63 @@
             return el.removeAttributeNS(attrNS[0], attrNS[1]);
         }
     }
-
-    // Return CSS styles with browser vendor prefixes
-
-    // e.g. cssPrefix({transform:'rotate(45deg)'}) returns an object containing 
-    // the original rule, plus vendor-prefixed versions of it - see vendorPrefixes
-    
-    // e.g. cssPrefix('transform', 'rotate(45deg)') returns a string of prefixed
-    // CSS properties, each assigned the same value
-    
-    // e.g. cssPrefix('transform') returns a string of prefixed CSS properties
-    function cssPrefix(styles, value){
-        var prop, res, rule, setStyle;
-        
-        if (typeof styles === 'object'){
-            res = {};
-            setStyle = function(prefix){
-                res[prefix + styleProperty] = styles[styleProperty];
-            };
-            for (var styleProperty in styles){
-                if (styles.hasOwnProperty(styleProperty)){
-                    cssPrefixes.forEach(setStyle);
-                }
-            }
-        }
-
-        else if (typeof styles === 'string'){
-            prop = styles;
-
-            // e.g. cssPrefix('transform') returns 'transform,-webkit-transform,...'
-            // useful for adding prefixed properties when setting active properties in a CSS transition
-            if (typeof value === 'undefined'){
-                res = cssPrefixes.join(prop + ',') + prop;
-            }
-
-            // e.g. cssPrefix('transform', 'rotate(45deg)') returns
-            // 'transform:rotate(45deg);-webkit-transform:rotate(45deg);...'
-            else {
-                rule = prop + ':' + value + ';';
-                res = cssPrefixes.join(rule) + rule;
-            }
-        }
-        return res;
-    }
-    
-    // e.g. 'font-color' -> 'fontColor'
-    hyphensToCamelCase = (function(){
-        var firstLetter = /-([a-z])/g;
-
-        return function (str){
-            return str.replace(firstLetter, function(match, letter){
-                return letter.toUpperCase();
-            });
-        };
-    }());
     
     // e.g. 'fontColor' -> 'font-color'
     // NOTE: does not check for blank spaces within multiple words, e.g. 'font Color'.
     // To achieve that, use `capitalLetters = /\s*[A-Z]/g` and `letter.trim().toLowerCase()`
-    camelCaseToHyphens = (function(){
-        var capitalLetters = /[A-Z]/g;
+    hyphenate = (function(){
+        var capitalLetters = /(^|.)([A-Z])/g;
 
-        return function (str){
-            return str.replace(capitalLetters, function(letter){
-                return '-' + letter.toLowerCase();
+        function convertCapitalLetter(match, preceding, letter){
+            return (preceding ? preceding + '-' : '') +
+                letter.toLowerCase();
+        }
+
+        return function(str, leadingHyphen){
+            return (leadingHyphen ? '-' : '') +
+                str.replace(capitalLetters, convertCapitalLetter);
+        };
+    }());
+
+    resolveCssProperty = (function(){
+        var styleDictionary = {},
+            elements = [make('svg'), document.createElement('a')];
+        
+            elements.forEach(function(el){
+                var style = el.style,
+                    prop;
+
+                for (prop in style){
+                    if (!(prop in styleDictionary) && typeof style[prop] !== 'function'){
+                        styleDictionary[prop] = prop;
+                    }
+                }
             });
+
+        return function(prop){
+            var resolvedProp, testProp;
+
+            resolvedProp = styleDictionary[prop];
+            if (resolvedProp){
+                return resolvedProp;
+            }
+
+            testProp = camelCase(prop);
+            resolvedProp = styleDictionary[testProp];
+
+            if (!resolvedProp && userAgent.prefix){
+                testProp = userAgent.prefix + camelCase(testProp, true);
+                resolvedProp = styleDictionary[testProp];
+
+                if (!resolvedProp){
+                    testProp = camelCase(testProp);
+                    resolvedProp = styleDictionary[testProp];
+                }
+            }
+            if (resolvedProp){
+                styleDictionary[testProp] = styleDictionary[prop] = resolvedProp;
+                return resolvedProp;
+            }
         };
     }());
 
@@ -447,7 +492,7 @@
             }
         }
     }
-    pabloCollectionApi = PabloCollection.prototype = [];
+    pabloCollectionApi = PabloCollection.prototype = extend({length:0}, arrayProto);
 
     extend(pabloCollectionApi, {
         constructor: PabloCollection,
@@ -870,9 +915,6 @@
 
                     case 'css':
                     return Pablo(el).css(property);
-
-                    case 'cssPrefix':
-                    return Pablo(el).cssPrefix(property);
                 }
             });
         },
@@ -951,60 +993,122 @@
             }, this);
         },
 
-        css: function(styles, value){
-            var el, styleProperty;
+        css: (function(){
+            var resolvedTransition = resolveCssProperty('transition'),
+                resolvedTransitionProperty = resolveCssProperty('transition-property'),
+                // Regex matches 'opacity' & 'transform' in, e.g.
+                // 'opacity, transform 1s ease-in'
+                propertiesRegex = /(^\s*|\s*,\s*)(-?[a-z][a-z0-9_\-]*)+/ig,
+                transitionKeywords = ['all', 'none', 'initial'];
 
-            if (typeof styles === 'string'){
-                // Get style
-                if (typeof value === 'undefined'){
-                    el = this[0];
-                    return el && 'style' in el && el.style.getPropertyValue(styles);
-                    // or document.defaultView.getComputedStyle(el, null).getPropertyValue(styles);
+            function prefixTransitionProperties(transitionValue){
+                var ret = '',
+                    lastIndex = 0,
+                    matches = propertiesRegex.exec(transitionValue),
+                    prop, resolvedProp, camelCaseName, delimiter, isPrefixed;
+
+                while(matches){
+                    delimiter = matches[1];
+                    prop = matches[2];
+                    resolvedProp = null;
+
+                    // Transition property keyword used
+                    if (transitionKeywords.indexOf(prop) !== -1){
+                        resolvedProp = prop;
+                    }
+                    else {
+                        camelCaseName = resolveCssProperty(prop);
+                        if (camelCaseName){
+                            isPrefixed = camelCaseName.toLowerCase().indexOf(userAgent.prefix) === 0;
+                            resolvedProp = hyphenate(camelCaseName, isPrefixed);
+                        }
+                    }
+                    ret += transitionValue.slice(lastIndex, matches.index);
+
+                    if (resolvedProp){
+                        ret += delimiter + resolvedProp;
+                    }
+
+                    lastIndex = propertiesRegex.lastIndex;
+                    matches = propertiesRegex.exec(transitionValue);
                 }
-
-                // Create styles object
-                styleProperty = styles;
-                styles = {};
-                styles[styleProperty] = value;
+                ret += transitionValue.slice(lastIndex);
+                return ret;
             }
 
-            return this.each(function(el, i){
-                var style = el.style,
-                    prop, value;
-                
+            // Adapt properties for vendor-prefixed variations
+            // Remove invalid properties
+            // TODO: Should each type of element have its own style dictionary?
+            function verifyStyles(styles){
+                var prop, resolvedProp;
+
                 for (prop in styles){
                     if (styles.hasOwnProperty(prop)){
-                        value = this.getValue(styles[prop], i);
-                        style.setProperty(prop, value, '');
+                        resolvedProp = resolveCssProperty(prop);
+
+                        if (prop !== resolvedProp){
+                            if (resolvedProp){
+                                styles[resolvedProp] = styles[prop];
+                            }
+                            delete styles[prop];
+                        }
                     }
                 }
-            }, this);
-        },
+            }
 
-        // Add prefixed CSS styles to elements in collection
-        cssPrefix: function(styles, value){
-            var styleProperty;
+            return function(styles, value){
+                var el, styleObj, styleProperty, prop, resolvedProp;
 
-            if (typeof styles === 'string'){
-                if (typeof value === 'undefined'){
-                    // Get list of vendor-prefixed versions of the property
-                    // e.g. `transform,-moz-transform,-webkit-transform`
-                    cssPrefix(styles).split(',')
-                        // Find the first defined value and return
-                        .some(function(prefixedStyleProperty){
-                            value = this.css(prefixedStyleProperty);
-                            return value;
-                        }, this);
-                    return value;
-                }
-                else {
+                if (typeof styles !== 'object'){
+                    if (typeof value === 'undefined'){
+                        el = this[0];
+                        styleObj = el && el.style;
+
+                        // No parameters; get all styles
+                        if (!styles){
+                            return styleObj || {};
+                        }
+
+                        // Get named style
+                        resolvedProp = styleObj && resolveCssProperty(styles);
+                        return resolvedProp && styleObj[resolvedProp];
+                        // or document.defaultView.getComputedStyle(el, null).getPropertyValue(styles);
+                    }
+
+                    // Set named value
                     // Create styles object
                     styleProperty = styles;
                     styles = {};
                     styles[styleProperty] = value;
                 }
-            }
-            return this.css(cssPrefix(styles));
+
+                verifyStyles(styles);
+
+                // No styles left after invalid properties removed, exit
+                if (!Object.keys(styles).length){
+                    return this;
+                }
+
+                return this.each(function(el, i){
+                    var styleObj = el.style,
+                        prop, value;
+                    
+                    for (prop in styles){
+                        if (styles.hasOwnProperty(prop)){
+                            value = this.getValue(styles[prop], i);
+
+                            if (prop === resolvedTransition || prop === resolvedTransitionProperty){
+                                value = prefixTransitionProperties(value);
+                            }
+                            styleObj[prop] = value;
+                        }
+                    }
+                }, this);
+            };
+        }()),
+
+        cssPrefix: function(){
+            throw 'cssPrefix() deprecated. Use css() instead.';
         },
 
 
@@ -1497,16 +1601,14 @@
                             // The bbox() check is made to prevent empty <svg> 
                             // elements creating an image with the browser's
                             // default dimenstions for an empty <svg> element
-                            // (seen in Chrome 32 & FF24)
-                            if (!bbox.width && !bbox.height){
+                            // (seen in Chrome 32, Firefox 24 & Opera 12.16
+                            if (bbox.width <= 0 || bbox.height <= 0){
                                 // TODO: Currently, the bbox() call is made for 
-                                // all types of elements, not just <svg> elements, as a 
-                                // precaution. If no other elements need this check, then
-                                // only call bbox() when the collection is a <svg> element
-                                img.attr({
-                                    width: 0,
-                                    height: 0
-                                });
+                                // all types of elements, not just <svg> elements,
+                                // as a precaution. If no other elements need this
+                                // check, then only call bbox() when the collection
+                                // is a <svg> element
+                                el.width = el.height = 0;
                             }
 
                             if (callback){
@@ -1565,9 +1667,9 @@
                             ctx.drawImage(img[0], 0, 0, width, height);
                         }
 
-                        // HACK for Safari 6.0.5
+                        // HACK for Safari 6.0.5 & Opera 12.16
                         this.detach();
-                        // end HACK for Safari 6.0.5
+                        // end HACK
 
                         if (callback){
                             callback.call(collection, canvas);
@@ -1575,14 +1677,14 @@
                     });
 
                     if (!svgImage[0].complete){
-                        // HACK for Safari 6.0.5
+                        // HACK for Safari 6.0.5 & Opera 12.16
                         svgImage.css({
                                 visibility: 'hidden',
                                 position: 'absolute',
                                 top: '-99999px'
                             })
-                            .appendTo('body');
-                        // end HACK for Safari 6.0.5
+                            .appendTo(document.body);
+                        // end HACK
                     }
 
                     return canvas;
@@ -2495,11 +2597,13 @@
     
     // Pablo methods
     extend(Pablo, {
-        v: pabloVersion,
+        version: pabloVersion,
         isSupported: true,
         support: support,
+        userAgent: userAgent,
         ns: {
             svg: svgns,
+            html: htmlns,
             xlink: xlinkns
         },
         svgVersion: svgVersion,
@@ -2525,17 +2629,11 @@
         setAttribute: setAttribute,
         removeAttribute: removeAttribute,
         canBeWrapped: canBeWrapped,
-        hyphensToCamelCase: hyphensToCamelCase,
-        camelCaseToHyphens: camelCaseToHyphens,
-
-        // vendor prefixes
-        vendorPrefixes: vendorPrefixes,
+        camelCase: camelCase,
+        hyphenate: hyphenate,
+        findPrefixedProperty: findPrefixedProperty,
+        resolveCssProperty: resolveCssProperty,
         svgElementNames: svgElementNames,
-        cssPrefixes: cssPrefixes,
-        getPrefixedProperty: getPrefixedProperty,
-        cssPrefix: cssPrefix,
-            // e.g. Pablo('svg').style().content('#foo{' + Pablo.cssPrefix('transform', 'rotate(45deg)') + '}');
-            // e.g. myElement.css({'transition-property': Pablo.cssPrefix('transform')});
 
         // data
         // TODO: should `Pablo.cache` & `.data()` be removed, to keep cache private?
@@ -2593,7 +2691,7 @@
     // SVG ELEMENT METHODS
     svgElementNames.split(' ')
         .forEach(function(nodeName){
-            var camelCase = hyphensToCamelCase(nodeName),
+            var camelCaseName = camelCase(nodeName),
                 createElement = function(attr){
                     return Pablo(make(nodeName), attr);
                 };
@@ -2610,7 +2708,7 @@
                     Object.keys(Pablo.ns).forEach(function(ns){
                         // There's no need to add `xmlns:svg`, as this is already
                         // provided by the plain `xmlns` attribute
-                        if (ns !== 'svg'){
+                        if (ns !== 'svg' && ns !== 'html'){
                             attr['xmlns:' + ns] = Pablo.ns[ns];
                         }
                     });
@@ -2624,8 +2722,8 @@
             Pablo.template(nodeName, createElement);
 
             // Create methods aliases to allow camelCase element name
-            Pablo[camelCase] = Pablo[nodeName];
-            pabloCollectionApi[camelCase] = pabloCollectionApi[nodeName];
+            Pablo[camelCaseName] = Pablo[nodeName];
+            pabloCollectionApi[camelCaseName] = pabloCollectionApi[nodeName];
         });
 
     
@@ -2633,6 +2731,8 @@
     
     // Set as a global variable
     window.Pablo = Pablo;
+
+}());
 
 }(
     this,
@@ -2642,7 +2742,9 @@
     this.SVGElement,
     this.NodeList,
     this.Document,
+    this.HTMLDocument,
     this.document,
+    this.navigator,
     this.XMLHttpRequest,
     this.DOMParser,
     this.XMLSerializer,
