@@ -1111,6 +1111,144 @@
             throw 'cssPrefix() deprecated. Use css() instead.';
         },
 
+        transition: function(transition, duration){
+            var collection = this,
+                prop;
+
+            function durationsToStrings(durations){
+                return durations.map(function(duration){
+                    return duration / 1000 + 's';
+                });
+            }
+
+            function updateCss(properties, values){
+                properties.forEach(function(property, i){
+                    var value = values[i % values.length];
+                    collection.css(property, value);
+                });
+            }
+
+            // e.g. transition(2000) to set the transition-duration
+            if (typeof transition === 'number'){
+                duration = transition;
+                return this.css('transition-duration', duration / 1000 + 's');
+            }
+            // e.g. transition([1000, 2000]) to set the transition-duration
+            else if (Array.isArray(transition) && typeof transition[0] === 'number'){
+                duration = durationsToStrings(transition).join(',');
+                return this.css('transition-duration', duration);
+            }
+
+            // e.g. transition('opacity') to set the transition-property
+            if (typeof transition === 'string' || typeof transition === 'function' || Array.isArray(transition)){
+                this.css('transition-property', transition);
+
+                if (typeof duration !== 'undefined'){
+                    this.transition(duration);
+                }
+                return this;
+            }
+
+            // e.g. transition({property:'opacity', dur:1000})
+            // e.g. transition({property:['opacity'], dur:[1000]})
+
+            // Convert each value into an array if not already
+            for (prop in transition){
+                if (transition.hasOwnProperty(prop)){
+                    if (!Array.isArray(transition[prop])){
+                        transition[prop] = [transition[prop]];
+                    }
+                }
+            }
+
+            if ('property' in transition){
+                this.css('transition-property', transition.property.join(','));
+            }
+            if ('dur' in transition){
+                this.css('transition-duration', durationsToStrings(transition.dur).join(','));
+            }
+            if ('timing' in transition){
+                this.css('transition-timing-function', transition.timing.join(','));
+            }
+            if ('delay' in transition){
+                this.css('transition-delay', transition.delay.join(','));
+            }
+            if ('end' in transition){
+                this.one('transitionend', transition.end);
+            }
+            if ('from' in transition){
+                updateCss(transition.property, transition.from);
+            }
+            if ('to' in transition){
+                window.setTimeout(function(){
+                    updateCss(transition.property, transition.to);
+                }, 4);
+            }
+            return this;
+        },
+
+        /*
+            .transition('opacity', 2000);
+            .transition('transform', ['translate(100px, 100px)', 1000])[0]
+            .transition({opacity: 2000});
+            .transition({opacity: [0.5, 2000]});
+            .transition({opacity: [0.5, 2000, 'ease-out']});
+            .transition({transform:['translate(100px, 100px)', 1000]});
+        */
+        xtransition: function(transitions, value){
+            var transitionValue = '',
+                collection = this,
+                prop, settings, to, duration, timing;
+
+            function updateCss(prop, value){
+                return function(){
+                    collection.css(prop, value);
+                };
+            }
+
+            if (typeof transitions === 'string' && typeof value !== 'undefined'){
+                prop = transitions;
+                transitions = {};
+                transitions[prop] = value;
+            }
+
+            for (prop in transitions){
+                to = timing = duration = null;
+                transitionValue += ', ' + prop;
+                settings = transitions[prop];
+
+                if (Array.isArray(settings)){
+                    if (typeof settings[1] === 'number'){
+                        to = settings[0];
+                        duration = settings[1];
+                        timing = settings[2];
+                    }
+                    else if (typeof settings[0] === 'number'){
+                        duration = settings[0];
+                        timing = settings[1];
+                    }
+                }
+                else {
+                    duration = settings;
+                }
+
+                duration = (duration / 1000) + 's';
+                transitionValue += ' ' + duration;
+
+                if (timing){
+                    transitionValue += ' ' + timing;
+                }
+
+                if (to !== null){
+                    window.setTimeout(updateCss(prop, to), 4);
+                }
+            }
+            
+            // Remove leading comma
+            transitionValue = transitionValue.slice(2);
+            return this.css('transition', transitionValue);
+        },
+
 
         // AJAX
         // Load SVG or HTML via Ajax and replace collection contents with it
