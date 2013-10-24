@@ -14,10 +14,9 @@
     'use strict';
     
     var /* SETTINGS */
-        pabloVersion = '0.3.7',
+        pabloVersion = '0.3.8',
         svgVersion = 1.1,
         svgns = 'http://www.w3.org/2000/svg',
-        vendorPrefixes = ['', 'moz', 'webkit', 'khtml', 'o', 'ms'],
 
         head, testElement, arrayProto, matchesProp, userAgent, camelCase;
 
@@ -1111,143 +1110,361 @@
             throw 'cssPrefix() deprecated. Use css() instead.';
         },
 
-        transition: function(transition, duration){
-            var collection = this,
-                prop;
 
-            function durationsToStrings(durations){
-                return durations.map(function(duration){
-                    return duration / 1000 + 's';
-                });
-            }
+        // ANIMATION
+        transition: (function(){
+            var params = ['property', 'dur', 'timing', 'delay', 'end', 'from', 'to'],
+                transitionEnd = 'transitionend mozTransitionEnd webkitTransitionEnd oTransitionEnd MSTransitionEnd';
 
-            function updateCss(properties, values){
+            function updateCss(collection, properties, values){
                 properties.forEach(function(property, i){
                     var value = values[i % values.length];
                     collection.css(property, value);
                 });
             }
 
-            // e.g. transition(2000) to set the transition-duration
-            if (typeof transition === 'number'){
-                duration = transition;
-                return this.css('transition-duration', duration / 1000 + 's');
-            }
-            // e.g. transition([1000, 2000]) to set the transition-duration
-            else if (Array.isArray(transition) && typeof transition[0] === 'number'){
-                duration = durationsToStrings(transition).join(',');
-                return this.css('transition-duration', duration);
-            }
+            function convertTransitionFormat(transition){
+                var ret = {},
+                    property, settings, duration, prop;
 
-            // e.g. transition('opacity') to set the transition-property
-            if (typeof transition === 'string' || typeof transition === 'function' || Array.isArray(transition)){
-                this.css('transition-property', transition);
+                // e.g. {opacity:1000}
+                for (property in transition){
+                    if (transition.hasOwnProperty(property)){
+                        // e.g. 1000 or {dur:1000, timing:'ease-in'}
+                        settings = transition[property];
 
-                if (typeof duration !== 'undefined'){
-                    this.transition(duration);
-                }
-                return this;
-            }
+                        if (typeof settings !== 'object' || Array.isArray(settings)){
+                            duration = settings;
+                            settings = {};
+                            settings.dur = duration;
+                        }
+                        
+                        settings.property = property;
 
-            // e.g. transition({property:'opacity', dur:1000})
-            // e.g. transition({property:['opacity'], dur:[1000]})
-
-            // Convert each value into an array if not already
-            for (prop in transition){
-                if (transition.hasOwnProperty(prop)){
-                    if (!Array.isArray(transition[prop])){
-                        transition[prop] = [transition[prop]];
+                        for (prop in settings){
+                            if (settings.hasOwnProperty(prop)){
+                                if (!(prop in ret)){
+                                    ret[prop] = [];
+                                }
+                                ret[prop].push(settings[prop]);
+                            }
+                        }
                     }
                 }
+
+                return ret;
             }
 
-            if ('property' in transition){
-                this.css('transition-property', transition.property.join(','));
-            }
-            if ('dur' in transition){
-                this.css('transition-duration', durationsToStrings(transition.dur).join(','));
-            }
-            if ('timing' in transition){
-                this.css('transition-timing-function', transition.timing.join(','));
-            }
-            if ('delay' in transition){
-                this.css('transition-delay', transition.delay.join(','));
-            }
-            if ('end' in transition){
-                this.one('transitionend', transition.end);
-            }
-            if ('from' in transition){
-                updateCss(transition.property, transition.from);
-            }
-            if ('to' in transition){
-                window.setTimeout(function(){
-                    updateCss(transition.property, transition.to);
-                }, 4);
-            }
-            return this;
-        },
+            return function(transition, duration){
+                var collection = this,
+                    prop, value, property;
 
-        /*
-            .transition('opacity', 2000);
-            .transition('transform', ['translate(100px, 100px)', 1000])[0]
-            .transition({opacity: 2000});
-            .transition({opacity: [0.5, 2000]});
-            .transition({opacity: [0.5, 2000, 'ease-out']});
-            .transition({transform:['translate(100px, 100px)', 1000]});
-        */
-        xtransition: function(transitions, value){
-            var transitionValue = '',
-                collection = this,
-                prop, settings, to, duration, timing;
-
-            function updateCss(prop, value){
-                return function(){
-                    collection.css(prop, value);
-                };
-            }
-
-            if (typeof transitions === 'string' && typeof value !== 'undefined'){
-                prop = transitions;
-                transitions = {};
-                transitions[prop] = value;
-            }
-
-            for (prop in transitions){
-                to = timing = duration = null;
-                transitionValue += ', ' + prop;
-                settings = transitions[prop];
-
-                if (Array.isArray(settings)){
-                    if (typeof settings[1] === 'number'){
-                        to = settings[0];
-                        duration = settings[1];
-                        timing = settings[2];
-                    }
-                    else if (typeof settings[0] === 'number'){
-                        duration = settings[0];
-                        timing = settings[1];
-                    }
+                // e.g. transition(2000) to set the transition-duration
+                if (typeof transition === 'number'){
+                    duration = transition;
+                    return this.css('transition-duration', duration + 'ms');
                 }
+                // e.g. transition([1000, 2000]) to set the transition-duration
+                else if (Array.isArray(transition) && typeof transition[0] === 'number'){
+                    duration = transition.join('ms,') + 'ms';
+                    return this.css('transition-duration', duration);
+                }
+
+                // e.g. transition('opacity') to set the transition-property
+                if (typeof transition === 'string' || typeof transition === 'function' || Array.isArray(transition)){
+                    this.css('transition-property', transition);
+
+                    if (typeof duration !== 'undefined'){
+                        this.transition(duration);
+                    }
+                    return this;
+                }
+
+                // e.g. transition({opacity:1000})
+                // e.g. transition({opacity:{dur:1000, timing:'ease-in'}})
+                if (Object.keys(transition).some(function(prop){
+                    return params.indexOf(prop) === -1;
+                })){
+                    transition = convertTransitionFormat(transition);
+                    this.transition(transition);
+                }
+
+                // e.g. transition({property:'opacity', dur:1000})
+                // e.g. transition({property:['opacity'], dur:[1000]})
                 else {
-                    duration = settings;
+                    // Convert each value into an array if not already
+                    for (prop in transition){
+                        if (transition.hasOwnProperty(prop)){
+                            if (!Array.isArray(transition[prop])){
+                                transition[prop] = [transition[prop]];
+                            }
+                        }
+                    }
+
+                    if ('property' in transition){
+                        this.css('transition-property', transition.property.join(','));
+                    }
+                    if ('dur' in transition){
+                        this.css('transition-duration', transition.dur.join('ms,') + 'ms');
+                    }
+                    if ('timing' in transition){
+                        this.css('transition-timing-function', transition.timing.join(','));
+                    }
+                    if ('delay' in transition){
+                        this.css('transition-delay', transition.delay.join(','));
+                    }
+                    if ('end' in transition){
+                        this.off(transitionEnd)
+                            .on(transitionEnd, function(event){
+                                transition.end.some(function(callback, i){
+                                    if ('property' in transition){
+                                        property = transition.property[i % transition.property.length];
+
+                                        if (event.propertyName === property){
+                                            callback.call(this, event);
+                                            return true;
+                                        }
+                                    }
+                                    else {
+                                        callback.call(this, event);
+                                    }
+                                }, this);
+                            });
+                    }
+                    if ('from' in transition){
+                        updateCss(this, transition.property, transition.from);
+                    }
+                    if ('to' in transition){
+                        window.setTimeout(function(){
+                            updateCss(collection, transition.property, transition.to);
+                        }, 4);
+                    }
                 }
 
-                duration = (duration / 1000) + 's';
-                transitionValue += ' ' + duration;
+                return this;
+            };
+        }()),
 
-                if (timing){
-                    transitionValue += ' ' + timing;
-                }
+        stagger: (function(){
+            function Options(options){
+                extend(this, options);
+            }
+            extend(Options.prototype, {
+                t: 1000,
+                defer: false,
+                repeat: 1, // TODO: also rename duplicate() arg to `repeat`?
+                autostart: true,
+                autodestroy: true,
+                order: 'asc',
+                bounce: false
+            });
 
-                if (to !== null){
-                    window.setTimeout(updateCss(prop, to), 4);
+            function Controller(collection, iterator, options){
+                this.collection = collection;
+                this.iterator = iterator;
+                this.event = Pablo();
+                this.options = new Options(options);
+                this.resetAnimation();
+
+                if (this.options.autostart){
+                    this.start();
                 }
             }
-            
-            // Remove leading comma
-            transitionValue = transitionValue.slice(2);
-            return this.css('transition', transitionValue);
-        },
+
+            extend(Controller.prototype, {
+                active: false,
+                lastIndex: -1,
+
+                resetLoop: function(){
+                    var order = this.options.order;
+
+                    if (order === 'asc'){
+                        this.i = 0;
+                    }
+                    else if (order === 'desc'){
+                        this.i = this.collection.length-1;
+                    }
+                    this.trigger('reset:loop');
+                    return this;
+                },
+
+                resetAnimation: function(){
+                    this.remaining = this.options.repeat;
+                    this.resetLoop();
+                    this.trigger('reset:animation');
+                    return this;
+                },
+
+                setTimeout: function(t){
+                    var ctrl = this;
+
+                    if (typeof t !== 'number'){
+                        t = this.collection.getValue(this.options.t, this.i);
+                    }
+
+                    this.ref = setTimeout(function(){
+                        ctrl.next();
+                    }, t);
+
+                    return this;
+                },
+
+                next: function(){
+                    var order, isComplete;
+
+                    this.step();
+
+                    order = this.options.order;
+                    this.lastIndex = this.i;
+
+                    if (order === 'asc'){
+                        this.i ++;
+                        isComplete = this.i === this.collection.length;
+                    }
+                    else if (order === 'desc'){
+                        this.i --;
+                        isComplete = this.i < 0;
+                    }
+
+                    if (isComplete){
+                        this.end();
+                        this.remaining --;
+
+                        if (this.remaining){
+                            this.begin(true);
+                        }
+                        else {
+                            if (this.options.autodestroy){
+                                this.destroy();
+                            }
+                            else {
+                                this.complete();
+                            }
+                        }
+                    }
+                    else {
+                        this.setTimeout();
+                    }
+                    return this;
+                },
+
+                step: function(){
+                    var collection = this.collection,
+                        i = this.i,
+                        current  = collection[i],
+                        previous = collection[this.lastIndex];
+
+                    this.iterator.call(collection, current, previous, i, this.lastIndex);
+                    this.trigger('step', collection, current, previous, i, this.lastIndex);
+                    return this;
+                },
+
+                // Start (or unpause) the animation
+                start: function(){
+                    var ctrl;
+
+                    if (!this.active && this.collection.length){
+                        ctrl = this;
+                        this.active = true;
+
+                        this.ref = setTimeout(function(){
+                            // Make 'start' asynchronous, to allow binding to 
+                            // 'start' event and chaining of methods before start
+                            ctrl.trigger('start');
+                            ctrl.begin(ctrl.options.defer);
+                        }, 4);
+                    }
+                    return this;
+                },
+
+                // Stop (or pause) the animation
+                stop: function(){
+                    if (this.active){
+                        this.active = false;
+                        clearTimeout(this.ref);
+                        this.trigger('stop');
+                    }
+                    return this;
+                },
+
+                // Begin the loop
+                begin: function(defer){
+                    this.trigger('begin');
+                    if (defer){
+                        // TODO: should 'begin' event fire just before step, after the timeout?
+                        this.setTimeout();
+                    }
+                    else {
+                        this.next();
+                    }
+                    return this;
+                },
+
+                end: function(){
+                    this.trigger('end');
+
+                    if (this.options.bounce){
+                        if (this.options.order === 'asc'){
+                            this.options.order = 'desc';
+                        }
+                        else if (this.options.order === 'desc'){
+                            this.options.order = 'asc';
+                        }
+                    }
+                    this.resetLoop();
+                    return this;
+                },
+
+                // Complete the loop
+                complete: function(){
+                    if (this.active){
+                        this.trigger('complete');
+                        this.stop();
+                        this.resetAnimation();
+                    }
+                    return this;
+                },
+
+                destroy: function(){
+                    var prop,
+                        options = this.options;
+
+                    this.trigger('destroy');
+                    this.stop();
+                    this.off();
+
+                    for (prop in options){
+                        if (options.hasOwnProperty(prop)){
+                            delete options[prop];
+                        }
+                    }
+                    for (prop in this){
+                        if (this.hasOwnProperty(prop)){
+                            delete this[prop];
+                        }
+                    }
+                    return this;
+                }
+            });
+
+            // TEMP: will not be needed when a plain object can be 
+            // extended with Pablo.Event
+            ['on', 'one', 'oneEach', 'off', 'trigger'].forEach(function(method){
+                Controller.prototype[method] = function(){
+                    this.event[method].apply(this.event, arguments);
+                    return this;
+                };
+            });
+
+            return extend(
+                function(iterator, options){
+                    return new Controller(this, iterator, options);
+                },
+                {
+                    fn: Controller.prototype
+                }
+            );
+        }()),
 
 
         // AJAX
@@ -1423,224 +1640,6 @@
                 });
                 return markup;
             };
-        }()),
-
-        // ANIMATION
-        stagger: (function(){
-            function Options(options){
-                extend(this, options);
-            }
-            extend(Options.prototype, {
-                t: 1000,
-                defer: false,
-                repeat: 1, // TODO: also rename duplicate() arg to `repeat`?
-                autostart: true,
-                autodestroy: true,
-                order: 'asc',
-                bounce: false
-            });
-
-            function Controller(collection, iterator, options){
-                this.collection = collection;
-                this.iterator = iterator;
-                this.event = Pablo();
-                this.options = new Options(options);
-                this.resetAnimation();
-
-                if (this.options.autostart){
-                    this.start();
-                }
-            }
-
-            extend(Controller.prototype, {
-                active: false,
-
-                resetLoop: function(){
-                    var order = this.options.order;
-
-                    if (order === 'asc'){
-                        this.i = 0;
-                    }
-                    else if (order === 'desc'){
-                        this.i = this.collection.length-1;
-                    }
-                    this.trigger('reset:loop');
-                    return this;
-                },
-
-                resetAnimation: function(){
-                    this.remaining = this.options.repeat;
-                    this.resetLoop();
-                    this.trigger('reset:animation');
-                    return this;
-                },
-
-                setTimeout: function(t){
-                    var ctrl = this;
-
-                    if (typeof t !== 'number'){
-                        t = this.collection.getValue(this.options.t, this.i);
-                    }
-
-                    this.ref = setTimeout(function(){
-                        ctrl.next();
-                    }, t);
-
-                    return this;
-                },
-
-                next: function(){
-                    var order, isComplete;
-
-                    this.step();
-
-                    order = this.options.order;
-                    if (order === 'asc'){
-                        this.i ++;
-                        isComplete = this.i === this.collection.length;
-                    }
-                    else if (order === 'desc'){
-                        this.i --;
-                        isComplete = this.i < 0;
-                    }
-
-                    if (isComplete){
-                        this.end();
-                        this.remaining --;
-
-                        if (this.remaining){
-                            this.begin(true);
-                        }
-                        else {
-                            if (this.options.autodestroy){
-                                this.destroy();
-                            }
-                            else {
-                                this.complete();
-                            }
-                        }
-                    }
-                    else {
-                        this.setTimeout();
-                    }
-                    return this;
-                },
-
-                step: function(){
-                    var collection = this.collection,
-                        i = this.i,
-                        el = collection[i];
-
-                    this.iterator.call(collection, el, i);
-                    this.trigger('step', collection, el, i);
-                    return this;
-                },
-
-                // Start (or unpause) the animation
-                start: function(){
-                    var ctrl;
-
-                    if (!this.active && this.collection.length){
-                        ctrl = this;
-                        this.active = true;
-
-                        this.ref = setTimeout(function(){
-                            // Make 'start' asynchronous, to allow binding to 
-                            // 'start' event and chaining of methods before start
-                            ctrl.trigger('start');
-                            ctrl.begin(ctrl.options.defer);
-                        }, 4);
-                    }
-                    return this;
-                },
-
-                // Stop (or pause) the animation
-                stop: function(){
-                    if (this.active){
-                        this.active = false;
-                        clearTimeout(this.ref);
-                        this.trigger('stop');
-                    }
-                    return this;
-                },
-
-                // Begin the loop
-                begin: function(defer){
-                    this.trigger('begin');
-                    if (defer){
-                        // TODO: should 'begin' event fire just before step, after the timeout?
-                        this.setTimeout();
-                    }
-                    else {
-                        this.next();
-                    }
-                    return this;
-                },
-
-                end: function(){
-                    this.trigger('end');
-
-                    if (this.options.bounce){
-                        if (this.options.order === 'asc'){
-                            this.options.order = 'desc';
-                        }
-                        else if (this.options.order === 'desc'){
-                            this.options.order = 'asc';
-                        }
-                    }
-                    this.resetLoop();
-                    return this;
-                },
-
-                // Complete the loop
-                complete: function(){
-                    if (this.active){
-                        this.trigger('complete');
-                        this.stop();
-                        this.resetAnimation();
-                    }
-                    return this;
-                },
-
-                destroy: function(){
-                    var prop,
-                        options = this.options;
-
-                    this.trigger('destroy');
-                    this.stop();
-                    this.off();
-
-                    for (prop in options){
-                        if (options.hasOwnProperty(prop)){
-                            delete options[prop];
-                        }
-                    }
-                    for (prop in this){
-                        if (this.hasOwnProperty(prop)){
-                            delete this[prop];
-                        }
-                    }
-                    return this;
-                }
-            });
-
-            // TEMP: will not be needed when a plain object can be 
-            // extended with Pablo.Event
-            ['on', 'one', 'oneEach', 'off', 'trigger'].forEach(function(method){
-                Controller.prototype[method] = function(){
-                    this.event[method].apply(this.event, arguments);
-                    return this;
-                };
-            });
-
-            return extend(
-                function(iterator, options){
-                    return new Controller(this, iterator, options);
-                },
-                {
-                    fn: Controller.prototype
-                }
-            );
         }())
     });
 

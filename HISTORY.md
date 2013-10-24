@@ -1,3 +1,7 @@
+## 0.3.8
+* Added transition() for CSS transitions
+* Pass previous element to stagger() callback
+
 ## 0.3.7
 * css() now autodetect's browser vendor-prefixes
 * Removed cssPrefix()
