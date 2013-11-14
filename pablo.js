@@ -10,11 +10,11 @@
 */
 /*jshint newcap:false */
 
-(function(window, Object, Array, Element, SVGElement, NodeList, Document, HTMLDocument, document, navigator, XMLHttpRequest, DOMParser, XMLSerializer, atob, btoa, setTimeout, clearTimeout){
+(function(window, Object, Array, Element, SVGElement, HTMLElement, NodeList, Document, HTMLDocument, document, navigator, XMLHttpRequest, DOMParser, XMLSerializer, atob, btoa, escape, unescape, setTimeout, clearTimeout){
     'use strict';
     
     var /* SETTINGS */
-        pabloVersion = '0.3.8',
+        pabloVersion = '0.4.0',
         svgVersion = 1.1,
         svgns = 'http://www.w3.org/2000/svg',
 
@@ -32,8 +32,8 @@
         var ua = navigator.userAgent.toLowerCase(),
             match = /((webkit))[ \/]([\w.]+)/.exec(ua) ||
                     /((o)pera)(?:.*version|)[ \/]([\w.]+)/.exec(ua) ||
-                    /((Trident))(?:.*? rv:([\w.]+)|)/.exec(ua) ||
-                    /((ms)ie) ([\w.]+)/i.exec(ua) ||
+                    /((trident))(?:.*? rv:([\w.]+)|)/.exec(ua) ||
+                    /((ms)ie) ([\w.]+)/.exec(ua) ||
                     ua.indexOf("compatible") < 0 &&
                         /((moz)illa)(?:.*? rv:([\w.]+)|)/.exec(ua),
             name, prefix, version;
@@ -44,7 +44,7 @@
             version = match[3];
 
             // IE 10+
-            if (name === 'Trident'){
+            if (name === 'trident'){
                 name = 'msie';
                 prefix = 'ms';
             }
@@ -81,9 +81,11 @@
             return prop;
         }
 
-        prefixed = userAgent.prefix + camelCase(prop, true);
-        if (prefixed in context){
-            return prefixed;
+        if (userAgent.prefix){
+            prefixed = userAgent.prefix + camelCase(prop, true);
+            if (prefixed in context){
+                return prefixed;
+            }
         }
     }
 
@@ -102,7 +104,7 @@
 
     if (!(
         testElement && head && arrayProto && matchesProp &&
-        Element && SVGElement && NodeList && Document && 
+        Element && SVGElement && HTMLElement && NodeList && Document && 
         'createSVGRect' in testElement &&
         'attributes' in testElement &&
         'querySelectorAll' in testElement &&
@@ -139,31 +141,40 @@
 
 (function(){
     var svgElementNames = 'a altGlyph altGlyphDef altGlyphItem animate animateColor animateMotion animateTransform circle clipPath color-profile cursor defs desc ellipse feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feDistantLight feFlood feFuncA feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight feSpecularLighting feSpotLight feTile feTurbulence filter font font-face font-face-format font-face-name font-face-src font-face-uri foreignObject g glyph glyphRef hkern image line linearGradient marker mask metadata missing-glyph mpath path pattern polygon polyline radialGradient rect script set stop style svg switch symbol text textPath title tref tspan use view vkern',
+        xmlns = 'http://www.w3.org/2000/xmlns/',
         htmlns = 'http://www.w3.org/1999/xhtml',
         xlinkns = 'http://www.w3.org/1999/xlink',
         svgMimeType = 'image/svg+xml',
         svgDataUrlPrefix = 'data:' + svgMimeType + ';base64,',
         cacheExpando = 'pablo-data',
         eventsNamespace = '__events__',
-        support, hyphenate,
-        resolveCssProperty, markupToSvgElement, dataUrlToSvgMarkup,
-        cache, cacheNextId, Events,
-        cssClassApi, classlistMethod,
+        support, hyphenate, resolveCssProperty, markupToSvgElement, dataUrlToSvgMarkup,
+        cache, cacheNextId, Events, isNumeric, cssClassApi, classlistMethod,
         pabloCollectionApi;
 
     support = (function(){
+        function supportsMarkupNS(){
+            var el = make('a');
+            el.setAttributeNS(xlinkns, 'xlink:href', '#');
+            return (new XMLSerializer())
+                        .serializeToString(el)
+                        .indexOf('xlink') !== -1;
+        }
+
         var createCanvas = 'getContext' in document.createElement('canvas'),
             dataUrl = !!(atob && btoa),
-            svgImage = dataUrl,
-            canvas = svgImage && createCanvas,
+            canvas = dataUrl && createCanvas,
             imageTypes = ['png', 'jpeg'],
             support = {
                 basic: true,
                 classList: 'classList' in testElement,
                 dataUrl: dataUrl,
-                svgImage: svgImage,
+                image: {
+                    svg: dataUrl
+                },
                 canvas: canvas,
-                download: dataUrl && 'createEvent' in document && 'download' in document.createElement('a')
+                download: dataUrl && 'createEvent' in document && 'download' in document.createElement('a'),
+                markupNS: supportsMarkupNS()
             };
 
         function callbackTrue(callback){
@@ -175,12 +186,12 @@
 
         imageTypes.forEach(function(type){
             if (!canvas){
-                support[type] = callbackFalse;
+                support.image[type] = callbackFalse;
             }
             else {
-                support[type] = function(callback){
+                support.image[type] = function(callback){
                     Pablo.line({x2:1}).dataUrl(type, function(dataUrl){
-                        support[type] = dataUrl ? callbackTrue : callbackFalse;
+                        support.image[type] = dataUrl ? callbackTrue : callbackFalse;
                         callback(!!dataUrl);
                     });
                 };
@@ -200,7 +211,7 @@
         var len = arguments.length,
             withPrototype = arguments[len-1] === true,
             i, obj, prop;
-        
+
         if (!target){
             target = {};
         }
@@ -216,6 +227,36 @@
             }
         }
         return target;
+    }
+
+    // Modified from http://code.jquery.com/jquery-2.0.3.js
+    function isPlainObject(obj){
+        // Not plain objects:
+        // - Any object or value whose internal [[Class]] property is not "[object Object]"
+        // - DOM nodes
+        // - window
+        if (obj === null || typeof obj !== 'object' || 'nodeType' in obj || obj === window || obj === null){
+            return false;
+        }
+
+        // Support: Firefox <20
+        // The try/catch suppresses exceptions thrown when attempting to access
+        // the "constructor" property of certain host objects, ie. |window.location|
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=814622
+        try {
+            if (!('constructor' in obj) ||
+                !('prototype' in obj.constructor) ||
+                !obj.constructor.prototype.hasOwnProperty('isPrototypeOf')){
+                return false;
+            }
+        }
+        catch(e){
+            return false;
+        }
+
+        // If the function hasn't returned already, we're confident that
+        // |obj| is a plain object, created by {} or constructed with new Object
+        return true;
     }
     
     function toArray(obj){
@@ -248,6 +289,14 @@
         // Check constructors rather than `obj instanceof Document` for Opera 12.16
         return obj && (obj.constructor === Document || obj.constructor === HTMLDocument);
     }
+    
+    function isSVGElement(obj){
+        return obj instanceof SVGElement;
+    }
+    
+    function isHTMLElement(obj){
+        return obj instanceof HTMLElement;
+    }
 
     // Check if obj is an element from this or another document
     function hasSvgNamespace(obj){
@@ -256,10 +305,6 @@
 
     function hasHtmlNamespace(obj){
         return !!(obj && obj.namespaceURI === htmlns);
-    }
-    
-    function isSVGElement(obj){
-        return obj instanceof SVGElement;
     }
     
     function canBeWrapped(obj){
@@ -271,6 +316,8 @@
             Array.isArray(obj) ||
             isArrayLike(obj) ||
             hasSvgNamespace(obj);
+
+            // || isPlainObject(obj); to support Events.on() use plain objects
     }
     
     // Return node (with attributes) if a Pablo collection, otherwise create one.
@@ -297,25 +344,62 @@
     function attributeNS(el, attr){
         var colonIndex, ns, name, uri;
 
-        // An HTML element, or SVG attributes `xmlns` or `xmlns:xlink`
-        if (!hasSvgNamespace(el) || attr.indexOf('xmlns') === 0){
-            return false;
+        // The `xmlns` attribute
+        if (attr === 'xmlns'){
+            ns = name = 'xmlns';
         }
 
-        // Find a colon separating the namespace prefix from the attribute name
-        colonIndex = attr.indexOf(':');
+        if (!ns){
+            // HTML attribute, e.g. `src`
+            // And for browsers that incorrectly don't output prefixes with markup(), 
+            // e.g. Safari 6.05
+            if (!hasSvgNamespace(el)){
+                return false;
+            }
 
-        // A non-prefixed, namespaced attribute, e.g. `fill`
-        if (colonIndex === -1){
-            return true;
+            // Find a colon separating the namespace prefix from the attribute name
+            colonIndex = attr.indexOf(':');
+
+            // A non-prefixed, namespaced attribute, e.g. `fill`
+            if (colonIndex === -1){
+                return true;
+            }
+
+            // A prefixed, namespaced attribute, e.g. `xlink:href`
+            // e.g. ns === 'xlink'
+            ns = attr.slice(0, colonIndex);
+
+            // The un-prefixed name of the attribute, e.g. `href`
+            name = attr.slice(colonIndex + 1);
         }
 
-        // A prefixed, namespaced attribute, e.g. `xlink:href`
-        ns = attr.slice(0, colonIndex);
+        // Lookup URI in Pablo's `ns` object
         uri = Pablo.ns[ns] || null;
-        name = attr.slice(colonIndex + 1);
 
-        return [uri, name];
+        return {uri:uri, name:name};
+    }
+
+    function setAttribute(el, attr, value){
+        var attrNS = attributeNS(el, attr);
+
+        // Namespace attributes, e.g. `xmlns` and `xmlns:xlink`
+        // and namespace prefixed attributes, e.g. `xlink:href`
+        if (typeof attrNS === 'object'){
+            // attrNS = {uri, name}
+            // `uri` is the URI for the namespace of the prefix
+            // `name` is the un-prefixed attribute name, e.g. 'href'
+            return el.setAttributeNS(attrNS.uri, attr, value);
+        }
+
+        switch(attrNS){
+            // A pre-namespaced, prefixed attribute, e.g. `xmlns:xlink`
+            case false:
+            return el.setAttribute(attr, value);
+
+            // A non-prefixed, namespaced attribute, e.g. `fill`
+            case true:
+            return el.setAttributeNS(null, attr, value);
+        }
     }
 
     function getAttribute(el, attr){
@@ -333,21 +417,6 @@
         }
     }
 
-    function setAttribute(el, attr, value){
-        var attrNS = attributeNS(el, attr);
-
-        switch(attrNS){
-            case false:
-            return el.setAttribute(attr, value);
-
-            case true:
-            return el.setAttributeNS(null, attr, value);
-
-            default:
-            return el.setAttributeNS(attrNS[0], attrNS[1], value);
-        }
-    }
-
     function removeAttribute(el, attr){
         var attrNS = attributeNS(el, attr);
 
@@ -361,6 +430,32 @@
             default:
             return el.removeAttributeNS(attrNS[0], attrNS[1]);
         }
+    }
+
+    isNumeric = (function(){
+        var numberOrSpace = /^-?\d[\.\d\s]*$/;
+
+        return function(str){
+            if (typeof str === 'number'){
+                return true;
+            }
+            return typeof str === 'string' && numberOrSpace.test(str);
+        };
+    }());
+
+    function numericToNumber(values){
+        if (typeof values === 'number'){
+            return values;
+        }
+        if (typeof values === 'string'){
+            return isNumeric(values) ? Number(values) : values;
+        }
+        if (Array.isArray(values)){
+            return values.map(function(value){
+                return numericToNumber(value);
+            });
+        }
+        return values;
     }
     
     // e.g. 'fontColor' -> 'font-color'
@@ -382,6 +477,7 @@
 
     resolveCssProperty = (function(){
         var styleDictionary = {},
+            hyphenatedDictionary = {},
             elements = [make('svg'), document.createElement('a')];
         
             elements.forEach(function(el){
@@ -395,30 +491,46 @@
                 }
             });
 
-        return function(prop){
-            var resolvedProp, testProp;
+        // e.g. convert 'transition' => 'webkitTransition'
+        // e.g. if `hyphenateResult === true` => '-webkit-transition'
+        return function(prop, hyphenateResult){
+            var resolvedProp = hyphenateResult ?
+                    hyphenatedDictionary[prop] : styleDictionary[prop],
+                testProp, isPrefixed;
 
-            resolvedProp = styleDictionary[prop];
             if (resolvedProp){
                 return resolvedProp;
             }
 
-            testProp = camelCase(prop);
-            resolvedProp = styleDictionary[testProp];
+            if (hyphenateResult){
+                resolvedProp = styleDictionary[prop];
+            }
+
+            if (!resolvedProp){
+                testProp = camelCase(prop);
+                resolvedProp = styleDictionary[testProp];
+            }
 
             if (!resolvedProp && userAgent.prefix){
                 testProp = userAgent.prefix + camelCase(testProp, true);
                 resolvedProp = styleDictionary[testProp];
 
                 if (!resolvedProp){
-                    testProp = camelCase(testProp);
+                    testProp = camelCase(testProp, true);
                     resolvedProp = styleDictionary[testProp];
                 }
             }
+
             if (resolvedProp){
-                styleDictionary[testProp] = styleDictionary[prop] = resolvedProp;
-                return resolvedProp;
+                styleDictionary[prop] = resolvedProp;
+
+                if (hyphenateResult){
+                    isPrefixed = resolvedProp.toLowerCase().indexOf(userAgent.prefix) === 0;
+                    resolvedProp = hyphenate(resolvedProp, isPrefixed);
+                    hyphenatedDictionary[prop] = resolvedProp;
+                }
             }
+            return resolvedProp;
         };
     }());
 
@@ -465,20 +577,11 @@
     
     // PABLO COLLECTIONS
     
-    function PabloCollection(node, attrOrContext){
-        var hasContext;
-
+    function PabloCollection(node, attr){
         if (node){
-            hasContext = attrOrContext && canBeWrapped(attrOrContext);
-
-            if (hasContext){
-                // Find the node within the context, e.g. Pablo('g', 'body')
-                node = Pablo(attrOrContext).find(node);
-            }
-
             // Create a named element, e.g. Pablo('circle', {})
             // Check that this isn't Pablo('<circle/>', {})
-            else if (typeof node === 'string' && attrOrContext && node.indexOf('<') === -1){
+            if (typeof node === 'string' && attr && node.indexOf('<') === -1){
                 node = make(node);
             }
 
@@ -486,18 +589,17 @@
             this.add(node);
 
             // Apply attributes
-            if (!hasContext && attrOrContext){
-                this.attr(attrOrContext);
+            if (attr){
+                this.attr(attr);
             }
         }
     }
-    pabloCollectionApi = PabloCollection.prototype = extend({length:0}, arrayProto);
+
+    pabloCollectionApi = PabloCollection.prototype = Object.create(arrayProto);
 
     extend(pabloCollectionApi, {
-        constructor: PabloCollection,
         pablo: pabloVersion,
         collection: null,
-
 
         /////
 
@@ -649,6 +751,17 @@
             return Pablo(arrayProto.slice.call(this, begin, end));
         },
 
+        splice: function(){
+            arrayProto.splice.apply(this, arguments);
+            return this;
+        },
+
+        join: function(separator){
+            return this.toArray().map(function(el){
+                return Pablo(el).toString();
+            }).join(separator);
+        },
+
         reverse: function(){
             arrayProto.reverse.call(this);
             return this;
@@ -779,7 +892,7 @@
                     if (!clonedNode){
                         clonedNode = Pablo(cloned);
                     }
-                    dataset = node.pluckData();
+                    dataset = node.pluck('data');
                     clonedNode.find('*').data(dataset);
                 }
                 return cloned;
@@ -885,84 +998,20 @@
             });
         },
 
-        // Return an array of values from an attribute for each element 
-        // in the collection
-        pluck: function(property, type){
-            var undef;
-
-            if (!type){
-                type = 'attr';
-            }
-
-            // Pass through `null` as undefined to each method
-            // e.g. `collection.pluck(null, 'data');` will return an array of
-            // data objects, one for each element in the collection.
-            if (property === null){
-                property = undef;
-            }
-
+        // Return an array of values from each element in the collection
+        pluck: function(type, property){
             return toArray(this).map(function(el){
-                switch (type){
-                    case 'attr':
-                    return Pablo(el).attr(property);
-
-                    case 'prop':
+                // Element property
+                if (type === 'prop'){
                     return el[property];
-
-                    case 'data':
-                    return Pablo(el).data(property);
-
-                    case 'css':
-                    return Pablo(el).css(property);
+                }
+                
+                // Call method of name `type` and pass property
+                // e.g. 'attr', 'data', 'css', 'transform', 'transformCss', 'transition'
+                else {
+                    return Pablo(el)[type](property);
                 }
             });
-        },
-
-        pluckData: function(){
-            return this.pluck(null, 'data');
-        },
-
-        transform: function(functionName, value/* , additional values*/){
-            var isSingle = this.length === 1;
-
-            // Additional arguments are space-delimited as part of the value
-            if (arguments.length > 2){
-                value = toArray(arguments).slice(1).join(' ');
-            }
-
-            return this.each(function(el, i){
-                // Avoid unnecessary Pablo collection creation
-                var node = isSingle ? this : Pablo(el),
-                    transformAttr = node.attr('transform'),
-                    newTransformAttr, pos, posEnd, transformAttrEnd,
-                    functionString = functionName + '(' + this.getValue(value, i) + ')';
-
-                // There's already a transform attribute
-                if (transformAttr){
-                    // Start position for the function
-                    pos = (' ' + transformAttr).indexOf(' ' + functionName + '(');
-
-                    // Function name already present
-                    if (pos !== -1){
-                        transformAttrEnd = transformAttr.slice(pos);
-                        // End position for the function
-                        posEnd = transformAttrEnd.indexOf(')');
-
-                        // Insert modified function
-                        // TODO: use splice() instead?
-                        newTransformAttr = transformAttr.slice(0, pos) + 
-                            functionString + transformAttrEnd.slice(posEnd + 1);
-                    }
-
-                    // Function not yet present
-                    else {
-                        newTransformAttr = transformAttr + ' ' + functionString;
-                    }
-                }
-
-                // Set transform attribute
-                node.attr('transform', newTransformAttr || functionString);
-            }, this);
         },
         
         removeAttr: function(attr) {
@@ -992,6 +1041,10 @@
             }, this);
         },
 
+        cssPrefix: function(){
+            throw 'cssPrefix() deprecated. Use css() instead.';
+        },
+
         css: (function(){
             var resolvedTransition = resolveCssProperty('transition'),
                 resolvedTransitionProperty = resolveCssProperty('transition-property'),
@@ -1004,10 +1057,10 @@
                 var ret = '',
                     lastIndex = 0,
                     matches = propertiesRegex.exec(transitionValue),
-                    prop, resolvedProp, camelCaseName, delimiter, isPrefixed;
+                    prop, resolvedProp, separator;
 
                 while(matches){
-                    delimiter = matches[1];
+                    separator = matches[1];
                     prop = matches[2];
                     resolvedProp = null;
 
@@ -1016,16 +1069,12 @@
                         resolvedProp = prop;
                     }
                     else {
-                        camelCaseName = resolveCssProperty(prop);
-                        if (camelCaseName){
-                            isPrefixed = camelCaseName.toLowerCase().indexOf(userAgent.prefix) === 0;
-                            resolvedProp = hyphenate(camelCaseName, isPrefixed);
-                        }
+                        resolvedProp = resolveCssProperty(prop, true);
                     }
                     ret += transitionValue.slice(lastIndex, matches.index);
 
                     if (resolvedProp){
-                        ret += delimiter + resolvedProp;
+                        ret += separator + resolvedProp;
                     }
 
                     lastIndex = propertiesRegex.lastIndex;
@@ -1056,7 +1105,7 @@
             }
 
             return function(styles, value){
-                var el, styleObj, styleProperty, prop, resolvedProp;
+                var el, styleObj, styleProperty, resolvedProp;
 
                 if (typeof styles !== 'object'){
                     if (typeof value === 'undefined'){
@@ -1106,145 +1155,8 @@
             };
         }()),
 
-        cssPrefix: function(){
-            throw 'cssPrefix() deprecated. Use css() instead.';
-        },
-
 
         // ANIMATION
-        transition: (function(){
-            var params = ['property', 'dur', 'timing', 'delay', 'end', 'from', 'to'],
-                transitionEnd = 'transitionend mozTransitionEnd webkitTransitionEnd oTransitionEnd MSTransitionEnd';
-
-            function updateCss(collection, properties, values){
-                properties.forEach(function(property, i){
-                    var value = values[i % values.length];
-                    collection.css(property, value);
-                });
-            }
-
-            function convertTransitionFormat(transition){
-                var ret = {},
-                    property, settings, duration, prop;
-
-                // e.g. {opacity:1000}
-                for (property in transition){
-                    if (transition.hasOwnProperty(property)){
-                        // e.g. 1000 or {dur:1000, timing:'ease-in'}
-                        settings = transition[property];
-
-                        if (typeof settings !== 'object' || Array.isArray(settings)){
-                            duration = settings;
-                            settings = {};
-                            settings.dur = duration;
-                        }
-                        
-                        settings.property = property;
-
-                        for (prop in settings){
-                            if (settings.hasOwnProperty(prop)){
-                                if (!(prop in ret)){
-                                    ret[prop] = [];
-                                }
-                                ret[prop].push(settings[prop]);
-                            }
-                        }
-                    }
-                }
-
-                return ret;
-            }
-
-            return function(transition, duration){
-                var collection = this,
-                    prop, value, property;
-
-                // e.g. transition(2000) to set the transition-duration
-                if (typeof transition === 'number'){
-                    duration = transition;
-                    return this.css('transition-duration', duration + 'ms');
-                }
-                // e.g. transition([1000, 2000]) to set the transition-duration
-                else if (Array.isArray(transition) && typeof transition[0] === 'number'){
-                    duration = transition.join('ms,') + 'ms';
-                    return this.css('transition-duration', duration);
-                }
-
-                // e.g. transition('opacity') to set the transition-property
-                if (typeof transition === 'string' || typeof transition === 'function' || Array.isArray(transition)){
-                    this.css('transition-property', transition);
-
-                    if (typeof duration !== 'undefined'){
-                        this.transition(duration);
-                    }
-                    return this;
-                }
-
-                // e.g. transition({opacity:1000})
-                // e.g. transition({opacity:{dur:1000, timing:'ease-in'}})
-                if (Object.keys(transition).some(function(prop){
-                    return params.indexOf(prop) === -1;
-                })){
-                    transition = convertTransitionFormat(transition);
-                    this.transition(transition);
-                }
-
-                // e.g. transition({property:'opacity', dur:1000})
-                // e.g. transition({property:['opacity'], dur:[1000]})
-                else {
-                    // Convert each value into an array if not already
-                    for (prop in transition){
-                        if (transition.hasOwnProperty(prop)){
-                            if (!Array.isArray(transition[prop])){
-                                transition[prop] = [transition[prop]];
-                            }
-                        }
-                    }
-
-                    if ('property' in transition){
-                        this.css('transition-property', transition.property.join(','));
-                    }
-                    if ('dur' in transition){
-                        this.css('transition-duration', transition.dur.join('ms,') + 'ms');
-                    }
-                    if ('timing' in transition){
-                        this.css('transition-timing-function', transition.timing.join(','));
-                    }
-                    if ('delay' in transition){
-                        this.css('transition-delay', transition.delay.join(','));
-                    }
-                    if ('end' in transition){
-                        this.off(transitionEnd)
-                            .on(transitionEnd, function(event){
-                                transition.end.some(function(callback, i){
-                                    if ('property' in transition){
-                                        property = transition.property[i % transition.property.length];
-
-                                        if (event.propertyName === property){
-                                            callback.call(this, event);
-                                            return true;
-                                        }
-                                    }
-                                    else {
-                                        callback.call(this, event);
-                                    }
-                                }, this);
-                            });
-                    }
-                    if ('from' in transition){
-                        updateCss(this, transition.property, transition.from);
-                    }
-                    if ('to' in transition){
-                        window.setTimeout(function(){
-                            updateCss(collection, transition.property, transition.to);
-                        }, 4);
-                    }
-                }
-
-                return this;
-            };
-        }()),
-
         stagger: (function(){
             function Options(options){
                 extend(this, options);
@@ -1312,7 +1224,7 @@
                 next: function(){
                     var order, isComplete;
 
-                    this.step();
+                    this.iteration();
 
                     order = this.options.order;
                     this.lastIndex = this.i;
@@ -1348,14 +1260,14 @@
                     return this;
                 },
 
-                step: function(){
+                iteration: function(){
                     var collection = this.collection,
                         i = this.i,
                         current  = collection[i],
                         previous = collection[this.lastIndex];
 
                     this.iterator.call(collection, current, previous, i, this.lastIndex);
-                    this.trigger('step', collection, current, previous, i, this.lastIndex);
+                    this.trigger('iteration', collection, current, previous, i, this.lastIndex);
                     return this;
                 },
 
@@ -1507,7 +1419,7 @@
         // Get bounding box of all elements in collection
         bbox: function(){
             var allInDocument = this.isInDocument(),
-                total, svg, x1, y1, x2, y2;
+                total, svg;
 
             if (!this.length){
                 return {x:0, y:0, width:0, height:0};
@@ -1520,29 +1432,23 @@
                 }
 
                 else {
-                    x1 = Infinity;
-                    y1 = Infinity;
-                    x2 = 0;
-                    y2 = 0;
+                    total = this.reduce(function(bbox, el){
+                        var elBbox = el.getBBox();
 
-                    this.each(function(el){
-                        var bbox = el.getBBox();
-
-                        if (bbox.x < x1){
-                            x1 = bbox.x;
+                        if (elBbox.x < bbox.x){
+                            bbox.x = elBbox.x;
                         }
-                        if (bbox.y < y1){
-                            y1 = bbox.y;
+                        if (elBbox.y < bbox.y){
+                            bbox.y = elBbox.y;
                         }
-                        if (bbox.x + bbox.width > x2){
-                            x2 = bbox.x + bbox.width;
+                        if (elBbox.x + elBbox.width > bbox.width){
+                            bbox.width = elBbox.x + elBbox.width;
                         }
-                        if (bbox.y + bbox.height > y2){
-                            y2 = bbox.y + bbox.height;
+                        if (elBbox.y + elBbox.height > bbox.height){
+                            bbox.height = elBbox.y + elBbox.height;
                         }
-                    });
-
-                    total = {x:x1, y:y1, width:x2, height:y2};
+                        return bbox;
+                    }, {x:Infinity, y:Infinity, width:0, height:0});
                 }
             }
 
@@ -1616,35 +1522,601 @@
         },
 
         markup: (function(){
-            var serializer;
+            var xmlSerializer;
 
             return function(asCompleteFile){
                 var collection = this,
                     markup;
 
-                if (!serializer){
-                    serializer = new XMLSerializer();
+                if (!xmlSerializer){
+                    xmlSerializer = new XMLSerializer();
                 }
 
                 if (asCompleteFile){
                     collection = this.clone().withViewport();
                 }
 
-                if (collection.length === 1){
-                    return serializer.serializeToString(collection[0]);
-                }
-
                 markup = '';
                 collection.each(function(el){
-                    markup += serializer.serializeToString(el);
+                    markup += xmlSerializer.serializeToString(el);
                 });
                 return markup;
             };
-        }())
+        }()),
+
+        toString: function(){
+            return this.markup();
+        }
     });
 
 
     /////
+
+
+    // TRANSFORMS & TRANSITIONS
+
+    (function(){
+        var noop = function(){return this;};
+
+        support.css = extend(support.css, {
+            transform:  typeof resolveCssProperty('transform')  !== 'undefined',
+            transition: typeof resolveCssProperty('transition') !== 'undefined'
+        });
+
+
+        /////
+
+
+        (function(){
+            var commaOrSpace = /(?:\s*,|\s)\s*/;
+
+            function getItems(list, itemRegex, valueSeparator){
+                var matches = itemRegex.exec(list),
+                    ret = {},
+                    name, value;
+
+                while (matches && matches[1]){
+                    name = matches[1];
+                    value = matches[2];
+                    ret[name] = numericToNumber(value.split(valueSeparator));
+                    matches = itemRegex.exec(list);
+                }
+                itemRegex.lastIndex = 0;
+                return ret;
+            }
+
+            function getOrderedItems(list, itemRegex, valueSeparator){
+                var matches = itemRegex.exec(list),
+                    ret = [],
+                    name, value, item;
+
+                while (matches && matches[1]){
+                    name = matches[1];
+                    value = matches[2];
+                    item = {};
+                    item[name] = numericToNumber(value.split(valueSeparator));
+                    ret.push(item);
+                    matches = itemRegex.exec(list);
+                }
+                itemRegex.lastIndex = 0;
+                return ret;
+            }
+
+            function getItemValue(list, itemName, regexGenerator){
+                var match = regexGenerator(itemName).exec(list),
+                    value;
+
+                if (match && match[2]){
+                    value = numericToNumber(match[2].split(commaOrSpace));
+                }
+                return value;
+            }
+
+            function mergeItemsWithList(collection, i, list, items, regexGenerator, stringifyValues, suffix, preProcess){
+                var prop, item, value, isEmpty, itemRegex;
+
+                if (!suffix){
+                    suffix = '';
+                }
+
+                if (Array.isArray(items)){
+                    items.forEach(function(item){
+                        list = mergeItemsWithList(collection, i, list, item, regexGenerator, stringifyValues, suffix);
+                    });
+                    return list;
+                }
+
+                if (preProcess){
+                    items = preProcess(items);
+                }
+
+                for (prop in items){
+                    if (items.hasOwnProperty(prop)){
+                        value = items[prop];
+
+                        // Get per-element value
+                        if (Array.isArray(value) && value.some(Array.isArray)){
+                            value = collection.getValue(value, i);
+                        }
+
+                        isEmpty = value === null || value === '';
+                        item = isEmpty ? '' : prop + stringifyValues(value) + suffix;
+
+                        if (!list){
+                            list = item;
+                        }
+                        else {
+                            if (list.indexOf(prop) === -1){
+                                list += item;
+                            }
+                            else {
+                                itemRegex = regexGenerator(prop);
+                                list = list.replace(itemRegex, item);
+                            }
+                        }
+                    }
+                }
+                // Remove trailing slash
+                if (list && suffix){
+                    if (list.lastIndexOf(',') === list.length-1){
+                        list = list.slice(0,-1);
+                    }
+                }
+                return list;
+            }
+
+
+            /////
+
+
+            // TRANSFORMS
+
+            (function(){
+                var itemRegex;
+
+                // e.g. regexGenerator('rotate');
+                function regexGenerator(name){
+                    return new RegExp('\\b(' + name + ')\\(([^)]*)\\)', 'g');
+                }
+
+                itemRegex = regexGenerator('\\w+');
+
+                function stringifyValues(value){
+                    return '(' + (Array.isArray(value) ?
+                                value.join(',') : value) + ')';
+                }
+
+                function merge(collection, i, list, transforms){
+                    return mergeItemsWithList(collection, i, list, transforms, regexGenerator, stringifyValues, '', null);
+                }
+
+                function createTransformFunction(domMethod){
+                    var getList = function(collection, settings){
+                            return collection[domMethod]('transform', settings);
+                        },
+                        setList = getList;
+
+                    return function(transforms, value, values){
+                        var list, name, isSingle;
+
+                        // For an empty collection, return an empty object if no arguments
+                        // were passed, otherwise return the collection
+                        if (!this.length){
+                            return typeof transforms === 'undefined' ?
+                                {} : this;
+                        }
+
+                        isSingle = this.length === 1;
+
+                        // An array of transforms creates a new transform list in sequence
+                        if (Array.isArray(transforms)){
+                            return this.each(function(el, i){
+                                var node = isSingle ? this : Pablo(el),
+                                    list = merge(node, i, '', transforms);
+
+                                // Set 'transform' css property or attribute
+                                setList(this, list);
+                            });
+                        }
+
+                        // `null` removes all transforms
+                        else if (transforms === null){
+                            // Set 'transform' css property or attribute
+                            return setList(this, '');
+                        }
+
+                        // If `true` passed, return an ordered array of existing transforms
+                        else if (typeof transforms === 'undefined' || transforms === true){
+                            // Get 'transform' css property or attribute
+                            list = getList(this);
+
+                            // If `true` passed, return an ordered array of existing transforms
+                            if (transforms){
+                                return getOrderedItems(list, itemRegex, commaOrSpace);
+                            }
+
+                            // If no arguments passed, return an object of existing transforms
+                            return getItems(list, itemRegex, commaOrSpace);
+                        }
+
+                        // Named transform passed
+                        if (typeof transforms === 'string'){
+                            // First argument is the full string value for the transform
+                            if (arguments.length === 1 && transforms.indexOf(')') !== -1){
+                                return setList(this, transforms);
+                            }
+
+                            // First argument is the transform name
+                            name = transforms;
+
+                            // No value passed, so return a specific transform's value
+                            if (typeof value === 'undefined'){
+                                list = getList(this);
+                                return getItemValue(list, name, regexGenerator);
+                            }
+
+                            // Multiple values passed
+                            if (arguments.length > 2){
+                                value = toArray(arguments).slice(1);
+                            }
+
+                            // Set a specific transform
+                            transforms = {};
+                            transforms[name] = value;
+                        }
+
+                        // Transform object
+                        if (typeof transforms === 'object'){
+                            isSingle = this.length === 1;
+
+                            this.each(function(el, i){
+                                var node = isSingle ? this : Pablo(el),
+                                    list = getList(node);
+
+                                // Update existing transforms, or add new ones
+                                list = merge(node, i, list, transforms);
+
+                                // Set 'transform' css property or attribute
+                                setList(node, list);
+                            });
+                        }
+
+                        return this;
+                    };
+                }
+
+                /////
+
+                // Create collection.transform()
+
+                // e.g. transform({rotate:45, translate:null}, true);
+                // e.g. transform([{rotate:45}, {translate:'10px'}], true);
+                pabloCollectionApi.transform = createTransformFunction('attr');
+
+                // Create collection.transformCss()
+                pabloCollectionApi.transformCss = support.css.transform ?
+                    createTransformFunction('css') : noop;
+            }());
+
+
+            /////
+
+
+            // TRANSITIONS
+
+            if (support.css.transition){
+                pabloCollectionApi.transition = (function(){
+                    var itemRegex,
+                        TRANSITION_PROPERTY = resolveCssProperty('transition'),
+                        // Inspired by Modernizr
+                        TRANSITION_END = {
+                            transition:       'transitionend',
+                            otransition:      'oTransitionEnd',
+                            moztransition:    'transitionend',
+                            webkittransition: 'webkitTransitionEnd'
+                        }[TRANSITION_PROPERTY.toLowerCase()],
+
+                        getList = function(collection, settings){
+                            return collection.css('transition', settings);
+                        },
+                        setList = getList,
+                        hasValueRegex = /\w\s+\w/;
+
+
+                    // e.g. regexGenerator('opacity');
+                    function regexGenerator(name){
+                        return new RegExp(
+                            // A preceding comma and/or whitespace
+                            '(?=,?)\\s*' +
+                            // The CSS property name, followed by whitespace
+                            '(' + name + ')\\s*' +
+                            // A simple value or with brackets, e.g. '1s cubic-bezier()'
+                            '(([^,(]*(?:\\([^)]*)?[^,(]*))' +
+                            // A trailing comma and whitespace, or the end of the string
+                            '(?:,\\s*|$)', 'g');
+                    }
+
+                    itemRegex = regexGenerator('\\w+');
+
+                    // Convert `value` string, number or array to 'value value value'
+                    function stringifyValues(value){
+                        // `dur` and `delay`
+                        if (typeof value === 'number'){
+                            value = value + 'ms';
+                        }
+                        else if (Array.isArray(value)){
+                            value = value.map(function(value){
+                                return stringifyValues(value);
+                            }).join(' ');
+                        }
+                        return value ? ' ' + value : '';
+                    }
+
+                    function updateStyle(collection, name, value){
+                        if (name === 'transform'){
+                            collection.transformCss(value);
+                        }
+                        else {
+                            collection.css(name, value);
+                        }
+                    }
+
+                    function resolveNames(transitions){
+                        var ret = {},
+                            resolvedName,
+                            name;
+
+                        for (name in transitions){
+                            if (transitions.hasOwnProperty(name)){
+                                resolvedName = resolveCssProperty(name, true);
+                                ret[resolvedName] = transitions[name];
+                            }
+                        }
+                        return ret;
+                    }
+
+                    function merge(collection, i, list, transitions){
+                        return mergeItemsWithList(collection, i, list, transitions, regexGenerator, stringifyValues, ',', resolveNames);
+                    }
+
+                    function getTransformValue(collection, value, i){
+                        if (Array.isArray(value) && !Array.isArray(value[0])){
+                            return value;
+                        }
+                        return collection.getValue(value, i);
+                    }
+
+                    function processFromOption(collection, i, name, options){
+                        // Cache the current transition value
+                        var cachedTransition = collection.transition(name),
+                            from = name === 'transform' ?
+                                getTransformValue(collection, options.from, i) :
+                                collection.getValue(options.from, i),
+                            transition, asyncOptions;
+
+                        // Remove the current transition value
+                        collection.transition(name, null);
+
+                        // Set the CSS value of the property
+                        updateStyle(collection, name, from);
+
+                        // Create a 'remove' transition object, to remove the property from
+                        // the transition list
+                        transition = {};
+                        transition[name] = null;
+
+                        // Duplicate the options object (in case the original is re-used by the calling function)
+                        asyncOptions = extend({}, options);
+                        // Remove the `from` option
+                        delete asyncOptions.from;
+                        // Indicate that `to` does not need to create a `setTimeout`
+                        asyncOptions.sync = true;
+
+                        // Continue processing asynchronously, after a delay
+                        window.setTimeout(function(){
+                            // Reinstate previous transition value
+                            if (cachedTransition){
+                                collection.transition(name, cachedTransition);
+                            }
+                            // Merge options into the transition value
+                            collection.transition(asyncOptions);
+                        }, 4);
+
+                        return transition;
+                    }
+
+                    function processOtherOptions(collection, i, name, options){
+                        var transition, callback, values, to;
+
+                        if ('to' in options){
+                            to = name === 'transform' ?
+                                getTransformValue(collection, options.to, i) :
+                                collection.getValue(options.to, i);
+
+                            // The CSS property is known to exist, so the transition will
+                            // render
+                            if (options.sync){
+                                updateStyle(collection, name, to);
+                            }
+
+                            // It is unknown if the CSS property already exists on every
+                            // element (and it would be expensive to determine this), so 
+                            // set a timeout after the transition is applied to ensure it
+                            // renders 
+                            else {
+                                window.setTimeout(function(){
+                                    updateStyle(collection, name, to);
+                                }, 4);
+                            }
+                        }
+
+                        if ('end' in options){
+                            callback = options.end;
+                            collection.on(TRANSITION_END, function end(event){
+                                name = resolveCssProperty(name, true);
+
+                                if (event.propertyName === name){
+                                    if (options.autoremove !== false){
+                                        collection.off(TRANSITION_END, end);
+                                    }
+                                    callback.call(collection, event);
+                                }
+                            });
+                        }
+
+                        // Values to be added to the element's 'transition' CSS style
+                        values = [];
+
+                        if ('dur' in options){
+                            values.push(collection.getValue(options.dur, i));
+                        }
+                        if ('timing' in options){
+                            values.push(collection.getValue(options.timing, i));
+                        }
+                        if ('delay' in options){
+                            values.push(collection.getValue(options.delay, i));
+                        }
+
+                        transition = {};
+                        transition[name] = values;
+                        return transition;
+                    }
+
+                    function processOptions(collection, i, list, options){
+                        var transition, name;
+
+                        if ('name' in options){
+                            name = options.name;
+
+                            // Options that aren't added to the element's 'transition' CSS style
+                            if ('from' in options){
+                                transition = processFromOption(collection, i, name, options);
+                            }
+                            else {
+                                transition = processOtherOptions(collection, i, name, options);
+                            }
+                        }
+
+                        else {
+                            transition = options;
+                        }
+
+                        return merge(collection, i, list, transition);
+                    }
+
+
+                    //////////////////////
+
+
+                    return function(transitions, value, values){
+                        var list, name, match, isSingle;
+
+                        // For an empty collection, return an empty object if no arguments
+                        // were passed, otherwise return the collection
+                        if (!this.length){
+                            return typeof transitions === 'undefined' ?
+                                {} : this;
+                        }
+
+                        isSingle = this.length === 1;
+
+                        // An array of transitions creates a new transition list in sequence
+                        if (Array.isArray(transitions)){
+                            return this.each(function(el, i){
+                                var node = isSingle ? this : Pablo(el),
+                                    list = transitions.map(function(options, i){
+                                        return processOptions(node, i, list, options);
+                                    }).join(',');
+
+                                // Set 'transition' css property or attribute
+                                setList(this, list);
+                            });
+                        }
+
+                        // `null` removes all transitions
+                        else if (transitions === null){
+                            // Set 'transition' css property or attribute
+                            return setList(this, '');
+                        }
+
+                        // If `true` passed, return an ordered array of existing transitions
+                        else if (typeof transitions === 'undefined' || transitions === true){
+                            // Get 'transition' css property
+                            list = getList(this);
+
+                            // If `true` passed, return an ordered array of existing transitions
+                            if (transitions){
+                                return getOrderedItems(list, itemRegex, commaOrSpace);
+                            }
+
+                            // If no arguments passed, return an object of existing transitions
+                            return getItems(list, itemRegex, commaOrSpace);
+                        }
+
+                        // Named transition passed
+                        if (typeof transitions === 'string'){
+                            // First argument is the full string value for the transition
+                            if (arguments.length === 1 && hasValueRegex.test(transitions)){
+                                return setList(this, transitions);
+                            }
+
+                            // First argument is the transition name
+                            name = transitions;
+
+                            // No value passed, so return a specific transition's value
+                            if (typeof value === 'undefined'){
+                                list = getList(this);
+                                return getItemValue(list, name, regexGenerator);
+                            }
+
+                            // Multiple values passed
+                            else if (arguments.length > 2){
+                                value = toArray(arguments).slice(1);
+                            }
+
+                            // An object of options
+                            // Add the name to the options
+                            if (isPlainObject(value)){
+                                transitions = extend({name:name}, value);
+                            }
+
+                            else {
+                                // Set a specific transition
+                                transitions = {};
+                                transitions[name] = value;
+                            }
+                        }
+
+                        // Transition object
+                        if (typeof transitions === 'object'){
+                            isSingle = this.length === 1;
+
+                            this.each(function(el, i){
+                                var node = isSingle ? this : Pablo(el),
+                                    list = getList(node);
+
+                                // Update existing transitions, or add new ones
+                                list = processOptions(node, i, list, transitions);
+
+                                // Set 'transform' css property
+                                setList(node, list);
+                            });
+                        }
+
+                        return this;
+                    };
+                }());   
+            }
+
+            else {
+                pabloCollectionApi.transition = noop;
+            }
+        }());
+    }());
+
+
+    /////
+
 
     // CONVERSION
 
@@ -1655,23 +2127,19 @@
 
         extend(pabloCollectionApi, {
             dataUrl: support.dataUrl ?
-                function(type, callback){
+                function(type, callback, asFragment){
                     var collection = this,
-                        target, markup, data, dataUrl;
+                        asCompleteFile, markup, data, dataUrl;
 
                     if (!callback && typeof type === 'function'){
+                        asFragment = callback;
                         callback = type;
                         type = null;
                     }
 
                     if (!type || type === 'svg'){
-                        if (this.length === 1 && this[0].nodeName === 'svg'){
-                            target = this;
-                        }
-                        else {
-                            target = this.clone().withViewport(true);
-                        }
-                        markup = target.markup();
+                        asCompleteFile = !asFragment;
+                        markup = this.markup(asCompleteFile);
 
                         // See https://developer.mozilla.org/en-US/docs/Web/API/window.btoa#Unicode_Strings for use of encodeURIComponent and unescape
                         data = btoa(unescape(encodeURIComponent(markup)));
@@ -1719,7 +2187,7 @@
             // callback (optional): When the image has loaded, the callback will 
             // be passed a collection containing the image. If the image fails, to load,
             // the callback is passed `null`
-            toImage: support.svgImage ?
+            toImage: support.image.svg ?
                 function(type, callback){
                     var collection = this,
                         el = document.createElement('img'),
@@ -1843,7 +2311,7 @@
             // https://github.com/eligrey/canvas-toBlob.js
             // http://www.nihilogic.dk/labs/canvas2image/
             download: support.download ?
-                function(type, filename, callback){
+                function(type, filename, callback, asFragment){
                     var collection = this,
                         link = Pablo(document.createElement('a'));
 
@@ -1854,10 +2322,7 @@
                         filename = 'pablo.' + (type === 'jpeg' ? 'jpg' : type);
                     }
 
-                    // An alternative approach to using dataUrl is to create a Blob
-                    // blob = new window.Blob([markup], {type:'image/svg+xml'}),
-                    // url = window.URL.createObjectURL(blob),
-                    this.dataUrl(type, function(dataUrl){
+                    function outerCallback(dataUrl){
                         var event;
 
                         if (dataUrl){
@@ -1874,8 +2339,12 @@
                         if (callback){
                             callback.call(collection, dataUrl ? link : errorObj());
                         }
-                    });
+                    }
 
+                    // An alternative approach to using dataUrl is to create a Blob
+                    // blob = new window.Blob([markup], {type:'image/svg+xml'}),
+                    // url = window.URL.createObjectURL(blob),
+                    this.dataUrl(type, outerCallback, asFragment);
                     return link;
                 } :
 
@@ -2021,8 +2490,8 @@
                     if (events){
                         // Duplicate data object and events object on it, to
                         // de-reference the cloned element's stored events
-                        data = Object.create(data);
-                        clonedEvents = data[eventsNamespace] = Object.create(events);
+                        data = extend({}, data);
+                        clonedEvents = data[eventsNamespace] = extend({}, events);
                         // For each event type, e.g. `mousedown`, copy the array
                         // of event listeners
                         for (type in events){
@@ -2092,7 +2561,7 @@
         });
     }());
 
-    
+
     // EVENTS
     // TODO: refactor on(), etc to allow non-Pablo collections
     Events = {
@@ -2637,12 +3106,10 @@
         cssClassApi = {
             // Return true if _any_ element has className
             hasClass: function(className){
-                var isSingle = this.length === 1;
                 return this.some(function(el, i){
                     // Avoid unnecessary Pablo collection creation
-                    var node = isSingle ? this : Pablo(el),
-                        value = this.getValue(className, i),
-                        classString = node.attr('class');
+                    var value = this.getValue(className, i),
+                        classString = getAttribute(el, 'class');
 
                     return classString && (' ' + classString + ' ')
                         .indexOf(' ' + value + ' ') !== -1;
@@ -2724,6 +3191,10 @@
 
     // Pablo main function
     function Pablo(node, attr){
+        if (canBeWrapped(attr)){
+            return new PabloCollection(arguments);
+        }
+            
         return new PabloCollection(node, attr);
     }
 
@@ -2739,6 +3210,7 @@
         support: support,
         userAgent: userAgent,
         ns: {
+            xmlns: xmlns,
             svg: svgns,
             html: htmlns,
             xlink: xlinkns
@@ -2750,15 +3222,20 @@
 
         // methods
         make: make,
+        isPlainObject: isPlainObject,
         isArray: isArray,
         isArrayLike: isArrayLike,
         isElement: isElement,
         isSVGElement: isSVGElement,
+        isHTMLElement: isHTMLElement,
         hasSvgNamespace: hasSvgNamespace,
+        hasHtmlNamespace: hasHtmlNamespace,
         isNodeList: isNodeList,
         isDocument: isDocument,
         // isPablo is overwritten in functional.js extension
         isPablo: isPablo,
+        isNumeric: isNumeric,
+        numericToNumber: numericToNumber,
         extend: extend,
         toArray: toArray,
         getAttributes: getAttributes,
@@ -2807,13 +3284,21 @@
             return this;
         },
 
+        // TODO: use importNode and IE9 importNode polyfill
+        // http://stackoverflow.com/questions/7981100/how-do-i-dynamically-insert-an-svg-image-into-html/7986519#7986519
+        // http://stackoverflow.com/questions/8078948/appendchild-with-svg-brings-a-hierarchy-request-err-3-in-ie9-0
         load: function(url, callback){
             // An empty collection to be populated with the loaded content, once loaded, like a promise
             var collection = Pablo();
 
             this.get(url, function(markup, xhr){
-                // Create Pablo collection from document
-                collection.add(xhr.responseXML && xhr.responseXML.childNodes);
+                if (xhr.responseXML){
+                    // Create Pablo collection from document
+                    //collection.add(document.importNode(xhr.responseXML.childNodes, true));
+                    collection.add(xhr.responseXML.childNodes);
+                }
+                //collection.add(markupToSvgElement(markup));
+
                 callback.call(collection, xhr);
             });
 
@@ -2833,6 +3318,7 @@
                     return Pablo(make(nodeName), attr);
                 };
 
+            // <svg> elements
             if (nodeName === 'svg'){
                 createElement = function(attr){
                     // Extend <svg> element with SVG version and xmlns namespace
@@ -2845,7 +3331,7 @@
                     Object.keys(Pablo.ns).forEach(function(ns){
                         // There's no need to add `xmlns:svg`, as this is already
                         // provided by the plain `xmlns` attribute
-                        if (ns !== 'svg' && ns !== 'html'){
+                        if (ns !== 'xmlns' && ns !== 'svg' && ns !== 'html'){
                             attr['xmlns:' + ns] = Pablo.ns[ns];
                         }
                     });
@@ -2877,6 +3363,7 @@
     this.Array,
     this.Element,
     this.SVGElement,
+    this.HTMLElement,
     this.NodeList,
     this.Document,
     this.HTMLDocument,
@@ -2887,6 +3374,8 @@
     this.XMLSerializer,
     this.atob,
     this.btoa,
+    this.escape,
+    this.unescape,
     this.setTimeout,
     this.clearTimeout
 ));

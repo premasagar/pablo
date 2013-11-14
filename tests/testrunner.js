@@ -48,6 +48,12 @@
   else {
     getscript(librarySrc, function(){
       getscript(testsSrc, run);
+      
+      /*
+      getscript('../transform-transition.js', function(){
+        getscript(testsSrc, run);
+      });
+      */
     });
   }
 }(this));

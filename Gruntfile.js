@@ -27,12 +27,21 @@ module.exports = function(grunt) {
       },
       mocha: {
           test: {
-            src: ['tests/index.html']
+            src: ['tests/index.html'],
+            options: {
+              // log console output
+              log: true,
+              mocha: {
+                ignoreLeaks: false,
+                // stop on first failed test
+                bail: true
+              }
+            }
           }
       },
       watch: {
           js: {
-              files: ['<%= pkg.name %>.js'],
+              files: ['<%= pkg.name %>.js', 'tests/**'],
               tasks: ['test'],
               options: {
                 spawn: false
