@@ -3,17 +3,17 @@
 **For full documentation and interactive examples, see [pablojs.com][pablo-site].**
 
 
-**[Pablo][pablo-site]** is a small, open-source JavaScript library for [SVG][svg] (the web standard for vector graphics). It can be used for vector-based art, games, visualisations and interfaces.
+**[Pablo][pablo-site]** is a small, open-source JavaScript library for [SVG][svg], the web standard for vector graphics. It can be used for vector-based art, games, visualisations and interfaces.
 
 Pablo focuses on simplicity and performance, targeting modern browsers for both desktop and mobile.
 
 SVG has the potential to fulfil everything that Flash did for vector graphics on the web. However, SVG is severely behind Flash in terms of its developer tools. Pablo is a tiny offering to this cause.
 
-Pablo is extendable via plugins and has no dependency on other JavaScript libraries. The core script is around 8KB.
+Pablo is extendable via plugins and has no dependency on other JavaScript libraries.
 
 * By [Premasagar Rose][prem] ([Dharmafly][df])
 * Website: [pablojs.com][pablo-site]
-* Repo: [github.com/dharmafly/pablo][repo]
+* Repo: [github.com/premasagar/pablo][repo]
 * Open source: [MIT license][mit]
 
 
@@ -71,7 +71,7 @@ To update the documentation on [pablojs.com][pablo-site], fork the [dharmafly/pa
 [prem-twitter]: https://twitter.com/premasagar
 [df]: http://dharmafly.com
 [mit]: http://opensource.org/licenses/mit-license.php
-[repo]: https://github.com/dharmafly/pablo
+[repo]: https://github.com/premasagar/pablo
 [pablo.js]: http://pablojs.com/downloads/pablo.js
 [pablo.min.js]: http://pablojs.com/downloads/pablo.min.js
 [tests]: http://pablojs.com/tests/
@@ -82,7 +82,7 @@ To update the documentation on [pablojs.com][pablo-site], fork the [dharmafly/pa
 [raphael]: http://raphaeljs.com
 [api]: http://pablojs.com/api/
 [resources]: http://pablojs.com/api/
-[issues]: https://github.com/dharmafly/pablo/issues
-[docs-folder]: https://github.com/dharmafly/pablo-docs/tree/master/docs
-[docs-pullrequests]: https://github.com/dharmafly/pablo-docs/pulls
+[issues]: https://github.com/premasagar/pablo/issues
+[docs-folder]: https://github.com/premasagar/pablo-docs/tree/master/docs
+[docs-pullrequests]: https://github.com/premasagar/pablo-docs/pulls
 [markdown-syntax]: http://daringfireball.net/projects/markdown/syntax

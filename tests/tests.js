@@ -159,7 +159,7 @@
 
     describe('Support for markup()', function(){
       it.skip(test('generates markup from element', Pablo.a().markup().indexOf('<a') === 0));
-      it.skip(test('outputs namespace prefixes in markup. If this fails then dataUrl() and toImage() are not reliable when namespaced attributes are present, e.g. xlink:href', Pablo.support.markupNS));
+      it.skip(test('outputs namespace prefixes in markup. If this fails then dataUrl() and toImage() are not reliable when namespaced attributes are present, e.g. xlink:href', Pablo.support.markup));
     });
 
     describe('Support for transformCss()', function(){
@@ -1424,7 +1424,7 @@
 
           it('.transform(name, value) should update the transform function for each element when an array is specified as its value', function () {
             var subject = Pablo(['rect', 'rect']),
-                expected = [0.7, 1, 2];
+                expected = [0.7, 3];
 
             // Test with no transform applied
             subject.transform('scale', expected);
@@ -1446,16 +1446,16 @@
 
           it('.transform(name, value1, value2, , ...) should allow multiple values to be passed', function () {
             var subject = Pablo(['rect', 'rect']),
-                expected = [0.7, 1, 2];
+                expected = [0.7, 3];
 
             // Test with no transform applied
-            subject.transform('scale', 0.7, 1, 2);
+            subject.transform('scale', 0.7, 3);
             expect(subject.eq(0).transform('scale')).to.eql(expected);
             expect(subject.eq(1).transform('scale')).to.eql(expected);
 
             // Test with an existing transform applied
             subject.attr('transform', value);
-            subject.transform('scale', 0.7, 1, 2);
+            subject.transform('scale', 0.7, 3);
             expect(subject.eq(0).transform('scale')).to.eql(expected);
             expect(subject.eq(1).transform('scale')).to.eql(expected);
 
@@ -1469,7 +1469,8 @@
           it('.transform(name, perElementValues) should allow values to be passed on a per-element basis', function () {
             var subject = Pablo(['rect', 'rect']),
                 expected1 = [0.7],
-                expected2 = [0.5, 20, 30];
+                expected2 = [0.5, 20];
+
 
             // Test with no transform applied
             subject.transform('scale', [0.7, expected2]);
@@ -1810,8 +1811,15 @@
               result = subject.transition();
 
               expect(result).to.be.an.object;
-              expect(result.opacity[0]).to.eql('1s');
+              expect(result.opacity[0]).to.equal('1s');
               expect(result.fill.indexOf('4s')).to.be.above(-1);
+            });
+
+            it('.transition() should handle hyphenated property names', function(){
+              var result = Pablo.circle().transition('stroke-width', '3s').transition();
+
+              expect(result['stroke-width']).to.be.an.array;
+              expect(result['stroke-width'][0].indexOf('3')).to.equal(0);
             });
 
             it('.transition(cssProperty) should return the value of the transition function for the first element', function () {
@@ -1839,10 +1847,11 @@
 
             expect(result1.length).to.eql(2);
             expect(result2.length).to.eql(2);
-            expect(result1[0].opacity[0]).to.equal('1s');
-            expect(result2[0].opacity[0]).to.equal('1s');
-            expect(result1[1].fill[0]).to.equal('2s');
-            expect(result2[1].fill[0]).to.equal('2s');
+            
+            expect(result1[0].opacity[0].indexOf('1')).to.be.above(-1);
+            expect(result2[0].opacity[0].indexOf('1')).to.be.above(-1);
+            expect(result1[1].fill[0].indexOf('2')).to.be.above(-1);
+            expect(result2[1].fill[0].indexOf('2')).to.be.above(-1);
           });
 
             it('.transition(cssProperty, value) should add a transition attribute and value to the element', function () {
@@ -1874,6 +1883,39 @@
               result = subject.eq(1).css('transition');
               expect(result.indexOf('opacity')).to.be.above(-1);
               expect(result.indexOf('5')).to.be.above(-1);
+
+              // Test with an existing transition applied
+              subject.css('transition', value);
+              subject.transition('opacity', 500);
+
+              result = subject.eq(0).css('transition');
+              expect(result.indexOf('opacity')).to.be.above(-1);
+              expect(result.indexOf('5')).to.be.above(-1);
+
+              result = subject.eq(1).css('transition');
+              expect(result.indexOf('fill')).to.be.above(-1);
+              expect(result.indexOf('4s')).to.be.above(-1);
+            });
+
+            it('.transition(cssProperty, value) should add the transition to an existing transition list', function () {
+              var subject = Pablo(['rect', 'rect']),
+                  result;
+
+              // Test with no transition applied
+              subject.transition('opacity', 500);
+              subject.transition('fill', 300);
+
+              result = subject.eq(0).css('transition');
+              expect(result.indexOf('opacity')).to.be.above(-1);
+              expect(result.indexOf('5')).to.be.above(-1);
+              expect(result.indexOf('fill')).to.be.above(-1);
+              expect(result.indexOf('3')).to.be.above(-1);
+
+              result = subject.eq(1).css('transition');
+              expect(result.indexOf('opacity')).to.be.above(-1);
+              expect(result.indexOf('5')).to.be.above(-1);
+              expect(result.indexOf('fill')).to.be.above(-1);
+              expect(result.indexOf('3')).to.be.above(-1);
 
               // Test with an existing transition applied
               subject.css('transition', value);
@@ -1944,15 +1986,16 @@
               // Test with an existing transition applied
               subject.css('transition', value);
               subject.transition('opacity', [900, expected2]);
+              
+              expect(subject.eq(0).transition('opacity')[0].indexOf('9')).to.equal(0);
+              expect(subject.eq(1).transition('opacity')[0].indexOf('2')).to.equal(0);
 
-              expect(subject.eq(0).transition('opacity')[0].indexOf('9')).to.be.above(-1);
-              expect(subject.eq(1).transition('opacity')[0].indexOf('9')).to.equal(-1);
+              var opacityVal = subject.eq(0).transition('opacity')[2];
+              expect(opacityVal === '0s' || typeof opacityVal === 'undefined').to.be.true;
+              expect(subject.eq(1).transition('opacity')[2]).to.equal('5s');
 
-              expect(subject.eq(0).transition('opacity').indexOf('5s')).to.equal(-1);
-              expect(subject.eq(1).transition('opacity').indexOf('5s')).to.be.above(-1);
-
-              expect(subject.eq(0).transition('fill').indexOf('4s')).to.be.above(-1);
-              expect(subject.eq(1).transition('fill').indexOf('4s')).to.be.above(-1);
+              expect(subject.eq(0).transition('fill')[2]).to.equal('4s');
+              expect(subject.eq(1).transition('fill')[2]).to.equal('4s');
             });
 
             it('.transition({name: perElementValues}) should allow values to be passed on a per-element basis', function () {
@@ -1971,15 +2014,16 @@
               // Test with an existing transition applied
               subject.css('transition', value);
               subject.transition({opacity: [900, expected2]});
+              
+              expect(subject.eq(0).transition('opacity')[0].indexOf('9')).to.equal(0);
+              expect(subject.eq(1).transition('opacity')[0].indexOf('2')).to.equal(0);
 
-              expect(subject.eq(0).transition('opacity')[0].indexOf('9')).to.be.above(-1);
-              expect(subject.eq(1).transition('opacity')[0].indexOf('9')).to.equal(-1);
+              var opacityVal = subject.eq(0).transition('opacity')[2];
+              expect(opacityVal === '0s' || typeof opacityVal === 'undefined').to.be.true;
+              expect(subject.eq(1).transition('opacity')[2]).to.equal('5s');
 
-              expect(subject.eq(0).transition('opacity').indexOf('5s')).to.equal(-1);
-              expect(subject.eq(1).transition('opacity').indexOf('5s')).to.be.above(-1);
-
-              expect(subject.eq(0).transition('fill').indexOf('4s')).to.be.above(-1);
-              expect(subject.eq(1).transition('fill').indexOf('4s')).to.be.above(-1);
+              expect(subject.eq(0).transition('fill')[2]).to.equal('4s');
+              expect(subject.eq(1).transition('fill')[2]).to.equal('4s');
             });
 
             it('.transition({name:name, dur:perElementValues}) should allow values to be passed on a per-element basis', function () {
@@ -1992,9 +2036,9 @@
 
               // Test with an existing transition applied
               subject.css('transition', value);
-              subject.transition({name:'opacity', dur:['1s', '2s']});
+              subject.transition({name:'opacity', dur:['7s', '2s']});
 
-              expect(subject.eq(0).transition('opacity').indexOf('1s')).to.equal(0);
+              expect(subject.eq(0).transition('opacity').indexOf('7s')).to.equal(0);
               expect(subject.eq(1).transition('opacity').indexOf('2s')).to.equal(0);
 
               expect(subject.eq(0).transition('fill').indexOf('4s')).to.equal(2);
@@ -2218,33 +2262,38 @@
             });
 
             it('.transition({name:\'opacity\', [...], end:callback}) calls the callback when the transition completes', function(done){
-              var svg = Pablo('body').svg(),
-                  subject = svg.rect().duplicate(),
-                  count = 0,
-                  timeoutRef;
+              // Set a timeout for the browser to be more responsive to transition
+              // callbacks; Chrome/Firefox seem to have bugs that mean the native
+              // transitionend event sometimes does not fire
+              window.setTimeout(function(){
+                var svg = Pablo('body').svg(),
+                    subject = svg.rect().duplicate(),
+                    count = 0,
+                    timeoutRef;
 
-              function end(event){
-                svg.detach();
-                expect(event.propertyName).to.equal('opacity');
-                expect(event).to.have.property('elapsedTime');
-                expect(Pablo.isPablo(this)).to.be.true;
-                expect(this.length).to.equal(1);
-                expect(this[0]).to.be.an.instanceof(SVGRectElement);
-                count++;
-
-                if (count === subject.length){
-                  window.clearTimeout(timeoutRef);
+                function end(event){
                   svg.detach();
-                  done();
+                  expect(event.propertyName).to.equal('opacity');
+                  expect(event).to.have.property('elapsedTime');
+                  expect(Pablo.isPablo(this)).to.be.true;
+                  expect(this.length).to.equal(1);
+                  expect(this[0]).to.be.an.instanceof(SVGRectElement);
+                  count++;
+
+                  if (count === subject.length){
+                    window.clearTimeout(timeoutRef);
+                    svg.detach();
+                    done();
+                  }
                 }
-              }
 
-              timeoutRef = window.setTimeout(function(){
-                svg.detach();
-                done(new Error('end() callback not fired'));
-              }, 500);
+                subject.transition({name:'opacity', dur:1, to:0.2, end:end});
 
-              subject.transition({name:'opacity', dur:1, to:0.2, end:end});
+                timeoutRef = window.setTimeout(function(){
+                  svg.detach();
+                  done(new Error('end() callback not fired'));
+                }, 500);
+              }, 4);
             });
 
             it.skip('transition as functions - Yet to be tested');
@@ -4206,7 +4255,7 @@
           });
       });
 
-      if (Pablo.support.markupNS){
+      if (Pablo.support.markup){
         // There was a bug in WebKit where namespace prefixes are omitted in markup output
         // WebKit bug report [FIXED]: https://bugs.webkit.org/show_bug.cgi?id=79586
         // Chromium bug report: http://code.google.com/p/chromium/issues/detail?id=88295
@@ -4234,7 +4283,7 @@
       }
 
       else {
-        it.skip('✖ Pablo.support.markupNS === false. This browser incorrectly omits namespace prefixes when serializing SVG elements into markup');
+        it.skip('✖ Pablo.support.markup === false. This browser incorrectly omits namespace prefixes when serializing SVG elements into markup');
       }
 
       it('.markup() should export markup for multiple elements on repeated use', function () {

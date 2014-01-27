@@ -4,7 +4,7 @@
     by Premasagar Rose <http://premasagar.com>,
        Dharmafly <http://dharmafly.com>
 
-    Repo: <https://github.com/dharmafly/pablo>
+    Repo: <https://github.com/premasagar/pablo>
     MIT license
 
 */
@@ -14,7 +14,7 @@
     'use strict';
     
     var /* SETTINGS */
-        pabloVersion = '0.4.0',
+        pabloVersion = '0.5.0',
         svgVersion = 1.1,
         svgns = 'http://www.w3.org/2000/svg',
 
@@ -153,7 +153,7 @@
         pabloCollectionApi;
 
     support = (function(){
-        function supportsMarkupNS(){
+        function supportsMarkup(){
             var el = make('a');
             el.setAttributeNS(xlinkns, 'xlink:href', '#');
             return (new XMLSerializer())
@@ -174,7 +174,7 @@
                 },
                 canvas: canvas,
                 download: dataUrl && 'createEvent' in document && 'download' in document.createElement('a'),
-                markupNS: supportsMarkupNS()
+                markup: supportsMarkup()
             };
 
         function callbackTrue(callback){
@@ -974,7 +974,12 @@
 
                 // Set the attribute, if the collection only has one element
                 if (this.length === 1){
-                    setAttribute(this[0], attr, this.getValue(value, 0));
+                    if (value === null){
+                        this.removeAttr(attr);
+                    }
+                    else {
+                        setAttribute(this[0], attr, this.getValue(value, 0));
+                    }
                     return this;
                 }
 
@@ -992,7 +997,13 @@
                 for (attr in attributes){
                     if (attributes.hasOwnProperty(attr)){
                         value = attributes[attr];
-                        setAttribute(el, attr, this.getValue(value, i));
+
+                        if (value === null){
+                            this.removeAttr(attr);
+                        }
+                        else {
+                            setAttribute(el, attr, this.getValue(value, i));
+                        }
                     }
                 }
             });
@@ -1176,7 +1187,7 @@
                 this.iterator = iterator;
                 this.event = Pablo();
                 this.options = new Options(options);
-                this.resetAnimation();
+                this.reset();
 
                 if (this.options.autostart){
                     this.start();
@@ -1184,6 +1195,7 @@
             }
 
             extend(Controller.prototype, {
+                constructor: Controller,
                 active: false,
                 lastIndex: -1,
 
@@ -1196,14 +1208,14 @@
                     else if (order === 'desc'){
                         this.i = this.collection.length-1;
                     }
-                    this.trigger('reset:loop');
+                    this.trigger('loopreset');
                     return this;
                 },
 
-                resetAnimation: function(){
+                reset: function(){
                     this.remaining = this.options.repeat;
                     this.resetLoop();
-                    this.trigger('reset:animation');
+                    this.trigger('reset');
                     return this;
                 },
 
@@ -1299,6 +1311,11 @@
                     return this;
                 },
 
+                toggle: function(){
+                    return this.active ?
+                        this.stop() : this.start();
+                },
+
                 // Begin the loop
                 begin: function(defer){
                     this.trigger('begin');
@@ -1332,7 +1349,7 @@
                     if (this.active){
                         this.trigger('complete');
                         this.stop();
-                        this.resetAnimation();
+                        this.reset();
                     }
                     return this;
                 },
@@ -1341,20 +1358,25 @@
                     var prop,
                         options = this.options;
 
-                    this.trigger('destroy');
-                    this.stop();
-                    this.off();
+                    // if not already destroyed
+                    if (this.event){
+                        this.trigger('destroy');
+                        this.stop();
+                        this.off();
 
-                    for (prop in options){
-                        if (options.hasOwnProperty(prop)){
-                            delete options[prop];
+                        for (prop in options){
+                            if (options.hasOwnProperty(prop)){
+                                delete options[prop];
+                            }
+                        }
+
+                        for (prop in this){
+                            if (this.hasOwnProperty(prop)){
+                                delete this[prop];
+                            }
                         }
                     }
-                    for (prop in this){
-                        if (this.hasOwnProperty(prop)){
-                            delete this[prop];
-                        }
-                    }
+
                     return this;
                 }
             });
@@ -1469,6 +1491,25 @@
                 }
             }
             return total;
+        },
+
+        viewbox: function(values){
+            var viewbox;
+
+            if (values){
+                this.attr('viewBox', values.join(' '));
+                return this;
+            }
+
+            viewbox = this.attr('viewBox');
+
+            if (viewbox){
+                values = viewbox.split(' ').map(function(value){
+                    return Number(value);
+                });
+                return values;
+            }
+            return [0, 0, 0, 0];
         },
 
         crop: function(to){
@@ -1612,7 +1653,7 @@
                 return value;
             }
 
-            function mergeItemsWithList(collection, i, list, items, regexGenerator, stringifyValues, suffix, preProcess){
+            function mergeItemsWithList(collection, i, list, items, regexGenerator, stringifyValues, suffix, suffixRegex, preProcess){
                 var prop, item, value, isEmpty, itemRegex;
 
                 if (!suffix){
@@ -1621,7 +1662,7 @@
 
                 if (Array.isArray(items)){
                     items.forEach(function(item){
-                        list = mergeItemsWithList(collection, i, list, item, regexGenerator, stringifyValues, suffix);
+                        list = mergeItemsWithList(collection, i, list, item, regexGenerator, stringifyValues, suffix, suffixRegex);
                     });
                     return list;
                 }
@@ -1635,7 +1676,7 @@
                         value = items[prop];
 
                         // Get per-element value
-                        if (Array.isArray(value) && value.some(Array.isArray)){
+                        if (typeof value === 'function' || (Array.isArray(value) && value.some(Array.isArray))){
                             value = collection.getValue(value, i);
                         }
 
@@ -1647,6 +1688,11 @@
                         }
                         else {
                             if (list.indexOf(prop) === -1){
+                                if (suffixRegex){
+                                    if (list && suffix && suffixRegex.test(list)){
+                                        list += suffix;
+                                    }
+                                }
                                 list += item;
                             }
                             else {
@@ -1678,8 +1724,7 @@
                 function regexGenerator(name){
                     return new RegExp('\\b(' + name + ')\\(([^)]*)\\)', 'g');
                 }
-
-                itemRegex = regexGenerator('\\w+');
+                itemRegex = regexGenerator('[\\w-]*');
 
                 function stringifyValues(value){
                     return '(' + (Array.isArray(value) ?
@@ -1687,7 +1732,7 @@
                 }
 
                 function merge(collection, i, list, transforms){
-                    return mergeItemsWithList(collection, i, list, transforms, regexGenerator, stringifyValues, '', null);
+                    return mergeItemsWithList(collection, i, list, transforms, regexGenerator, stringifyValues, '', null, null);
                 }
 
                 function createTransformFunction(domMethod){
@@ -1722,7 +1767,7 @@
                         // `null` removes all transforms
                         else if (transforms === null){
                             // Set 'transform' css property or attribute
-                            return setList(this, '');
+                            return setList(this, null);
                         }
 
                         // If `true` passed, return an ordered array of existing transforms
@@ -1806,7 +1851,7 @@
 
             if (support.css.transition){
                 pabloCollectionApi.transition = (function(){
-                    var itemRegex,
+                    var itemRegex, transitionSuffixRegex,
                         TRANSITION_PROPERTY = resolveCssProperty('transition'),
                         // Inspired by Modernizr
                         TRANSITION_END = {
@@ -1832,11 +1877,11 @@
                             '(' + name + ')\\s*' +
                             // A simple value or with brackets, e.g. '1s cubic-bezier()'
                             '(([^,(]*(?:\\([^)]*)?[^,(]*))' +
-                            // A trailing comma and whitespace, or the end of the string
+                            // A trailing comma or the end of the string
                             '(?:,\\s*|$)', 'g');
                     }
 
-                    itemRegex = regexGenerator('\\w+');
+                    itemRegex = regexGenerator('[\\w-]*');
 
                     // Convert `value` string, number or array to 'value value value'
                     function stringifyValues(value){
@@ -1847,13 +1892,14 @@
                         else if (Array.isArray(value)){
                             value = value.map(function(value){
                                 return stringifyValues(value);
-                            }).join(' ');
+                            }).join('');
                         }
                         return value ? ' ' + value : '';
                     }
 
                     function updateStyle(collection, name, value){
                         if (name === 'transform'){
+                            // Pass the string value or object or array of objects to `transformCss()`
                             collection.transformCss(value);
                         }
                         else {
@@ -1875,8 +1921,9 @@
                         return ret;
                     }
 
+                    transitionSuffixRegex = new RegExp('\\w[^,]*$');
                     function merge(collection, i, list, transitions){
-                        return mergeItemsWithList(collection, i, list, transitions, regexGenerator, stringifyValues, ',', resolveNames);
+                        return mergeItemsWithList(collection, i, list, transitions, regexGenerator, stringifyValues, ',', transitionSuffixRegex, resolveNames);
                     }
 
                     function getTransformValue(collection, value, i){
@@ -2010,7 +2057,7 @@
 
                     return function(transitions, value, values){
                         var list, name, match, isSingle;
-
+                        
                         // For an empty collection, return an empty object if no arguments
                         // were passed, otherwise return the collection
                         if (!this.length){
@@ -2089,8 +2136,6 @@
 
                         // Transition object
                         if (typeof transitions === 'object'){
-                            isSingle = this.length === 1;
-
                             this.each(function(el, i){
                                 var node = isSingle ? this : Pablo(el),
                                     list = getList(node);
