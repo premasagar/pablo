@@ -75,7 +75,8 @@ To update the documentation on [pablojs.com][pablo-site], fork the [dharmafly/pa
 [pablo.js]: http://pablojs.com/downloads/pablo.js
 [pablo.min.js]: http://pablojs.com/downloads/pablo.min.js
 [tests]: http://pablojs.com/tests/
-[changelog]: http://pablojs.com/details/#changelog
+[changelog]: http://pablojs.com/misc/#Changelog
+[svg]: https://developer.mozilla.org/SVG
 [jquery]: http://jquery.com
 [_]: http://underscorejs.org
 [backbone]: http://backbonejs.org
