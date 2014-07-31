@@ -14,7 +14,7 @@
     'use strict';
     
     var /* SETTINGS */
-        pabloVersion = '0.5.0',
+        pabloVersion = '0.5.1',
         svgVersion = 1.1,
         svgns = 'http://www.w3.org/2000/svg',
 
@@ -2318,7 +2318,7 @@
                         }
 
                         // HACK for Safari 6.0.5 & Opera 12.16
-                        this.detach();
+                        svgImage.detach();
                         // end HACK
 
                         if (callback){
