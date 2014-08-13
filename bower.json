@@ -7,6 +7,10 @@
     "Premasagar Rose <http://premasagar.com>"
   ],
   "description": "A tool for creating interactive SVG drawings and animations for the web",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/premasagar/pablo.git"
+  },
   "keywords": [
     "svg"
   ],
