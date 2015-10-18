@@ -30,12 +30,12 @@
     // Browser detection - based on jquery-migrate-1.2.1.js & http://stackoverflow.com/questions/17907445/how-to-detect-ie11
     userAgent = (function(){
         var ua = navigator.userAgent.toLowerCase(),
-            match = /((webkit))[ \/]([\w.]+)/.exec(ua) ||
-                    /((o)pera)(?:.*version|)[ \/]([\w.]+)/.exec(ua) ||
-                    /((trident))(?:.*? rv:([\w.]+)|)/.exec(ua) ||
+            match = /((trident))(?:.*? rv:([\w.]+)|)/.exec(ua) ||
                     /((ms)ie) ([\w.]+)/.exec(ua) ||
+                    /((webkit))[ \/]([\w.]+)/.exec(ua) ||
+                    /((o)pera)(?:.*version|)[ \/]([\w.]+)/.exec(ua) ||
                     ua.indexOf("compatible") < 0 &&
-                        /((moz)illa)(?:.*? rv:([\w.]+)|)/.exec(ua),
+                    /((moz)illa)(?:.*? rv:([\w.]+)|)/.exec(ua),
             name, prefix, version;
 
         if (match){
