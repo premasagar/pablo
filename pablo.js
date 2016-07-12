@@ -12,15 +12,15 @@
 
 (function(window, Object, Array, Element, SVGElement, HTMLElement, NodeList, Document, HTMLDocument, document, navigator, XMLHttpRequest, DOMParser, XMLSerializer, atob, btoa, escape, unescape, setTimeout, clearTimeout){
     'use strict';
-    
+
     var /* SETTINGS */
-        pabloVersion = '0.5.1',
+        pabloVersion = '0.6.0',
         svgVersion = 1.1,
         svgns = 'http://www.w3.org/2000/svg',
 
         head, testElement, arrayProto, matchesProp, userAgent, camelCase;
 
-    
+
     function make(elementName){
         return typeof elementName === 'string' &&
             document.createElementNS(svgns, elementName) ||
@@ -104,7 +104,7 @@
 
     if (!(
         testElement && head && arrayProto && matchesProp &&
-        Element && SVGElement && HTMLElement && NodeList && Document && 
+        Element && SVGElement && HTMLElement && NodeList && Document &&
         'createSVGRect' in testElement &&
         'attributes' in testElement &&
         'querySelectorAll' in testElement &&
@@ -201,12 +201,12 @@
         return support;
     }());
 
-    
+
     /////
-    
-    
+
+
     // UTILITIES
-    
+
     function extend(target/*, any number of source objects*/){
         var len = arguments.length,
             withPrototype = arguments[len-1] === true,
@@ -258,7 +258,7 @@
         // |obj| is a plain object, created by {} or constructed with new Object
         return true;
     }
-    
+
     function toArray(obj){
         return arrayProto.slice.call(obj);
     }
@@ -272,7 +272,7 @@
             (typeof obj === 'object' || typeof obj === 'function') &&
             typeof obj.length === 'number';
     }
-    
+
     function isElement(obj){
         return obj instanceof Element;
     }
@@ -280,20 +280,20 @@
     function isElementOrDocument(el){
         return isElement(el) || isDocument(el);
     }
-    
+
     function isNodeList(obj){
         return obj instanceof NodeList;
     }
-    
+
     function isDocument(obj){
         // Check constructors rather than `obj instanceof Document` for Opera 12.16
         return obj && (obj.constructor === Document || obj.constructor === HTMLDocument);
     }
-    
+
     function isSVGElement(obj){
         return obj instanceof SVGElement;
     }
-    
+
     function isHTMLElement(obj){
         return obj instanceof HTMLElement;
     }
@@ -306,7 +306,7 @@
     function hasHtmlNamespace(obj){
         return !!(obj && obj.namespaceURI === htmlns);
     }
-    
+
     function canBeWrapped(obj){
         return typeof obj === 'string' ||
             isPablo(obj) ||
@@ -319,7 +319,7 @@
 
             // || isPlainObject(obj); to support Events.on() use plain objects
     }
-    
+
     // Return node (with attributes) if a Pablo collection, otherwise create one.
     function toPablo(node, attr){
         if (isPablo(node)){
@@ -327,11 +327,11 @@
         }
         return Pablo(node, attr);
     }
-    
+
     function getAttributes(el){
         var ret = {},
             attr, len, i;
-            
+
         if (el){
             attr = el.attributes;
             for (i = 0, len = attr.length; i<len; i++){
@@ -351,7 +351,7 @@
 
         if (!ns){
             // HTML attribute, e.g. `src`
-            // And for browsers that incorrectly don't output prefixes with markup(), 
+            // And for browsers that incorrectly don't output prefixes with markup(),
             // e.g. Safari 6.05
             if (!hasSvgNamespace(el)){
                 return false;
@@ -457,7 +457,7 @@
         }
         return values;
     }
-    
+
     // e.g. 'fontColor' -> 'font-color'
     // NOTE: does not check for blank spaces within multiple words, e.g. 'font Color'.
     // To achieve that, use `capitalLetters = /\s*[A-Z]/g` and `letter.trim().toLowerCase()`
@@ -479,7 +479,7 @@
         var styleDictionary = {},
             hyphenatedDictionary = {},
             elements = [make('svg'), document.createElement('a')];
-        
+
             elements.forEach(function(el){
                 var style = el.style,
                     prop;
@@ -525,11 +525,14 @@
                 styleDictionary[prop] = resolvedProp;
 
                 if (hyphenateResult){
-                    isPrefixed = resolvedProp.toLowerCase().indexOf(userAgent.prefix) === 0;
+                    // TODO: will raise false positives for opacity and opera
+                    isPrefixed = resolvedProp.toLowerCase().indexOf(userAgent.prefix) === 0 && userAgent.prefix !== 'o';
+
                     resolvedProp = hyphenate(resolvedProp, isPrefixed);
                     hyphenatedDictionary[prop] = resolvedProp;
                 }
             }
+
             return resolvedProp;
         };
     }());
@@ -565,18 +568,18 @@
         function(){
             return '';
         };
-    
+
 
     // Data cache
     cache = {};
     cacheNextId = 1;
-    
-    
+
+
     /////
-    
-    
+
+
     // PABLO COLLECTIONS
-    
+
     function PabloCollection(node, attr){
         if (node){
             // Create a named element, e.g. Pablo('circle', {})
@@ -608,15 +611,15 @@
         toArray: function(){
             return toArray(this);
         },
-        
+
         size: function(){
             return this.length;
         },
-        
+
         get: function(index){
             return this[index];
         },
-        
+
         eq: function(index){
             return index !== -1 ?
                 // Return zero-indexed node
@@ -643,7 +646,7 @@
                     prepend = false,
                     node, toAdd, nodeInArray, i;
 
-                // `prepend` 
+                // `prepend`
                 if (numNodes > 1 && typeof nodes[numNodes-1] === 'boolean'){
                     prepend = nodes[numNodes-1];
                     numNodes -= 1;
@@ -730,23 +733,23 @@
         concat: function(){
             return this.add.apply(Pablo(this), arguments);
         },
-        
+
         // Add new node(s) to the collection; accepts arrays or nodeLists
         unshift: function(){
             var args = toArray(arguments);
             args.push(true);
             return this.add.apply(this, args);
         },
-        
+
         // Remove node from end of the collection
         pop: function(){
             return Pablo(arrayProto.pop.call(this));
         },
-        
+
         shift: function(){
             return Pablo(arrayProto.shift.call(this));
         },
-        
+
         slice: function(begin, end){
             return Pablo(arrayProto.slice.call(this, begin, end));
         },
@@ -771,7 +774,7 @@
             arrayProto.sort.call(this, fn);
             return this;
         },
-        
+
         each: function(fn, context){
             if (this.length){
                 if (this.length === 1){
@@ -783,7 +786,7 @@
             }
             return this;
         },
-        
+
         map: function(fn, context){
             return Pablo(arrayProto.map.call(this, fn, context || this));
         },
@@ -814,7 +817,7 @@
 
 
         // MANIPULATION
-        
+
         detach: function(){
             return this.each(function(el){
                 var parentNode = el.parentNode;
@@ -835,7 +838,7 @@
             // Remove from the DOM
             return this.detach();
         },
-        
+
         empty: function(){
             // If the cache has any contents
             if (Object.keys(cache).length){
@@ -852,7 +855,7 @@
                 }
             });
         },
-        
+
         /* Arguments:
         `deepDom`: clones descendent DOM elements and DOM event listeners (default true)
         `withData` clones data associated with the element (default false)
@@ -898,7 +901,7 @@
                 return cloned;
             });
         },
-        
+
         // `deep` is whether to duplicate child nodes
         // `deepData` is whether to duplicate data on self and children
         // TODO: should there be a way of duplicating without adding to the DOM
@@ -911,7 +914,7 @@
                     repeats = 1;
                 }
 
-                // For performance, before cloning data, ensure that the elements 
+                // For performance, before cloning data, ensure that the elements
                 // or their descendents have data associated with them
                 if (withData){
                     withData = this.hasData();
@@ -921,7 +924,7 @@
                 }
 
                 duplicates = Pablo();
-                
+
                 // Clone the collection
                 while (repeats --){
                     duplicates.add(this.clone(true, withData, deepData));
@@ -947,7 +950,7 @@
             }
             return value;
         },
-        
+
         attr: function(attr, value){
             var el, attributes;
 
@@ -1016,7 +1019,7 @@
                 if (type === 'prop'){
                     return el[property];
                 }
-                
+
                 // Call method of name `type` and pass property
                 // e.g. 'attr', 'data', 'css', 'transform', 'transformCss', 'transition'
                 else {
@@ -1024,7 +1027,7 @@
                 }
             });
         },
-        
+
         removeAttr: function(attr) {
             if (this.length === 1){
                 removeAttribute(this[0], attr);
@@ -1036,7 +1039,7 @@
             }
             return this;
         },
-        
+
         content: function(text){
             var el;
 
@@ -1063,6 +1066,7 @@
                 // 'opacity, transform 1s ease-in'
                 propertiesRegex = /(^\s*|\s*,\s*)(-?[a-z][a-z0-9_\-]*)+/ig,
                 transitionKeywords = ['all', 'none', 'initial'];
+
 
             function prefixTransitionProperties(transitionValue){
                 var ret = '',
@@ -1151,7 +1155,7 @@
                 return this.each(function(el, i){
                     var styleObj = el.style,
                         prop, value;
-                    
+
                     for (prop in styles){
                         if (styles.hasOwnProperty(prop)){
                             value = this.getValue(styles[prop], i);
@@ -1159,6 +1163,7 @@
                             if (prop === resolvedTransition || prop === resolvedTransitionProperty){
                                 value = prefixTransitionProperties(value);
                             }
+
                             styleObj[prop] = value;
                         }
                     }
@@ -1292,7 +1297,7 @@
                         this.active = true;
 
                         this.ref = setTimeout(function(){
-                            // Make 'start' asynchronous, to allow binding to 
+                            // Make 'start' asynchronous, to allow binding to
                             // 'start' event and chaining of methods before start
                             ctrl.trigger('start');
                             ctrl.begin(ctrl.options.defer);
@@ -1381,7 +1386,7 @@
                 }
             });
 
-            // TEMP: will not be needed when a plain object can be 
+            // TEMP: will not be needed when a plain object can be
             // extended with Pablo.Event
             ['on', 'one', 'oneEach', 'off', 'trigger'].forEach(function(method){
                 Controller.prototype[method] = function(){
@@ -1438,8 +1443,8 @@
             return svg;
         },
 
-        // Get bounding box of all elements in collection
-        bbox: function(){
+        // TODO: always return SVGRect
+        _groupBox: function (nativeMethodName) {
             var allInDocument = this.isInDocument(),
                 total, svg;
 
@@ -1450,24 +1455,31 @@
             // All elements in the collection are in the DOM
             if (allInDocument){
                 if (this.length === 1){
-                    total = this[0].getBBox();
+                    total = this[0][nativeMethodName]();
                 }
 
                 else {
                     total = this.reduce(function(bbox, el){
-                        var elBbox = el.getBBox();
+                        var elBbox = el[nativeMethodName]();
 
-                        if (elBbox.x < bbox.x){
-                            bbox.x = elBbox.x;
+                        var x = elBbox.x || elBbox.left;
+                        var y = elBbox.y || elBbox.top;
+
+                        if (x < bbox.x){
+                            bbox.x = x;
                         }
-                        if (elBbox.y < bbox.y){
-                            bbox.y = elBbox.y;
+                        if (y < bbox.y){
+                            bbox.y = y;
                         }
-                        if (elBbox.x + elBbox.width > bbox.width){
-                            bbox.width = elBbox.x + elBbox.width;
+
+                        var width = x + elBbox.width - bbox.x;
+                        var height = y + elBbox.height - bbox.y;
+
+                        if (width > bbox.width){
+                            bbox.width = width;
                         }
-                        if (elBbox.y + elBbox.height > bbox.height){
-                            bbox.height = elBbox.y + elBbox.height;
+                        if (height > bbox.height){
+                            bbox.height = height;
                         }
                         return bbox;
                     }, {x:Infinity, y:Infinity, width:0, height:0});
@@ -1478,7 +1490,7 @@
             else {
                 if (this.length === 1 && this[0].nodeName === 'svg'){
                     this.appendTo(document.body);
-                    total = this.bbox();
+                    total = this._groupBox(nativeMethodName);
                     this.detach();
                 }
                 else {
@@ -1486,11 +1498,20 @@
                             .append(this.clone())
                             .appendTo(document.body);
 
-                    total = svg.children().bbox();
+                    total = svg.children()._groupBox(nativeMethodName);
                     svg.detach();
                 }
             }
             return total;
+        },
+
+        bboxClient: function () {
+            return this._groupBox('getBoundingClientRect');
+        },
+
+        // Get bounding box of all elements in collection
+        bbox: function () {
+            return this._groupBox('getBBox');
         },
 
         viewbox: function(values){
@@ -1587,6 +1608,63 @@
 
         toString: function(){
             return this.markup();
+        },
+
+        pathData: function (d) {
+          if (this[0].nodeName !== 'path') {
+            return d ? this : [];
+          }
+
+          if (Array.isArray(d)) {
+            var dValue = d
+            .map(function(command) {
+              return command[0] +
+              command.slice(1)
+              .map(function (value) {
+                return Array.isArray(value) ? value.join(',') : value;
+              })
+              .join(' ');
+            })
+            .join(' ');
+
+            return this.attr('d', dValue);
+          }
+
+          return this.attr('d')
+          // split into commands
+          .split(/(?=[a-z])/i)
+          // split into coordinate pairs
+          .map(function (command) {
+            return command.split(/[, ]/);
+          })
+          .map(function (command) {
+            command = command.filter(function (value) {
+                return !!value;
+            });
+
+            // Extract instruction letter, e.g. "M" from first coordinate pair
+            var instruction = command[0];
+            var values = command.slice(1);
+
+            var result = [instruction];
+            var isArc = instruction.toUpperCase() === 'A';
+
+            for (var i = 0; i < values.length; i++) {
+              var n1 = Number(values[i]);
+
+              if (isArc && i < 5) {
+                result.push(n1);
+                continue;
+              }
+
+              var n2 = Number(values[i + 1]);
+              i++;
+
+              result.push([n1, n2]);
+            }
+
+            return result;
+          });
         }
     });
 
@@ -1609,7 +1687,7 @@
 
 
         (function(){
-            var commaOrSpace = /(?:\s*,|\s)\s*/;
+            var commaOrSpace = /(?:\s*,|\s)\s*(!=[^\(]+\))/;
 
             function getItems(list, itemRegex, valueSeparator){
                 var matches = itemRegex.exec(list),
@@ -1841,6 +1919,170 @@
                 // Create collection.transformCss()
                 pabloCollectionApi.transformCss = support.css.transform ?
                     createTransformFunction('css') : noop;
+
+                // Flat transforms
+                function transformPoint (x, y, matrixValues) {
+                  var matrix;
+
+                  if (matrixValues.constructor === window.SVGMatrix) {
+                    matrix = matrixValues;
+                  }
+
+                  else {
+                    matrix = Pablo.svg()[0].createSVGMatrix();
+
+                    matrix.a = matrixValues.a;
+                    matrix.b = matrixValues.b;
+                    matrix.c = matrixValues.c;
+                    matrix.d = matrixValues.d;
+                    matrix.e = matrixValues.e;
+                    matrix.f = matrixValues.f;
+                  }
+
+                  var point = svg.createSVGPoint();
+
+                  point.x = x;
+                  point.y = y;
+
+                  return point.matrixTransform(matrix);
+                }
+
+                pabloCollectionApi.transformFlat = function () {
+                  this.transform.apply(this, arguments);
+
+                  this.forEach(function (el, i) {
+                    var matrix = el.getCTM();
+                    var elem = Pablo(el);
+                    var attr = elem.attr();
+                    var newAttr = {};
+
+                    if ('x' in attr && 'y' in attr) {
+                      var point = transformPoint(attr.x, attr.y, matrix);
+
+                      newAttr.x = point.x;
+                      newAttr.y = point.y;
+                    }
+
+                    else if ('cx' in attr && 'cy' in attr) {
+                      var point = transformPoint(attr.cx, attr.cy, matrix);
+
+                      newAttr.cx = point.x;
+                      newAttr.cy = point.y;
+                    }
+
+                    else if ('x1' in attr && 'y1' in attr) {
+                      var point = transformPoint(attr.x1, attr.y1, matrix);
+
+                      newAttr.x1 = point.x;
+                      newAttr.y1 = point.y;
+
+                      if ('x2' in attr && 'y2' in attr) {
+                        var point = transformPoint(attr.x2, attr.y2, matrix);
+
+                        newAttr.x2 = point.x;
+                        newAttr.y2 = point.y;
+                      }
+                    }
+
+                    if ('r' in attr) {
+                      newAttr.r = attr.r * matrix.a;
+
+                      // TODO: replace <circle> with an <ellipse> or <path>
+                      if (matrix.a !== matrix.d) {
+                        console.warn('pablo.transformFlat: ignoring scaleY', el, matrix);
+                      }
+                    }
+
+                    else if ('rx' in attr && 'ry' in attr) {
+                      newAttr.rx = attr.rx * matrix.a;
+                      newAttr.ry = attr.ry * matrix.d;
+                    }
+
+                    if ('width' in attr) {
+                      newAttr.width = attr.width * matrix.a;
+                    }
+
+                    if ('height' in attr) {
+                      newAttr.height = attr.height * matrix.d;
+                    }
+
+                    if ('stroke-width' in attr) {
+                      newAttr['stroke-width'] = attr['stroke-width'] * matrix.a;
+                    }
+
+                    if ('points' in attr) {
+                        var points = attr.points.split(' ').map(function (pair) {
+                            return pair.split(',');
+                        });
+
+                      newAttr.points = points.reduce(function (points, pair) {
+                        var x = Number(pair[0]);
+                        var y = Number(pair[1]);
+                        var point = transformPoint(x, y, matrix);
+
+                        return points + point.x + ',' + point.y + ' ';
+                      }, '').slice(0, -1);
+                    }
+
+                    if ('d' in attr) {
+                      var pathData = elem.pathData();
+                      var deltaMatrix = {a: matrix.a, b: matrix.b, c: matrix.c, d: matrix.d, e:0, f:0};
+
+                      var newData = pathData.map(function (command) {
+                        var instruction = command[0];
+                        var coords = command.slice(1);
+                        var instructionUpper = instruction.toUpperCase();
+                        var isAbsolute = instruction === instructionUpper;
+                        var currentMatrix = isAbsolute ?
+                          matrix : {a: matrix.a, b: matrix.b, c: matrix.c, d: matrix.d, e:0, f:0};
+                        var result = [instruction];
+
+                        if (instructionUpper === 'A') {
+                            var values = coords;
+
+                            if (values.length !== 6) {
+                                throw new Error('Invalid arcto in path');
+                            }
+
+                            var rx = values[0] * matrix.a;
+                            var ry = values[1] * matrix.d;
+                            var x = values[5][0];
+                            var y = values[5][1];
+
+                            var pos = transformPoint(x, y, currentMatrix);
+
+                            result.push(
+                                rx,
+                                ry,
+                                values[2],
+                                values[3],
+                                values[4],
+                                [pos.x, pos.y]
+                            );
+
+                            return result;
+                        }
+
+                        coords.forEach(function (coords) {
+                          var point = transformPoint(coords[0], coords[1], currentMatrix);
+                          result.push([point.x, point.y]);
+                        });
+
+                        return result;
+                      });
+
+                      elem.pathData(newData);
+                    }
+
+                    if (Object.keys(newAttr).length) {
+                      elem.attr(newAttr);
+                    }
+                  });
+
+                  return this
+                  .transform(null)
+                  .transformCss(null);
+                };
             }());
 
 
@@ -1987,9 +2229,9 @@
                             }
 
                             // It is unknown if the CSS property already exists on every
-                            // element (and it would be expensive to determine this), so 
+                            // element (and it would be expensive to determine this), so
                             // set a timeout after the transition is applied to ensure it
-                            // renders 
+                            // renders
                             else {
                                 window.setTimeout(function(){
                                     updateStyle(collection, name, to);
@@ -2057,7 +2299,7 @@
 
                     return function(transitions, value, values){
                         var list, name, match, isSingle;
-                        
+
                         // For an empty collection, return an empty object if no arguments
                         // were passed, otherwise return the collection
                         if (!this.length){
@@ -2150,7 +2392,7 @@
 
                         return this;
                     };
-                }());   
+                }());
             }
 
             else {
@@ -2229,7 +2471,7 @@
                 },
 
             // type: 'svg' (default), 'png' or 'jpeg'
-            // callback (optional): When the image has loaded, the callback will 
+            // callback (optional): When the image has loaded, the callback will
             // be passed a collection containing the image. If the image fails, to load,
             // the callback is passed `null`
             toImage: support.image.svg ?
@@ -2248,12 +2490,12 @@
                         if (dataUrl){
                             // If no dimensions, then give the image zero
                             // dimensions.
-                            // The bbox() check is made to prevent empty <svg> 
+                            // The bbox() check is made to prevent empty <svg>
                             // elements creating an image with the browser's
                             // default dimenstions for an empty <svg> element
                             // (seen in Chrome 32, Firefox 24 & Opera 12.16
                             if (bbox.width <= 0 || bbox.height <= 0){
-                                // TODO: Currently, the bbox() call is made for 
+                                // TODO: Currently, the bbox() call is made for
                                 // all types of elements, not just <svg> elements,
                                 // as a precaution. If no other elements need this
                                 // check, then only call bbox() when the collection
@@ -2474,13 +2716,13 @@
 
                 // If there are no elements in the collection, so the collection
                 // is empty, then store a plain object to carry the collection's
-                // state. Used, for example, to allow an empty collection to 
+                // state. Used, for example, to allow an empty collection to
                 // have events bound and triggered to it.
                 //      `var e = Pablo().on('foo', fn); e.trigger('foo');`
                 if (!this.length){
                     arrayProto.push.call(this, {});
                 }
-                
+
                 // Set data for each element
                 return this.each(function(el){
                     var id = el[cacheExpando];
@@ -2631,10 +2873,10 @@
             }
 
             // `listener` is the original callback function
-            // `wrapper` is the function actually applied to the DOM element, and 
+            // `wrapper` is the function actually applied to the DOM element, and
             // may modify the original listener, e.g. by changing the `this` object
 
-            // If a `this` object is given, then bind the listener to the required 
+            // If a `this` object is given, then bind the listener to the required
             // `this` context
             // TODO: change default context to collection instead of DOM element?
             if (context){
@@ -2648,7 +2890,7 @@
 
             isSingle = this.length === 1;
 
-            // If there are multiple, space-delimited event types, then cycle 
+            // If there are multiple, space-delimited event types, then cycle
             // through each one
             return this.processList(type, function(type){
                 // Cycle through each element in the collection
@@ -2661,7 +2903,7 @@
                         eventsCache = {};
                         node.data(eventsNamespace, eventsCache);
                     }
-                
+
                     cache = eventsCache[type];
                     if (!cache){
                         cache = eventsCache[type] = [];
@@ -2677,7 +2919,7 @@
                                 event &&
                                 // `event.pablo` is set in trigger() for manual
                                 // event triggering. Delegate events do not currently
-                                // support manual triggering - e.g. 
+                                // support manual triggering - e.g.
                                 // delegate = Pablo('g.foo');
                                 // targets = delegate.find('circle.bar');
                                 // parent.on('click', targets, listener);
@@ -2727,8 +2969,8 @@
             if (typeof useCapture === 'undefined'){
                 useCapture = false;
             }
-            
-            // If there are multiple, space-delimited event types, then cycle 
+
+            // If there are multiple, space-delimited event types, then cycle
             // through each one
             return this.processList(type, function(type){
                 this.each(function(el){
@@ -2776,7 +3018,7 @@
                             }
 
                             // If looking for a specific listener, remove from cache
-                            // and break the loop. NOTE: if the listener was set 
+                            // and break the loop. NOTE: if the listener was set
                             // multiple times, it will need removal multiple times.
                             if (listener){
                                 delete cache[i];
@@ -2791,7 +3033,7 @@
                     }
                     // Delete the events container for this element, if empty
                     if (!Object.keys(eventsCache).length){
-                        node.removeData(eventsNamespace); 
+                        node.removeData(eventsNamespace);
                     }
                 });
             });
@@ -2843,7 +3085,7 @@
                     el = node[0] || node;
 
                 if (eventsCache){
-                    // If there are multiple, space-delimited event types, then cycle 
+                    // If there are multiple, space-delimited event types, then cycle
                     // through each one
                     node.processList(type, function(type){
                         var cache = eventsCache[type];
@@ -2879,7 +3121,7 @@
                 });
             };
         }()),
-        
+
         processList: function(item, fn){
             var collection = this;
 
@@ -2904,9 +3146,9 @@
 
 
     // API SHORTCUTS
-        
+
     // iterator e.g. `function(el, insertEl){el.appendChild(insertEl);}`
-    // `insertIntoThis` is boolean flag (default true) - if true, will insert 
+    // `insertIntoThis` is boolean flag (default true) - if true, will insert
     // subject elements into the collection
     function insert(iterator, insertIntoThis, returnThis){
         return function(node, attr, withData, deepData){
@@ -3000,7 +3242,7 @@
 
         // TRAVERSAL
         // NOTE on svgElement.children: ideally, we'd use the 'children'
-        // collection, instead of 'childNodes'. Even if a browser implements 
+        // collection, instead of 'childNodes'. Even if a browser implements
         // 'children' on HTML elements, it isn't always implemented on SVG elements
         // See https://hacks.mozilla.org/2009/06/dom-traversal/
         // Bug report in WebKit: https://bugs.webkit.org/show_bug.cgi?id=112698
@@ -3018,7 +3260,7 @@
         viewports:    traverse('viewportElement', true),
 
         owner: function(selectors){
-            // Use try/catch as Firefox 23 throws error on attempting to access the 
+            // Use try/catch as Firefox 23 throws error on attempting to access the
             // `ownerSVGElement` of an element out of the DOM
             // https://bugzilla.mozilla.org/show_bug.cgi?id=912311
             try {
@@ -3030,7 +3272,7 @@
         },
 
         owners: function(selectors){
-            // Use try/catch as Firefox 23 throws error on attempting to access the 
+            // Use try/catch as Firefox 23 throws error on attempting to access the
             // `ownerSVGElement` of an element out of the DOM
             // https://bugzilla.mozilla.org/show_bug.cgi?id=912311
             try {
@@ -3114,7 +3356,7 @@
 
     /////
 
-    
+
     // CSS CLASSES
 
     // Supports space-delimited multiple classNames, as well as attribute values
@@ -3239,7 +3481,7 @@
         if (canBeWrapped(attr)){
             return new PabloCollection(arguments);
         }
-            
+
         return new PabloCollection(node, attr);
     }
 
@@ -3247,7 +3489,7 @@
     function isPablo(obj){
         return obj instanceof Pablo.Collection;
     }
-    
+
     // Pablo methods
     extend(Pablo, {
         version: pabloVersion,
@@ -3319,7 +3561,7 @@
 
             if (XMLHttpRequest){
                 xhr = new XMLHttpRequest();
-                
+
                 xhr.onload = function(){
                     callback(this.responseText, this);
                 };
@@ -3354,7 +3596,7 @@
 
     /////
 
-    
+
     // SVG ELEMENT METHODS
     svgElementNames.split(' ')
         .forEach(function(nodeName){
@@ -3385,7 +3627,7 @@
                     return Pablo(make(nodeName), attr);
                 };
             }
-            
+
             // Add a new method namespace for each element name
             Pablo.template(nodeName, createElement);
 
@@ -3394,9 +3636,9 @@
             pabloCollectionApi[camelCaseName] = pabloCollectionApi[nodeName];
         });
 
-    
+
     /////
-    
+
     // Set as a global variable
     window.Pablo = Pablo;
 

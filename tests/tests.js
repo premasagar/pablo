@@ -24,15 +24,15 @@
     var document = window.document,
         Array = window.Array,
         Object = window.Object,
-        testElement = document && 
+        testElement = document &&
           'createElementNS' in document &&
           document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
-        matchesProp = testElement.matches || 
+        matchesProp = testElement.matches ||
           testElement.mozMatches ||
           testElement.webkitMatches ||
           testElement.oMatches ||
-          testElement.msMatches || 
-          testElement.matchesSelector || 
+          testElement.msMatches ||
+          testElement.matchesSelector ||
           testElement.mozMatchesSelector ||
           testElement.webkitMatchesSelector ||
           testElement.oMatchesSelector ||
@@ -142,7 +142,7 @@
       it.skip(test('svgElement.classList', typeof testElement.classList === 'object'));
 
       // NOTE on svgElement.children: ideally, we'd use the 'children'
-      // collection, instead of 'childNodes'. Even if a browser implements 
+      // collection, instead of 'childNodes'. Even if a browser implements
       // 'children' on HTML elements, it isn't always implemented on SVG elements
       // See https://hacks.mozilla.org/2009/06/dom-traversal/
       // Bug report in WebKit: https://bugs.webkit.org/show_bug.cgi?id=112698
@@ -169,7 +169,7 @@
     describe('Support for transition()', function(){
       it.skip(test('supports CSS transitions', Pablo.support.css.transition));
     });
-    
+
 
     describe('Support for toImage("png") and toImage("jpeg")', function(){
       function setResult(desc, testFn){
@@ -306,7 +306,7 @@
 
         it('should return a pablo collection containing elements when passed a Pablo collection', function () {
           var subject  = Pablo(document.getElementById('test-subjects').childNodes),
-              subject2 = Pablo(subject); 
+              subject2 = Pablo(subject);
 
           expect(subject2 instanceof Pablo.Collection);
           expect(subject2.length).to.equal(3);
@@ -375,7 +375,7 @@
             expect(subject[0].nodeName.toLowerCase()).to.equal('g');
             expect(Pablo.hasSvgNamespace(subject[0])).to.be.true;
         });
-        
+
         it('Pablo(markup) should allow nested elements', function () {
             var subject = Pablo('<g><a></a><rect></rect></g>');
 
@@ -516,7 +516,7 @@
           it('.appendTo(elementName, attributes) should append the subject collection to a newly created element respective of the passed arguments', function () {
             var subject = Pablo.circle({foo:'bar'}),
                 parent      = subject.appendTo('rect', {})[0].parentNode;
-            
+
             expect(parent.childNodes.length).to.equal(1);
             expect(parent.childNodes[0] instanceof SVGCircleElement).to.be.true;
             expect(parent.childNodes[0].getAttribute('foo')).to.equal('bar');
@@ -871,7 +871,7 @@
 
             subject.svg().circle().ellipse().g().rect().a();
             deepChild = subject.find('a');
-            
+
             expect(deepChild.root()[0] instanceof SVGSVGElement).to.be.true;
           });
 
@@ -907,7 +907,7 @@
 
             subject.svg().circle().svg({foo:'bar'}).circle().g().a(),
             deepChild = subject.find('a');
-            
+
             expect(deepChild.owner()[0].getAttribute('foo')).to.equal('bar');
           });
         });
@@ -919,7 +919,7 @@
 
             subject.svg({fiz: 'buz'}).circle().svg({foo:'bar'}).circle().a(),
             deepChild = subject.find('a');
-            
+
             expect(deepChild.owners()[0].getAttribute('foo')).to.equal('bar');
             expect(deepChild.owners()[1].getAttribute('fiz')).to.equal('buz');
           });
@@ -944,7 +944,7 @@
 
             collection.svg().a().svg({'vp':'a'}).circle();
             collection.svg().a().svg({'vp':'b'}).ellipse();
-          
+
             testCollection = Pablo([
                                 collection.find('circle'),
                                 collection.find('ellipse')
@@ -985,7 +985,7 @@
 
             collection.svg({'vp':'b'}).a().svg({'vp':'a'}).circle();
             collection.svg({'vp':'d'}).a().svg({'vp':'c'}).ellipse();
-          
+
             testCollection = Pablo([
                                 collection.find('circle'),
                                 collection.find('ellipse')
@@ -1847,7 +1847,7 @@
 
             expect(result1.length).to.eql(2);
             expect(result2.length).to.eql(2);
-            
+
             expect(result1[0].opacity[0].indexOf('1')).to.be.above(-1);
             expect(result2[0].opacity[0].indexOf('1')).to.be.above(-1);
             expect(result1[1].fill[0].indexOf('2')).to.be.above(-1);
@@ -1972,11 +1972,11 @@
 
             it('.transition(name, perElementValues) should allow values to be passed on a per-element basis', function () {
               var subject = Pablo(['rect', 'rect']),
-                  expected1 = [900],
+                  expected1 = [9000],
                   expected2 = [2000, 'ease-out', '5s'];
 
               // Test with no transform applied
-              subject.transition('opacity', [900, expected2]);
+              subject.transition('opacity', [9000, expected2]);
               expect(subject.eq(0).transition('opacity')[0].indexOf('9')).to.be.above(-1);
               expect(subject.eq(1).transition('opacity')[0].indexOf('9')).to.equal(-1);
 
@@ -1985,8 +1985,8 @@
 
               // Test with an existing transition applied
               subject.css('transition', value);
-              subject.transition('opacity', [900, expected2]);
-              
+              subject.transition('opacity', [9000, expected2]);
+
               expect(subject.eq(0).transition('opacity')[0].indexOf('9')).to.equal(0);
               expect(subject.eq(1).transition('opacity')[0].indexOf('2')).to.equal(0);
 
@@ -2000,11 +2000,11 @@
 
             it('.transition({name: perElementValues}) should allow values to be passed on a per-element basis', function () {
               var subject = Pablo(['rect', 'rect']),
-                  expected1 = [900],
+                  expected1 = [9000],
                   expected2 = [2000, 'ease-out', '5s'];
 
               // Test with no transform applied
-              subject.transition({opacity: [900, expected2]});
+              subject.transition({opacity: [9000, expected2]});
               expect(subject.eq(0).transition('opacity')[0].indexOf('9')).to.be.above(-1);
               expect(subject.eq(1).transition('opacity')[0].indexOf('9')).to.equal(-1);
 
@@ -2013,8 +2013,8 @@
 
               // Test with an existing transition applied
               subject.css('transition', value);
-              subject.transition({opacity: [900, expected2]});
-              
+              subject.transition({opacity: [9000, expected2]});
+
               expect(subject.eq(0).transition('opacity')[0].indexOf('9')).to.equal(0);
               expect(subject.eq(1).transition('opacity')[0].indexOf('2')).to.equal(0);
 
@@ -2127,7 +2127,7 @@
               expect(result2.indexOf('5')).to.not.equal(-1);
               expect(result1.indexOf('1')).to.not.equal(-1);
               expect(result2.indexOf('1')).to.not.equal(-1);
-              
+
               expect(result1.indexOf('fill')).to.not.equal(-1);
               expect(result1.indexOf('9')).to.not.equal(-1);
               expect(result2.indexOf('fill')).to.not.equal(-1);
@@ -2141,7 +2141,7 @@
               subject.transition({opacity:[500, 'cubic-bezier(0.42, 0, 1, 1)', 100]});
               result1 = subject.eq(0).css('transition');
               result2 = subject.eq(1).css('transition');
-              
+
               expect(result1.indexOf('cubic-bezier(0.42,')).to.not.equal(-1);
               expect(result2.indexOf('cubic-bezier(0.42,')).to.not.equal(-1);
             });
@@ -2153,7 +2153,7 @@
               subject.transition({name:'opacity'});
               result1 = subject.eq(0).css('transition');
               result2 = subject.eq(1).css('transition');
-              
+
               expect(result1.indexOf('opacity')).to.equal(0);
               expect(result2.indexOf('opacity')).to.equal(0);
             });
@@ -2205,7 +2205,7 @@
               subject.transition({name:'opacity', dur:'1s', timing:'ease-in', delay:'2s'});
               result1 = subject.eq(0).css('transition');
               result2 = subject.eq(1).css('transition');
-              
+
               expect(result1.indexOf('opacity')).to.equal(0);
               expect(result2.indexOf('opacity')).to.equal(0);
               expect(result1.indexOf('1s')).to.not.equal(-1);
@@ -2221,7 +2221,7 @@
               subject.transition([{name:'opacity'}, {name:'fill'}]);
               result1 = subject.eq(0).css('transition');
               result2 = subject.eq(1).css('transition');
-              
+
               expect(result1.indexOf('opacity')).to.equal(0);
               expect(result2.indexOf('opacity')).to.equal(0);
               expect(result2.indexOf('fill')).to.not.equal(-1);
@@ -2232,7 +2232,7 @@
               var subject = Pablo(['rect', 'rect']);
 
               subject.transition({name:'opacity', from:0.5});
-              
+
               expect(Number(subject.eq(0).css('opacity'))).to.equal(0.5);
               expect(Number(subject.eq(1).css('opacity'))).to.equal(0.5);
             });
@@ -2241,7 +2241,7 @@
               var subject = Pablo(['rect', 'rect']);
 
               subject.transition({name:'opacity', from:0.5, to:0.2});
-              
+
               expect(Number(subject.eq(0).css('opacity'))).to.equal(0.5);
               expect(Number(subject.eq(1).css('opacity'))).to.equal(0.5);
 
@@ -2650,7 +2650,7 @@
           });
         });
       });
-      
+
       describe('Collection iteration', function () {
         describe('.each()/.forEach()', function () {
           it('should iterate over a collection with only one element', function () {
@@ -2687,7 +2687,7 @@
             expect(iterationIndices[2]).to.equal(2);
           });
 
-          
+
           it('should not call callback if collection contains no elements', function () {
             var subject = Pablo(),
                 iterationIndices = [],
@@ -2730,7 +2730,7 @@
                 contextWasCorrect = true;
               }
             }, context);
-            
+
             expect(pabloItems[0]).to.be.an.instanceof(SVGRectElement);
             expect(pabloItems[1]).to.be.an.instanceof(SVGCircleElement);
             expect(pabloItems[2]).to.be.an.instanceof(SVGAElement);
@@ -2833,7 +2833,7 @@
           it('.pluck(\'prop\', property) should return an array of property values for each element in the collection', function () {
             var subject = Pablo([Pablo.rect(), Pablo.ellipse()]),
                 arr;
-            
+
             subject[0].foo = '123';
             subject[1].foo = '456';
 
@@ -2951,7 +2951,7 @@
           });
         });
 
-        
+
 
         describe('.some()', function () {
           it('.some(function) should return true or false based on the testing function\'s evaluation', function () {
@@ -3012,7 +3012,7 @@
           it('.some(SVGElement) should return true if the matching SVGElement is found in the PabloCollection', function () {
             var subject  = Pablo([Pablo.rect(), Pablo.ellipse()]),
                 expected = subject.some(subject[1]);
-            
+
             expect(expected).to.be.true;
           });
 
@@ -3020,7 +3020,7 @@
             var svg = Pablo('body').svg(),
                 subject  = Pablo([Pablo.rect(), Pablo.ellipse()]).appendTo(svg),
                 expected = subject.some('rect');
-            
+
             svg.detach();
             expect(expected).to.be.true;
           });
@@ -3029,7 +3029,7 @@
             var svg = Pablo('body').svg(),
                 subject  = Pablo([Pablo.rect(), Pablo.ellipse({id: 'foo'})]).appendTo(svg),
                 expected = subject.some('#foo');
-            
+
             svg.detach();
             expect(expected).to.be.true;
           });
@@ -3042,7 +3042,7 @@
                 result1 = subject.some('rect'),
                 result2 = subject.some('span a'),
                 result3 = subject.some('g');
-            
+
             svg.detach();
             expect(result1).to.be.true;
             expect(result2).to.be.true;
@@ -3077,7 +3077,7 @@
             outcome1 = subject.every(test);
             subject[1].setAttribute('foo', 'wrong');
             outcome2 = subject.every(test);
-            
+
             expect(outcome1).to.be.true;
             expect(outcome2).to.be.false;
           });
@@ -3520,7 +3520,7 @@
             expect(Pablo.hasHtmlNamespace(Pablo.circle()[0])).to.be.false;
           });
         });
-        
+
         describe('.camelCase()', function () {
           it('.camelCase(str) should return a camelCase string based of the passed hyphenated string', function () {
             expect(Pablo.camelCase('-moz-transition')).to.equal('mozTransition');
@@ -3604,7 +3604,7 @@
 
         it('.removeData(key) should remove the key from the data associated with each element in the collection', function () {
           var subject = Pablo.rect();
-          
+
           subject.data({
             foo: 'bar',
             fiz: 123
@@ -3667,7 +3667,7 @@
       });
 
       describe('.remove()', function () {
-        it('.remove() should remove data on the removed element and its descendants ', function () {        
+        it('.remove() should remove data on the removed element and its descendants ', function () {
           var subject = Pablo.rect().append([Pablo.ellipse(), Pablo.ellipse()]);
 
           subject.children().eq(0).append(Pablo.circle());
@@ -4338,7 +4338,7 @@
           expect(copy.children()[1].nodeName).to.equal('svg');
       });
     });
-    
+
 
     describe('.markup() HTML', function () {
       it('.markup() should return a markup string', function () {
@@ -4394,15 +4394,15 @@
         expect(circlebbox.height).to.equal(20);
       });
 
-      it('.bbox() should give dimensions and position of the multiple elements in the collection', function () {
+      it('.bbox() should give dimensions and position of multiple elements in the collection', function () {
         var bbox = Pablo([circle, rect]).bbox();
         expect(bbox.x).to.equal(90);
         expect(bbox.y).to.equal(90);
-        expect(bbox.width).to.equal(250);
-        expect(bbox.height).to.equal(190);
+        expect(bbox.width).to.equal(160);
+        expect(bbox.height).to.equal(100);
       });
 
-      it('.bbox() of <svg> element should give dimensions and position of the its children', function () {
+      it('.bbox() of <svg> element should give dimensions and position of its children', function () {
         var bbox = svg.bbox();
         expect(bbox.x).to.equal(90);
         expect(bbox.y).to.equal(90);
@@ -4583,7 +4583,7 @@
               expect(canvas.length).to.equal(1);
               expect(canvas[0]).to.be.an.instanceof(HTMLCanvasElement);
               expect(this).to.equal(collection);
-              
+
               if (this === subject1){
                 expect(canvas[0].width).to.equal(0);
                 expect(canvas[0].height).to.equal(0);
@@ -4685,7 +4685,7 @@
           expect(subject[0].tagName.toLowerCase()).to.equal(element.toLowerCase());
           expect(subject[0].getAttribute('foo')).to.equal('bar');
         });
-      });    
+      });
     });
   });
 

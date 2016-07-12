@@ -7,7 +7,8 @@ module.exports = function(grunt) {
         options: {
           globals: {
             window: true
-          }
+          },
+          esnext: true
         }
       },
       uglify: {
