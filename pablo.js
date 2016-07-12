@@ -1461,7 +1461,6 @@
                 else {
                     total = this.reduce(function(bbox, el){
                         var elBbox = el[nativeMethodName]();
-
                         var x = elBbox.x || elBbox.left;
                         var y = elBbox.y || elBbox.top;
 
