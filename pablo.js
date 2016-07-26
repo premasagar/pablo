@@ -21,9 +21,9 @@
         head, testElement, arrayProto, matchesProp, userAgent, camelCase;
 
 
-    function make(elementName){
+    function make(elementName, nsType){
         return typeof elementName === 'string' &&
-            document.createElementNS(svgns, elementName) ||
+            document.createElementNS(nsType ? Pablo.ns[nsType] : svgns, elementName) ||
             null;
     }
 
@@ -1533,13 +1533,13 @@
             return [0, 0, 0, 0];
         },
 
-        crop: function(to){
+        crop: function(to, round){
             if (to && canBeWrapped(to)){
                 to = toPablo(to);
             }
 
             return this.each(function(el){
-                var node, bbox;
+                var node, bbox, attributes;
 
                 // This is an <svg> element
                 if (el.nodeName === 'svg'){
@@ -1567,18 +1567,38 @@
                         bbox = node.bbox();
                     }
 
-                    // HACK for Safari 6.0.5
-                    // If <svg> element is already in the DOM, the width &
-                    // height change is not correctly rendered
-                    node.removeAttr('width').removeAttr('height');
-                    // end HACK for Safari 6.0.5
+                    var x = bbox.x;
+                    var y = bbox.y;
+                    var width = bbox.width;
+                    var height = bbox.height;
 
-                    // Apply dimension attributes to the <svg> element
-                    node.attr({
-                        width:   bbox.width,
-                        height:  bbox.height,
-                        viewBox: bbox.x + ' ' + bbox.y + ' ' + bbox.width + ' ' + bbox.height
-                    });
+                    if (round) {
+                        x = Math.round(x);
+                        y = Math.round(y);
+                        width = Math.round(width);
+                        height = Math.round(height);
+                    }
+
+                    var viewBox = x + ' ' + y + ' ' + width + ' ' + height;
+
+                    attributes = node.attr();
+
+                    if (attributes.width !== width || attributes.height !== height || attributes.viewBox !== viewBox) {
+
+                        // HACK for Safari 6.0.5
+                        // If <svg> element is already in the DOM, the width &
+                        // height change is not correctly rendered
+                        // TODO: avoid for other browsers
+                        //node.removeAttr('width').removeAttr('height');
+                        // end HACK for Safari 6.0.5
+
+                        // Apply dimension attributes to the <svg> element
+                        node.attr({
+                            width:   width,
+                            height:  height,
+                            viewBox: viewBox
+                        });
+                    }
                 }
             });
         },
@@ -3590,7 +3610,11 @@
             });
 
             return collection;
-        }
+        },
+
+        html: function (elementName, attr){
+            return Pablo(make(elementName, 'html'), attr);
+        },
     });
 
 
@@ -3607,7 +3631,16 @@
 
             // <svg> elements
             if (nodeName === 'svg'){
-                createElement = function(attr){
+                createElement = function(attr, arg2){
+                    var elementName;
+
+                    // Create an svg element by name and return
+                    if (typeof attr === 'string') {
+                        elementName = attr;
+                        attr = arg2;
+                        return Pablo(make(elementName), attr);
+                    }
+
                     // Extend <svg> element with SVG version and xmlns namespace
                     attr = extend(attr, {
                         version: svgVersion,
