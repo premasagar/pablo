@@ -190,7 +190,7 @@
             }
             else {
                 support.image[type] = function(callback){
-                    Pablo.line({x2:1}).dataUrl(type, function(dataUrl){
+                    Pablo.line({x2:1,y2:1}).dataUrl(type, function(dataUrl){
                         support.image[type] = dataUrl ? callbackTrue : callbackFalse;
                         callback(!!dataUrl);
                     });
