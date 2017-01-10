@@ -14,7 +14,7 @@
     'use strict';
     
     var /* SETTINGS */
-        pabloVersion = '0.5.1',
+        pabloVersion = '0.5.2',
         svgVersion = 1.1,
         svgns = 'http://www.w3.org/2000/svg',
 
@@ -190,7 +190,7 @@
             }
             else {
                 support.image[type] = function(callback){
-                    Pablo.line({x2:1}).dataUrl(type, function(dataUrl){
+                    Pablo.line({x2:1,y2:1}).dataUrl(type, function(dataUrl){
                         support.image[type] = dataUrl ? callbackTrue : callbackFalse;
                         callback(!!dataUrl);
                     });
