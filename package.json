@@ -9,16 +9,32 @@
     "url": "https://github.com/premasagar/pablo.git"
   },
   "main": "pablo.js",
-  "dependencies": {},
+  "scripts": {
+    "babel-node": "babel-node",
+    "dev": "nodemon --exec npm run babel-node -- src/index.js",
+    "test-modules": "nodemon --exec npm run babel-node -- tests/test-modules.js",
+    "test-test": "node_modules/mocha/bin/mocha --require babel-polyfill --require babel-register tests/tests.js",
+    "test": "grunt test"
+  },
+  "dependencies": {
+    "babel-polyfill": "^6.26.0",
+    "babel-register": "^6.26.0",
+    "chai": "^4.1.2",
+    "jsdom": "^11.12.0",
+    "mocha": "^5.2.0",
+    "web-animations-js": "^2.3.1",
+    "xmldom": "^0.1.27"
+  },
   "devDependencies": {
+    "@harrison-ifeanyichukwu/xml-serializer": "^1.2.0",
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
     "grunt": "~0.4.1",
     "grunt-contrib-jshint": "^1.0.0",
     "grunt-contrib-watch": "~0.4.3",
     "grunt-lib-phantomjs": "^1.1.0",
     "grunt-mocha": "~0.4.1",
-    "grunt-notify": "~0.2.13"
-  },
-  "scripts": {
-    "test": "grunt test"
+    "grunt-notify": "~0.2.13",
+    "raf": "^3.4.0"
   }
 }

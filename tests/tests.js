@@ -1,10 +1,30 @@
 (function(){
   'use strict';
 
-  var expect = chai.expect,
-      assert = chai.assert,
-      isPhantomJS = navigator.userAgent.indexOf('PhantomJS') !== -1,
-      undefined;
+  if (typeof Pablo === 'undefined') {
+    var Pablo = require('../src').default;
+    var chai = require('chai');
+  }
+
+  if (typeof window === 'undefined') {
+    var JSDOM = require('jsdom').JSDOM;
+
+    var dom = new JSDOM('<!DOCTYPE html><body></body>');
+    var window = dom.window;
+    var document = window.document;
+
+    Pablo.window = window;
+    Pablo.document = document;
+
+    if (!window.XMLSerializer) {
+      var XMLSerializer = require('@harrison-ifeanyichukwu/xml-serializer');
+      window.XMLSerializer = XMLSerializer;
+    }
+  }
+
+  var expect = chai.expect;
+  var assert = chai.assert;
+  var isPhantomJS = typeof window !== 'undefined' && window.navigator.userAgent.indexOf('PhantomJS') !== -1;
 
   describe('Test suite', function () {
     it('should load the Pablo library into the browser', function () {
@@ -21,10 +41,7 @@
       return (condition ? '✓' : '✖') + ' ' + desc;
     }
 
-    var document = window.document,
-        Array = window.Array,
-        Object = window.Object,
-        testElement = document &&
+    var testElement = document &&
           'createElementNS' in document &&
           document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
         matchesProp = testElement.matches ||
@@ -45,7 +62,7 @@
 
     describe('Essential native APIs', function(){
       it('document', function(){
-        expect(document).to.be.an('object');
+        expect(typeof document).to.equal('object');
       });
 
       it('document.createElementNS', function(){
@@ -53,7 +70,8 @@
       });
 
       it('can create SVG elements', function(){
-        expect(testElement).to.be.a('object');
+        // expect(testElement).to.be.an('object');
+        expect(typeof testElement).to.equal('object');
       });
 
       it('window.Element', function(){
@@ -77,7 +95,7 @@
       });
 
       it('svg.attributes', function(){
-        expect(testElement.attributes).to.be.an('object');
+        expect(typeof testElement.attributes).to.equal('object');
       });
 
       it('svg.querySelectorAll', function(){
@@ -158,58 +176,67 @@
     });
 
     describe('Support for markup()', function(){
-      it.skip(test('generates markup from element', Pablo.a().markup().indexOf('<a') === 0));
-      it.skip(test('outputs namespace prefixes in markup. If this fails then dataUrl() and toImage() are not reliable when namespaced attributes are present, e.g. xlink:href', Pablo.support.markup));
+      it.skip(test('generates markup from element', Pablo.el('a').markup().indexOf('<a') === 0));
+      it.skip(test('outputs namespace prefixes in markup. If this fails then dataUrl() and toImage() are not reliable when namespaced attributes are present, e.g. xlink:href', Pablo.support && Pablo.support.markup));
     });
 
     describe('Support for transformCss()', function(){
-      it.skip(test('supports CSS transforms', Pablo.support.css.transform));
+      it.skip(test('supports CSS transforms', Pablo.support && Pablo.support.css.transform));
     });
 
     describe('Support for transition()', function(){
-      it.skip(test('supports CSS transitions', Pablo.support.css.transition));
+      it.skip(test('supports CSS transitions', Pablo.support && Pablo.support.css.transition));
     });
 
-
     describe('Support for toImage("png") and toImage("jpeg")', function(){
-      function setResult(desc, testFn){
-        testFn(function(supported){
-          window.setTimeout(function(){
-            jQuery('.test.pending > h2').each(function(){
-              var pendingDesc = this.textContent;
-              if (pendingDesc === desc){
-                this.textContent = test(desc, supported);
-                return false;
-              }
-            });
-          }, 250);
-        });
-      }
+      // function setResult(desc, testFn){
+      //   testFn(function(supported){
+      //     window.setTimeout(function(){
+      //       jQuery('.test.pending > h2').each(function(){
+      //         var pendingDesc = this.textContent;
+      //         if (pendingDesc === desc){
+      //           this.textContent = test(desc, supported);
+      //           return false;
+      //         }
+      //       });
+      //     }, 250);
+      //   });
+      // }
 
-      var desc;
+      // var desc;
 
-      desc = 'image("png") creates PNG via canvas';
-      it.skip(desc);
-      setResult(desc, function(done){
-        Pablo.support.image.png(done);
+      // desc = 'image("png") creates PNG via canvas';
+      // it.skip(desc);
+      // setResult(desc, function(done){
+      //   Pablo.support && Pablo.support.image.png(done);
+      // });
+
+      // desc = 'image("jpeg") creates JPEG via canvas';
+      // it.skip(desc);
+      // setResult(desc, function(done){
+      //   Pablo.support && Pablo.support.image.jpeg(done);
+      // });
+
+      it('image("png") creates PNG via canvas', function (done) {
+        this.timeout(50);
+        return Pablo.support && Pablo.support.image.png(done);
       });
 
-      desc = 'image("jpeg") creates JPEG via canvas';
-      it.skip(desc);
-      setResult(desc, function(done){
-        Pablo.support.image.jpeg(done);
+      it('image("jpeg") creates PNG via canvas', function (done) {
+        this.timeout(50);
+        return Pablo.support && Pablo.support.image.jpeg(done);
       });
     });
 
     describe('Support for toCanvas() method', function(){
       it.skip(test('can create <canvas>', 'getContext' in document.createElement('canvas')));
-      it.skip(test('can call toImage("svg")', Pablo.support.image.svg));
+      it.skip(test('can call toImage("svg")', Pablo.support && Pablo.support.image.svg));
     });
 
     describe('Support for download() method', function(){
       it.skip(test('document.createEvent', 'createEvent' in document));
       it.skip(test('HTML <a> elements have "download" attribute', 'download' in document.createElement('a')));
-      it.skip(test('can call dataUrl()', Pablo.support.dataUrl));
+      it.skip(test('can call dataUrl()', Pablo.support && Pablo.support.dataUrl));
     });
 
     describe('Alternative native APIs for download() URL creation', function(){
@@ -222,7 +249,7 @@
   // INCOMPATIBLE BROWSER - stop here
 
   if (!Pablo.isSupported){
-    return;
+    // return;
   }
 
 
@@ -1563,7 +1590,7 @@
         });
 
 
-        if (Pablo.support.css.transform){
+        if (Pablo.support && Pablo.support.css.transform){
           describe('.transformCss()', function () {
             var value = 'translate(50px, 10px) scale(0.5) rotate(45deg)';
 
@@ -1797,7 +1824,7 @@
         }
 
 
-        if (Pablo.support.css.transition){
+        if (Pablo.support && Pablo.support.css.transition){
           describe('.transition()', function () {
             var value = 'opacity 1s, fill 200ms ease-in 4s';
 
@@ -2885,7 +2912,7 @@
             expect(arr[1]).to.eql([0.5]);
           });
 
-          if (Pablo.support.css.transform){
+          if (Pablo.support && Pablo.support.css.transform){
             it('.pluck(\'transformCss\', property) should return an array of transform values for each element in the collection', function () {
               var subject = Pablo([Pablo.rect(), Pablo.ellipse()]),
                   arr;
@@ -2900,7 +2927,7 @@
             });
           }
 
-          if (Pablo.support.css.transition){
+          if (Pablo.support && Pablo.support.css.transition){
             it('.pluck(\'transition\', property) should return an array of transform values for each element in the collection', function () {
               var subject = Pablo([Pablo.rect(), Pablo.ellipse()]),
                   arr;
@@ -4255,7 +4282,7 @@
           });
       });
 
-      if (Pablo.support.markup){
+      if (Pablo.support && Pablo.support.markup){
         // There was a bug in WebKit where namespace prefixes are omitted in markup output
         // WebKit bug report [FIXED]: https://bugs.webkit.org/show_bug.cgi?id=79586
         // Chromium bug report: http://code.google.com/p/chromium/issues/detail?id=88295
@@ -4463,12 +4490,16 @@
     });
 
     describe('.toImage("svg")', function(){
+      if (!('toImage' in Pablo.fn)) {
+        return;
+      }
+
       var subject1 = Pablo.svg(),
           subject2 = Pablo.rect({width:1,height:1}),
           img1 = subject1.toImage('svg'),
           img2 = subject2.toImage('svg');
 
-      if (Pablo.support.image.svg){
+      if (Pablo.support && Pablo.support.image.svg){
         it('.toImage("svg") returns a collection containing an HTML image element', function(){
           expect(Pablo.isPablo(img1)).to.be.true;
           expect(Pablo.isPablo(img2)).to.be.true;
@@ -4556,6 +4587,10 @@
     });
 
     describe('.toCanvas()', function(){
+      if (!('toCanvas' in Pablo.fn)) {
+        return;
+      }
+      
       var existingCanvas = document.createElement('canvas'),
           subject1 = Pablo.svg(),
           subject2 = Pablo.rect({width:1,height:1}),

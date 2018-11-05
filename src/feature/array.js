@@ -1,0 +1,13 @@
+import '../fn/push';
+import '../fn/pop';
+import '../fn/shift';
+import '../fn/slice';
+import '../fn/splice';
+import '../fn/reverse';
+import '../fn/sort';
+import '../fn/concat';
+import '../fn/unshift';
+import '../fn/toArray';
+import '../fn/map';
+import '../fn/forEach';
+import '../fn/join';

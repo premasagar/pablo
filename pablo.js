@@ -2183,6 +2183,7 @@
                     }
 
                     transitionSuffixRegex = new RegExp('\\w[^,]*$');
+                    
                     function merge(collection, i, list, transitions){
                         return mergeItemsWithList(collection, i, list, transitions, regexGenerator, stringifyValues, ',', transitionSuffixRegex, resolveNames);
                     }
@@ -3212,15 +3213,15 @@
         el.insertBefore(insertEl, el.firstChild);
     }
 
-    function before(el, toInsert){
+    function before(el, insertEl){
         if (el.parentNode){
-            el.parentNode.insertBefore(toInsert, el);
+            el.parentNode.insertBefore(insertEl, el);
         }
     }
 
-    function after(el, toInsert){
+    function after(el, insertEl){
         if (el.parentNode){
-            el.parentNode.insertBefore(toInsert, el.nextSibling);
+            el.parentNode.insertBefore(insertEl, el.nextSibling);
         }
     }
 
